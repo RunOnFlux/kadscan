@@ -42,6 +42,7 @@ const subscriptionQuery = `
         totalCount
       }
       chainId
+      creationTime
     }
   }
 `

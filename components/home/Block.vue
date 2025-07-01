@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { format } from 'date-fns'
+import { formatDistanceToNowStrict } from 'date-fns'
+import { computed } from 'vue';
 
 const props = defineProps<{
   height: number,
-  chainId: number,
   chainCount: number,
   totalTransactions: number,
   createdAt: any,
@@ -11,7 +11,10 @@ const props = defineProps<{
 
 const status = 'success'
 
-const createdAt = useState('date', () => format(new Date(props.createdAt), 'dd MMM y HH:mm:ss'));
+const timeAgo = computed(() => {
+  return formatDistanceToNowStrict(new Date(props.createdAt), { addSuffix: true });
+});
+
 </script>
 
 <template>
@@ -28,7 +31,7 @@ const createdAt = useState('date', () => format(new Date(props.createdAt), 'dd M
     </NuxtLink>
 
     <div
-      class="flex xl:flex-col gap-4 grow xl:min-w-[150px]"
+      class="flex xl:flex-col gap-1 grow xl:min-w-[150px]"
     >
       <Value
         isLink
@@ -37,31 +40,14 @@ const createdAt = useState('date', () => format(new Date(props.createdAt), 'dd M
         :to="`/blocks/${props.height}`"
       />
 
-      <Value
-        label="Chain"
-        :value="props.chainId"
-      />
+      <span class="text-sm text-font-500">{{ timeAgo }}</span>
     </div>
 
     <div
-      class="flex xl:flex-col gap-4 xl:mx-auto grow"
+      class="flex flex-col gap-1 text-sm ml-auto text-right"
     >
-      <Value
-        :label="`Chains ${props.chainCount}/20`"
-      />
-       <Value
-        label="Transactions"
-        :value="totalTransactions"
-        class="!flex-row flex-grow xl:w-full"
-      />
-    </div>
-
-    <div
-      class="flex flex-row-reverse justify-between w-full xl:w-auto xl:justify-start xl:flex-col items-end gap-4 xl:ml-auto"
-    >
-      <Value
-        :value="createdAt"
-      />
+      <span class="text-font-500">Chains {{ props.chainCount }}/20</span>
+      <span class="text-font-450">{{ props.totalTransactions }} Transactions</span>
     </div>
   </div>
 </template>

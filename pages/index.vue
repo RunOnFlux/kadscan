@@ -69,7 +69,7 @@ watch(newBlocks, (latestBlocks) => {
         const newGroup = {
           height: block.height,
           chains: new Map([[block.chainId, block]]),
-          createdAt: new Date().toISOString(), // Approximate time
+          createdAt: block.creationTime,
           totalTransactions: block.transactions?.totalCount || 0,
           displayChainId: block.chainId,
         };
@@ -83,7 +83,7 @@ watch(newBlocks, (latestBlocks) => {
         const newGroup = {
           height: block.height,
           chains: new Map([[block.chainId, block]]),
-          createdAt: new Date().toISOString(), // Approximate time
+          createdAt: block.creationTime,
           totalTransactions: block.transactions?.totalCount || 0,
           displayChainId: block.chainId,
         };
