@@ -174,7 +174,7 @@ watch(newBlocks, (latestBlocks) => {
       class="grid lg:grid-cols-1 gap-4 lg:gap-6"
     >
       <HomeList
-        label="Recent Blocks"
+        label="Latest Blocks"
         path="/blocks"
       >
         <HomeBlock

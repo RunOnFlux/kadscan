@@ -13,7 +13,7 @@ const props = defineProps<{
       <span
         class="text-base font-semibold text-[#fafafa]"
       >
-        {{ label === 'Recent Blocks' ? 'Latest Blocks' : label }}
+        {{ label }}
       </span>
     </div>
 
