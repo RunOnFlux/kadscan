@@ -49,13 +49,17 @@ const timeAgo = computed(() => {
 
     <div class="flex items-center justify-between w-2/3">
         <div class="text-sm">
-          <div class="text-[#f5f5f5]">
-            Synced Chains {{ props.chainCount }}/20
-          </div>
+          <Tooltip value="Amount of Chains included in this Block">
+            <div class="text-[#f5f5f5]">
+              Synced Chains {{ props.chainCount }}/20
+            </div>
+          </Tooltip>
           <div>
-            <NuxtLink to="#" class="text-[#6ab5db] hover:text-[#9ccee7]">
-              {{ props.totalTransactions }} {{ props.totalTransactions === 1 ? 'Transaction' : 'Transactions' }}
-            </NuxtLink>
+            <Tooltip value="Transactions in this block">
+              <NuxtLink to="#" class="text-[#6ab5db] hover:text-[#9ccee7]">
+                {{ props.totalTransactions }} {{ props.totalTransactions === 1 ? 'Transaction' : 'Transactions' }}
+              </NuxtLink>
+            </Tooltip>
           </div>
         </div>
 
