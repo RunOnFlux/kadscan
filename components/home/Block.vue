@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { formatDistanceToNowStrict } from 'date-fns'
-import { computed } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
+import Tooltip from '../Tooltip.vue';
 
 const props = defineProps<{
   height: number,
@@ -9,7 +10,21 @@ const props = defineProps<{
   createdAt: any,
 }>()
 
+const now = ref(new Date());
+let interval: any;
+
+onMounted(() => {
+  interval = setInterval(() => {
+    now.value = new Date();
+  }, 1000);
+});
+
+onUnmounted(() => {
+  clearInterval(interval);
+});
+
 const timeAgo = computed(() => {
+  const time = now.value;
   return formatDistanceToNowStrict(new Date(props.createdAt), { addSuffix: true });
 });
 
@@ -35,18 +50,20 @@ const timeAgo = computed(() => {
     <div class="flex items-center justify-between w-2/3">
         <div class="text-sm">
           <div class="text-[#f5f5f5]">
-            Chains {{ props.chainCount }}/20
+            Synced Chains {{ props.chainCount }}/20
           </div>
           <div>
             <NuxtLink to="#" class="text-[#6ab5db] hover:text-[#9ccee7]">
-              {{ props.totalTransactions }} Transactions
+              {{ props.totalTransactions }} {{ props.totalTransactions === 1 ? 'Transaction' : 'Transactions' }}
             </NuxtLink>
           </div>
         </div>
 
-      <div class="hidden sm:block text-xs text-gray-400 border border-gray-600 bg-gray-800 rounded-md px-2 py-1">
-        0.0 KDA
-      </div>
+      <Tooltip value="Block Reward">
+        <div class="hidden sm:block text-[11px] text-[#f5f5f5] border border-gray-600 bg-transparent rounded-md px-2 py-1">
+          0.0 KDA
+        </div>
+      </Tooltip>
     </div>
   </div>
 </template>
