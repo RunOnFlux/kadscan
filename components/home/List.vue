@@ -6,37 +6,29 @@ const props = defineProps<{
 </script>
 
 <template>
-  <Container>
+  <div class="bg-[#111111] border border-gray-700 rounded-lg">
     <div
-      class="flex justify-between items-center pb-2 lg:pb-4 border-b border-b-gray-300"
+      class="px-6 py-4 border-b border-gray-700"
     >
       <span
-        class="text-lg text-font-400 font-semibold leading-[26px] block lg:leading-[25.2px]"
+        class="text-base font-semibold text-[#fafafa]"
       >
-        {{ label }}
+        {{ label === 'Recent Blocks' ? 'Latest Blocks' : label }}
       </span>
-
-      <NuxtLink
-        v-if="path"
-        :to="path"
-        class="flex items-center"
-      >
-        <Button
-          label="View All"
-          size="medium"
-          class="hidden lg:flex"
-        />
-
-        <Button
-          label="View All"
-          size="small"
-          class="lg:hidden"
-        />
-      </NuxtLink>
     </div>
 
     <div>
       <slot />
     </div>
-  </Container>
+
+    <div class="px-6 py-4 text-center bg-[#111111] rounded-b-lg">
+      <NuxtLink
+        v-if="path"
+        :to="path"
+        class="text-sm font-semibold text-[#b8b8b8] hover:text-white"
+      >
+        VIEW ALL BLOCKS &rarr;
+      </NuxtLink>
+    </div>
+  </div>
 </template>
