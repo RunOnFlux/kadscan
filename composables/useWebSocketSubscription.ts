@@ -49,9 +49,10 @@ const startSubscription = () => {
       {
         next: (result: any) => {
           if (result.data?.newBlocks && Array.isArray(result.data.newBlocks)) {
-            result.data.newBlocks.forEach((block: any) => {
-              newBlocks.value.unshift(block)
-            })
+            newBlocks.value.unshift(...result.data.newBlocks);
+            if (newBlocks.value.length > 100) {
+              newBlocks.value.length = 100;
+            }
           }
           isConnected.value = true
         },
@@ -82,8 +83,8 @@ export const useWebSocketSubscription = () => {
   onUnmounted(() => {
     // We might not want to automatically unsubscribe on unmount
     // if we want the subscription to be persistent across the app.
-    // stopSubscription()
-    // client.dispose()
+    stopSubscription()
+    client.dispose()
   })
 
   return {
