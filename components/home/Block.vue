@@ -2,25 +2,14 @@
 import { format } from 'date-fns'
 
 const props = defineProps<{
-  parent: string,
-  nodeId: string,
-  chainId: number,
   height: number,
-  hash: string,
+  chainId: number,
+  chainCount: number,
+  totalTransactions: number,
   createdAt: any,
-  minerData: string,
-  coinbase: string,
-  transactionsCount: string,
-  // transactionsByBlockId: any,
 }>()
 
-const status = computed((): 'success' | 'error' => {
-  return props.parent ? 'success' : 'error'
-})
-
-const miner = useBlockMiner(props.minerData)
-
-const coinbase = useBlockMiner(props.coinbase)
+const status = 'success'
 
 const createdAt = useState('date', () => format(new Date(props.createdAt), 'dd MMM y HH:mm:ss'));
 </script>
@@ -43,10 +32,9 @@ const createdAt = useState('date', () => format(new Date(props.createdAt), 'dd M
     >
       <Value
         isLink
-        :value="shortenAddress(miner.account)"
-        label="Miner"
-        :to="`/account/${miner.account}`"
-        class="xl:w-full "
+        label="Block"
+        :value="props.height"
+        :to="`/blocks/chain/${props.chainId}/height/${props.height}`"
       />
 
       <Value
@@ -59,27 +47,18 @@ const createdAt = useState('date', () => format(new Date(props.createdAt), 'dd M
       class="flex xl:flex-col gap-4 xl:mx-auto grow"
     >
       <Value
-        isLink
-        label="Block"
-        :value="props.height"
-        :to="`/blocks/chain/${props.chainId}/height/${props.height}`"
+        :label="`Chains ${props.chainCount}/20`"
       />
-
-      <Value
-        label="Fees"
-        :value="coinbase.events[0].params[2].toFixed(4) + ' KDA'"
+       <Value
+        label="Transactions"
+        :value="totalTransactions"
+        class="!flex-row flex-grow xl:w-full"
       />
     </div>
 
     <div
       class="flex flex-row-reverse justify-between w-full xl:w-auto xl:justify-start xl:flex-col items-end gap-4 xl:ml-auto"
     >
-      <Value
-        label="Transactions"
-        :value="transactionsCount"
-        class="!flex-row flex-grow xl:w-full"
-      />
-
       <Value
         :value="createdAt"
       />

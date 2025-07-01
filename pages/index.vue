@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { gql } from 'nuxt-graphql-request/utils';
-import { onMounted, watch } from 'vue';
+import { onMounted, watch, ref, computed } from 'vue';
 import { useWebSocketSubscription } from '~/composables/useWebSocketSubscription';
 
 definePageMeta({
@@ -17,26 +16,7 @@ const defaultChartData = {
   total_volumes: []
 }
 
-const { $graphql, $coingecko } = useNuxtApp();
-
-const query = gql`
-  query GetLastBlockAndTransaction {
-    allBlocks(last: 5) {
-      nodes {
-        chainId
-        parent
-        createdAt
-        hash
-        height
-        id
-        nodeId
-        coinbase
-        minerData
-        transactionsCount
-      }
-    }
-  }
-`
+const { $coingecko } = useNuxtApp();
 
 const { data: cgData, status: cgStatus, error: cgError } = await useAsyncData('home-cg-etl', async () => {
   const [
@@ -60,20 +40,15 @@ const { data: cgData, status: cgStatus, error: cgError } = await useAsyncData('h
   lazy: true,
 });
 
-const { data, error, status } = await useAsyncData('home-transactions-blocks', async () => {
-  const [
-    apiRes,
-  ] = await Promise.all([
-    $graphql.default.request(query),
-  ]);
+const displayedBlockGroups = ref(new Map());
 
-  return {
-    ...apiRes
-  };
-}, {
-  // remove
-  lazy: true,
+const sortedBlockGroups = computed(() => {
+  return Array.from(displayedBlockGroups.value.values()).sort((a, b) => b.height - a.height);
 });
+
+function updateTotalTransactions(blockGroup: any) {
+  blockGroup.totalTransactions = Array.from(blockGroup.chains.values()).reduce((sum, chain: any) => sum + (chain.transactions?.totalCount || 0), 0);
+}
 
 const { startSubscription, newBlocks } = useWebSocketSubscription();
 
@@ -82,25 +57,45 @@ onMounted(() => {
 });
 
 watch(newBlocks, (latestBlocks) => {
-  if (data.value?.allBlocks?.nodes) {
-    const newBlock = latestBlocks[0];
+  latestBlocks.forEach((block: any) => {
+    let blockToUpdate = displayedBlockGroups.value.get(block.height);
 
-    if (newBlock) {
-      const existingHashes = new Set(data.value.allBlocks.nodes.map((b: any) => b.hash));
-      if (!existingHashes.has(newBlock.hash)) {
-        const blockToAdd = {
-            ...newBlock,
-            createdAt: newBlock.creationTime,
-            coinbase: newBlock.minerAccount?.accountName,
-            transactionsCount: newBlock.transactions?.totalCount || 0,
-            parent: '',
-            nodeId: '',
-            minerData: '',
+    if (blockToUpdate) {
+      blockToUpdate.chains.set(block.chainId, block);
+      updateTotalTransactions(blockToUpdate);
+    } else {
+      const heights = Array.from(displayedBlockGroups.value.keys());
+      if (heights.length === 0) { // First block ever
+        const newGroup = {
+          height: block.height,
+          chains: new Map([[block.chainId, block]]),
+          createdAt: new Date().toISOString(), // Approximate time
+          totalTransactions: block.transactions?.totalCount || 0,
+          displayChainId: block.chainId,
         };
-        data.value.allBlocks.nodes.unshift(blockToAdd);
+        displayedBlockGroups.value.set(block.height, newGroup);
+        return;
+      }
+
+      const minHeight = Math.min(...heights);
+
+      if (block.height > minHeight || displayedBlockGroups.value.size < 6) {
+        const newGroup = {
+          height: block.height,
+          chains: new Map([[block.chainId, block]]),
+          createdAt: new Date().toISOString(), // Approximate time
+          totalTransactions: block.transactions?.totalCount || 0,
+          displayChainId: block.chainId,
+        };
+        displayedBlockGroups.value.set(block.height, newGroup);
+
+        if (displayedBlockGroups.value.size > 6) {
+            const sortedHeights = Array.from(displayedBlockGroups.value.keys()).sort((a,b) => a-b);
+            displayedBlockGroups.value.delete(sortedHeights[0]);
+        }
       }
     }
-  }
+  });
 }, { deep: true });
 </script>
 
@@ -168,47 +163,30 @@ watch(newBlocks, (latestBlocks) => {
     </Container>
 
     <div
-      v-if="status === 'pending'"
-      class="grid lg:grid-cols-2 gap-4 lg:gap-6"
+      v-if="sortedBlockGroups.length === 0"
+      class="grid lg:grid-cols-1 gap-4 lg:gap-6"
     >
-      <SkeletonHomeTransactionList />
-
       <SkeletonHomeBlockList />
     </div>
 
     <div
-      v-if="status !== 'error' && data"
+      v-else
       class="grid lg:grid-cols-1 gap-4 lg:gap-6"
     >
-      <!-- Temporarily disabled transactions section -->
-      <!--
-      <HomeList
-        label="Recent Transactions"
-        path="/transactions"
-      >
-        <HomeTransaction
-          v-bind="transaction"
-          :key="transaction.requestKey"
-          v-for="transaction in data?.allTransactions?.nodes ?? []"
-        />
-      </HomeList>
-      -->
-
       <HomeList
         label="Recent Blocks"
         path="/blocks"
       >
         <HomeBlock
-          v-bind="block"
-          :key="block.hash"
-          v-for="block in data?.allBlocks?.nodes ?? []"
+          :key="blockGroup.height"
+          :height="blockGroup.height"
+          :chain-id="blockGroup.displayChainId"
+          :chain-count="blockGroup.chains.size"
+          :total-transactions="blockGroup.totalTransactions"
+          :created-at="blockGroup.createdAt"
+          v-for="blockGroup in sortedBlockGroups"
         />
       </HomeList>
     </div>
-
-    <Error
-      v-else-if="status === 'error'"
-      :error="error"
-    />
   </div>
 </template>
