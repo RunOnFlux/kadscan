@@ -19,7 +19,7 @@ const createdAt = useState('date', () => format(new Date(props.createdAt), 'dd M
     class="flex flex-wrap items-center gap-3 xl:gap-4 py-3 lg:h-[111px] xl:max-h-[82px] border-b border-b-gray-300"
   >
     <NuxtLink
-      :to="`/blocks/chain/${props.chainId}/height/${props.height}`"
+      :to="`/blocks/${props.height}`"
       class="mb-auto xl:mb-0"
     >
       <IconStatus
@@ -34,7 +34,7 @@ const createdAt = useState('date', () => format(new Date(props.createdAt), 'dd M
         isLink
         label="Block"
         :value="props.height"
-        :to="`/blocks/chain/${props.chainId}/height/${props.height}`"
+        :to="`/blocks/${props.height}`"
       />
 
       <Value
