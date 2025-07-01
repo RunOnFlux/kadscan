@@ -71,7 +71,6 @@ watch(newBlocks, (latestBlocks) => {
           chains: new Map([[block.chainId, block]]),
           createdAt: block.creationTime,
           totalTransactions: block.transactions?.totalCount || 0,
-          displayChainId: block.chainId,
         };
         displayedBlockGroups.value.set(block.height, newGroup);
         return;
@@ -85,7 +84,6 @@ watch(newBlocks, (latestBlocks) => {
           chains: new Map([[block.chainId, block]]),
           createdAt: block.creationTime,
           totalTransactions: block.transactions?.totalCount || 0,
-          displayChainId: block.chainId,
         };
         displayedBlockGroups.value.set(block.height, newGroup);
 
@@ -180,7 +178,6 @@ watch(newBlocks, (latestBlocks) => {
         <HomeBlock
           :key="blockGroup.height"
           :height="blockGroup.height"
-          :chain-id="blockGroup.displayChainId"
           :chain-count="blockGroup.chains.size"
           :total-transactions="blockGroup.totalTransactions"
           :created-at="blockGroup.createdAt"
