@@ -52,7 +52,77 @@ function updateTotalTransactions(blockGroup: any) {
 
 const { startSubscription, newBlocks } = useWebSocketSubscription();
 
-onMounted(() => {
+const completedBlockHeightsQuery = `
+  query CompletedBlockHeights($heightCount: Int, $completedHeights: Boolean, $first: Int) {
+    completedBlockHeights(heightCount: $heightCount, completedHeights: $completedHeights, first: $first) {
+      edges {
+        node {
+          chainId
+          creationTime
+          height
+          transactions {
+            totalCount
+          }
+        }
+      }
+    }
+  }
+`;
+
+const fetchInitialBlocks = async () => {
+  const GRAPHQL_URL = 'https://mainnet.kadindexer.io/graphql';
+
+  try {
+    const response = await $fetch(GRAPHQL_URL, {
+      method: 'POST',
+      body: {
+        query: completedBlockHeightsQuery,
+        variables: {
+          heightCount: 6,
+          completedHeights: false,
+          first: 120, // 6 heights * 20 chains = 120
+        },
+      },
+    });
+
+    const responseData = response?.data?.completedBlockHeights;
+
+    if (responseData && responseData.edges) {
+      responseData.edges.forEach((edge) => {
+        const block = edge.node;
+        let blockToUpdate = displayedBlockGroups.value.get(block.height);
+
+        if (blockToUpdate) {
+          blockToUpdate.chains.set(block.chainId, block);
+          updateTotalTransactions(blockToUpdate);
+        } else {
+          const newGroup = {
+            height: block.height,
+            chains: new Map([[block.chainId, block]]),
+            createdAt: block.creationTime,
+            totalTransactions: block.transactions?.totalCount || 0,
+          };
+          displayedBlockGroups.value.set(block.height, newGroup);
+        }
+      });
+
+      const sortedGroups = Array.from(displayedBlockGroups.value.values()).sort((a, b) => b.height - a.height);
+      if (sortedGroups.length > 6) {
+        const cutoffHeight = sortedGroups[5].height;
+        for (const height of displayedBlockGroups.value.keys()) {
+          if (height < cutoffHeight) {
+            displayedBlockGroups.value.delete(height);
+          }
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Failed to fetch initial blocks:', e);
+  }
+};
+
+onMounted(async () => {
+  await fetchInitialBlocks();
   startSubscription();
 });
 

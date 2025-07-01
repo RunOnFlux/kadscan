@@ -3,9 +3,7 @@ import { ref, onUnmounted, readonly } from 'vue'
 
 let client: any = null
 
-// Only create client on the client side (browser)
 if (process.client) {
-  console.log('Creating WebSocket client...')
   client = createClient({
     url: 'wss://mainnet.kadindexer.io/graphql',
     connectionParams: () => {
@@ -22,9 +20,6 @@ const subscriptionQuery = `
   subscription Events {
     newBlocks {
       height
-      minerAccount {
-        accountName
-      }
       transactions {
         totalCount
       }
@@ -50,8 +45,8 @@ const startSubscription = () => {
         next: (result: any) => {
           if (result.data?.newBlocks && Array.isArray(result.data.newBlocks)) {
             newBlocks.value.unshift(...result.data.newBlocks);
-            if (newBlocks.value.length > 100) {
-              newBlocks.value.length = 100;
+            if (newBlocks.value.length > 10) {
+              newBlocks.value.length = 10;
             }
           }
           isConnected.value = true
