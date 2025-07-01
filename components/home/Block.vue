@@ -1,88 +1,73 @@
 <script setup lang="ts">
-import { format } from 'date-fns'
+import { formatDistanceToNowStrict } from 'date-fns'
+import { computed, ref, onMounted, onUnmounted } from 'vue';
+import Tooltip from '../Tooltip.vue';
 
 const props = defineProps<{
-  parent: string,
-  nodeId: string,
-  chainId: number,
   height: number,
-  hash: string,
+  chainCount: number,
+  totalTransactions: number,
   createdAt: any,
-  minerData: string,
-  coinbase: string,
-  transactionsCount: string,
-  // transactionsByBlockId: any,
 }>()
 
-const status = computed((): 'success' | 'error' => {
-  return props.parent ? 'success' : 'error'
-})
+const now = ref(new Date());
+let interval: any;
 
-const miner = useBlockMiner(props.minerData)
+onMounted(() => {
+  interval = setInterval(() => {
+    now.value = new Date();
+  }, 1000);
+});
 
-const coinbase = useBlockMiner(props.coinbase)
+onUnmounted(() => {
+  clearInterval(interval);
+});
 
-const createdAt = useState('date', () => format(new Date(props.createdAt), 'dd MMM y HH:mm:ss'));
+const timeAgo = computed(() => {
+  const time = now.value;
+  return formatDistanceToNowStrict(new Date(props.createdAt), { addSuffix: true });
+});
+
 </script>
 
 <template>
-  <div
-    class="flex flex-wrap items-center gap-3 xl:gap-4 py-3 lg:h-[111px] xl:max-h-[82px] border-b border-b-gray-300"
-  >
-    <NuxtLink
-      :to="`/blocks/chain/${props.chainId}/height/${props.height}`"
-      class="mb-auto xl:mb-0"
-    >
-      <IconStatus
-        :status="status"
-      />
-    </NuxtLink>
-
-    <div
-      class="flex xl:flex-col gap-4 grow xl:min-w-[150px]"
-    >
-      <Value
-        isLink
-        :value="shortenAddress(miner.account)"
-        label="Miner"
-        :to="`/account/${miner.account}`"
-        class="xl:w-full "
-      />
-
-      <Value
-        label="Chain"
-        :value="props.chainId"
-      />
+  <div class="flex items-center justify-between px-6 py-4 border-b border-gray-700">
+    <div class="flex items-center w-1/3 gap-4">
+      <div class="bg-[#151515] rounded-md p-3">
+        <svg class="w-6 h-6 text-gray-400" width="800px" height="800px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" version="1.1" fill="none" stroke="#b0b0b0" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+          <polygon points="1.75 4.75 8 1.25 14.25 4.75 14.25 11.25 8 14.75 1.75 11.25"/>
+          <path d="m8 14v-6m5.75-3-5.75 3m-6-3 6 3"/>
+        </svg>
+      </div>
+      <div>
+        <NuxtLink :to="`/blocks/${props.height}`" class="text-[#6ab5db] hover:text-[#9ccee7]">
+          {{ props.height }}
+        </NuxtLink>
+        <div class="text-xs text-[#bbbbbb]">{{ timeAgo }}</div>
+      </div>
     </div>
 
-    <div
-      class="flex xl:flex-col gap-4 xl:mx-auto grow"
-    >
-      <Value
-        isLink
-        label="Block"
-        :value="props.height"
-        :to="`/blocks/chain/${props.chainId}/height/${props.height}`"
-      />
+    <div class="flex items-center justify-between w-2/3">
+        <div class="text-sm">
+          <Tooltip value="Amount of Chains included in this Block">
+            <div class="text-[#f5f5f5]">
+              Synced Chains {{ props.chainCount }}/20
+            </div>
+          </Tooltip>
+          <div>
+            <Tooltip value="Transactions in this block">
+              <NuxtLink to="#" class="text-[#6ab5db] hover:text-[#9ccee7]">
+                {{ props.totalTransactions }} {{ props.totalTransactions === 1 ? 'Transaction' : 'Transactions' }}
+              </NuxtLink>
+            </Tooltip>
+          </div>
+        </div>
 
-      <Value
-        label="Fees"
-        :value="coinbase.events[0].params[2].toFixed(4) + ' KDA'"
-      />
-    </div>
-
-    <div
-      class="flex flex-row-reverse justify-between w-full xl:w-auto xl:justify-start xl:flex-col items-end gap-4 xl:ml-auto"
-    >
-      <Value
-        label="Transactions"
-        :value="transactionsCount"
-        class="!flex-row flex-grow xl:w-full"
-      />
-
-      <Value
-        :value="createdAt"
-      />
+      <Tooltip value="Block Reward">
+        <div class="hidden sm:block text-[11px] text-[#f5f5f5] border border-gray-600 bg-transparent rounded-md px-2 py-1">
+          0.0 KDA
+        </div>
+      </Tooltip>
     </div>
   </div>
 </template>

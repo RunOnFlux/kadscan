@@ -1,91 +1,42 @@
 <script setup lang="ts">
-withDefaults(
-  defineProps<{
+import { ref } from 'vue';
+
+defineProps<{
   value?: string,
-  }>(),
-  {
-    value: 'Lorem ipsum dollor'
-  }
-)
+}>();
 
-const open = ref(false)
-
-const [trigger, container] = usePopper({
-  placement: 'top'
-})
-
-let openTimeout: NodeJS.Timeout | null = null
-let closeTimeout: NodeJS.Timeout | null = null
-
-const onMouseEnter = () => {
-  if (closeTimeout) {
-    clearTimeout(closeTimeout)
-    closeTimeout = null
-  }
-
-  if (open.value) {
-    return
-  }
-
-  openTimeout = openTimeout || setTimeout(() => {
-    open.value = true
-    openTimeout = null
-  }, 140)
-}
-
-const onMouseLeave = () => {
-  if (openTimeout) {
-    clearTimeout(openTimeout)
-    openTimeout = null
-  }
-
-  if (!open.value) {
-    return
-  }
-  closeTimeout = closeTimeout || setTimeout(() => {
-    open.value = false
-    closeTimeout = null
-  }, 140)
-}
+const isVisible = ref(false);
 </script>
 
 <template>
   <div
-    ref="trigger"
-    @mouseenter="onMouseEnter"
-    @mouseleave="onMouseLeave"
+    class="relative inline-block"
+    @mouseenter="isVisible = true"
+    @mouseleave="isVisible = false"
   >
-    <div
-      v-if="open"
-      ref="container"
-    >
+    <slot />
+    <Transition name="fade">
       <div
-        class="
-          w-max
-          max-w-[336px]
-          text-center
-          p-2
-          bg-gray-400 rounded grid place-items-center
-        "
+        v-if="isVisible"
+        class="absolute z-10 bottom-full left-1/2 -translate-x-1/2 mb-2 w-max"
       >
-        <span
-          class="text-white text-xs leading-[19.6px] relative font-[500]"
-        >
+        <div class="bg-[#313131] text-[#e5e5e5] text-xs px-2 py-1 rounded-md shadow-lg relative">
           {{ value }}
-        </span>
+          <div class="absolute w-3 h-3 bg-[#313131] rotate-45 left-1/2 -translate-x-1/2 bottom-[-4px]"></div>
+        </div>
       </div>
-
-      <div
-        class="hidden md:block w-[15px] h-[15px] bg-gray-400 rotate-45 z-[-1] absolute bottom-[-4px] left-1/2 -translate-x-1/2"
-      />
-    </div>
-
-    <div
-      class="group cursor-pointer"
-    >
-      <IconInformation
-        class="group-hover:text-kadscan-500 text-font-500"
-      />
-    </div>
+    </Transition>
   </div>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { gql } from 'nuxt-graphql-request/utils';
+import { useBlockFeed } from '~/composables/useBlockFeed';
 
 definePageMeta({
   layout: 'app',
@@ -15,41 +15,7 @@ const defaultChartData = {
   total_volumes: []
 }
 
-const { $graphql, $coingecko } = useNuxtApp();
-
-const query = gql`
-  query GetLastBlockAndTransaction {
-    allTransactions(last: 5) {
-      nodes {
-        chainId
-        createdAt
-        id
-        metadata
-        nodeId
-        numEvents
-        requestkey
-        gasprice
-        result
-        sender
-        gas
-      }
-    }
-    allBlocks(last: 5) {
-      nodes {
-        chainId
-        parent
-        createdAt
-        hash
-        height
-        id
-        nodeId
-        coinbase
-        minerData
-        transactionsCount
-      }
-    }
-  }
-`
+const { $coingecko } = useNuxtApp();
 
 const { data: cgData, status: cgStatus, error: cgError } = await useAsyncData('home-cg-etl', async () => {
   const [
@@ -73,20 +39,7 @@ const { data: cgData, status: cgStatus, error: cgError } = await useAsyncData('h
   lazy: true,
 });
 
-const { data, error, status } = await useAsyncData('home-transactions-blocks', async () => {
-  const [
-    apiRes,
-  ] = await Promise.all([
-    $graphql.default.request(query),
-  ]);
-
-  return {
-    ...apiRes
-  };
-}, {
-  // remove
-  lazy: true,
-});
+const { sortedBlockGroups } = useBlockFeed();
 </script>
 
 <template>
@@ -153,44 +106,29 @@ const { data, error, status } = await useAsyncData('home-transactions-blocks', a
     </Container>
 
     <div
-      v-if="status === 'pending'"
-      class="grid lg:grid-cols-2 gap-4 lg:gap-6"
+      v-if="sortedBlockGroups.length === 0"
+      class="grid lg:grid-cols-1 gap-4 lg:gap-6"
     >
-      <SkeletonHomeTransactionList />
-
       <SkeletonHomeBlockList />
     </div>
 
     <div
-      v-if="status !== 'error' && data"
-      class="grid lg:grid-cols-2 gap-4 lg:gap-6"
+      v-else
+      class="grid lg:grid-cols-1 gap-4 lg:gap-6"
     >
       <HomeList
-        label="Recent Transactions"
-        path="/transactions"
-      >
-        <HomeTransaction
-          v-bind="transaction"
-          :key="transaction.requestKey"
-          v-for="transaction in data?.allTransactions?.nodes ?? []"
-        />
-      </HomeList>
-
-      <HomeList
-        label="Recent Blocks"
+        label="Latest Blocks"
         path="/blocks"
       >
         <HomeBlock
-          v-bind="block"
-          :key="block.hash"
-          v-for="block in data?.allBlocks?.nodes ?? []"
+          :key="blockGroup.height"
+          :height="blockGroup.height"
+          :chain-count="blockGroup.chains.size"
+          :total-transactions="blockGroup.totalTransactions"
+          :created-at="blockGroup.createdAt"
+          v-for="blockGroup in sortedBlockGroups"
         />
       </HomeList>
     </div>
-
-    <Error
-      v-else-if="status === 'error'"
-      :error="error"
-    />
   </div>
 </template>
