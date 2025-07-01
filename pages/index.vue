@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { gql } from 'nuxt-graphql-request/utils';
+import { onMounted, watch } from 'vue';
+import { useWebSocketSubscription } from '~/composables/useWebSocketSubscription';
 
 definePageMeta({
   layout: 'app',
@@ -19,21 +21,6 @@ const { $graphql, $coingecko } = useNuxtApp();
 
 const query = gql`
   query GetLastBlockAndTransaction {
-    allTransactions(last: 5) {
-      nodes {
-        chainId
-        createdAt
-        id
-        metadata
-        nodeId
-        numEvents
-        requestkey
-        gasprice
-        result
-        sender
-        gas
-      }
-    }
     allBlocks(last: 5) {
       nodes {
         chainId
@@ -87,6 +74,34 @@ const { data, error, status } = await useAsyncData('home-transactions-blocks', a
   // remove
   lazy: true,
 });
+
+const { startSubscription, newBlocks } = useWebSocketSubscription();
+
+onMounted(() => {
+  startSubscription();
+});
+
+watch(newBlocks, (latestBlocks) => {
+  if (data.value?.allBlocks?.nodes) {
+    const newBlock = latestBlocks[0];
+
+    if (newBlock) {
+      const existingHashes = new Set(data.value.allBlocks.nodes.map((b: any) => b.hash));
+      if (!existingHashes.has(newBlock.hash)) {
+        const blockToAdd = {
+            ...newBlock,
+            createdAt: newBlock.creationTime,
+            coinbase: newBlock.minerAccount?.accountName,
+            transactionsCount: newBlock.transactions?.totalCount || 0,
+            parent: '',
+            nodeId: '',
+            minerData: '',
+        };
+        data.value.allBlocks.nodes.unshift(blockToAdd);
+      }
+    }
+  }
+}, { deep: true });
 </script>
 
 <template>
@@ -163,8 +178,10 @@ const { data, error, status } = await useAsyncData('home-transactions-blocks', a
 
     <div
       v-if="status !== 'error' && data"
-      class="grid lg:grid-cols-2 gap-4 lg:gap-6"
+      class="grid lg:grid-cols-1 gap-4 lg:gap-6"
     >
+      <!-- Temporarily disabled transactions section -->
+      <!--
       <HomeList
         label="Recent Transactions"
         path="/transactions"
@@ -175,6 +192,7 @@ const { data, error, status } = await useAsyncData('home-transactions-blocks', a
           v-for="transaction in data?.allTransactions?.nodes ?? []"
         />
       </HomeList>
+      -->
 
       <HomeList
         label="Recent Blocks"
