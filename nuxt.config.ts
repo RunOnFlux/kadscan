@@ -22,10 +22,13 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
+    kadindexerApiUrl:
+      process.env.API_URL_KADINDEXER ||
+      'https://api.mainnet.kadindexer.io/v1',
+    kadindexerApiKey: process.env.API_KEY_KADINDEXER,
     public: {
       CG_KEY: process.env.CG_KEY,
       CG_URL: process.env.CG_URL || "https://api.coingecko.com/api/v3",
-      API_URL: process.env.API_URL,
     },
   },
 
@@ -38,14 +41,9 @@ export default defineNuxtConfig({
         /**
          * The client endpoint url
          */
-        endpoint: process.env.API_URL || 'localhost:3000',
-
+        endpoint: "/api/graphql",
         options: {
           method: 'POST', // Default to `POST`
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Content-Type': 'application/json',
-          },
         },
       },
     },
