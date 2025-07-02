@@ -1,5 +1,5 @@
 import { ref, computed, onMounted, watch } from 'vue';
-import { useWebSocketSubscription } from '~/composables/useWebSocketSubscription';
+import { useBlockWss } from '~/composables/useBlockWss';
 
 /**
  * @description Manages the real-time block feed for the homepage.
@@ -33,7 +33,7 @@ export const useBlockFeed = () => {
     blockGroup.totalTransactions = Array.from(blockGroup.chains.values()).reduce((sum, chain: any) => sum + (chain.transactions?.totalCount || 0), 0);
   }
 
-  const { startSubscription, newBlocks } = useWebSocketSubscription();
+  const { startSubscription, newBlocks } = useBlockWss();
 
   const completedBlockHeightsQuery = `
     query CompletedBlockHeights($heightCount: Int, $completedHeights: Boolean, $first: Int) {
