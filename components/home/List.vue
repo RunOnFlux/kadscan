@@ -35,14 +35,12 @@ const emit = defineEmits(['customize'])
       <slot />
     </div>
 
-    <div class="px-6 py-4 text-center bg-[#151515] rounded-b-lg">
-      <NuxtLink
-        v-if="path"
-        :to="path"
-        class="text-sm font-semibold text-[#b8b8b8] hover:text-white"
-      >
-        {{ label.includes('Blocks') ? 'VIEW ALL BLOCKS' : 'VIEW ALL TRANSACTIONS' }} &rarr;
-      </NuxtLink>
-    </div>
+    <NuxtLink
+      v-if="path"
+      :to="path"
+      class="block w-full px-6 py-4 text-sm font-semibold text-center text-[#b8b8b8] hover:text-[#9ccee7] bg-[#151515] rounded-b-lg"
+    >
+      {{ label.includes('Blocks') ? 'VIEW ALL BLOCKS' : 'VIEW ALL TRANSACTIONS' }} &rarr;
+    </NuxtLink>
   </div>
 </template>
