@@ -5,9 +5,10 @@ import HomeList from '~/components/home/List.vue'
 <template>
   <HomeList
     label="Latests Blocks"
+    is-customizable
   >
     <div
-      v-for="n in 5"
+      v-for="n in 6"
       :key="`skeleton-recent-blocks-${n}`"
       class="flex animate-pulse items-center justify-between border-b border-gray-700 px-6 py-4"
     >
