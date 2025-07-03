@@ -57,7 +57,7 @@ const startSubscription = () => {
       {
         query: subscriptionQuery,
         variables: {
-            first: 6
+          first: 10
         }
       },
       {

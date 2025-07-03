@@ -51,9 +51,9 @@ export const useTransactionFeed = () => {
         body: {
           query: homeTransactionsQuery,
           variables: {
-            heightCount: 6,
+            heightCount: 1,
             completedHeights: false,
-            first: 10,
+            first: 6,
             transactionsFirst2: 10,
           },
         },
