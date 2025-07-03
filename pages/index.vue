@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useBlockFeed } from '~/composables/useBlockFeed';
 import { useTransactionFeed } from '~/composables/useTransactionFeed';
+import CustomizeModal from '~/components/customize/Modal.vue';
 
 definePageMeta({
   layout: 'app',
@@ -38,6 +39,27 @@ const { data: cgData, status: cgStatus, error: cgError } = await useAsyncData('h
 }, {
   // remove
   lazy: true,
+});
+
+const isCustomizeModalOpen = ref(false);
+
+watch(isCustomizeModalOpen, (isOpen) => {
+  const body = document.body;
+  if (isOpen) {
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    if (scrollbarWidth > 0) {
+      body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+    body.classList.add('overflow-hidden');
+  } else {
+    body.style.paddingRight = '';
+    body.classList.remove('overflow-hidden');
+  }
+});
+
+onUnmounted(() => {
+  document.body.style.paddingRight = '';
+  document.body.classList.remove('overflow-hidden');
 });
 
 const { sortedBlockGroups } = useBlockFeed();
@@ -124,6 +146,7 @@ const { sortedTransactionGroups } = useTransactionFeed();
           label="Latest Blocks"
           path="/blocks"
           :is-customizable="true"
+          @customize="isCustomizeModalOpen = true"
         >
           <HomeBlock
             :key="blockGroup.height"
@@ -149,6 +172,7 @@ const { sortedTransactionGroups } = useTransactionFeed();
           label="Latest Transactions"
           path="/transactions"
           :is-customizable="true"
+          @customize="isCustomizeModalOpen = true"
         >
           <HomeTransaction
             :key="transaction.hash"
@@ -162,5 +186,9 @@ const { sortedTransactionGroups } = useTransactionFeed();
         </HomeList>
       </div>
     </div>
+    <CustomizeModal
+      :is-open="isCustomizeModalOpen"
+      @close="isCustomizeModalOpen = false"
+    />
   </div>
 </template>
