@@ -7,11 +7,9 @@ const route = useRoute();
     class="h-screen flex flex-col items-center !font-sans"
   >
     <div
-      class="w-full bg-blue-400"
+      class="w-full bg-[#111111]"
     >
-      <div class="max-w-[1352px] mx-auto">
-        <HeaderTopbar/>
-      </div>
+      <HeaderTopbar/>
     </div>
 
     <div
