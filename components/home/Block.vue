@@ -49,8 +49,8 @@ const timeAgo = computed(() => {
     <div class="flex items-center justify-between w-2/3">
         <div class="text-sm">
           <Tooltip value="Amount of Chains included in this Block">
-            <div class="text-[#f5f5f5]">
-              Synced Chains {{ props.chainCount }}/20
+            <div class="text-[#bbbbbb]">
+              Synced Chains <span class="text-[#f5f5f5]">{{ props.chainCount }}/20</span>
             </div>
           </Tooltip>
           <div>

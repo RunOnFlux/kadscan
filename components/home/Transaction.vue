@@ -65,8 +65,8 @@ const formattedFee = computed(() => {
             </NuxtLink>
           </div>
         <div>
-          <div class="text-[#f5f5f5]">
-            Chain {{ props.chainId }}
+          <div class="text-[#bbbbbb]">
+            Chain <span class="text-[#f5f5f5]">{{ props.chainId }}</span>
           </div>
         </div>
       </div>
