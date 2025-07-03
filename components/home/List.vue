@@ -12,7 +12,7 @@ const emit = defineEmits(['customize'])
 
 <template>
   <div
-    class="bg-[#111111] border border-[#222222] rounded-lg shadow-[0_0_16px_rgba(255,255,255,0.05)]"
+    class="bg-[#111111] border border-[#222222] rounded-lg shadow-[0_0_20px_rgba(255,255,255,0.0625)]"
   >
     <div
       class="flex items-center justify-between p-4 border-b border-[#222222]"
