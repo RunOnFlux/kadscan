@@ -34,7 +34,7 @@ const timeAgo = computed(() => {
 
 const formattedFee = computed(() => {
   if (props.fee === 0) {
-    return '0.0';
+    return '0';
   }
   const feeStr = props.fee.toFixed(8);
   return feeStr.replace(/(\.\d*[1-9])0+$/, '$1').replace(/\.0+$/, '.0');
