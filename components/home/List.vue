@@ -13,10 +13,10 @@ const emit = defineEmits(['customize'])
 <template>
   <div class="bg-[#111111] border border-gray-700 rounded-lg">
     <div
-      class="flex items-center justify-between px-6 py-4 border-b border-gray-700"
+      class="flex items-center justify-between p-4 border-b border-gray-700"
     >
       <span
-        class="text-base font-semibold text-[#fafafa]"
+        class="text-[15px] font-semibold text-[#fafafa]"
       >
         {{ label }}
       </span>

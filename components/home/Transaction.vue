@@ -43,8 +43,8 @@ const formattedFee = computed(() => {
 </script>
 
 <template>
-  <div class="flex items-center justify-between px-6 py-4 border-b border-gray-700">
-    <div class="flex items-center w-1/3 gap-2">
+  <div class="flex items-center justify-between p-4 border-b border-gray-700">
+    <div class="flex items-center w-5/12 gap-2">
       <div class="bg-[#151515] rounded-md p-3">
         <TransactionList class="w-6 h-6 text-[#b0b0b0]" />
       </div>
@@ -56,7 +56,7 @@ const formattedFee = computed(() => {
       </div>
     </div>
 
-    <div class="flex items-center justify-between w-1/3">
+    <div class="flex items-center justify-between w-7/12">
       <div class="text-sm text-left">
           <div class="text-[#f5f5f5]">
             Sender
@@ -70,9 +70,7 @@ const formattedFee = computed(() => {
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="flex items-center justify-end w-1/3">
       <Tooltip value="Transaction Fee">
         <div class="hidden sm:block text-[11px] text-[#f5f5f5] border border-gray-600 bg-transparent rounded-md px-2 py-1">
           {{ formattedFee }} kda
