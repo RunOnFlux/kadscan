@@ -33,7 +33,7 @@ const timeAgo = computed(() => {
 </script>
 
 <template>
-  <div class="flex items-center justify-between p-4 border-b border-gray-700">
+  <div class="flex items-center justify-between px-4 py-[14px] border-b border-gray-700">
     <div class="flex items-center w-1/3 gap-2">
       <div class="bg-[#151515] rounded-md p-3">
         <BlockIcon class="w-6 h-6 text-[#b0b0b0]" />

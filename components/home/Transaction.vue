@@ -43,7 +43,7 @@ const formattedFee = computed(() => {
 </script>
 
 <template>
-  <div class="flex items-center justify-between p-4 border-b border-gray-700">
+  <div class="flex items-center justify-between px-4 py-[14px] border-b border-gray-700">
     <div class="flex items-center w-5/12 gap-2">
       <div class="bg-[#151515] rounded-md p-3">
         <TransactionList class="w-6 h-6 text-[#b0b0b0]" />
