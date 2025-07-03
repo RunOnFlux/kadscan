@@ -11,9 +11,11 @@ const emit = defineEmits(['customize'])
 </script>
 
 <template>
-  <div class="bg-[#111111] border border-gray-700 rounded-lg">
+  <div
+    class="bg-[#111111] border border-[#222222] rounded-lg shadow-[0_0_16px_rgba(255,255,255,0.05)]"
+  >
     <div
-      class="flex items-center justify-between p-4 border-b border-gray-700"
+      class="flex items-center justify-between p-4 border-b border-[#222222]"
     >
       <span
         class="text-[15px] font-semibold text-[#fafafa]"
@@ -23,7 +25,7 @@ const emit = defineEmits(['customize'])
 
       <button
         v-if="isCustomizable"
-        class="flex items-start gap-1 px-[6px] pb-[4px] pt-[3px] text-sm border border-gray-700 rounded-lg bg-[#151515] hover:bg-[#222222]"
+        class="flex items-start gap-1 px-[6px] pb-[4px] pt-[3px] text-sm border border-[#222222] rounded-lg bg-[#151515] hover:bg-[#222222]"
         @click="emit('customize')"
       >
         <CustomizeIcon class="mt-[1px] text-[#fafafa] w-4 h-4" />
