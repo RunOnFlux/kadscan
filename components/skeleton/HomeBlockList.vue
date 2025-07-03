@@ -4,7 +4,7 @@ import HomeList from '~/components/home/List.vue'
 
 <template>
   <HomeList
-    label="Recent Blocks"
+    label="Latests Blocks"
   >
     <div
       v-for="n in 5"
