@@ -37,7 +37,7 @@ const emit = defineEmits(['customize'])
       <slot />
     </div>
 
-    <div class="px-6 py-4 text-center bg-[#151515] rounded-b-lg">
+    <div class="px-6 py-4 text-center bg-[#151515] rounded-b-lg border-t border-[#222222]">
       <NuxtLink
         v-if="path"
         :to="path"
