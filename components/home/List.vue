@@ -11,7 +11,7 @@ const emit = defineEmits(['customize'])
 </script>
 
 <template>
-  <div class="bg-[#111111] border border-gray-700 rounded-lg shadow-lg">
+  <div class="bg-[#111111] border border-gray-700 rounded-lg">
     <div
       class="flex items-center justify-between p-4 border-b border-gray-700"
     >
@@ -35,12 +35,14 @@ const emit = defineEmits(['customize'])
       <slot />
     </div>
 
-    <NuxtLink
-      v-if="path"
-      :to="path"
-      class="block w-full px-6 py-4 text-xs font-semibold text-center text-[#b8b8b8] hover:text-[#9ccee7] bg-[#151515] rounded-b-lg"
-    >
-      {{ label.includes('Blocks') ? 'VIEW ALL BLOCKS' : 'VIEW ALL TRANSACTIONS' }} &rarr;
-    </NuxtLink>
+    <div class="px-6 py-4 text-center bg-[#151515] rounded-b-lg">
+      <NuxtLink
+        v-if="path"
+        :to="path"
+        class="text-[12px] font-semibold text-[#b8b8b8] hover:text-[#9ccee7]"
+      >
+        {{ label.includes('Blocks') ? 'VIEW ALL BLOCKS' : 'VIEW ALL TRANSACTIONS' }} &rarr;
+      </NuxtLink>
+    </div>
   </div>
 </template>
