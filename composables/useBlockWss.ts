@@ -115,7 +115,7 @@ const stopSubscription = () => {
  * @returns An object with functions to control the subscription and reactive state
  * variables for connection status, errors, and new block data.
  */
-export const useWebSocketSubscription = () => {
+export const useBlockWss = () => {
   /**
    * @description The component's unmount hook. It ensures that the WebSocket subscription
    * and client are properly cleaned up when the component using this composable is destroyed.

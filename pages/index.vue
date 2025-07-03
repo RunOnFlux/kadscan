@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { useBlockFeed } from '~/composables/useBlockFeed';
+import { useTransactionFeed } from '~/composables/useTransactionFeed';
+import CustomizeModal from '~/components/customize/Modal.vue';
 
 definePageMeta({
   layout: 'app',
@@ -39,7 +41,35 @@ const { data: cgData, status: cgStatus, error: cgError } = await useAsyncData('h
   lazy: true,
 });
 
+const isCustomizeModalOpen = ref(false);
+const currentCardType = ref<import('~/composables/useCustomCardSettings').CardType>('blocks');
+
+watch(isCustomizeModalOpen, (isOpen) => {
+  const body = document.body;
+  if (isOpen) {
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    if (scrollbarWidth > 0) {
+      body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+    body.classList.add('overflow-hidden');
+  } else {
+    body.style.paddingRight = '';
+    body.classList.remove('overflow-hidden');
+  }
+});
+
+onUnmounted(() => {
+  document.body.style.paddingRight = '';
+  document.body.classList.remove('overflow-hidden');
+});
+
+function openModal(cardType: import('~/composables/useCustomCardSettings').CardType) {
+  currentCardType.value = cardType;
+  isCustomizeModalOpen.value = true;
+}
+
 const { sortedBlockGroups } = useBlockFeed();
+const { sortedTransactionGroups } = useTransactionFeed();
 </script>
 
 <template>
@@ -106,29 +136,70 @@ const { sortedBlockGroups } = useBlockFeed();
     </Container>
 
     <div
-      v-if="sortedBlockGroups.length === 0"
-      class="grid lg:grid-cols-1 gap-4 lg:gap-6"
+      class="grid lg:grid-cols-2 gap-4 mb-4"
     >
-      <SkeletonHomeBlockList />
-    </div>
-
-    <div
-      v-else
-      class="grid lg:grid-cols-1 gap-4 lg:gap-6"
-    >
-      <HomeList
-        label="Latest Blocks"
-        path="/blocks"
+      <div
+        v-if="sortedBlockGroups.length === 0"
+        class="grid lg:grid-cols-1 gap-4 lg:gap-6"
       >
-        <HomeBlock
-          :key="blockGroup.height"
-          :height="blockGroup.height"
-          :chain-count="blockGroup.chains.size"
-          :total-transactions="blockGroup.totalTransactions"
-          :created-at="blockGroup.createdAt"
-          v-for="blockGroup in sortedBlockGroups"
-        />
-      </HomeList>
+        <SkeletonHomeBlockList />
+      </div>
+      <div
+        v-else
+        class="grid lg:grid-cols-1 gap-4 lg:gap-6"
+      >
+        <HomeList
+          label="Latest Blocks"
+          path="/blocks"
+          :is-customizable="true"
+          @customize="openModal('blocks')"
+        >
+          <HomeBlock
+            :key="blockGroup.height"
+            :height="blockGroup.height"
+            :chain-count="blockGroup.chains.size"
+            :total-transactions="blockGroup.totalTransactions"
+            :created-at="blockGroup.createdAt"
+            v-for="(blockGroup, index) in sortedBlockGroups"
+            :index="index"
+            :total-items="sortedBlockGroups.length"
+          />
+        </HomeList>
+      </div>
+      <div
+        v-if="sortedTransactionGroups.length === 0"
+        class="grid lg:grid-cols-1 gap-4 lg:gap-6"
+      >
+        <SkeletonHomeTransactionList />
+      </div>
+      <div
+        v-else
+        class="grid lg:grid-cols-1 gap-4 lg:gap-6"
+      >
+        <HomeList
+          label="Latest Transactions"
+          path="/transactions"
+          :is-customizable="true"
+          @customize="openModal('transactions')"
+        >
+          <HomeTransaction
+            :key="transaction.hash"
+            :hash="transaction.hash"
+            :sender="transaction.sender"
+            :chain-id="transaction.chainId"
+            :created-at="transaction.createdAt"
+            :fee="transaction.fee"
+            v-for="(transaction, index) in sortedTransactionGroups"
+            :index="index"
+            :total-items="sortedTransactionGroups.length"
+          />
+        </HomeList>
+      </div>
     </div>
+    <CustomizeModal
+      :is-open="isCustomizeModalOpen"
+      :card-type="currentCardType"
+      @close="isCustomizeModalOpen = false"
+    />
   </div>
 </template>

@@ -1,33 +1,49 @@
 <script setup lang="ts">
+import CustomizeIcon from '~/components/icon/Customize.vue'
+
 const props = defineProps<{
   label: string,
-  path?: string
+  path?: string,
+  isCustomizable?: boolean
 }>()
+
+const emit = defineEmits(['customize'])
 </script>
 
 <template>
-  <div class="bg-[#111111] border border-gray-700 rounded-lg">
+  <div
+    class="bg-[#111111] border border-[#222222] rounded-lg shadow-[0_0_20px_rgba(255,255,255,0.0625)]"
+  >
     <div
-      class="px-6 py-4 border-b border-gray-700"
+      class="flex items-center justify-between p-4 border-b border-[#222222]"
     >
       <span
-        class="text-base font-semibold text-[#fafafa]"
+        class="text-[15px] font-semibold text-[#fafafa]"
       >
         {{ label }}
       </span>
+
+      <button
+        v-if="isCustomizable"
+        class="flex items-start gap-1 px-[6px] pb-[4px] pt-[3px] text-sm border border-[#222222] rounded-lg bg-[#151515] hover:bg-[#222222]"
+        @click="emit('customize')"
+      >
+        <CustomizeIcon class="mt-[1px] text-[#fafafa] w-4 h-4" />
+        <span class="text-[0.75rem] text-[#fafafa]">Customize</span>
+      </button>
     </div>
 
     <div>
       <slot />
     </div>
 
-    <div class="px-6 py-4 text-center bg-[#111111] rounded-b-lg">
+    <div class="px-6 py-4 text-center bg-[#151515] rounded-b-lg border-t border-[#222222]">
       <NuxtLink
         v-if="path"
         :to="path"
-        class="text-sm font-semibold text-[#b8b8b8] hover:text-white"
+        class="text-[12px] font-semibold text-[#b8b8b8] hover:text-[#9ccee7]"
       >
-        VIEW ALL BLOCKS &rarr;
+        {{ label.includes('Blocks') ? 'VIEW ALL BLOCKS' : 'VIEW ALL TRANSACTIONS' }} &rarr;
       </NuxtLink>
     </div>
   </div>

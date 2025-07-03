@@ -7,17 +7,17 @@ const route = useRoute();
     class="h-screen flex flex-col items-center !font-sans"
   >
     <div
-      class="w-full bg-blue-400"
+      class="w-full bg-[#111111]"
     >
       <HeaderTopbar/>
     </div>
 
     <div
       class="
-        w-full max-w-[1352px] grow
-        px-4
+        w-full grow
+        px-5
         pt-4 md:pt-6
-        pb-[60px] md:pb-[38px]
+        pb-20
       "
     >
       <slot />

@@ -11,7 +11,7 @@ const groupRoutes = computed(() => routes.filter(({ type }) => type === 'group')
 
 <template>
   <div
-    class="w-full bg-gray-800"
+    class="w-full bg-[#151515]"
   >
     <div
       class="w-full max-w-screen-bazk mx-auto px-4 py-6 md:py-8 flex flex-col gap-6"
