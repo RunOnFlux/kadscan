@@ -11,6 +11,8 @@ const props = defineProps<{
   chainId: number;
   createdAt: string;
   fee: number;
+  index: number;
+  totalItems: number;
 }>()
 
 const now = ref(new Date());
@@ -44,7 +46,10 @@ const formattedFee = computed(() => {
 
 <template>
   <div class="px-4">
-    <div class="flex items-center justify-between py-[14px] border-b border-[#222222]">
+    <div
+      class="flex items-center justify-between py-[14px]"
+      :class="{ 'border-b border-gray-700': index !== totalItems - 1 }"
+    >
       <div class="flex items-center w-5/12 gap-2">
         <div class="bg-[#151515] rounded-md p-3">
           <TransactionList class="w-6 h-6 text-[#b0b0b0]" />

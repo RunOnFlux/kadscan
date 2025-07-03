@@ -160,7 +160,9 @@ const { sortedTransactionGroups } = useTransactionFeed();
             :chain-count="blockGroup.chains.size"
             :total-transactions="blockGroup.totalTransactions"
             :created-at="blockGroup.createdAt"
-            v-for="blockGroup in sortedBlockGroups"
+            v-for="(blockGroup, index) in sortedBlockGroups"
+            :index="index"
+            :total-items="sortedBlockGroups.length"
           />
         </HomeList>
       </div>
@@ -187,7 +189,9 @@ const { sortedTransactionGroups } = useTransactionFeed();
             :chain-id="transaction.chainId"
             :created-at="transaction.createdAt"
             :fee="transaction.fee"
-            v-for="transaction in sortedTransactionGroups"
+            v-for="(transaction, index) in sortedTransactionGroups"
+            :index="index"
+            :total-items="sortedTransactionGroups.length"
           />
         </HomeList>
       </div>
