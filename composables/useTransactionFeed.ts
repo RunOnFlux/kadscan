@@ -1,11 +1,19 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useTransactionWss } from '~/composables/useTransactionWss';
+import { useCustomCardSettings } from '~/composables/useCustomCardSettings';
 
 export const useTransactionFeed = () => {
-  const displayedTransactions = ref(new Map());
+  const regularTransactions = ref(new Map());
+  const coinbaseTransactions = ref(new Map());
+  const { getPreset } = useCustomCardSettings();
+  const cardPreset = getPreset('transactions');
 
   const sortedTransactionGroups = computed(() => {
-    return Array.from(displayedTransactions.value.values()).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    const sourceMap = cardPreset.value === 'latest-coinbase-transactions'
+      ? coinbaseTransactions.value
+      : regularTransactions.value;
+
+    return Array.from(sourceMap.values()).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   });
 
   const { startSubscription, newTransactions } = useTransactionWss();
@@ -62,29 +70,38 @@ export const useTransactionFeed = () => {
       const responseData = response?.data?.completedBlockHeights;
 
       if (responseData && responseData.edges) {
-        const allTransactions: any[] = [];
+        const allRegularTxs: any[] = [];
+        const allCoinbaseTxs: any[] = [];
+
         responseData.edges.forEach((edge: any) => {
           if (edge.node.transactions && edge.node.transactions.edges) {
             edge.node.transactions.edges.forEach((txEdge: any) => {
               const tx = txEdge.node;
               const fee = (tx.result.gas || 0) * parseFloat(tx.cmd.meta.gasPrice || '0');
-              allTransactions.push({
+              const transaction = {
                 hash: tx.hash,
                 createdAt: tx.cmd.meta.creationTime,
                 sender: tx.cmd.meta.sender,
                 chainId: tx.cmd.meta.chainId,
                 fee,
-              });
+              };
+
+              if (tx.cmd.meta.sender === 'coinbase') {
+                allCoinbaseTxs.push(transaction);
+              } else {
+                allRegularTxs.push(transaction);
+              }
             });
           }
         });
 
-        const sortedTxs = allTransactions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        const latestTxs = sortedTxs.slice(0, 6);
+        const sortedRegular = allRegularTxs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 6);
+        const sortedCoinbase = allCoinbaseTxs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 6);
 
-        latestTxs.forEach(tx => {
-            displayedTransactions.value.set(tx.hash, tx);
-        });
+        regularTransactions.value.clear();
+        coinbaseTransactions.value.clear();
+        sortedRegular.forEach(tx => regularTransactions.value.set(tx.hash, tx));
+        sortedCoinbase.forEach(tx => coinbaseTransactions.value.set(tx.hash, tx));
       }
     } catch (e) {
       console.error('Failed to fetch initial transactions:', e);
@@ -103,16 +120,17 @@ export const useTransactionFeed = () => {
         fee,
       };
 
-      displayedTransactions.value.set(newTransaction.hash, newTransaction);
-    });
+      const targetMap = tx.cmd.meta.sender === 'coinbase' ? coinbaseTransactions.value : regularTransactions.value;
+      targetMap.set(newTransaction.hash, newTransaction);
 
-    if (displayedTransactions.value.size > MAX_TRANSACTIONS) {
-      const sorted = Array.from(displayedTransactions.value.values()).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-      const toDeleteCount = displayedTransactions.value.size - MAX_TRANSACTIONS;
-      for (let i = 0; i < toDeleteCount; i++) {
-        displayedTransactions.value.delete(sorted[i].hash);
+      if (targetMap.size > MAX_TRANSACTIONS) {
+        const sorted = Array.from(targetMap.values()).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        const toDeleteCount = targetMap.size - MAX_TRANSACTIONS;
+        for (let i = 0; i < toDeleteCount; i++) {
+          targetMap.delete(sorted[i].hash);
+        }
       }
-    }
+    });
   }, { deep: true });
 
   onMounted(async () => {
