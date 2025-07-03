@@ -123,6 +123,7 @@ const { sortedTransactionGroups } = useTransactionFeed();
         <HomeList
           label="Latest Blocks"
           path="/blocks"
+          :is-customizable="true"
         >
           <HomeBlock
             :key="blockGroup.height"
@@ -147,6 +148,7 @@ const { sortedTransactionGroups } = useTransactionFeed();
         <HomeList
           label="Latest Transactions"
           path="/transactions"
+          :is-customizable="true"
         >
           <HomeTransaction
             :key="transaction.hash"

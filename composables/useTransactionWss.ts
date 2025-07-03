@@ -65,8 +65,8 @@ const startSubscription = () => {
           if (result.data?.newBlocks && Array.isArray(result.data.newBlocks)) {
             const allTxs = result.data.newBlocks.flatMap((block: any) => block.transactions.edges.map((edge:any) => edge.node));
             newTransactions.value.unshift(...allTxs);
-            if (newTransactions.value.length > 10) {
-              newTransactions.value.length = 10;
+            if (newTransactions.value.length > 50) {
+              newTransactions.value.length = 50;
             }
           }
           isConnected.value = true
