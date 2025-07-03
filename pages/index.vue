@@ -136,7 +136,7 @@ const { sortedTransactionGroups } = useTransactionFeed();
     </Container>
 
     <div
-      class="grid lg:grid-cols-2 gap-4 lg:gap-6"
+      class="grid lg:grid-cols-2 gap-4 lg:gap-4"
     >
       <div
         v-if="sortedBlockGroups.length === 0"

@@ -9,15 +9,17 @@ const route = useRoute();
     <div
       class="w-full bg-blue-400"
     >
-      <HeaderTopbar/>
+      <div class="max-w-[1352px] mx-auto">
+        <HeaderTopbar/>
+      </div>
     </div>
 
     <div
       class="
-        w-full max-w-[1352px] grow
-        px-4
+        w-full grow
+        px-5
         pt-4 md:pt-6
-        pb-[60px] md:pb-[38px]
+        pb-20
       "
     >
       <slot />
