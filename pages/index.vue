@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useBlockFeed } from '~/composables/useBlockFeed';
 import { useTransactionFeed } from '~/composables/useTransactionFeed';
-import CustomizeModal from '~/components/customize/Modal.vue';
 
 definePageMeta({
   layout: 'app',
@@ -74,7 +73,7 @@ const { sortedTransactionGroups } = useTransactionFeed();
 
 <template>
   <div
-    class="flex flex-col gap-4 lg:gap-10 lg:pt-4"
+    class="flex flex-col lg:pt-4"
   >
     <HomeHero />
 
@@ -134,6 +133,8 @@ const { sortedTransactionGroups } = useTransactionFeed();
         </div>
       </div>
     </Container>
+
+    <HomeDashboard />
 
     <div
       class="grid lg:grid-cols-2 gap-4 mb-4"

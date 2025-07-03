@@ -61,7 +61,7 @@ watch(() => props.isOpen, (isOpen) => {
         @click="closeModal"
       >
         <div
-          class="bg-[#111111] border border-gray-700 rounded-xl shadow-xl w-full max-w-lg"
+          class="bg-[#111111] border border-gray-700 rounded-xl shadow-xl w-full max-w-lg overflow-hidden"
           @click.stop
         >
           <div class="flex items-center justify-between p-4 border-b border-gray-700">
