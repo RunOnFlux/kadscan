@@ -42,6 +42,7 @@ const { data: cgData, status: cgStatus, error: cgError } = await useAsyncData('h
 });
 
 const isCustomizeModalOpen = ref(false);
+const currentCardType = ref<import('~/composables/useCustomCardSettings').CardType>('blocks');
 
 watch(isCustomizeModalOpen, (isOpen) => {
   const body = document.body;
@@ -61,6 +62,11 @@ onUnmounted(() => {
   document.body.style.paddingRight = '';
   document.body.classList.remove('overflow-hidden');
 });
+
+function openModal(cardType: import('~/composables/useCustomCardSettings').CardType) {
+  currentCardType.value = cardType;
+  isCustomizeModalOpen.value = true;
+}
 
 const { sortedBlockGroups } = useBlockFeed();
 const { sortedTransactionGroups } = useTransactionFeed();
@@ -146,7 +152,7 @@ const { sortedTransactionGroups } = useTransactionFeed();
           label="Latest Blocks"
           path="/blocks"
           :is-customizable="true"
-          @customize="isCustomizeModalOpen = true"
+          @customize="openModal('blocks')"
         >
           <HomeBlock
             :key="blockGroup.height"
@@ -172,7 +178,7 @@ const { sortedTransactionGroups } = useTransactionFeed();
           label="Latest Transactions"
           path="/transactions"
           :is-customizable="true"
-          @customize="isCustomizeModalOpen = true"
+          @customize="openModal('transactions')"
         >
           <HomeTransaction
             :key="transaction.hash"
@@ -188,6 +194,7 @@ const { sortedTransactionGroups } = useTransactionFeed();
     </div>
     <CustomizeModal
       :is-open="isCustomizeModalOpen"
+      :card-type="currentCardType"
       @close="isCustomizeModalOpen = false"
     />
   </div>

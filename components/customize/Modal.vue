@@ -1,29 +1,45 @@
 <script setup lang="ts">
 import CloseIcon from '~/components/icon/Close.vue';
 import CustomizeRadio from '~/components/customize/Radio.vue';
-import { useCustomCardSettings } from '~/composables/useCustomCardSettings';
+import { useCustomCardSettings, type CardType } from '~/composables/useCustomCardSettings';
 
 const props = defineProps<{
   isOpen: boolean;
+  cardType: CardType;
 }>();
 
 const emit = defineEmits(['close']);
 
-const { cardPreset } = useCustomCardSettings();
-const selectedPreset = ref(cardPreset.value);
+const { getPreset } = useCustomCardSettings();
+const cardPreset = computed(() => getPreset(props.cardType));
+
+const selectedPreset = ref('');
 
 function closeModal() {
   emit('close');
 }
 
 function saveChanges() {
-  cardPreset.value = selectedPreset.value;
+  cardPreset.value.value = selectedPreset.value;
   closeModal();
 }
 
+const blockPresets = [
+  { value: 'latest-blocks', label: 'Latest Blocks' },
+];
+
+const transactionPresets = [
+  { value: 'latest-transactions', label: 'Latest Transactions' },
+  { value: 'latest-coinbase-transactions', label: 'Latest Coinbase Transactions' },
+];
+
+const presets = computed(() => {
+  return props.cardType === 'blocks' ? blockPresets : transactionPresets;
+});
+
 watch(() => props.isOpen, (isOpen) => {
   if (isOpen) {
-    selectedPreset.value = cardPreset.value;
+    selectedPreset.value = cardPreset.value.value;
   }
 });
 </script>
@@ -64,24 +80,16 @@ watch(() => props.isOpen, (isOpen) => {
 
             <div class="space-y-4">
               <div>
-                <h3 class="mb-3 text-xs tracking-wider text-[#c8c8c8] uppercase">
+                <h3 class="mb-3 text-xs tracking-wider text-[#b8b8b8] uppercase">
                   Preset
                 </h3>
-                <div class="flex flex-wrap gap-2">
+                <div class="flex flex-wrap gap-4">
                   <CustomizeRadio
+                    v-for="preset in presets"
+                    :key="preset.value"
                     v-model="selectedPreset"
-                    value="latest-blocks"
-                    label="Latest Blocks"
-                  />
-                  <CustomizeRadio
-                    v-model="selectedPreset"
-                    value="latest-transactions"
-                    label="Latest Transactions"
-                  />
-                  <CustomizeRadio
-                    v-model="selectedPreset"
-                    value="latest-coinbase-transactions"
-                    label="Latest Coinbase Transactions"
+                    :value="preset.value"
+                    :label="preset.label"
                   />
                 </div>
               </div>
