@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import CloseIcon from '~/components/icon/Close.vue';
 import CustomizeRadio from '~/components/customize/Radio.vue';
+import { useCustomCardSettings } from '~/composables/useCustomCardSettings';
 
 const props = defineProps<{
   isOpen: boolean;
@@ -8,11 +9,23 @@ const props = defineProps<{
 
 const emit = defineEmits(['close']);
 
-const selectedPreset = ref('latest-blocks');
+const { cardPreset } = useCustomCardSettings();
+const selectedPreset = ref(cardPreset.value);
 
 function closeModal() {
   emit('close');
 }
+
+function saveChanges() {
+  cardPreset.value = selectedPreset.value;
+  closeModal();
+}
+
+watch(() => props.isOpen, (isOpen) => {
+  if (isOpen) {
+    selectedPreset.value = cardPreset.value;
+  }
+});
 </script>
 
 <template>
@@ -84,6 +97,7 @@ function closeModal() {
             </button>
             <button
               class="px-3 py-2 text-sm text-white bg-[#0784c3] rounded-lg hover:bg-[#0670a6]"
+              @click="saveChanges"
             >
               Save changes
             </button>
