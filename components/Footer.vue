@@ -7,11 +7,6 @@ const { routes } = useAppConfig()
 
 const socials = [
   {
-    name: 'Twitter',
-    url: 'https://x.com/hackachain',
-    icon: IconTwitter
-  },
-  {
     name: 'Github',
     url: 'https://github.com/hack-a-chain-software/indexer-kadena',
     icon: IconGithub
@@ -20,6 +15,11 @@ const socials = [
     name: 'Gitbook',
     url: 'https://kadindexer.gitbook.io/docs/',
     icon: IconGitbook
+  },
+  {
+    name: 'Twitter',
+    url: 'https://x.com/hackachain',
+    icon: IconTwitter
   }
 ]
 </script>
