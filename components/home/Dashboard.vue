@@ -103,9 +103,13 @@ const lastSafeBlock = computed(() => {
         <div class="text-xs text-[#bbbbbb] mb-[1px]">PRICE HISTORY 14 DAYS</div>
         <div class="h-[105px]">
           <Chart
+            v-if="props.chartData"
             :key="props.chartData.prices.length"
             v-bind="props.chartData"
           />
+          <div v-else class="h-full w-full flex items-center justify-center text-gray-500">
+            Loading...
+          </div>
         </div>
       </div>
     </div>
