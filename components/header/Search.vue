@@ -54,16 +54,16 @@ const {
 
       <div
         @click="cleanup()"
-        class="mr-1 flex items-center justify-center p-[6px] bg-gray-500 rounded-lg h-8 w-8 shrink-0 cursor-pointer"
+        class="mr-1 flex items-center justify-center p-[6px] bg-[#0784c3] hover:bg-[#0670a6] rounded-lg h-8 w-8 shrink-0 cursor-pointer"
       >
         <IconSearchClose
-          class="w-5 h-5"
+          class="w-5 h-5 text-[#fafafa]"
           v-if="data.open && !!data.query"
         />
 
         <IconSearch
           v-else
-          class="w-5 h-5"
+          class="w-5 h-5 text-[#fafafa]"
         />
       </div>
     </div>

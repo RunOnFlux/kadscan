@@ -83,7 +83,7 @@ const searchFungibleTokensQuery = gql`
 const filters = [
   {
     value: 'all',
-    label: 'All filters',
+    label: 'All Filters',
     query: allQuery,
   },
   {
