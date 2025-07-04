@@ -4,7 +4,7 @@
   <div
     class="
       flex items-center justify-between bg-[linear-gradient(180deg,_#01D796_0%,_#009367_105.48%)]
-      gap-2 rounded-xl lg:rounded-2xl py-6 lg:py-[52px] px-4 lg:px-[48px]"
+      gap-2 rounded-xl lg:rounded-2xl py-6 lg:py-[52px] px-4 lg:px-[48px] mb-4"
   >
     <div
       class="flex flex-col justify-between gap-4 lg:gap-6 w-full"
