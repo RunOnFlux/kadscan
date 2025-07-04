@@ -14,7 +14,7 @@ export default {
     extend: {
       fontFamily: {
         sans: [
-          'Inter', ...defaultTheme.fontFamily.sans
+          'Roboto', ...defaultTheme.fontFamily.sans
         ],
         title: [
           'Roboto', ...defaultTheme.fontFamily.sans
