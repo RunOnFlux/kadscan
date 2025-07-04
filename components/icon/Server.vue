@@ -1,8 +1,24 @@
 <template>
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="3" y="4" width="18" height="7" rx="2" stroke="#f5f5f5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    <rect x="3" y="14" width="18" height="7" rx="2" stroke="#f5f5f5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M6 8L6 8.01" stroke="#f5f5f5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M6 18L6 18.01" stroke="#f5f5f5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <svg id="Camada_1" xmlns="http://www.w3.org/2000/svg" viewBox="624 664 290 253">
+    <rect
+      fill="none"
+      stroke="#f5f5f5"
+      stroke-linecap="round"
+      stroke-miterlimit="10"
+      stroke-width="21"
+      x="634.5" y="674.5" width="269" height="93" rx="35.39" ry="35.39"
+    />
+    <rect
+      fill="none"
+      stroke="#f5f5f5"
+      stroke-linecap="round"
+      stroke-miterlimit="10"
+      stroke-width="21"
+      x="634.5" y="813.5" width="269" height="93" rx="35.39" ry="35.39"
+    />
+    <circle fill="#f5f5f5" cx="805.42" cy="720.19" r="16.98"/>
+    <circle fill="#f5f5f5" cx="854.42" cy="719.19" r="16.98"/>
+    <circle fill="#f5f5f5" cx="805.03" cy="864.97" r="16.98"/>
+    <circle fill="#f5f5f5" cx="854.03" cy="863.97" r="16.98"/>
   </svg>
 </template> 
