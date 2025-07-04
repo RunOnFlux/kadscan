@@ -112,7 +112,7 @@ const groupRoutes = computed(() => routes.filter(({ type }) => type === 'group')
         <span
           class="text-font-400"
         >
-          © 2024
+          © 2025
         </span>
       </div>
     </div>

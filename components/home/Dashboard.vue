@@ -77,8 +77,8 @@ const lastSafeBlock = computed(() => {
             </div>
           </div>
           <div class="text-right">
-            <div class="text-xs text-[#bbbbbb] mb-[1px]">AVG GAS PRICE</div>
-            <div class="text-[15px] font-bold text-[#f5f5f5]">{{ avgGasPrice ? money.format(avgGasPrice) : '—' }}</div>
+            <div class="text-xs text-[#bbbbbb] mb-[1px]">MED GAS PRICE</div>
+            <div class="text-[15px] font-bold text-[#f5f5f5]">{{ avgGasPrice ? money.format(avgGasPrice) : '0.000001 KDA' }}</div>
           </div>
         </div>
         <div class="border-t border-[#222222] my-5"></div>
