@@ -58,11 +58,9 @@ export const useBlockFeed = () => {
    * It uses the `completedBlockHeights` GraphQL query to get all chain data for the last 6 heights.
    */
   const fetchInitialBlocks = async () => {
-    const GRAPHQL_URL = 'https://mainnet.kadindexer.io/graphql';
-
     try {
       // Make a POST request to the GraphQL endpoint to fetch the initial block data.
-      const response: any = await $fetch(GRAPHQL_URL, {
+      const response: any = await $fetch('/api/graphql', {
         method: 'POST',
         body: {
           query: completedBlockHeightsQuery,

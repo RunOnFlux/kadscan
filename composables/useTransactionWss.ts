@@ -6,7 +6,7 @@ let client: any = null
 
 if (process.client) {
   client = createClient({
-    url: 'wss://mainnet.kadindexer.io/graphql',
+    url: 'wss://vps.mainnet.kadindexer.io/wss/graphql',
     connectionParams: () => {
       return {}
     },

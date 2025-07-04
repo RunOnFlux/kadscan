@@ -12,7 +12,6 @@ export const useTransactionFeed = () => {
     const sourceMap = cardPreset.value === 'latest-coinbase-transactions'
       ? coinbaseTransactions.value
       : regularTransactions.value;
-
     return Array.from(sourceMap.values()).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   });
 
@@ -51,10 +50,8 @@ export const useTransactionFeed = () => {
   `;
 
   const fetchInitialTransactions = async () => {
-    const GRAPHQL_URL = 'https://mainnet.kadindexer.io/graphql';
-
     try {
-      const response: any = await $fetch(GRAPHQL_URL, {
+      const response: any = await $fetch('/api/graphql', {
         method: 'POST',
         body: {
           query: homeTransactionsQuery,
@@ -66,6 +63,8 @@ export const useTransactionFeed = () => {
           },
         },
       });
+
+      console.log('response', response);
 
       const responseData = response?.data?.completedBlockHeights;
 

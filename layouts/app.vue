@@ -15,9 +15,12 @@ const route = useRoute();
     <div
       class="
         w-full grow
-        px-5
-        pt-4 md:pt-6
-        pb-20
+        px-3
+        pt-6
+        pb-10
+        lg:px-5
+        lg:pt-4 
+        lg:pb-20
       "
     >
       <slot />

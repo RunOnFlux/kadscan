@@ -25,7 +25,7 @@ const variationClass = computed(() => {
 });
 
 const formattedVariation = computed(() => {
-  if (props.kadenaPriceVariation === null) return '—';
+  if (props.kadenaPriceVariation === null) return '';
   const sign = props.kadenaPriceVariation > 0 ? '+' : '';
   return `(${sign}${props.kadenaPriceVariation.toFixed(2)}%)`;
 });
@@ -65,9 +65,10 @@ const lastSafeBlock = computed(() => {
             <div class="text-[15px] text-[#f5f5f5] mt-[1px] mb-[3px]">{{ marketCap ? money.format(marketCap) : '—' }}</div>
           </div>
         </div>
+        <div class="border-t border-[#222222] my-5 md:hidden"></div>
       </div>
 
-      <div class="flex flex-col justify-center px-4">
+      <div class="flex flex-col justify-center px-4 pt-4 md:pt-0">
         <div class="flex justify-between items-start">
           <div class="flex items-start">
             <ServerIcon class="w-7 h-7 ml-[3px] mr-[12px]" />
@@ -87,7 +88,7 @@ const lastSafeBlock = computed(() => {
             <MeterIcon class="w-7 h-7 ml-[3px] mr-[12px]" />
             <div>
               <div class="text-xs text-[#bbbbbb] mb-[1px]">LAST FINALIZED BLOCK</div>
-              <div class="text-[15px] text-[#f5f5f5]">{{ lastFinalizedBlock ? lastFinalizedBlock : '—' }}</div>
+              <div class="text-[15px] text-[#f5f5f5] mt-[1px] mb-[3px]">{{ lastFinalizedBlock ? lastFinalizedBlock : '—' }}</div>
             </div>
           </div>
           <div class="text-right">
@@ -95,19 +96,20 @@ const lastSafeBlock = computed(() => {
             <div class="text-[15px] text-[#f5f5f5]">{{ lastSafeBlock }}</div>
           </div>
         </div>
+        <div class="border-t border-[#222222] my-5 md:hidden"></div>
       </div>
 
-      <div class="flex flex-col px-5">
+      <div class="flex flex-col px-4">
         <div class="text-xs text-[#bbbbbb] mb-[1px]">PRICE HISTORY 14 DAYS</div>
         <div class="h-[105px]">
           <Chart
-            v-if="!isLoading && props.chartData"
+            v-if="props.chartData"
             :key="props.chartData.prices.length"
             v-bind="props.chartData"
           />
-           <div v-else class="h-full w-full flex items-center justify-center text-gray-500">
+          <div v-else class="h-full w-full flex items-center justify-center text-gray-500">
             Loading...
-           </div>
+          </div>
         </div>
       </div>
     </div>
