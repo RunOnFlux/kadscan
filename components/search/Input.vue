@@ -11,11 +11,11 @@ const {
 
 <template>
   <div
-    class="relative max-w-[700px]"
+    class="relative max-w-[766px]"
     v-outside="close"
   >
     <div
-      class="flex gap-2 items-center w-full p-2 bg-[#111111] rounded-lg border border-[#222222]"
+      class="flex gap-2 items-center w-full p-[6px] bg-[#111111] rounded-lg border border-[#222222]"
     >
       <div
         class="hidden sm:block"
@@ -33,7 +33,7 @@ const {
           class="
             px-1
             bazk:px-2
-            py-2
+            py-[0.3rem]
             text-[15px]
             bg-transparent
             outline-none
@@ -58,7 +58,8 @@ const {
       </div>
 
       <div
-        class="mr-1 flex items-center justify-center p-[6px] bg-[#0784c3] rounded-lg h-8 w-8 bazk:h-9 bazk:w-9 shrink-0"
+        @click="search(data.query as any)"
+        class="flex items-center justify-center bg-[#0784c3] hover:bg-[#0670a6] rounded-lg w-[36px] h-[34px] shrink-0 cursor-pointer"
       >
         <IconSearch
           class="w-5 h-5 text-[#fafafa]"

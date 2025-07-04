@@ -9,7 +9,7 @@
       class="flex flex-col justify-between w-full"
     >
       <h1
-        class="text-[#fafafa] font-semibold text-[20px] mb-2 ml-1 max-w-[700px]"
+        class="text-[#fafafa] font-semibold text-[20px] mb-2 ml-1"
       >
         Kadena Blockchain Explorer
       </h1>
