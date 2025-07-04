@@ -10,7 +10,7 @@ let client: any = null
 // Only create client on the client side (browser)
 if (process.client) {
   client = createClient({
-    url: 'wss://mainnet.kadindexer.io/graphql',
+    url: 'wss://vps.mainnet.kadindexer.io/wss/graphql',
     connectionParams: () => {
       return {}
     },

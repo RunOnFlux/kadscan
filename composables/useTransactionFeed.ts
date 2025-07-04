@@ -12,7 +12,6 @@ export const useTransactionFeed = () => {
     const sourceMap = cardPreset.value === 'latest-coinbase-transactions'
       ? coinbaseTransactions.value
       : regularTransactions.value;
-
     return Array.from(sourceMap.values()).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   });
 
@@ -65,6 +64,8 @@ export const useTransactionFeed = () => {
         },
       });
 
+      console.log('response', response);
+
       const responseData = response?.data?.completedBlockHeights;
 
       if (responseData && responseData.edges) {
@@ -100,6 +101,8 @@ export const useTransactionFeed = () => {
         coinbaseTransactions.value.clear();
         sortedRegular.forEach(tx => regularTransactions.value.set(tx.hash, tx));
         sortedCoinbase.forEach(tx => coinbaseTransactions.value.set(tx.hash, tx));
+        console.log('regularTransactions', regularTransactions.value);
+        console.log('coinbaseTransactions', coinbaseTransactions.value);
       }
     } catch (e) {
       console.error('Failed to fetch initial transactions:', e);
