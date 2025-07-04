@@ -23,9 +23,15 @@ export type Route = LinkRoute | GroupRoute;
 export const routes: Route[] = [
   {
     type: 'link',
+    path: '/',
+    label: 'Home',
+    tag: 'route:home',
+  },
+  {
+    type: 'link',
     path: '/blocks',
     label: 'Blocks',
-    tag: 'route:blockchains',
+    tag: 'route:blocks',
   },
   {
     type: 'link',
@@ -37,44 +43,20 @@ export const routes: Route[] = [
     type: 'link',
     path: '/nfts',
     label: 'NFTs',
-    tag: 'route:transactions',
+    tag: 'route:nfts',
   },
   {
+    type: 'link',
     path: '/tokens',
-    type: 'group',
     label: 'Tokens',
-    tag: 'route:token',
-    subroutes: [
-      // {
-      //   path: '/tokens',
-      //   label: 'Token Transfers',
-      //   tag: 'route:token',
-      // },
-      {
-        path: '/tokens/trending',
-        label: 'Trending tokens',
-        tag: 'route:tokens:trending',
-      },
-    ]
+    tag: 'route:tokens',
   },
-  // {
-  //   label: 'NFT',
-  //   type: 'group',
-  //   tag: 'route:nft',
-  //   subroutes: [
-  //     // {
-  //     //   disabled: true,
-  //     //   path: '/collections',
-  //     //   tag: 'route:collections',
-  //     //   label: 'NFT Trending Collections',
-  //     // },
-  //     {
-  //       path: '/nfts',
-  //       label: 'NFT Transfers',
-  //       tag: 'route:collections:nfts',
-  //     }
-  //   ]
-  // }
+  {
+    type: 'link',
+    path: '/tokens/trending',
+    label: 'Top Statistics',
+    tag: 'route:top-statistics',
+  },
 ]
 
 export default routes
