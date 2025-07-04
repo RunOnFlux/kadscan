@@ -19,19 +19,19 @@ const updateTransactionCount = (count: number, height: number, chainId: number) 
   processedHeights.value.add(key);
 };
 
+const query = `
+  query NetworkInfo {
+    networkInfo {
+      transactionCount
+    }
+  }
+`;
+
 const fetchInitialTransactionCount = async () => {
   const transactionCount = useTransactionCount();
-  const GRAPHQL_URL = 'https://mainnet.kadindexer.io/graphql';
-  const query = `
-    query NetworkInfo {
-      networkInfo {
-        transactionCount
-      }
-    }
-  `;
 
   try {
-    const response: any = await $fetch(GRAPHQL_URL, {
+    const response: any = await $fetch('/api/graphql', {
       method: 'POST',
       body: { query },
     });
