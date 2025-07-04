@@ -1,119 +1,88 @@
 <script setup lang="ts">
-const {
-  routes,
-  networks
-} = useAppConfig()
+import IconTwitter from '~/components/icon/Twitter.vue'
+import IconGithub from '~/components/icon/Github.vue'
+import IconGitbook from '~/components/icon/Gitbook.vue'
 
-const linkRoutes = computed(() => routes.filter(({ type }) => type === 'link'))
+const { routes } = useAppConfig()
 
-const groupRoutes = computed(() => routes.filter(({ type }) => type === 'group'))
+const socials = [
+  {
+    name: 'Twitter',
+    url: 'https://x.com/hackachain',
+    icon: IconTwitter
+  },
+  {
+    name: 'Github',
+    url: 'https://github.com/hack-a-chain-software/indexer-kadena',
+    icon: IconGithub
+  },
+  {
+    name: 'Gitbook',
+    url: 'https://kadindexer.gitbook.io/docs/',
+    icon: IconGitbook
+  }
+]
 </script>
 
 <template>
-  <div
-    class="w-full bg-[#151515]"
-  >
-    <div
-      class="w-full max-w-screen-bazk mx-auto px-4 py-6 md:py-8 flex flex-col gap-6"
-    >
-      <div
-        class="flex justify-between gap-4 flex-wrap"
-      >
-        <div
-          class="flex flex-col gap-2 md:gap-2.5 max-w-[360px]"
-        >
-          <IconLogoColor
-            class="h-[38px] md:h-[42px] w-max"
-          />
-
-          <div>
-            <span
-              class="text-sm text-font-500 leading-[19.6px] block"
-            >
-              Kadscan is a Block Explorer and Analytics Platform for Kadena. Powered by Hack-a-Chain.
-            </span>
-
-            <div
-              class="pt-4"
-            >
-              <img
-                src="/hackachain.svg"
-                class="h-[32px]"
-              />
-            </div>
+  <div class="w-full bg-[#111111] border-t border-[#222222]">
+    <div class="w-full px-5 pt-8 pb-4 flex flex-col">
+      <div class="flex justify-between items-center gap-8 flex-wrap">
+        <div class="flex flex-col gap-3">
+          <div class="flex items-end gap-3">
+            <IconLogoColor class="h-[38px] md:h-[42px] w-max" />
           </div>
-
-          <!-- <div
-            class="flex items-center gap-4 pt-2 md:pt-0"
-          >
-            <Network
-              v-for="network in networks"
-              :key="network.to"
-              :to="network.to"
-              target="__blank"
-              :icon="network.icon"
-            />
-          </div> -->
+          <span class="text-sm text-[#f5f5f5] leading-[19.6px]">
+            Kadscan is a Block Explorer and Analytics Platform for Kadena.
+          </span>
         </div>
 
-        <div
-          class="flex justify-between w-full md:w-auto flex-wrap gap-3 md:gap-6"
-        >
-          <div
-            class="flex flex-col md:min-w-[180px] gap-2 md:gap-3 grow"
+        <div class="flex gap-x-6 gap-y-2 flex-wrap">
+          <NuxtLink
+            v-for="link in routes"
+            :key="link.tag"
+            :to="link.path"
+            class="text-[#f5f5f5] hover:text-white transition-colors text-sm"
           >
-            <span
-              class="text-font-400 text-lg md:text-base md:font-[400] font-semibold"
-            >
-              Overview
-            </span>
-
-            <NuxtLink
-              :to="link.path"
-              :tag="'footer-overview-'+link.tag"
-              v-for="link in linkRoutes"
-              class="text-font-500 text-sm"
-            >
-              {{ link.label }}
-            </NuxtLink>
-          </div>
-
-          <div
-            :key="'footer-group-'+group.tag"
-            class="flex flex-col md:min-w-[180px] gap-2 md:gap-3 grow"
-            v-for="group of groupRoutes"
-          >
-            <span
-              class="text-font-400 text-lg md:text-base md:font-[400] font-semibold"
-            >
-              {{ group.label }}
-            </span>
-
-            <NuxtLink
-              :to="subroute.path"
-              :tag="'footer-subroute-'+subroute.tag"
-              v-for="subroute in group.subroutes"
-              class="text-font-500 text-sm"
-            >
-              {{ subroute.label }}
-            </NuxtLink>
-
-          </div>
+            {{ link.label }}
+          </NuxtLink>
         </div>
       </div>
 
-      <div
-        class="border-t border-t-gray-300 pt-6 flex items-center justify-center"
-      >
-        <IconLogoWhite
-          class="h-[22px] w-[110px] relative -top-[2px]"
-        />
+      <div class="border-t border-t-[#222222] my-4" />
 
-        <span
-          class="text-font-400"
+      <div class="flex justify-between items-center flex-wrap">
+        <div class="flex items-center gap-4">
+          <a
+            v-for="social in socials"
+            :key="social.name"
+            :href="social.url"
+            target="_blank"
+            class="text-[#f5f5f5] hover:text-white transition-colors"
+          >
+            <component
+              :is="social.icon"
+              class="w-5 h-5"
+            />
+          </a>
+        </div>
+
+        <a
+          href="https://hackachain.io"
+          target="_blank"
+          class="flex items-center gap-2 text-xs text-[#f5f5f5] hover:text-white transition-colors"
         >
-          © 2025
-        </span>
+          <img
+            src="public/hackachain.svg"
+            class="h-[22px]"
+          />
+        </a>
+
+        <div>
+          <span class="text-[#f5f5f5] text-xs">
+            Kadscan © {{ new Date().getFullYear() }}
+          </span>
+        </div>
       </div>
     </div>
   </div>

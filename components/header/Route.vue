@@ -35,7 +35,7 @@ function open () {
     <NuxtLink
       :to="props.path"
       v-if="props.type === 'link'"
-      class="px-3 py-2 text-[#cccccc] hover:text-kadscan-500 block"
+      class="px-3 py-2 text-[15px] text-[#cccccc] hover:text-kadscan-500 block"
     >
       {{ props.label }}
     </NuxtLink>
