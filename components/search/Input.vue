@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue'
+
 const {
   data,
   close,
@@ -7,6 +9,25 @@ const {
   handleInput,
   handleKeyDown,
 } = useSearch();
+
+const placeholder = ref('Search by Transaction / Address / Token / Block')
+
+const updatePlaceholder = () => {
+  if (window.innerWidth < 640) {
+    placeholder.value = 'Transaction / Address / Token / Block'
+  } else {
+    placeholder.value = 'Search by Transaction / Address / Token / Block'
+  }
+}
+
+onMounted(() => {
+  updatePlaceholder()
+  window.addEventListener('resize', updatePlaceholder)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updatePlaceholder)
+})
 </script>
 
 <template>
@@ -46,7 +67,7 @@ const {
           :value="data.query"
           @input="handleInput"
           @keydown="handleKeyDown"
-          placeholder="Search by Transaction / Address / Token / Block"
+          :placeholder="placeholder"
         />
         <div
           v-if="!!data.query"
