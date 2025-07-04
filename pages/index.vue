@@ -78,7 +78,7 @@ await useAsyncData('initial-transaction-count', () => fetchInitialTransactionCou
 
 <template>
   <div
-    class="flex flex-col lg:pt-4"
+    class="flex flex-col"
   >
     <HomeHero />
 

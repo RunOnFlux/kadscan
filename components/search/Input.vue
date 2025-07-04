@@ -17,9 +17,7 @@ const {
     <div
       :class="[data.open && '!border-kadscan-500']"
       class="
-        flex gap-2 items-center
-        w-full p-2 bg-gray-800 rounded-lg border border-transparent
-      "
+        flex gap-2 items-center w-full p-2 bg-[#111111] rounded-lg border border-[#222222]"
     >
       <div
         class="hidden sm:block"
@@ -53,16 +51,16 @@ const {
 
       <div
         @click="cleanup()"
-        class="mr-1 flex items-center justify-center p-[6px] bg-gray-500 rounded-lg h-8 w-8 bazk:h-9 bazk:w-9 shrink-0 cursor-pointer"
+        class="mr-1 flex items-center justify-center p-[6px] bg-[#0784c3] hover:bg-[#0670a6] rounded-lg h-8 w-8 bazk:h-9 bazk:w-9 shrink-0 cursor-pointer"
       >
         <IconSearchClose
-          class="w-5 h-5"
+          class="w-5 h-5 text-[#fafafa]"
           v-if="data.open && !!data.query"
         />
 
         <IconSearch
           v-else
-          class="w-5 h-5"
+          class="w-5 h-5 text-[#fafafa]"
         />
       </div>
     </div>
