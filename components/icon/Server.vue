@@ -1,10 +1,8 @@
 <template>
-  <svg width="64" height="64" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="none">
-    <g fill="#f5f5f5">
-      <path d="M3 3.25a.75.75 0 01.75-.75h.5a.75.75 0 010 1.5h-.5A.75.75 0 013 3.25z"/>
-      <path fill-rule="evenodd" d="M2.25 0A2.25 2.25 0 000 2.25v2.5A2.25 2.25 0 002.25 7h11.5A2.25 2.25 0 0016 4.75v-2.5A2.25 2.25 0 0013.75 0H2.25zM1.5 2.25a.75.75 0 01.75-.75h11.5a.75.75 0 01.75.75v2.5a.75.75 0 01-.75-.75H2.25a.75.75 0 01-.75-.75v-2.5z" clip-rule="evenodd"/>
-      <path d="M3.75 11.5a.75.75 0 000 1.5h.5a.75.75 0 000-1.5h-.5z"/>
-      <path fill-rule="evenodd" d="M2.25 9A2.25 2.25 0 000 11.25v2.5A2.25 2.25 0 002.25 16h11.5A2.25 2.25 0 0016 13.75v-2.5A2.25 2.25 0 0013.75 9H2.25zm-.75 2.25a.75.75 0 01.75-.75h11.5a.75.75 0 01.75.75v2.5a.75.75 0 01-.75-.75H2.25a.75.75 0 01-.75-.75v-2.5z" clip-rule="evenodd"/>
-    </g>
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="3" y="4" width="18" height="7" rx="2" stroke="#f5f5f5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="3" y="14" width="18" height="7" rx="2" stroke="#f5f5f5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M6 8L6 8.01" stroke="#f5f5f5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M6 18L6 18.01" stroke="#f5f5f5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>
 </template> 

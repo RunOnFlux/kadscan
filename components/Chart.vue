@@ -122,7 +122,7 @@ const chartOptions = ref({
 
 <template>
   <div
-    class="w-full h-full cursor-pointer"
+    class="w-full h-full cursor-pointer pt-2"
   >
     <Line
       :data="chartData"
