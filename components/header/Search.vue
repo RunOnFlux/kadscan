@@ -15,13 +15,7 @@ const {
     v-outside="close"
   >
     <div
-      class="
-        flex gap-2 items-center
-        py-[5px] px-2  rounded-lg border border-gray-300 min-w-full
-      "
-      :class="[
-        data.open && '!border-kadscan-500'
-      ]"
+      class="flex gap-2 items-center w-full p-2 bg-[#111111] rounded-lg border border-[#222222]"
     >
       <div
         class="hidden sm:block"
@@ -38,12 +32,12 @@ const {
         class="
           px-1
           bazk:px-2
-          text-sm
+          text-[15px]
           bg-transparent
           outline-none
           h-full w-full
-          text-font-400
-          placeholder:text-font-500
+          text-[#f5f5f5]  
+          placeholder:text-[#bbbbbb]
         "
         @click.prevent="data.open = true"
         :value="data.query"
