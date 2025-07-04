@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useBlockFeed } from '~/composables/useBlockFeed';
 import { useTransactionFeed } from '~/composables/useTransactionFeed';
+import { useTransactionCount, fetchInitialTransactionCount } from '~/composables/useTransactionCount';
 import { computed } from 'vue';
 
 definePageMeta({
@@ -70,6 +71,9 @@ function openModal(cardType: import('~/composables/useCustomCardSettings').CardT
 
 const { sortedBlockGroups } = useBlockFeed();
 const { sortedTransactionGroups } = useTransactionFeed();
+
+const transactionCount = useTransactionCount();
+await useAsyncData('initial-transaction-count', () => fetchInitialTransactionCount());
 </script>
 
 <template>
@@ -85,7 +89,7 @@ const { sortedTransactionGroups } = useTransactionFeed();
       :kadena-price-variation="cgData?.token?.market_data?.price_change_percentage_24h ?? null"
       :market-cap="cgData?.token?.market_data?.market_cap?.usd ?? null"
       :block-groups="sortedBlockGroups"
-      :transactions-count="null"
+      :transactions-count="transactionCount"
       :avg-gas-price="null"
     />
 
