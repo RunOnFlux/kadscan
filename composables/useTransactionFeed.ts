@@ -101,8 +101,6 @@ export const useTransactionFeed = () => {
         coinbaseTransactions.value.clear();
         sortedRegular.forEach(tx => regularTransactions.value.set(tx.hash, tx));
         sortedCoinbase.forEach(tx => coinbaseTransactions.value.set(tx.hash, tx));
-        console.log('regularTransactions', regularTransactions.value);
-        console.log('coinbaseTransactions', coinbaseTransactions.value);
       }
     } catch (e) {
       console.error('Failed to fetch initial transactions:', e);
