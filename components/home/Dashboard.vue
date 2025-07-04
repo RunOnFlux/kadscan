@@ -25,7 +25,7 @@ const variationClass = computed(() => {
 });
 
 const formattedVariation = computed(() => {
-  if (props.kadenaPriceVariation === null) return '—';
+  if (props.kadenaPriceVariation === null) return '';
   const sign = props.kadenaPriceVariation > 0 ? '+' : '';
   return `(${sign}${props.kadenaPriceVariation.toFixed(2)}%)`;
 });
