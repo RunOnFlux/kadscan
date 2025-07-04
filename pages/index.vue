@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useBlockFeed } from '~/composables/useBlockFeed';
 import { useTransactionFeed } from '~/composables/useTransactionFeed';
-import CustomizeModal from '~/components/customize/Modal.vue';
+import { useTransactionCount, fetchInitialTransactionCount } from '~/composables/useTransactionCount';
+import { computed } from 'vue';
 
 definePageMeta({
   layout: 'app',
@@ -70,70 +71,27 @@ function openModal(cardType: import('~/composables/useCustomCardSettings').CardT
 
 const { sortedBlockGroups } = useBlockFeed();
 const { sortedTransactionGroups } = useTransactionFeed();
+
+const transactionCount = useTransactionCount();
+await useAsyncData('initial-transaction-count', () => fetchInitialTransactionCount());
 </script>
 
 <template>
   <div
-    class="flex flex-col gap-4 lg:gap-10 lg:pt-4"
+    class="flex flex-col"
   >
     <HomeHero />
 
-    <Container
-      class="lg:!p-8 gap-4 lg:gap-6 grid lg:grid-cols-2"
-    >
-      <div
-        class="
-          p-3 lg:p-4 gap-2 lg:gap-4 flex-grow grid lg:grid-cols-2 bg-gray-700 rounded-lg lg:rounded-xl
-        "
-      >
-        <HomeCard
-          :isLoading="cgStatus === 'pending'"
-          :label="'Kadena Price'"
-          :description="moneyCompact.format(cgData?.token?.market_data?.current_price?.usd || 0)"
-          :delta="cgData?.token?.market_data?.price_change_percentage_24h_in_currency?.usd || 0"
-        />
-
-        <HomeCard
-          isDark
-          label="Total volume 24h"
-          :isLoading="cgStatus === 'pending'"
-          :delta="cgData?.token?.market_data?.price_change_percentage_24h"
-          :description="moneyCompact.format(cgData?.token?.market_data?.total_volume?.usd || 0)"
-        />
-
-        <HomeCard
-          label="Market Capital"
-          :isLoading="cgStatus === 'pending'"
-          :description="moneyCompact.format(cgData?.token?.market_data?.market_cap?.usd || 0)"
-        />
-
-        <HomeCard
-          label="Circulating Supply"
-          :isLoading="cgStatus === 'pending'"
-          :description="moneyCompact.format(cgData?.token?.market_data?.circulating_supply || 0)"
-        />
-      </div>
-
-      <div
-        v-if="cgStatus !== 'pending'"
-        class="w-full h-full flex flex-col gap-3 lg:gap-6"
-      >
-        <span
-          class="text-font-400"
-        >
-          KDA Price 14 days
-        </span>
-
-        <div
-          class="h-full max-h-[216px]"
-        >
-          <Chart
-            :key="cgStatus"
-            v-bind="cgData?.chartData || defaultChartData"
-          />
-        </div>
-      </div>
-    </Container>
+    <HomeDashboard
+      :is-loading="cgStatus === 'pending'"
+      :chart-data="cgData?.chartData"
+      :kadena-price="cgData?.token?.market_data?.current_price?.usd ?? null"
+      :kadena-price-variation="cgData?.token?.market_data?.price_change_percentage_24h ?? null"
+      :market-cap="cgData?.token?.market_data?.market_cap?.usd ?? null"
+      :block-groups="sortedBlockGroups"
+      :transactions-count="transactionCount"
+      :avg-gas-price="null"
+    />
 
     <div
       class="grid lg:grid-cols-2 gap-4 mb-4"

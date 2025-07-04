@@ -29,17 +29,17 @@ provideUseId(() => useId())
         class="relative"
       >
         <ListboxButton
-          class="hover:text-kadscan-500 flex items-center justify-center gap-2 px-3 py-2 ring-0 outline-none shrink-0"
+          class="flex items-center justify-center gap-11 px-[10px] py-[0.3rem] ring-0 outline-none shrink-0"
         >
           <span
-            class="text-sm text-font-400 whitespace-nowrap block"
+            class="text-[15px] text-[#f5f5f5] whitespace-nowrap block"
           >
             {{ modelValue.label }}
           </span>
 
           <IconArrow
-            class="transition shrink-0 h-5 w-5"
-            :class="open ? 'rotate-90 text-kadscan-500' : '-rotate-90 text-font-500'"
+            class="transition shrink-0 h-5 w-5 text-[#bbbbbb]"
+            :class="open ? 'rotate-90' : '-rotate-90'"
           />
         </ListboxButton>
 
@@ -53,12 +53,12 @@ provideUseId(() => useId())
               z-[99999]
               w-[180px]
               p-2
-              border border-gray-300
+              border border-[#222222]
               rounded-lg
               absolute
               left-0
               top-[calc(100%+8px)]
-              bg-gray-700
+              bg-[#111111]
             "
           >
             <ListboxOption
@@ -68,12 +68,11 @@ provideUseId(() => useId())
               as="template"
             >
               <li
-                class="px-4 py-2 hover:opacity-[0.7] cursor-pointer"
+                class="px-4 py-2 hover:opacity-[0.7] cursor-pointer text-[#f5f5f5]"
               >
                 <span
                   class="
                     text-sm
-                    text-font-400
                   "
                 >
                   {{ item.label }}

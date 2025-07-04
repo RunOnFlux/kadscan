@@ -14,7 +14,7 @@ export default {
     extend: {
       fontFamily: {
         sans: [
-          'Inter', ...defaultTheme.fontFamily.sans
+          'Roboto', ...defaultTheme.fontFamily.sans
         ],
         title: [
           'Roboto', ...defaultTheme.fontFamily.sans
@@ -41,10 +41,10 @@ export default {
         },
 
         kadscan: {
-          400: '#66F9CD',
-          500: '#00F5AB',
-          600: '#00C489',
-          700: '#009367',
+          400: '#39a1d9',
+          500: '#0784c3',
+          600: '#056a9e',
+          700: '#045079',
         },
 
         font: {

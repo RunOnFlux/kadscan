@@ -1,5 +1,6 @@
 import { createClient } from 'graphql-ws'
 import { ref, onUnmounted, readonly } from 'vue'
+import { updateTransactionCount } from './useTransactionCount';
 
 let client: any = null
 
@@ -20,6 +21,7 @@ const subscriptionQuery = `
   subscription HomeTxList($first: Int) {
     newBlocks {
       height
+      chainId
       transactions(first: $first) {
         edges {
           node {
@@ -57,13 +59,24 @@ const startSubscription = () => {
       {
         query: subscriptionQuery,
         variables: {
-          first: 10
+          first: 200
         }
       },
       {
         next: (result: any) => {
           if (result.data?.newBlocks && Array.isArray(result.data.newBlocks)) {
-            const allTxs = result.data.newBlocks.flatMap((block: any) => block.transactions.edges.map((edge:any) => edge.node));
+            const allTxs: any[] = [];
+            result.data.newBlocks.forEach((block: any) => {
+              if (block.transactions?.totalCount > 0) {
+                updateTransactionCount(block.transactions.totalCount, block.height, block.chainId);
+              }
+
+              if (block.transactions?.edges) {
+                const txsInBlock = block.transactions.edges.map((edge: any) => edge.node);
+                allTxs.push(...txsInBlock);
+              }
+            });
+
             newTransactions.value.unshift(...allTxs);
             if (newTransactions.value.length > 50) {
               newTransactions.value.length = 50;

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import '@fontsource/inter/latin.css'
 import '@fontsource/roboto/latin.css'
+import { onMounted } from 'vue';
+import { fetchInitialTransactionCount } from '~/composables/useTransactionCount';
 
 useHead({
   titleTemplate: title => title || 'Kadscan: Block Explorer',
@@ -23,6 +25,9 @@ useHead({
   ]
 })
 
+onMounted(() => {
+  fetchInitialTransactionCount();
+});
 </script>
 
 <template>
