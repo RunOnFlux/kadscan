@@ -1,12 +1,16 @@
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useTransactionWss } from '~/composables/useTransactionWss';
 import { useCustomCardSettings } from '~/composables/useCustomCardSettings';
+import { useSharedData } from '~/composables/useSharedData';
+import { updateGasPriceStats, resetGasPriceStats } from '~/composables/useAverageGasPrice';
+import { resetTransactionCount, fetchInitialTransactionCount } from '~/composables/useTransactionCount';
 
 export const useTransactionFeed = () => {
   const regularTransactions = ref(new Map());
   const coinbaseTransactions = ref(new Map());
   const { getPreset } = useCustomCardSettings();
   const cardPreset = getPreset('transactions');
+  const { selectedNetwork } = useSharedData();
 
   const sortedTransactionGroups = computed(() => {
     const sourceMap = cardPreset.value === 'latest-coinbase-transactions'
@@ -49,12 +53,14 @@ export const useTransactionFeed = () => {
     }
   `;
 
-  const fetchInitialTransactions = async () => {
+  // Fetch the initial transactions before the websocket connection is established
+  const fetchInitialTransactions = async (network: { id: string }) => {
     try {
       const response: any = await $fetch('/api/graphql', {
         method: 'POST',
         body: {
           query: homeTransactionsQuery,
+          networkId: network.id,
           variables: {
             heightCount: 1,
             completedHeights: false,
@@ -63,8 +69,6 @@ export const useTransactionFeed = () => {
           },
         },
       });
-
-      console.log('response', response);
 
       const responseData = response?.data?.completedBlockHeights;
 
@@ -77,7 +81,7 @@ export const useTransactionFeed = () => {
             edge.node.transactions.edges.forEach((txEdge: any) => {
               const tx = txEdge.node;
               const fee = (tx.result.gas || 0) * parseFloat(tx.cmd.meta.gasPrice || '0');
-              const transaction = {
+              const newTransaction = {
                 hash: tx.hash,
                 createdAt: tx.cmd.meta.creationTime,
                 sender: tx.cmd.meta.sender,
@@ -85,10 +89,15 @@ export const useTransactionFeed = () => {
                 fee,
               };
 
+              // update gas price stats
+              if(parseFloat(tx.cmd.meta.gasPrice) > 0) {
+                updateGasPriceStats(parseFloat(tx.cmd.meta.gasPrice), newTransaction.hash, newTransaction.createdAt);
+              }
+
               if (tx.cmd.meta.sender === 'coinbase') {
-                allCoinbaseTxs.push(transaction);
+                allCoinbaseTxs.push(newTransaction);
               } else {
-                allRegularTxs.push(transaction);
+                allRegularTxs.push(newTransaction);
               }
             });
           }
@@ -107,6 +116,27 @@ export const useTransactionFeed = () => {
     }
   };
 
+  // This watcher now drives the data loading and subscription logic
+  watch(selectedNetwork, async (newNetwork) => {
+    if (!newNetwork) {
+      return;
+    }
+    console.log(`Transaction feed reacting to network change: ${newNetwork.id}`);
+    
+    // 1. Reset all stats
+    regularTransactions.value.clear();
+    coinbaseTransactions.value.clear();
+    resetGasPriceStats();
+    resetTransactionCount();
+
+    // 2. Fetch all initial data before starting subscriptions
+    await fetchInitialTransactionCount();
+    await fetchInitialTransactions(newNetwork);
+
+    // 3. Start live updates
+    startSubscription();
+  }, { immediate: true, deep: true });
+
   watch(newTransactions, (latestTransactions) => {
     const MAX_TRANSACTIONS = 6;
     latestTransactions.forEach((tx: any) => {
@@ -122,6 +152,12 @@ export const useTransactionFeed = () => {
       const targetMap = tx.cmd.meta.sender === 'coinbase' ? coinbaseTransactions.value : regularTransactions.value;
       targetMap.set(newTransaction.hash, newTransaction);
 
+      // update gas price stats
+      if(parseFloat(tx.cmd.meta.gasPrice) > 0) {
+        updateGasPriceStats(parseFloat(tx.cmd.meta.gasPrice), newTransaction.hash, newTransaction.createdAt);
+      }
+
+      // delete oldest transaction if the map is bigger than the max transactions
       if (targetMap.size > MAX_TRANSACTIONS) {
         const sorted = Array.from(targetMap.values()).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
         const toDeleteCount = targetMap.size - MAX_TRANSACTIONS;
@@ -131,11 +167,6 @@ export const useTransactionFeed = () => {
       }
     });
   }, { deep: true });
-
-  onMounted(async () => {
-    await fetchInitialTransactions();
-    startSubscription();
-  });
 
   return {
     sortedTransactionGroups,

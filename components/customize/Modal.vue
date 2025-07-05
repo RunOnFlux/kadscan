@@ -49,7 +49,7 @@ watch(() => props.isOpen, (isOpen) => {
     <transition name="fade">
       <div
         v-if="isOpen"
-        class="fixed inset-0 z-40 bg-black bg-opacity-50"
+        class="fixed inset-0 z-[998] bg-black bg-opacity-50"
         @click="closeModal"
       />
     </transition>
@@ -57,7 +57,7 @@ watch(() => props.isOpen, (isOpen) => {
     <transition name="slide-fade">
       <div
         v-if="isOpen"
-        class="fixed inset-0 z-50 flex items-start justify-center pt-[30px]"
+        class="fixed inset-0 z-[999] flex items-start justify-center pt-[30px]"
         @click="closeModal"
       >
         <div
@@ -117,21 +117,25 @@ watch(() => props.isOpen, (isOpen) => {
 </template>
 
 <style>
-.fade-enter-active,
-.fade-leave-active {
+.fade-enter-active {
   transition: opacity 0.3s ease;
 }
-
+.fade-leave-active {
+  transition: opacity 0.4s ease;
+  transition-delay: 0.2s;
+}
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
 }
 
-.slide-fade-enter-active,
+.slide-fade-enter-active {
+  transition: all 0.4s ease-out;
+  transition-delay: 0.2s;
+}
 .slide-fade-leave-active {
   transition: all 0.3s ease-out;
 }
-
 .slide-fade-enter-from,
 .slide-fade-leave-to {
   transform: translateY(-40px);

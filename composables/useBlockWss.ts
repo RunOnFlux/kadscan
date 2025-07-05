@@ -1,21 +1,13 @@
 import { createClient } from 'graphql-ws'
-import { ref, onUnmounted, readonly } from 'vue'
+import { ref, onUnmounted, readonly, watch } from 'vue'
+import { useSharedData } from '~/composables/useSharedData';
 
 /**
  * @description The singleton graphql-ws client instance.
  * It is initialized only on the client-side to avoid issues during server-side rendering.
  */
 let client: any = null
-
-// Only create client on the client side (browser)
-if (process.client) {
-  client = createClient({
-    url: 'wss://vps.mainnet.kadindexer.io/wss/graphql',
-    connectionParams: () => {
-      return {}
-    },
-  })
-}
+let unsubscribe: (() => void) | null = null
 
 /**
  * @description A reactive ref that holds the connection status of the WebSocket.
@@ -35,7 +27,7 @@ const newBlocks = ref<any[]>([])
  * @description The GraphQL subscription query string for receiving new block events.
  */
 const subscriptionQuery = `
-  subscription Events {
+  subscription HomeBlockList {
     newBlocks {
       height
       transactions {
@@ -48,18 +40,13 @@ const subscriptionQuery = `
 `
 
 /**
- * @description A variable to hold the unsubscribe function returned by the client.
- * This is used to stop the subscription.
- */
-let unsubscribe: (() => void) | null = null
-
-/**
  * @description Starts the WebSocket subscription for new blocks.
  * If a subscription is already active or the client is not initialized, it does nothing.
  */
 const startSubscription = () => {
   if (unsubscribe || !client) {
-    return
+    console.warn("Block WSS client not ready or already subscribed.");
+    return;
   }
   
   try {
@@ -71,19 +58,18 @@ const startSubscription = () => {
       {
         // 'next' is called every time the server sends data.
         next: (result: any) => {
-          if (result.data?.newBlocks && Array.isArray(result.data.newBlocks)) {
-            // Prepend the new blocks to the beginning of the array.
-            newBlocks.value.unshift(...result.data.newBlocks);
+          if (result.data?.newBlocks) {
+            newBlocks.value.unshift(...(Array.isArray(result.data.newBlocks) ? result.data.newBlocks : [result.data.newBlocks]))
             // Ensure the array does not grow indefinitely by capping it at 10 blocks.
             if (newBlocks.value.length > 10) {
-              newBlocks.value.length = 10;
+              newBlocks.value.length = 10
             }
           }
           isConnected.value = true
         },
         // 'error' is called when something goes wrong with the subscription.
         error: (err: any) => {
-          console.error('WebSocket Subscription Error:', err)
+          console.error('Block WebSocket Subscription Error:', err)
           error.value = err.message || 'Unknown error'
           isConnected.value = false
         },
@@ -95,7 +81,7 @@ const startSubscription = () => {
       }
     )
   } catch (err: unknown) {
-    console.error('Failed to start WebSocket subscription:', err)
+    console.error('Failed to start Block WebSocket subscription:', err)
     error.value = err instanceof Error ? err.message : 'Failed to start subscription'
   }
 }
@@ -106,16 +92,37 @@ const startSubscription = () => {
 const stopSubscription = () => {
   if (unsubscribe) {
     unsubscribe()
+    unsubscribe = null
   }
 }
 
-/**
- * @description A Vue composable that provides an interface to the application's
- * WebSocket subscription for real-time block updates.
- * @returns An object with functions to control the subscription and reactive state
- * variables for connection status, errors, and new block data.
- */
 export const useBlockWss = () => {
+  const { selectedNetwork } = useSharedData();
+  
+  watch(selectedNetwork, (network) => {
+    if (!process.client || !network) return;
+
+    // Teardown existing client
+    stopSubscription();
+    if (client) {
+      client.dispose();
+      client = null;
+    }
+    isConnected.value = false;
+    newBlocks.value = [];
+
+    // Setup new client
+    const wssUrl = network.id === 'mainnet01'
+      ? 'wss://vps.mainnet.kadindexer.io/wss/graphql'
+      : 'wss://testnet.kadindexer.io/graphql';
+
+    client = createClient({
+      url: wssUrl,
+      connectionParams: () => ({}),
+    });
+    console.log(`Block WSS client initialized for ${network.id}`);
+  }, { immediate: true, deep: true });
+
   /**
    * @description The component's unmount hook. It ensures that the WebSocket subscription
    * and client are properly cleaned up when the component using this composable is destroyed.
@@ -125,7 +132,10 @@ export const useBlockWss = () => {
     // We might not want to automatically unsubscribe on unmount
     // if we want the subscription to be persistent across the app.
     stopSubscription()
-    client.dispose()
+    if (client) {
+      client.dispose()
+      client = null
+    }
   })
 
   return {

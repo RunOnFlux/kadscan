@@ -1,5 +1,6 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useBlockWss } from '~/composables/useBlockWss';
+import { useSharedData } from '~/composables/useSharedData';
 
 /**
  * @description Manages the real-time block feed for the homepage.
@@ -34,9 +35,10 @@ export const useBlockFeed = () => {
   }
 
   const { startSubscription, newBlocks } = useBlockWss();
+  const { selectedNetwork } = useSharedData();
 
   const completedBlockHeightsQuery = `
-    query CompletedBlockHeights($heightCount: Int, $completedHeights: Boolean, $first: Int) {
+    query HomeBlockListInit($heightCount: Int, $completedHeights: Boolean, $first: Int) {
       completedBlockHeights(heightCount: $heightCount, completedHeights: $completedHeights, first: $first) {
         edges {
           node {
@@ -57,13 +59,14 @@ export const useBlockFeed = () => {
    * This ensures the UI has data to display immediately, before the real-time subscription starts.
    * It uses the `completedBlockHeights` GraphQL query to get all chain data for the last 6 heights.
    */
-  const fetchInitialBlocks = async () => {
+  const fetchInitialBlocks = async (network: { id: string }) => {
     try {
       // Make a POST request to the GraphQL endpoint to fetch the initial block data.
       const response: any = await $fetch('/api/graphql', {
         method: 'POST',
         body: {
           query: completedBlockHeightsQuery,
+          networkId: network.id,
           variables: {
             heightCount: 6,
             completedHeights: false,
@@ -116,6 +119,17 @@ export const useBlockFeed = () => {
     }
   };
 
+  // This watcher now drives the data loading and subscription logic
+  watch(selectedNetwork, async (newNetwork) => {
+    if (!newNetwork) {
+      return;
+    }
+    console.log(`Block feed reacting to network change: ${newNetwork.id}`);
+    displayedBlockGroups.value.clear();
+    await fetchInitialBlocks(newNetwork);
+    startSubscription();
+  }, { immediate: true, deep: true });
+
   /**
    * @description A watcher that processes new blocks arriving from the WebSocket subscription.
    * It updates existing block groups with new chain data or adds new block groups to the list,
@@ -160,15 +174,6 @@ export const useBlockFeed = () => {
       }
     });
   }, { deep: true });
-
-  /**
-   * @description The component's mount hook. It orchestrates the data loading process by
-   * first fetching the initial historical blocks and then starting the real-time WebSocket subscription.
-   */
-  onMounted(async () => {
-    await fetchInitialBlocks();
-    startSubscription();
-  });
 
   return {
     sortedBlockGroups,

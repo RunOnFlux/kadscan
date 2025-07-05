@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { useBlockFeed } from '~/composables/useBlockFeed';
 import { useTransactionFeed } from '~/composables/useTransactionFeed';
-import { useTransactionCount, fetchInitialTransactionCount } from '~/composables/useTransactionCount';
-import { computed } from 'vue';
+import { useTransactionCount } from '~/composables/useTransactionCount';
+import { useGasPriceStats } from '~/composables/useAverageGasPrice';
+import { useCustomCardSettings } from '~/composables/useCustomCardSettings';
+import { useSharedData } from '~/composables/useSharedData';
 
 definePageMeta({
   layout: 'app',
@@ -12,56 +14,32 @@ useHead({
   title: 'Kadscan'
 })
 
-const defaultChartData = {
-  market_caps: [],
-  prices: [],
-  total_volumes: []
-}
-
 const { $coingecko } = useNuxtApp();
+const { kdaPrice, kdaVariation, kdaMarketCap, gasPriceStats: sharedGasStats } = useSharedData();
 
-const { data: cgData, status: cgStatus, error: cgError } = await useAsyncData('home-cg-etl', async () => {
-  const [
-    token,
-    chartData,
-  ] = await Promise.all([
-    $coingecko.request('coins/kadena'),
-    $coingecko.request('coins/kadena/market_chart', {
+// This part is complex because the original fetch also gets chart data.
+// For now, we will fetch it separately here. A deeper refactor could move this too.
+const { data: chartData, status: cgStatus } = await useAsyncData('home-chart-etl', async () => {
+  return await $coingecko.request('coins/kadena/market_chart', {
       days: 14,
       interval: 'daily',
       vs_currency: 'usd',
     })
-  ]);
-
-  return {
-    token,
-    chartData,
-  };
-}, {
-  // remove
-  lazy: true,
 });
 
 const isCustomizeModalOpen = ref(false);
 const currentCardType = ref<import('~/composables/useCustomCardSettings').CardType>('blocks');
 
 watch(isCustomizeModalOpen, (isOpen) => {
-  const body = document.body;
   if (isOpen) {
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    if (scrollbarWidth > 0) {
-      body.style.paddingRight = `${scrollbarWidth}px`;
-    }
-    body.classList.add('overflow-hidden');
+    document.body.classList.add('modal-open');
   } else {
-    body.style.paddingRight = '';
-    body.classList.remove('overflow-hidden');
+    document.body.classList.remove('modal-open');
   }
 });
 
 onUnmounted(() => {
-  document.body.style.paddingRight = '';
-  document.body.classList.remove('overflow-hidden');
+  document.body.classList.remove('modal-open');
 });
 
 function openModal(cardType: import('~/composables/useCustomCardSettings').CardType) {
@@ -71,9 +49,17 @@ function openModal(cardType: import('~/composables/useCustomCardSettings').CardT
 
 const { sortedBlockGroups } = useBlockFeed();
 const { sortedTransactionGroups } = useTransactionFeed();
+const { getPreset } = useCustomCardSettings();
+const transactionCardPreset = computed(() => getPreset('transactions').value);
+const gasPriceStats = useGasPriceStats();
+const transactionStats = useTransactionCount();
 
-const transactionCount = useTransactionCount();
-await useAsyncData('initial-transaction-count', () => fetchInitialTransactionCount());
+const transactionListTitle = computed(() => {
+  return transactionCardPreset.value
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+});
 </script>
 
 <template>
@@ -84,13 +70,13 @@ await useAsyncData('initial-transaction-count', () => fetchInitialTransactionCou
 
     <HomeDashboard
       :is-loading="cgStatus === 'pending'"
-      :chart-data="cgData?.chartData"
-      :kadena-price="cgData?.token?.market_data?.current_price?.usd ?? null"
-      :kadena-price-variation="cgData?.token?.market_data?.price_change_percentage_24h ?? null"
-      :market-cap="cgData?.token?.market_data?.market_cap?.usd ?? null"
+      :chart-data="chartData"
+      :kadena-price="kdaPrice"
+      :kadena-price-variation="kdaVariation"
+      :market-cap="kdaMarketCap"
       :block-groups="sortedBlockGroups"
-      :transactions-count="transactionCount"
-      :avg-gas-price="null"
+      :transactions-count="transactionStats"
+      :gas-price-stats="gasPriceStats"
     />
 
     <div
@@ -112,16 +98,18 @@ await useAsyncData('initial-transaction-count', () => fetchInitialTransactionCou
           :is-customizable="true"
           @customize="openModal('blocks')"
         >
-          <HomeBlock
-            :key="blockGroup.height"
-            :height="blockGroup.height"
-            :chain-count="blockGroup.chains.size"
-            :total-transactions="blockGroup.totalTransactions"
-            :created-at="blockGroup.createdAt"
-            v-for="(blockGroup, index) in sortedBlockGroups"
-            :index="index"
-            :total-items="sortedBlockGroups.length"
-          />
+          <TransitionGroup name="block-list" tag="div">
+            <HomeBlock
+              :key="blockGroup.height"
+              :height="blockGroup.height"
+              :chain-count="blockGroup.chains.size"
+              :total-transactions="blockGroup.totalTransactions"
+              :created-at="blockGroup.createdAt"
+              v-for="(blockGroup, index) in sortedBlockGroups"
+              :index="index"
+              :total-items="sortedBlockGroups.length"
+            />
+          </TransitionGroup>
         </HomeList>
       </div>
       <div
@@ -135,22 +123,24 @@ await useAsyncData('initial-transaction-count', () => fetchInitialTransactionCou
         class="grid lg:grid-cols-1 gap-4 lg:gap-6"
       >
         <HomeList
-          label="Latest Transactions"
+          :label="transactionListTitle"
           path="/transactions"
           :is-customizable="true"
           @customize="openModal('transactions')"
         >
-          <HomeTransaction
-            :key="transaction.hash"
-            :hash="transaction.hash"
-            :sender="transaction.sender"
-            :chain-id="transaction.chainId"
-            :created-at="transaction.createdAt"
-            :fee="transaction.fee"
-            v-for="(transaction, index) in sortedTransactionGroups"
-            :index="index"
-            :total-items="sortedTransactionGroups.length"
-          />
+        <TransitionGroup name="transaction-list" tag="div">
+            <HomeTransaction
+              :key="transaction.hash"
+              :hash="transaction.hash"
+              :sender="transaction.sender"
+              :chain-id="transaction.chainId"
+              :created-at="transaction.createdAt"
+              :fee="transaction.fee"
+              v-for="(transaction, index) in sortedTransactionGroups"
+              :index="index"
+              :total-items="sortedTransactionGroups.length"
+            />
+          </TransitionGroup>
         </HomeList>
       </div>
     </div>
@@ -161,3 +151,39 @@ await useAsyncData('initial-transaction-count', () => fetchInitialTransactionCou
     />
   </div>
 </template>
+
+<style scoped>
+.transaction-list-move,
+.transaction-list-enter-active,
+.transaction-list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.transaction-list-enter-from,
+.transaction-list-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+
+.transaction-list-leave-active {
+  position: absolute;
+  width: 100%;
+}
+
+.block-list-move,
+.block-list-enter-active,
+.block-list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.block-list-enter-from,
+.block-list-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+
+.block-list-leave-active {
+  position: absolute;
+  width: 100%;
+}
+</style>

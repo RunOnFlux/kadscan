@@ -40,8 +40,8 @@ const timeAgo = computed(() => {
       class="flex items-center justify-between py-[14px]"
       :class="{ 'border-b border-[#222222]': index !== totalItems - 1 }"
     >
-      <div class="flex items-center w-1/3 gap-2">
-        <div class="bg-[#151515] rounded-md p-3">
+      <div class="flex items-center md:w-1/3 gap-2 w-[160px]">
+        <div class="bg-[#151515] rounded-md p-3 hidden md:block">
           <BlockIcon class="w-6 h-6 text-[#b0b0b0]" />
         </div>
         <div>
@@ -52,7 +52,7 @@ const timeAgo = computed(() => {
         </div>
       </div>
 
-      <div class="flex items-center justify-between w-2/3">
+      <div class="flex items-center justify-between w-full md:w-2/3">
           <div class="text-sm">
             <Tooltip value="Amount of Chains included in this Block">
               <div class="text-[#bbbbbb]">
@@ -69,7 +69,7 @@ const timeAgo = computed(() => {
           </div>
 
         <Tooltip value="Block Reward">
-          <div class="hidden sm:block text-[11px] text-[#f5f5f5] border border-gray-600 bg-transparent rounded-md px-2 py-1">
+          <div class="text-[11px] text-[#f5f5f5] border border-gray-600 bg-transparent rounded-md px-2 py-1">
             0.0 kda
           </div>
         </Tooltip>

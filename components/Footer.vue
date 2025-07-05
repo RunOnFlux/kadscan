@@ -2,6 +2,7 @@
 import IconTwitter from '~/components/icon/Twitter.vue'
 import IconGithub from '~/components/icon/Github.vue'
 import IconGitbook from '~/components/icon/Gitbook.vue'
+import IconBackToTop from '~/components/icon/BackToTop.vue'
 
 const { routes } = useAppConfig()
 
@@ -22,6 +23,13 @@ const socials = [
     icon: IconTwitter
   }
 ]
+
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  })
+}
 </script>
 
 <template>
@@ -32,12 +40,12 @@ const socials = [
           <div class="flex items-end gap-3">
             <IconLogoColor class="h-[38px] md:h-[42px] w-max" />
           </div>
-          <span class="text-sm text-[#f5f5f5] leading-[19.6px]">
+          <span class="hidden md:block text-sm text-[#f5f5f5] leading-[19.6px]">
             Kadscan is a Block Explorer and Analytics Platform for Kadena.
           </span>
         </div>
 
-        <div class="flex gap-x-6 gap-y-2 flex-wrap">
+        <div class="hidden md:flex gap-x-6 gap-y-2 flex-wrap">
           <NuxtLink
             v-for="link in routes"
             :key="link.tag"
@@ -47,6 +55,14 @@ const socials = [
             {{ link.label }}
           </NuxtLink>
         </div>
+
+        <button
+          @click="scrollToTop"
+          class="md:hidden flex items-center gap-2 text-[#f5f5f5] bg-[#1a1a1a] border border-[#2d2d2d] rounded-lg px-4 py-2"
+        >
+          <IconBackToTop class="h-5 w-5" />
+          <span>Back to Top</span>
+        </button>
       </div>
 
       <div class="border-t border-t-[#222222] my-4" />
