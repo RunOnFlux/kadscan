@@ -1,6 +1,7 @@
 export const shortenAddress = (
   address: string,
-  chars = 4
+  startChars = 6,
+  endChars = 4
 ): string => {
   if (!address) {
     return ''
@@ -10,20 +11,21 @@ export const shortenAddress = (
     return address
   }
 
-  return `${address.slice(0, chars)}...${address.slice(
-    -chars
+  return `${address.slice(0, startChars)}...${address.slice(
+    -endChars
   )}`
 }
 
 export const shortenString = (
   string: string,
-  chars = 4
+  startChars = 6,
+  endChars = 4
 ): string => {
   if (!string) {
     return ''
   }
 
-  return `${string.slice(0, chars)}...${string.slice(
-    -chars
+  return `${string.slice(0, startChars)}...${string.slice(
+    -endChars
   )}`
 }

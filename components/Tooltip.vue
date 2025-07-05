@@ -1,15 +1,24 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { usePopper } from '~/composables/usePopper';
 
-defineProps<{
+const props = defineProps<{
   value?: string,
+  variant?: 'default' | 'hash',
 }>();
 
 const isVisible = ref(false);
 const [reference, popper] = usePopper({
   placement: 'top',
   offsetDistance: 12
+});
+
+const tooltipClass = computed(() => {
+  const base = 'z-10 w-max';
+  if (props.variant === 'hash') {
+    return `${base} max-w-md`;
+  }
+  return `${base} max-w-[200px]`;
 });
 </script>
 
@@ -26,7 +35,7 @@ const [reference, popper] = usePopper({
         <div
           ref="popper"
           v-if="isVisible"
-          class="z-10 w-max max-w-[200px]"
+          :class="tooltipClass"
         >
           <div class="bg-[#313131] text-[#e5e5e5] text-xs px-2 py-1 rounded-md shadow-lg relative text-center">
             {{ value }}

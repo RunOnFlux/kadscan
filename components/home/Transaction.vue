@@ -55,9 +55,11 @@ const formattedFee = computed(() => {
           <TransactionList class="w-6 h-6 text-[#b0b0b0]" />
         </div>
         <div>
-          <NuxtLink :to="`/transactions/${props.hash}`" class="text-[#6ab5db] hover:text-[#9ccee7] text-[15px]">
-            {{ shortenString(props.hash) }}
-          </NuxtLink>
+          <Tooltip :value="props.hash" variant="hash">
+            <NuxtLink :to="`/transactions/${props.hash}`" class="text-[#6ab5db] hover:text-[#9ccee7] text-[15px]">
+              {{ shortenString(props.hash) }}
+            </NuxtLink>
+          </Tooltip>
           <div class="text-xs text-[#bbbbbb]">{{ timeAgo }}</div>
         </div>
       </div>
@@ -66,9 +68,11 @@ const formattedFee = computed(() => {
         <div class="text-sm text-left">
             <div class="text-[#f5f5f5]">
               Sender
-              <NuxtLink :to="`/account/${props.sender}`" class="text-[#6ab5db] hover:text-[#9ccee7]">
-                {{ shortenAddress(props.sender) }}
-              </NuxtLink>
+              <Tooltip :value="props.sender" variant="hash">
+                <NuxtLink :to="`/account/${props.sender}`" class="text-[#6ab5db] hover:text-[#9ccee7]">
+                  {{ shortenAddress(props.sender) }}
+                </NuxtLink>
+              </Tooltip>
             </div>
           <div>
             <div class="text-[#bbbbbb]">
