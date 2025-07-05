@@ -57,7 +57,7 @@ function openModal(cardType: import('~/composables/useCustomCardSettings').CardT
 const { sortedBlockGroups } = useBlockFeed();
 const { sortedTransactionGroups } = useTransactionFeed();
 const { getPreset } = useCustomCardSettings();
-const transactionCardPreset = getPreset('transactions');
+const transactionCardPreset = computed(() => getPreset('transactions').value);
 const gasPriceStats = useGasPriceStats();
 const transactionStats = useTransactionCount();
 
