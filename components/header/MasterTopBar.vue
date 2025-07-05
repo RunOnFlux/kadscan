@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { useSharedData } from '~/composables/useSharedData';
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 
-const { kdaPrice, kdaVariation, gasPriceStats } = useSharedData();
-
-const networks = ref([
-  { name: 'Mainnet' },
-  { name: 'Testnet' },
-])
-const selectedNetwork = ref(networks.value[0])
+const { 
+  kdaPrice, 
+  kdaVariation, 
+  gasPriceStats,
+  availableNetworks,
+  selectedNetwork,
+  setNetwork
+} = useSharedData();
 
 // Simple number formatter
 const formatNumber = (value: number, decimals: number = 2) => {
@@ -75,12 +76,13 @@ const medGasPrice = computed(() => {
           >
             <MenuItems class="absolute right-0 mt-1 border border-[#222222] w-32 origin-top-right rounded-lg bg-[#111111] shadow-[0_0_15px_rgba(255,255,255,0.0625)] ring-1 ring-black/5 focus:outline-none px-2 py-1">
               <div class="px-1 py-1">
-                <MenuItem v-for="network in networks" :key="network.name" v-slot="{ active }">
+                <MenuItem v-for="network in availableNetworks" :key="network.id" v-slot="{ active }">
                   <button
-                    @click="selectedNetwork = network"
+                    @click="setNetwork(network)"
                     :class="[
-                      active ? 'text-[#00a186]' : '',
-                      'group flex w-full items-center hover:bg-[#222222] justify-start rounded-md px-3 py-2 text-sm text-white',
+                      active ? 'bg-[#222222]' : '',
+                      selectedNetwork.id === network.id ? 'text-[#6ab5db]' : 'text-white',
+                      'group flex w-full items-center hover:bg-[#222222] justify-start rounded-md px-3 py-2 text-sm',
                     ]"
                   >
                     <span>{{ network.name }}</span>
