@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineProps } from 'vue';
+import { computed, defineProps, toRef } from 'vue';
 import Chart from '~/components/Chart.vue';
 import { integer, money } from '~/composables/number';
 
@@ -19,6 +19,8 @@ const props = defineProps<{
   gasPriceStats: any,
 }>();
 
+const gasPriceStatsRef = toRef(props, 'gasPriceStats');
+
 const variationClass = computed(() => {
   if (!props.kadenaPriceVariation) return '';
   return props.kadenaPriceVariation > 0 ? 'text-[#00a186]' : 'text-[#dc3545]';
@@ -31,8 +33,9 @@ const formattedVariation = computed(() => {
 });
 
 const formattedAvgGasPrice = computed(() => {
-  const avgGasPrice = props.gasPriceStats.totalGasPrice / props.gasPriceStats.txCount;
-  const feeStr = avgGasPrice.toFixed(8);
+  if (gasPriceStatsRef.value.txCount === 0) return null;
+  const avgGasPrice = gasPriceStatsRef.value.totalGasPrice / gasPriceStatsRef.value.txCount;
+  const feeStr = avgGasPrice.toFixed(9);
   return feeStr.replace(/(\.\d*[1-9])0+$/, '$1').replace(/\.0+$/, '.0');
 });
 
@@ -85,7 +88,7 @@ const lastSafeBlock = computed(() => {
           </div>
           <div class="text-right">
             <div class="text-xs text-[#bbbbbb] mb-[1px]">MED GAS PRICE</div>
-            <div class="text-[15px] text-[#f5f5f5]">{{ `${formattedAvgGasPrice} KDA`}}</div>
+            <div class="text-[15px] text-[#f5f5f5]">{{ `${formattedAvgGasPrice ? formattedAvgGasPrice + ' KDA' : '—'}`}}</div>
           </div>
         </div>
         <div class="border-t border-[#222222] my-5"></div>

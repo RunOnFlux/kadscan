@@ -1,49 +1,34 @@
 import { useState } from '#app';
 
 const useGasPriceStats = () => useState<{ totalGasPrice: number; txCount: number }>('gas-price-stats', () => ({
-  totalGasPrice: 0.000001,
-  txCount: 1,
+  totalGasPrice: 0,
+  txCount: 0,
 }));
+const gasPriceProcessed = ref(new Map());
+const MAX_HASH_LIMIT = 100;
 
-const useGasProcessedHeights = () => useState<Set<string>>('gas-processed-heights', () => new Set());
+const updateGasPriceStats = (gasPrice: number, hash: string, createdAt: string) => {
+  if (gasPriceProcessed.value.has(hash)) {
+    return;
+  }
+  gasPriceProcessed.value.set(hash, createdAt);
 
-const updateGasPriceStats = (blocks: any[]) => {
   const stats = useGasPriceStats();
-  const processedHeights = useGasProcessedHeights();
+  stats.value.txCount += 1;
+  stats.value.totalGasPrice += gasPrice;
 
-  blocks.forEach(block => {
-    const key = `${block.height}-${block.chainId}`;
-    if (processedHeights.value.has(key)) {
-      return;
-    }
+  if (gasPriceProcessed.value.size > MAX_HASH_LIMIT) {
+    const toDeleteCount = gasPriceProcessed.value.size - MAX_HASH_LIMIT;
 
-    if (block.transactions?.edges) {
-      block.transactions.edges.forEach((edge: any) => {
-        const gasPrice = edge.node?.cmd?.meta?.gasPrice;
-        if (gasPrice !== undefined) {
-          const price = typeof gasPrice === 'string' ? parseFloat(gasPrice) : gasPrice;
+    const sortedEntries = Array.from(gasPriceProcessed.value.entries()).sort(
+      (a, b) => new Date(a[1]).getTime() - new Date(b[1]).getTime()
+    );
 
-          if (!isNaN(price)) {
-            stats.value.totalGasPrice += price;
-            stats.value.txCount += 1;
-          }
-        }
-      });
-    }
-    processedHeights.value.add(key);
-  });
-
-
-  while (processedHeights.value.size > 6) {
-    const oldestKey = processedHeights.value.values().next().value;
-    if (oldestKey) {
-      processedHeights.value.delete(oldestKey);
-    } else {
-      break;
+    for (let i = 0; i < toDeleteCount; i++) {
+      const hashToDelete = sortedEntries[i][0];
+      gasPriceProcessed.value.delete(hashToDelete);
     }
   }
-  console.log("stats.value.txCount", stats.value.txCount)
-//   console.log('Gas Processed Heights Set:', processedHeights.value.size);
 };
 
 export { useGasPriceStats, updateGasPriceStats }; 

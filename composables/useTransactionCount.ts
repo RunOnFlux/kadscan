@@ -27,8 +27,6 @@ const updateTransactionCount = (blocks: any[]) => {
       break;
     }
   }
-  console.log("transactionCount.value", transactionCount.value)
-  // console.log('Transaction Processed Heights Set:', processedHeights.value.size);
 };
 
 const query = `

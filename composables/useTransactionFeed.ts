@@ -49,6 +49,7 @@ export const useTransactionFeed = () => {
     }
   `;
 
+  // Fetch the initial transactions before the websocket connection is established
   const fetchInitialTransactions = async () => {
     try {
       const response: any = await $fetch('/api/graphql', {
@@ -75,7 +76,7 @@ export const useTransactionFeed = () => {
             edge.node.transactions.edges.forEach((txEdge: any) => {
               const tx = txEdge.node;
               const fee = (tx.result.gas || 0) * parseFloat(tx.cmd.meta.gasPrice || '0');
-              const transaction = {
+              const newTransaction = {
                 hash: tx.hash,
                 createdAt: tx.cmd.meta.creationTime,
                 sender: tx.cmd.meta.sender,
@@ -83,10 +84,15 @@ export const useTransactionFeed = () => {
                 fee,
               };
 
+              // update gas price stats
+              if(parseFloat(tx.cmd.meta.gasPrice) > 0) {
+                updateGasPriceStats(parseFloat(tx.cmd.meta.gasPrice), newTransaction.hash, newTransaction.createdAt);
+              }
+
               if (tx.cmd.meta.sender === 'coinbase') {
-                allCoinbaseTxs.push(transaction);
+                allCoinbaseTxs.push(newTransaction);
               } else {
-                allRegularTxs.push(transaction);
+                allRegularTxs.push(newTransaction);
               }
             });
           }
@@ -105,6 +111,7 @@ export const useTransactionFeed = () => {
     }
   };
 
+  // Watching the new transaction received from the websocket
   watch(newTransactions, (latestTransactions) => {
     const MAX_TRANSACTIONS = 6;
     latestTransactions.forEach((tx: any) => {
@@ -120,6 +127,12 @@ export const useTransactionFeed = () => {
       const targetMap = tx.cmd.meta.sender === 'coinbase' ? coinbaseTransactions.value : regularTransactions.value;
       targetMap.set(newTransaction.hash, newTransaction);
 
+      // update gas price stats
+      if(parseFloat(tx.cmd.meta.gasPrice) > 0) {
+        updateGasPriceStats(parseFloat(tx.cmd.meta.gasPrice), newTransaction.hash, newTransaction.createdAt);
+      }
+
+      // delete oldest transaction if the map is bigger than the max transactions
       if (targetMap.size > MAX_TRANSACTIONS) {
         const sorted = Array.from(targetMap.values()).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
         const toDeleteCount = targetMap.size - MAX_TRANSACTIONS;
