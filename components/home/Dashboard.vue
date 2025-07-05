@@ -53,6 +53,11 @@ const lastSafeBlock = computed(() => {
   if (lastFinalizedBlock.value === null) return '—';
   return lastFinalizedBlock.value - 5 <= 0 ? 0 : lastFinalizedBlock.value - 5;
 });
+
+const marketCapInKda = computed(() => {
+  if (!props.marketCap || !props.kadenaPrice) return null;
+  return props.marketCap / props.kadenaPrice;
+});
 </script>
 
 <template>
@@ -70,11 +75,18 @@ const lastSafeBlock = computed(() => {
           </div>
         </div>
         <div class="border-t border-[#222222] my-5"></div>
-        <div class="flex items-start ">
-          <NetworkIcon class="w-7 h-7 mr-[12px]" />
-          <div>
-            <div class="text-xs text-[#bbbbbb] mb-[1px]">MARKET CAP</div>
-            <div class="text-[15px] text-[#f5f5f5] mt-[1px] mb-[3px]">{{ marketCap ? money.format(marketCap) : '—' }}</div>
+        <div class="flex items-start justify-between">
+          <div class="flex items-start">
+            <NetworkIcon class="w-7 h-7 mr-[12px]" />
+            <div>
+              <div class="text-xs text-[#bbbbbb] mb-[1px]">MARKET CAP</div>
+              <div class="text-[15px] text-[#f5f5f5] mt-[1px] mb-[3px]">
+                {{ marketCap ? money.format(marketCap) : '—' }}
+                <span v-if="marketCapInKda" class="text-[#bbbbbb] text-[14px]">
+                  ({{ integer.format(marketCapInKda.toFixed(0)) }} KDA)
+                </span>
+              </div>
+            </div>
           </div>
         </div>
         <div class="border-t border-[#222222] my-5 md:hidden"></div>
