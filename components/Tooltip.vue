@@ -1,31 +1,40 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { usePopper } from '~/composables/usePopper';
 
 defineProps<{
   value?: string,
 }>();
 
 const isVisible = ref(false);
+const [reference, popper] = usePopper({
+  placement: 'top',
+  offsetDistance: 12
+});
 </script>
 
 <template>
   <div
+    ref="reference"
     class="relative inline-block"
     @mouseenter="isVisible = true"
     @mouseleave="isVisible = false"
   >
     <slot />
-    <Transition name="fade">
-      <div
-        v-if="isVisible"
-        class="absolute z-10 bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-[200px]"
-      >
-        <div class="bg-[#313131] text-[#e5e5e5] text-xs px-2 py-1 rounded-md shadow-lg relative text-center">
-          {{ value }}
-          <div class="absolute w-3 h-3 bg-[#313131] rotate-45 left-1/2 -translate-x-1/2 bottom-[-4px]"></div>
+    <Teleport to="body">
+      <Transition name="fade">
+        <div
+          ref="popper"
+          v-if="isVisible"
+          class="z-10 w-max max-w-[200px]"
+        >
+          <div class="bg-[#313131] text-[#e5e5e5] text-xs px-2 py-1 rounded-md shadow-lg relative text-center">
+            {{ value }}
+            <div class="absolute w-3 h-3 bg-[#313131] rotate-45 left-1/2 -translate-x-1/2 bottom-[-4px]"></div>
+          </div>
         </div>
-      </div>
-    </Transition>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
