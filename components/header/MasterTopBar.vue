@@ -39,15 +39,21 @@ const medGasPrice = computed(() => {
 <template>
   <div>
     <div
-      class="w-full h-[44px] z-50 bg-[#111111] border-b border-[#222222] fixed top-0 left-0"
+      class="w-full h-[47px] z-50 bg-[#111111] border-b border-[#222222] fixed top-0 left-0"
     >
-      <div class="flex items-center h-full pl-5 text-[12.5px] text-[#bbbbbb]">
-        <span class="mr-1">KDA Price:</span>
-        <span class="text-[#6ab5db] hover:text-[#9ccee7]">{{ formattedKdaPrice }}</span>
-        <span :class="variationColor" class="ml-1">({{ formattedVariation }})</span>
+      <div class="flex items-center justify-between h-full px-5">
+        <div class="flex items-center text-[12.5px] text-[#bbbbbb]">
+          <span class="mr-1">KDA Price:</span>
+          <span class="text-[#6ab5db] hover:text-[#9ccee7]">{{ formattedKdaPrice }}</span>
+          <span :class="variationColor" class="ml-1">({{ formattedVariation }})</span>
 
-        <span class="ml-4 mr-1">Med Gas Price:</span>
-        <span class="text-[#6ab5db] hover:text-[#9ccee7]">{{ medGasPrice + ' KDA' }}</span>
+          <span class="ml-4 mr-1">Med Gas Price:</span>
+          <span class="text-[#6ab5db] hover:text-[#9ccee7]">{{ medGasPrice + ' KDA' }}</span>
+        </div>
+
+        <div class="w-[35px] h-[35px] rounded-lg bg-[#151515] border border-[#222222] flex items-center justify-center">
+          <IconKadena class="h-4 w-4" />
+        </div>
       </div>
     </div>
     <div class="h-[44px]"></div>
