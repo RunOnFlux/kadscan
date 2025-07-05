@@ -33,3 +33,39 @@ await useAsyncData('global-kda-fetch', () => fetchSharedKadenaData());
     />
   </div>
 </template>
+
+<style>
+html {
+  scrollbar-gutter: stable;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+/* Custom Scrollbar Styles */
+/* For Webkit-based browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 16px;
+}
+
+::-webkit-scrollbar-track {
+  background: #111111;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #2d2d2d;
+  border-radius: 8px;
+  border: 3px solid #111111;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #4a4a4a;
+}
+
+/* For Firefox */
+html {
+  scrollbar-width: auto; /* 'auto' is the default, 'thin' is the other option */
+  scrollbar-color: #2d2d2d #111111;
+}
+</style>

@@ -31,22 +31,15 @@ const isCustomizeModalOpen = ref(false);
 const currentCardType = ref<import('~/composables/useCustomCardSettings').CardType>('blocks');
 
 watch(isCustomizeModalOpen, (isOpen) => {
-  const body = document.body;
   if (isOpen) {
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    if (scrollbarWidth > 0) {
-      body.style.paddingRight = `${scrollbarWidth}px`;
-    }
-    body.classList.add('overflow-hidden');
+    document.body.classList.add('modal-open');
   } else {
-    body.style.paddingRight = '';
-    body.classList.remove('overflow-hidden');
+    document.body.classList.remove('modal-open');
   }
 });
 
 onUnmounted(() => {
-  document.body.style.paddingRight = '';
-  document.body.classList.remove('overflow-hidden');
+  document.body.classList.remove('modal-open');
 });
 
 function openModal(cardType: import('~/composables/useCustomCardSettings').CardType) {
