@@ -33,11 +33,11 @@ const emit = defineEmits(['customize'])
       </button>
     </div>
 
-    <div>
+    <div class="relative overflow-hidden">
       <slot />
     </div>
 
-    <div class="px-6 py-4 text-center bg-[#151515] rounded-b-lg border-t border-[#222222]">
+    <div class="px-6 py-4 text-center bg-[#151515] rounded-b-lg border-t border-[#222222] relative z-10">
       <NuxtLink
         v-if="path"
         :to="path"

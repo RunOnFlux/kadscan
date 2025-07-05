@@ -113,16 +113,18 @@ await useAsyncData('initial-transaction-count', () => fetchInitialTransactionCou
           :is-customizable="true"
           @customize="openModal('blocks')"
         >
-          <HomeBlock
-            :key="blockGroup.height"
-            :height="blockGroup.height"
-            :chain-count="blockGroup.chains.size"
-            :total-transactions="blockGroup.totalTransactions"
-            :created-at="blockGroup.createdAt"
-            v-for="(blockGroup, index) in sortedBlockGroups"
-            :index="index"
-            :total-items="sortedBlockGroups.length"
-          />
+          <TransitionGroup name="block-list" tag="div">
+            <HomeBlock
+              :key="blockGroup.height"
+              :height="blockGroup.height"
+              :chain-count="blockGroup.chains.size"
+              :total-transactions="blockGroup.totalTransactions"
+              :created-at="blockGroup.createdAt"
+              v-for="(blockGroup, index) in sortedBlockGroups"
+              :index="index"
+              :total-items="sortedBlockGroups.length"
+            />
+          </TransitionGroup>
         </HomeList>
       </div>
       <div
@@ -141,17 +143,19 @@ await useAsyncData('initial-transaction-count', () => fetchInitialTransactionCou
           :is-customizable="true"
           @customize="openModal('transactions')"
         >
-          <HomeTransaction
-            :key="transaction.hash"
-            :hash="transaction.hash"
-            :sender="transaction.sender"
-            :chain-id="transaction.chainId"
-            :created-at="transaction.createdAt"
-            :fee="transaction.fee"
-            v-for="(transaction, index) in sortedTransactionGroups"
-            :index="index"
-            :total-items="sortedTransactionGroups.length"
-          />
+        <TransitionGroup name="transaction-list" tag="div">
+            <HomeTransaction
+              :key="transaction.hash"
+              :hash="transaction.hash"
+              :sender="transaction.sender"
+              :chain-id="transaction.chainId"
+              :created-at="transaction.createdAt"
+              :fee="transaction.fee"
+              v-for="(transaction, index) in sortedTransactionGroups"
+              :index="index"
+              :total-items="sortedTransactionGroups.length"
+            />
+          </TransitionGroup>
         </HomeList>
       </div>
     </div>
@@ -162,3 +166,39 @@ await useAsyncData('initial-transaction-count', () => fetchInitialTransactionCou
     />
   </div>
 </template>
+
+<style scoped>
+.transaction-list-move,
+.transaction-list-enter-active,
+.transaction-list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.transaction-list-enter-from,
+.transaction-list-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+
+.transaction-list-leave-active {
+  position: absolute;
+  width: 100%;
+}
+
+.block-list-move,
+.block-list-enter-active,
+.block-list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.block-list-enter-from,
+.block-list-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+
+.block-list-leave-active {
+  position: absolute;
+  width: 100%;
+}
+</style>
