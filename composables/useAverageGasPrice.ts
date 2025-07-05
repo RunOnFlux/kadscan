@@ -7,6 +7,13 @@ const useGasPriceStats = () => useState<{ totalGasPrice: number; txCount: number
 const gasPriceProcessed = ref(new Map());
 const MAX_KEY_LIMIT = 100;
 
+export const resetGasPriceStats = () => {
+  const stats = useGasPriceStats();
+  stats.value.totalGasPrice = 0;
+  stats.value.txCount = 0;
+  gasPriceProcessed.value.clear();
+};
+
 const updateGasPriceStats = (gasPrice: number, hash: string, createdAt: string) => {
   if (gasPriceProcessed.value.has(hash)) {
     return;

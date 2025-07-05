@@ -22,10 +22,10 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
-    kadindexerApiUrl:
-      process.env.API_URL_KADINDEXER ||
-      'https://api.mainnet.kadindexer.io/v1',
-    kadindexerApiKey: process.env.API_KEY_KADINDEXER,
+    kadindexerMainnetApiUrl: process.env.KADINDEXER_MAINNET_API_URL || 'https://api.mainnet.kadindexer.io/v0',
+    kadindexerMainnetApiKey: process.env.KADINDEXER_MAINNET_API_KEY,
+    kadindexerTestnetApiUrl: process.env.KADINDEXER_TESTNET_API_URL || 'https://api.testnet.kadindexer.io/v0',
+    kadindexerTestnetApiKey: process.env.KADINDEXER_TESTNET_API_KEY,
     public: {
       CG_KEY: process.env.CG_KEY,
       CG_URL: process.env.CG_URL || "https://api.coingecko.com/api/v3",

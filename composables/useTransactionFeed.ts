@@ -1,12 +1,16 @@
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useTransactionWss } from '~/composables/useTransactionWss';
 import { useCustomCardSettings } from '~/composables/useCustomCardSettings';
+import { useSharedData } from '~/composables/useSharedData';
+import { updateGasPriceStats, resetGasPriceStats } from '~/composables/useAverageGasPrice';
+import { resetTransactionCount, fetchInitialTransactionCount } from '~/composables/useTransactionCount';
 
 export const useTransactionFeed = () => {
   const regularTransactions = ref(new Map());
   const coinbaseTransactions = ref(new Map());
   const { getPreset } = useCustomCardSettings();
   const cardPreset = getPreset('transactions');
+  const { selectedNetwork } = useSharedData();
 
   const sortedTransactionGroups = computed(() => {
     const sourceMap = cardPreset.value === 'latest-coinbase-transactions'
@@ -50,12 +54,13 @@ export const useTransactionFeed = () => {
   `;
 
   // Fetch the initial transactions before the websocket connection is established
-  const fetchInitialTransactions = async () => {
+  const fetchInitialTransactions = async (network: { id: string }) => {
     try {
       const response: any = await $fetch('/api/graphql', {
         method: 'POST',
         body: {
           query: homeTransactionsQuery,
+          networkId: network.id,
           variables: {
             heightCount: 1,
             completedHeights: false,
@@ -111,7 +116,27 @@ export const useTransactionFeed = () => {
     }
   };
 
-  // Watching the new transaction received from the websocket
+  // This watcher now drives the data loading and subscription logic
+  watch(selectedNetwork, async (newNetwork) => {
+    if (!newNetwork) {
+      return;
+    }
+    console.log(`Transaction feed reacting to network change: ${newNetwork.id}`);
+    
+    // 1. Reset all stats
+    regularTransactions.value.clear();
+    coinbaseTransactions.value.clear();
+    resetGasPriceStats();
+    resetTransactionCount();
+
+    // 2. Fetch all initial data before starting subscriptions
+    await fetchInitialTransactionCount();
+    await fetchInitialTransactions(newNetwork);
+
+    // 3. Start live updates
+    startSubscription();
+  }, { immediate: true, deep: true });
+
   watch(newTransactions, (latestTransactions) => {
     const MAX_TRANSACTIONS = 6;
     latestTransactions.forEach((tx: any) => {
@@ -142,11 +167,6 @@ export const useTransactionFeed = () => {
       }
     });
   }, { deep: true });
-
-  onMounted(async () => {
-    await fetchInitialTransactions();
-    startSubscription();
-  });
 
   return {
     sortedTransactionGroups,

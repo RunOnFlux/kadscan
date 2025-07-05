@@ -1,4 +1,5 @@
 import { useState } from '#app';
+import { useSharedData } from '~/composables/useSharedData';
 
 const useTransactionCount = () => useState<{ transactionCount: number, averageTransactionPerSecond: number }>('transaction-count', () => ({
   transactionCount: 0,
@@ -6,6 +7,12 @@ const useTransactionCount = () => useState<{ transactionCount: number, averageTr
 }));
 const transactionCountProcessed = ref(new Map());
 const MAX_KEY_LIMIT = 100;
+
+export const resetTransactionCount = () => {
+  const stats = useTransactionCount();
+  stats.value.transactionCount = 0;
+  stats.value.averageTransactionPerSecond = 0;
+};
 
 const updateTransactionCount = (height: number, chainId: number, transactionsInBlock: number, createdAt: string) => {
   const key = `${height}-${chainId}`;
@@ -49,11 +56,20 @@ const query = `
 
 const fetchInitialTransactionCount = async () => {
   const stats = useTransactionCount();
+  const { selectedNetwork } = useSharedData();
+
+  if (!selectedNetwork.value) {
+    console.warn("Cannot fetch transaction count, no network selected.");
+    return;
+  }
 
   try {
     const response: any = await $fetch('/api/graphql', {
       method: 'POST',
-      body: { query },
+      body: { 
+        query,
+        networkId: selectedNetwork.value.id,
+      },
     });
 
     if (response.data && response.data.networkInfo) {
@@ -65,4 +81,5 @@ const fetchInitialTransactionCount = async () => {
   }
 };
 
-export { useTransactionCount, fetchInitialTransactionCount, updateTransactionCount }; 
+export { useTransactionCount, fetchInitialTransactionCount };
+export { updateTransactionCount }; 

@@ -24,11 +24,11 @@ const formatNumber = (value: number, decimals: number = 2) => {
 };
 
 const formattedKdaPrice = computed(() => {
-  return kdaPrice.value ? `$${formatNumber(kdaPrice.value, 4)}` : '...';
+  return kdaPrice.value ? `$${formatNumber(kdaPrice.value, 4)}` : '-';
 });
 
 const formattedVariation = computed(() => {
-  return kdaVariation.value ? `${formatNumber(kdaVariation.value, 2)}%` : '...';
+  return kdaVariation.value ? `${formatNumber(kdaVariation.value, 2)}%` : '';
 });
 
 const variationColor = computed(() => {
@@ -38,7 +38,7 @@ const variationColor = computed(() => {
 });
 
 const medGasPrice = computed(() => {
-  if (gasPriceStats.value.txCount === 0) return '...';
+  if (gasPriceStats.value.txCount === 0) return null;
   const avg = gasPriceStats.value.totalGasPrice / gasPriceStats.value.txCount;
   return formatNumber(avg, 10);
 });
@@ -53,10 +53,10 @@ const medGasPrice = computed(() => {
         <div class="flex items-center text-[12.5px] text-[#bbbbbb]">
           <span class="mr-1">KDA Price:</span>
           <span class="text-[#6ab5db] hover:text-[#9ccee7]">{{ formattedKdaPrice }}</span>
-          <span :class="variationColor" class="ml-1">({{ formattedVariation }})</span>
-
+          <span :class="variationColor" class="ml-1">{{ formattedVariation ? `(${formattedVariation})` : '' }}</span>
+          
           <span class="ml-4 mr-1">Med Gas Price:</span>
-          <span class="text-[#6ab5db] hover:text-[#9ccee7]">{{ medGasPrice + ' KDA' }}</span>
+          <span class="text-[#6ab5db] hover:text-[#9ccee7]">{{ medGasPrice ? medGasPrice + ' KDA' : '-' }}</span>
         </div>
 
         <Menu as="div" class="relative inline-block text-left">

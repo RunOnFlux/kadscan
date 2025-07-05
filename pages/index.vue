@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useBlockFeed } from '~/composables/useBlockFeed';
 import { useTransactionFeed } from '~/composables/useTransactionFeed';
-import { useTransactionCount, fetchInitialTransactionCount } from '~/composables/useTransactionCount';
+import { useTransactionCount } from '~/composables/useTransactionCount';
 import { useGasPriceStats } from '~/composables/useAverageGasPrice';
 import { useCustomCardSettings } from '~/composables/useCustomCardSettings';
 import { useSharedData } from '~/composables/useSharedData';
@@ -67,8 +67,6 @@ const transactionListTitle = computed(() => {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 });
-
-await useAsyncData('initial-transaction-count', () => fetchInitialTransactionCount());
 </script>
 
 <template>

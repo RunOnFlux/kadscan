@@ -26,7 +26,7 @@ const availableNetworks = [
   { name: 'Mainnet', id: 'mainnet01' },
   { name: 'Testnet', id: 'testnet04' },
 ];
-const selectedNetwork = ref(availableNetworks[0]);
+const selectedNetwork = ref<{ name: string; id: string; } | null>(null);
 const STORAGE_KEY = 'kadscan-selected-network';
 
 function setNetwork(network: { name: string; id: string; }) {
@@ -41,6 +41,8 @@ function initializeNetwork() {
     const savedNetwork = localStorage.getItem(STORAGE_KEY);
     if (savedNetwork) {
       selectedNetwork.value = JSON.parse(savedNetwork);
+    } else {
+      selectedNetwork.value = availableNetworks[0]; // Default to Mainnet if nothing is saved
     }
   }
 }
