@@ -1,5 +1,10 @@
 <script setup lang="ts">
+import { fetchSharedKadenaData } from '~/composables/useSharedData';
+
 const route = useRoute();
+
+// Fetch the data once globally.
+await useAsyncData('global-kda-fetch', () => fetchSharedKadenaData());
 </script>
 
 <template>
@@ -7,11 +12,7 @@ const route = useRoute();
     class="h-screen flex flex-col items-center !font-sans"
   >
     <HeaderMasterTopBar />
-    <div
-      class="w-full bg-[#111111]"
-    >
-      <HeaderTopbar/>
-    </div>
+    <HeaderTopbar/>
 
     <div
       class="

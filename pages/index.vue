@@ -4,6 +4,7 @@ import { useTransactionFeed } from '~/composables/useTransactionFeed';
 import { useTransactionCount, fetchInitialTransactionCount } from '~/composables/useTransactionCount';
 import { useGasPriceStats } from '~/composables/useAverageGasPrice';
 import { useCustomCardSettings } from '~/composables/useCustomCardSettings';
+import { useSharedData } from '~/composables/useSharedData';
 
 definePageMeta({
   layout: 'app',
@@ -13,34 +14,17 @@ useHead({
   title: 'Kadscan'
 })
 
-const defaultChartData = {
-  market_caps: [],
-  prices: [],
-  total_volumes: []
-}
-
 const { $coingecko } = useNuxtApp();
+const { kdaPrice, kdaVariation, kdaMarketCap, gasPriceStats: sharedGasStats } = useSharedData();
 
-const { data: cgData, status: cgStatus, error: cgError } = await useAsyncData('home-cg-etl', async () => {
-  const [
-    token,
-    chartData,
-  ] = await Promise.all([
-    $coingecko.request('coins/kadena'),
-    $coingecko.request('coins/kadena/market_chart', {
+// This part is complex because the original fetch also gets chart data.
+// For now, we will fetch it separately here. A deeper refactor could move this too.
+const { data: chartData, status: cgStatus } = await useAsyncData('home-chart-etl', async () => {
+  return await $coingecko.request('coins/kadena/market_chart', {
       days: 14,
       interval: 'daily',
       vs_currency: 'usd',
     })
-  ]);
-
-  return {
-    token,
-    chartData,
-  };
-}, {
-  // remove
-  lazy: true,
 });
 
 const isCustomizeModalOpen = ref(false);
@@ -95,10 +79,10 @@ await useAsyncData('initial-transaction-count', () => fetchInitialTransactionCou
 
     <HomeDashboard
       :is-loading="cgStatus === 'pending'"
-      :chart-data="cgData?.chartData"
-      :kadena-price="cgData?.token?.market_data?.current_price?.usd ?? null"
-      :kadena-price-variation="cgData?.token?.market_data?.price_change_percentage_24h ?? null"
-      :market-cap="cgData?.token?.market_data?.market_cap?.usd ?? null"
+      :chart-data="chartData"
+      :kadena-price="kdaPrice"
+      :kadena-price-variation="kdaVariation"
+      :market-cap="kdaMarketCap"
       :block-groups="sortedBlockGroups"
       :transactions-count="transactionStats"
       :gas-price-stats="gasPriceStats"
