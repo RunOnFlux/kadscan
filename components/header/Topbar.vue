@@ -47,17 +47,9 @@ const route = useRoute()
       </div>
 
       <DisclosureButton
-        class="md:hidden h-8 w-8 rounded p-1 bg-gray-700"
+        class="md:hidden h-8 w-8 rounded flex items-center justify-center border border-[#222222] text-[#949494]"
       >
-        <IconMenu
-          v-if="!open"
-          class="w-6 h-6"
-        />
-
-        <IconX
-          v-else
-          class="w-6 h-6"
-        />
+        <IconMenu class="w-6 h-6" />
       </DisclosureButton>
     </div>
 
