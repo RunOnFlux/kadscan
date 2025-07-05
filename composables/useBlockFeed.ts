@@ -36,7 +36,7 @@ export const useBlockFeed = () => {
   const { startSubscription, newBlocks } = useBlockWss();
 
   const completedBlockHeightsQuery = `
-    query CompletedBlockHeights($heightCount: Int, $completedHeights: Boolean, $first: Int) {
+    query HomeBlockListInit($heightCount: Int, $completedHeights: Boolean, $first: Int) {
       completedBlockHeights(heightCount: $heightCount, completedHeights: $completedHeights, first: $first) {
         edges {
           node {

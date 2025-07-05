@@ -35,7 +35,7 @@ const newBlocks = ref<any[]>([])
  * @description The GraphQL subscription query string for receiving new block events.
  */
 const subscriptionQuery = `
-  subscription Events {
+  subscription HomeBlockList {
     newBlocks {
       height
       transactions {
