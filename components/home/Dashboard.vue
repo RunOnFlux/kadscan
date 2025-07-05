@@ -109,7 +109,9 @@ const lastSafeBlock = computed(() => {
           </div>
           <div class="text-right">
             <div class="text-xs text-[#bbbbbb] mb-[1px]">MED GAS PRICE</div>
-            <div class="text-[15px] text-[#f5f5f5]">{{ formattedAvgGasPrice ? formattedAvgGasPrice + ' KDA' : '—' }}</div>
+            <Tooltip value="Median Gas Price from the last 100 Transactions">
+              <div class="text-[15px] text-[#f5f5f5]">{{ formattedAvgGasPrice ? formattedAvgGasPrice + ' KDA' : '—' }}</div>
+            </Tooltip>
           </div>
         </div>
         <div class="border-t border-[#222222] my-5"></div>
@@ -117,13 +119,15 @@ const lastSafeBlock = computed(() => {
           <div class="flex items-start">
             <MeterIcon class="w-7 h-7 ml-[3px] mr-[12px]" />
             <div>
-              <div class="text-xs text-[#bbbbbb] mb-[1px]">LAST FINALIZED BLOCK</div>
+              <div class="text-xs text-[#bbbbbb] mb-[1px]">LAST CONFIRMED BLOCK</div>
               <div class="text-[15px] text-[#f5f5f5] mt-[1px] mb-[3px]">{{ lastFinalizedBlock ? lastFinalizedBlock : '—' }}</div>
             </div>
           </div>
           <div class="text-right">
             <div class="text-xs text-[#bbbbbb] mb-[1px]">LAST SAFE BLOCK</div>
-            <div class="text-[15px] text-[#f5f5f5]">{{ lastSafeBlock }}</div>
+            <Tooltip value="Chances of this block not being canonical is close to 0">
+              <div class="text-[15px] text-[#f5f5f5] mt-[1px] mb-[3px]">{{ lastSafeBlock ? lastSafeBlock : '—' }}</div>
+            </Tooltip>
           </div>
         </div>
         <div class="border-t border-[#222222] my-5 md:hidden"></div>
