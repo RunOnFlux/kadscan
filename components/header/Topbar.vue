@@ -44,7 +44,7 @@ const {
       </NuxtLink>
 
       <div
-        class="hidden md:flex w-full items-center justify-end gap-2"
+        class="hidden md:block md:flex w-full items-center justify-end gap-2"
       >
         <HeaderSearch
           variant="secondary"
