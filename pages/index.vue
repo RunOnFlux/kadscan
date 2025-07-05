@@ -3,6 +3,7 @@ import { useBlockFeed } from '~/composables/useBlockFeed';
 import { useTransactionFeed } from '~/composables/useTransactionFeed';
 import { useTransactionCount, fetchInitialTransactionCount } from '~/composables/useTransactionCount';
 import { useGasPriceStats } from '~/composables/useAverageGasPrice';
+import { useCustomCardSettings } from '~/composables/useCustomCardSettings';
 
 definePageMeta({
   layout: 'app',
@@ -73,6 +74,15 @@ const { sortedBlockGroups } = useBlockFeed();
 const { sortedTransactionGroups } = useTransactionFeed();
 const gasPriceStats = useGasPriceStats();
 const transactionStats = useTransactionCount();
+const { getPreset } = useCustomCardSettings();
+const transactionCardPreset = getPreset('transactions');
+
+const transactionListTitle = computed(() => {
+  return transactionCardPreset.value
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+});
 
 await useAsyncData('initial-transaction-count', () => fetchInitialTransactionCount());
 </script>
@@ -138,7 +148,7 @@ await useAsyncData('initial-transaction-count', () => fetchInitialTransactionCou
         class="grid lg:grid-cols-1 gap-4 lg:gap-6"
       >
         <HomeList
-          label="Latest Transactions"
+          :label="transactionListTitle"
           path="/transactions"
           :is-customizable="true"
           @customize="openModal('transactions')"
