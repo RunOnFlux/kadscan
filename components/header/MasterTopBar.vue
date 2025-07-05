@@ -47,7 +47,7 @@ const medGasPrice = computed(() => {
 <template>
   <div>
     <div
-      class="w-full h-[47px] z-50 bg-[#111111] border-b border-[#222222] fixed top-0 left-0"
+      class="w-full h-[47px] z-50 bg-[#111111] border-b border-[#222222] fixed top-0 left-0 hidden md:flex"
     >
       <div class="flex items-center justify-between h-full px-5">
         <div class="flex items-center text-[12.5px] text-[#bbbbbb]">
@@ -94,6 +94,6 @@ const medGasPrice = computed(() => {
         </Menu>
       </div>
     </div>
-    <div class="h-[47px]"></div>
+    <div class="h-[47px] hidden md:block"></div>
   </div>
 </template> 
