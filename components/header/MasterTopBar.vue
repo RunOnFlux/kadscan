@@ -1,8 +1,15 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useSharedData } from '~/composables/useSharedData';
+import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 
 const { kdaPrice, kdaVariation, gasPriceStats } = useSharedData();
+
+const networks = ref([
+  { name: 'Mainnet' },
+  { name: 'Testnet' },
+])
+const selectedNetwork = ref(networks.value[0])
 
 // Simple number formatter
 const formatNumber = (value: number, decimals: number = 2) => {
@@ -51,11 +58,40 @@ const medGasPrice = computed(() => {
           <span class="text-[#6ab5db] hover:text-[#9ccee7]">{{ medGasPrice + ' KDA' }}</span>
         </div>
 
-        <div class="w-[35px] h-[35px] rounded-lg bg-[#151515] border border-[#222222] flex items-center justify-center">
-          <IconKadena class="h-4 w-4" />
-        </div>
+        <Menu as="div" class="relative inline-block text-left">
+          <div>
+            <MenuButton class="w-[35px] h-[35px] rounded-lg bg-[#151515] border border-[#222222] flex items-center justify-center hover:bg-[#222222]">
+              <IconKadena class="h-4 w-4" />
+            </MenuButton>
+          </div>
+
+          <transition
+            enter-active-class="transition duration-100 ease-out"
+            enter-from-class="transform scale-95 opacity-0"
+            enter-to-class="transform scale-100 opacity-100"
+            leave-active-class="transition duration-75 ease-in"
+            leave-from-class="transform scale-100 opacity-100"
+            leave-to-class="transform scale-95 opacity-0"
+          >
+            <MenuItems class="absolute right-0 mt-1 border border-[#222222] w-32 origin-top-right rounded-lg bg-[#111111] shadow-[0_0_15px_rgba(255,255,255,0.0625)] ring-1 ring-black/5 focus:outline-none px-2 py-1">
+              <div class="px-1 py-1">
+                <MenuItem v-for="network in networks" :key="network.name" v-slot="{ active }">
+                  <button
+                    @click="selectedNetwork = network"
+                    :class="[
+                      active ? 'text-[#00a186]' : '',
+                      'group flex w-full items-center hover:bg-[#222222] justify-start rounded-md px-3 py-2 text-sm text-white',
+                    ]"
+                  >
+                    <span>{{ network.name }}</span>
+                  </button>
+                </MenuItem>
+              </div>
+            </MenuItems>
+          </transition>
+        </Menu>
       </div>
     </div>
-    <div class="h-[44px]"></div>
+    <div class="h-[47px]"></div>
   </div>
 </template> 
