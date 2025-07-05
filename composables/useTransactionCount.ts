@@ -1,30 +1,28 @@
 import { useState } from '#app';
 
-const useTransactionCount = () => useState<number | null>('transaction-count', () => null);
-const useProcessedHeights = () => useState<Set<string>>('processed-heights', () => new Set());
+const useTransactionCount = () => useState<{ transactionCount: number }>('transaction-count', () => ({
+  transactionCount: 0,
+}));
+const transactionCountProcessed = ref(new Map());
+const MAX_KEY_LIMIT = 100;
 
-const updateTransactionCount = (blocks: any[]) => {
-  const transactionCount = useTransactionCount();
-  const processedHeights = useProcessedHeights();
+const updateTransactionCount = (height: number, chainId: number, transactionsInBlock: number, createdAt: string) => {
+  const key = `${height}-${chainId}`;
+  if (transactionCountProcessed.value.has(key)) {
+    return;
+  }
+  transactionCountProcessed.value.set(key, createdAt);
 
-  blocks.forEach(block => {
-    const key = `${block.height}-${block.chainId}`;
-    if (processedHeights.value.has(key)) {
-      return;
-    }
+  const stats = useTransactionCount();
+  stats.value.transactionCount += transactionsInBlock;
 
-    if (transactionCount.value !== null && block.transactions?.totalCount > 0) {
-      transactionCount.value += block.transactions.totalCount;
-    }
-    processedHeights.value.add(key);
-  });
-
-  while (processedHeights.value.size > 6) {
-    const oldestKey = processedHeights.value.values().next().value;
-    if (oldestKey) {
-      processedHeights.value.delete(oldestKey);
-    } else {
-      break;
+  if (transactionCountProcessed.value.size > MAX_KEY_LIMIT) {
+    const toDeleteCount = transactionCountProcessed.value.size - MAX_KEY_LIMIT;
+    const sortedEntries = Array.from(transactionCountProcessed.value.entries()).sort(
+      (a, b) => new Date(a[1]).getTime() - new Date(b[1]).getTime()
+    );
+    for (let i = 0; i < toDeleteCount; i++) {
+      transactionCountProcessed.value.delete(sortedEntries[i][0]);
     }
   }
 };
@@ -38,7 +36,7 @@ const query = `
 `;
 
 const fetchInitialTransactionCount = async () => {
-  const transactionCount = useTransactionCount();
+  const stats = useTransactionCount();
 
   try {
     const response: any = await $fetch('/api/graphql', {
@@ -47,11 +45,11 @@ const fetchInitialTransactionCount = async () => {
     });
 
     if (response.data && response.data.networkInfo) {
-      transactionCount.value = response.data.networkInfo.transactionCount;
+      stats.value.transactionCount = response.data.networkInfo.transactionCount;
     }
   } catch (e) {
     console.error('Failed to fetch initial transaction count:', e);
-    transactionCount.value = null;
+    stats.value.transactionCount = 0;
   }
 };
 

@@ -64,10 +64,15 @@ const startSubscription = () => {
       {
         next: (result: any) => {
           if (result.data?.newBlocks && Array.isArray(result.data.newBlocks) && result.data.newBlocks.length > 0) {
+
             // Update the live feed of transactions for the UI
-            const allTxs = result.data.newBlocks.flatMap((block: any) =>
-              block.transactions?.edges?.map((edge: any) => edge.node) ?? []
-            );
+            const allTxs = result.data.newBlocks.flatMap((block: any) => {
+              if(block.transactions.totalCount > 0) {
+                updateTransactionCount(block.height, block.chainId, block.transactions.totalCount, block.transactions.edges[0].node.cmd.meta.creationTime);
+                return block.transactions.edges.map((edge: any) => edge.node)
+              }
+              return []
+            });
 
             newTransactions.value.unshift(...allTxs);
             if (newTransactions.value.length > 50) {

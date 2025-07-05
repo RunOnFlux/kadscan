@@ -14,12 +14,13 @@ const props = defineProps<{
   kadenaPrice: number | null,
   kadenaPriceVariation: number | null,
   marketCap: number | null,
-  transactionsCount: number | null,
+  transactionsCount: any,
   blockGroups: Array<{ height: number }> | null,
   gasPriceStats: any,
 }>();
 
 const gasPriceStatsRef = toRef(props, 'gasPriceStats');
+const transactionsCountRef = toRef(props, 'transactionsCount');
 
 const variationClass = computed(() => {
   if (!props.kadenaPriceVariation) return '';
@@ -83,12 +84,12 @@ const lastSafeBlock = computed(() => {
             <ServerIcon class="w-7 h-7 ml-[3px] mr-[12px]" />
             <div>
               <div class="text-xs text-[#bbbbbb] mb-[1px]">TRANSACTIONS</div>
-              <div class="text-[15px] text-[#f5f5f5]">{{ transactionsCount ? transactionsCount : '—' }}</div>
+              <div class="text-[15px] text-[#f5f5f5]">{{ transactionsCountRef.transactionCount ? transactionsCountRef.transactionCount : '—' }}</div>
             </div>
           </div>
           <div class="text-right">
             <div class="text-xs text-[#bbbbbb] mb-[1px]">MED GAS PRICE</div>
-            <div class="text-[15px] text-[#f5f5f5]">{{ `${formattedAvgGasPrice ? formattedAvgGasPrice + ' KDA' : '—'}`}}</div>
+            <div class="text-[15px] text-[#f5f5f5]">{{ formattedAvgGasPrice ? formattedAvgGasPrice + ' KDA' : '—' }}</div>
           </div>
         </div>
         <div class="border-t border-[#222222] my-5"></div>

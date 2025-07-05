@@ -72,7 +72,7 @@ function openModal(cardType: import('~/composables/useCustomCardSettings').CardT
 const { sortedBlockGroups } = useBlockFeed();
 const { sortedTransactionGroups } = useTransactionFeed();
 const gasPriceStats = useGasPriceStats();
-const transactionCount = useTransactionCount();
+const transactionStats = useTransactionCount();
 
 await useAsyncData('initial-transaction-count', () => fetchInitialTransactionCount());
 </script>
@@ -90,7 +90,7 @@ await useAsyncData('initial-transaction-count', () => fetchInitialTransactionCou
       :kadena-price-variation="cgData?.token?.market_data?.price_change_percentage_24h ?? null"
       :market-cap="cgData?.token?.market_data?.market_cap?.usd ?? null"
       :block-groups="sortedBlockGroups"
-      :transactions-count="transactionCount"
+      :transactions-count="transactionStats"
       :gas-price-stats="gasPriceStats"
     />
 

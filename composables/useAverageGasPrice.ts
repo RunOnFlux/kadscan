@@ -5,7 +5,7 @@ const useGasPriceStats = () => useState<{ totalGasPrice: number; txCount: number
   txCount: 0,
 }));
 const gasPriceProcessed = ref(new Map());
-const MAX_HASH_LIMIT = 100;
+const MAX_KEY_LIMIT = 100;
 
 const updateGasPriceStats = (gasPrice: number, hash: string, createdAt: string) => {
   if (gasPriceProcessed.value.has(hash)) {
@@ -17,16 +17,13 @@ const updateGasPriceStats = (gasPrice: number, hash: string, createdAt: string) 
   stats.value.txCount += 1;
   stats.value.totalGasPrice += gasPrice;
 
-  if (gasPriceProcessed.value.size > MAX_HASH_LIMIT) {
-    const toDeleteCount = gasPriceProcessed.value.size - MAX_HASH_LIMIT;
-
+  if (gasPriceProcessed.value.size > MAX_KEY_LIMIT) {
+    const toDeleteCount = gasPriceProcessed.value.size - MAX_KEY_LIMIT;
     const sortedEntries = Array.from(gasPriceProcessed.value.entries()).sort(
       (a, b) => new Date(a[1]).getTime() - new Date(b[1]).getTime()
     );
-
     for (let i = 0; i < toDeleteCount; i++) {
-      const hashToDelete = sortedEntries[i][0];
-      gasPriceProcessed.value.delete(hashToDelete);
+      gasPriceProcessed.value.delete(sortedEntries[i][0]);
     }
   }
 };
