@@ -2,11 +2,13 @@
 import { computed, defineProps, toRef } from 'vue';
 import Chart from '~/components/Chart.vue';
 import { integer, money } from '~/composables/number';
+import { useTransactionCount } from '~/composables/useTransactionCount';
 
 import KadenaIcon from '~/components/icon/Kadena.vue';
 import NetworkIcon from '~/components/icon/Network.vue';
 import ServerIcon from '~/components/icon/Server.vue';
 import MeterIcon from '~/components/icon/Meter.vue';
+import Tooltip from '~/components/Tooltip.vue';
 
 const props = defineProps<{
   chartData?: any,
@@ -86,7 +88,14 @@ const lastSafeBlock = computed(() => {
               <div class="text-xs text-[#bbbbbb] mb-[1px]">TRANSACTIONS</div>
               <div class="text-[15px] text-[#f5f5f5]">
                 <template v-if="transactionsCountRef.transactionCount">
-                  {{ transactionsCountRef.transactionCount ? transactionsCountRef.transactionCount : '—' }}
+                  <Tooltip value="Total transactions and Average TPS of last 100 blocks">
+                    <NuxtLink
+                      to="/transactions"
+                      class="hover:text-[#0879b2]"
+                    >
+                      {{ transactionsCountRef.transactionCount ? transactionsCountRef.transactionCount : '—' }}
+                    </NuxtLink>
+                  </Tooltip>
                   <span
                     v-if="transactionsCountRef.averageTransactionPerSecond > 0"
                     class="text-[#bbbbbb] text-[14px]"
