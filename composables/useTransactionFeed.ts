@@ -64,8 +64,6 @@ export const useTransactionFeed = () => {
         },
       });
 
-      console.log('response', response);
-
       const responseData = response?.data?.completedBlockHeights;
 
       if (responseData && responseData.edges) {

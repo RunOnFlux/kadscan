@@ -1,6 +1,7 @@
 import { createClient } from 'graphql-ws'
 import { ref, onUnmounted, readonly } from 'vue'
 import { updateTransactionCount } from './useTransactionCount';
+import { updateGasPriceStats } from './useAverageGasPrice';
 
 let client: any = null
 
@@ -64,18 +65,15 @@ const startSubscription = () => {
       },
       {
         next: (result: any) => {
-          if (result.data?.newBlocks && Array.isArray(result.data.newBlocks)) {
-            const allTxs: any[] = [];
-            result.data.newBlocks.forEach((block: any) => {
-              if (block.transactions?.totalCount > 0) {
-                updateTransactionCount(block.transactions.totalCount, block.height, block.chainId);
-              }
+          if (result.data?.newBlocks && Array.isArray(result.data.newBlocks) && result.data.newBlocks.length > 0) {
+            // Update the stats
+            updateTransactionCount(result.data.newBlocks);
+            updateGasPriceStats(result.data.newBlocks);
 
-              if (block.transactions?.edges) {
-                const txsInBlock = block.transactions.edges.map((edge: any) => edge.node);
-                allTxs.push(...txsInBlock);
-              }
-            });
+            // Update the live feed of transactions for the UI
+            const allTxs = result.data.newBlocks.flatMap((block: any) =>
+              block.transactions?.edges?.map((edge: any) => edge.node) ?? []
+            );
 
             newTransactions.value.unshift(...allTxs);
             if (newTransactions.value.length > 50) {

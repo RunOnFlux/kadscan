@@ -3,20 +3,32 @@ import { useState } from '#app';
 const useTransactionCount = () => useState<number | null>('transaction-count', () => null);
 const useProcessedHeights = () => useState<Set<string>>('processed-heights', () => new Set());
 
-const updateTransactionCount = (count: number, height: number, chainId: number) => {
+const updateTransactionCount = (blocks: any[]) => {
   const transactionCount = useTransactionCount();
   const processedHeights = useProcessedHeights();
-  const key = `${height}-${chainId}`;
 
-  if (processedHeights.value.has(key)) {
-    return;
+  blocks.forEach(block => {
+    const key = `${block.height}-${block.chainId}`;
+    if (processedHeights.value.has(key)) {
+      return;
+    }
+
+    if (transactionCount.value !== null && block.transactions?.totalCount > 0) {
+      transactionCount.value += block.transactions.totalCount;
+    }
+    processedHeights.value.add(key);
+  });
+
+  while (processedHeights.value.size > 6) {
+    const oldestKey = processedHeights.value.values().next().value;
+    if (oldestKey) {
+      processedHeights.value.delete(oldestKey);
+    } else {
+      break;
+    }
   }
-
-  if (transactionCount.value !== null) {
-    transactionCount.value += count;
-  }
-
-  processedHeights.value.add(key);
+  console.log("transactionCount.value", transactionCount.value)
+  // console.log('Transaction Processed Heights Set:', processedHeights.value.size);
 };
 
 const query = `

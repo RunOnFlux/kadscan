@@ -10,7 +10,7 @@ useHead({
     {
       hid: 'description',
       name: 'description',
-      content: 'Explore and verify data on Kadscan. View detailed information about transfers, transactions, and blocks on the Kadena blockchain.'
+      content: 'Kadscan is a Block Explorer and Analytics Platform for Kadena.'
     },
     {
       hid: 'robots',

@@ -2,7 +2,7 @@
 import { useBlockFeed } from '~/composables/useBlockFeed';
 import { useTransactionFeed } from '~/composables/useTransactionFeed';
 import { useTransactionCount, fetchInitialTransactionCount } from '~/composables/useTransactionCount';
-import { computed } from 'vue';
+import { useGasPriceStats } from '~/composables/useAverageGasPrice';
 
 definePageMeta({
   layout: 'app',
@@ -71,8 +71,9 @@ function openModal(cardType: import('~/composables/useCustomCardSettings').CardT
 
 const { sortedBlockGroups } = useBlockFeed();
 const { sortedTransactionGroups } = useTransactionFeed();
-
+const gasPriceStats = useGasPriceStats();
 const transactionCount = useTransactionCount();
+
 await useAsyncData('initial-transaction-count', () => fetchInitialTransactionCount());
 </script>
 
@@ -90,7 +91,7 @@ await useAsyncData('initial-transaction-count', () => fetchInitialTransactionCou
       :market-cap="cgData?.token?.market_data?.market_cap?.usd ?? null"
       :block-groups="sortedBlockGroups"
       :transactions-count="transactionCount"
-      :avg-gas-price="null"
+      :gas-price-stats="gasPriceStats"
     />
 
     <div

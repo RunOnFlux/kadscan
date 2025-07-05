@@ -16,7 +16,7 @@ const props = defineProps<{
   marketCap: number | null,
   transactionsCount: number | null,
   blockGroups: Array<{ height: number }> | null,
-  avgGasPrice: number | null,
+  gasPriceStats: any,
 }>();
 
 const variationClass = computed(() => {
@@ -28,6 +28,12 @@ const formattedVariation = computed(() => {
   if (props.kadenaPriceVariation === null) return '';
   const sign = props.kadenaPriceVariation > 0 ? '+' : '';
   return `(${sign}${props.kadenaPriceVariation.toFixed(2)}%)`;
+});
+
+const formattedAvgGasPrice = computed(() => {
+  const avgGasPrice = props.gasPriceStats.totalGasPrice / props.gasPriceStats.txCount;
+  const feeStr = avgGasPrice.toFixed(8);
+  return feeStr.replace(/(\.\d*[1-9])0+$/, '$1').replace(/\.0+$/, '.0');
 });
 
 const lastFinalizedBlock = computed(() => {
@@ -79,7 +85,7 @@ const lastSafeBlock = computed(() => {
           </div>
           <div class="text-right">
             <div class="text-xs text-[#bbbbbb] mb-[1px]">MED GAS PRICE</div>
-            <div class="text-[15px] font-bold text-[#f5f5f5]">{{ avgGasPrice ? money.format(avgGasPrice) : '0.000001 KDA' }}</div>
+            <div class="text-[15px] text-[#f5f5f5]">{{ `${formattedAvgGasPrice} KDA`}}</div>
           </div>
         </div>
         <div class="border-t border-[#222222] my-5"></div>
