@@ -56,10 +56,10 @@ function openModal(cardType: import('~/composables/useCustomCardSettings').CardT
 
 const { sortedBlockGroups } = useBlockFeed();
 const { sortedTransactionGroups } = useTransactionFeed();
-const gasPriceStats = useGasPriceStats();
-const transactionStats = useTransactionCount();
 const { getPreset } = useCustomCardSettings();
 const transactionCardPreset = getPreset('transactions');
+const gasPriceStats = useGasPriceStats();
+const transactionStats = useTransactionCount();
 
 const transactionListTitle = computed(() => {
   return transactionCardPreset.value
