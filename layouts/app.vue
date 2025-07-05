@@ -6,6 +6,7 @@ const route = useRoute();
   <div
     class="h-screen flex flex-col items-center !font-sans"
   >
+    <HeaderMasterTopBar />
     <div
       class="w-full bg-[#111111]"
     >
