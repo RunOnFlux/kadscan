@@ -1,29 +1,15 @@
-export default defineNuxtPlugin(async () => {
-  const {
-    CG_KEY: apiKey,
-    CG_URL: baseUrl,
-  } = useRuntimeConfig().public;
-
+export default defineNuxtPlugin(() => {
   const request = async (endpoint: string, params = {}) => {
-    const url = new URL(`${baseUrl}/${endpoint}`) as any;
-
-    url.search = new URLSearchParams({ ...params });
-
     try {
-      const response = await fetch(url, {
-        headers: {
-          'x-cg-pro-api-key': apiKey
-        }
+      return await $fetch('/api/coingecko', {
+        method: 'POST',
+        body: {
+          endpoint,
+          params,
+        },
       });
-
-      if (!response.ok) {
-        console.warn(`HTTP error! status text: ${response.statusText}`);
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
     } catch (error) {
-      console.warn('Fetching CoinGecko API failed:', error);
+      console.warn(`Fetching from proxy for ${endpoint} failed:`, error);
       return null;
     }
   };
