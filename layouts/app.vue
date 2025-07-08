@@ -14,18 +14,16 @@ await useAsyncData('global-kda-fetch', () => fetchSharedKadenaData());
     <HeaderMasterTopBar />
     <HeaderTopbar/>
 
-    <div
-      class="
-        w-full grow
-        px-3
-        pt-6
-        pb-10
-        lg:px-5
-        lg:pt-4 
-        lg:pb-20
-      "
-    >
-      <slot />
+    <div class="w-full grow relative">
+      <img
+        v-if="route.name === 'index'"
+        src="/kadena-background.webp"
+        alt="Kadena background illustration"
+        class="absolute top-0 left-0 w-full h-[250px] object-cover -z-10 pointer-events-none"
+      />
+      <div class="h-full px-3 pt-6 pb-10 lg:px-5 lg:pt-4 lg:pb-20">
+        <slot />
+      </div>
     </div>
 
     <Footer
@@ -50,13 +48,13 @@ body.modal-open {
 }
 
 ::-webkit-scrollbar-track {
-  background: #111111;
+  background: #2d2d2d;
 }
 
 ::-webkit-scrollbar-thumb {
   background-color: #2d2d2d;
   border-radius: 8px;
-  border: 3px solid #111111;
+  border: 1px solid #3d3d3d;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -66,6 +64,6 @@ body.modal-open {
 /* For Firefox */
 html {
   scrollbar-width: auto; /* 'auto' is the default, 'thin' is the other option */
-  scrollbar-color: #2d2d2d #111111;
+  scrollbar-color: #6b6b6b #2d2d2d;
 }
 </style>
