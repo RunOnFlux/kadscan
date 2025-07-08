@@ -105,6 +105,7 @@ const transactionListTitle = computed(() => {
               :chain-count="blockGroup.chains.size"
               :total-transactions="blockGroup.totalTransactions"
               :created-at="blockGroup.createdAt"
+              :total-rewards="blockGroup.totalRewards"
               v-for="(blockGroup, index) in sortedBlockGroups"
               :index="index"
               :total-items="sortedBlockGroups.length"

@@ -34,6 +34,32 @@ export const useBlockFeed = () => {
     blockGroup.totalTransactions = Array.from(blockGroup.chains.values()).reduce((sum, chain: any) => sum + (chain.transactions?.totalCount || 0), 0);
   }
 
+  function updateTotalRewards(blockGroup: any) {
+    blockGroup.totalRewards = Array.from(blockGroup.chains.values()).reduce((sum: number, chain: any) => {
+      try {
+        if (!chain.coinbase || chain.coinbase.trim() === '') {
+          return sum;
+        }
+        const coinbaseData = JSON.parse(chain.coinbase);
+        let reward = 0;
+        const event = coinbaseData?.events?.[0];
+        if (event && event.params && event.params.length > 2) {
+            const amount = event.params[2];
+            if (typeof amount === 'object' && amount !== null) {
+                reward = parseFloat(amount.decimal || amount.int || 0);
+            } else if (typeof amount === 'number' || typeof amount === 'string') {
+                reward = parseFloat(String(amount)) || 0;
+            }
+        }
+        return sum + reward;
+      } catch (e: any) {
+        console.error(`Failed to parse coinbase JSON for chain ${chain.chainId} in block ${blockGroup.height}:`, chain.coinbase, 'Error:', e.message);
+        return sum;
+      }
+    }, 0);
+    console.log(`Updated rewards for block group ${blockGroup.height}:`, blockGroup.totalRewards);
+  }
+
   const { startSubscription, newBlocks } = useBlockWss();
   const { selectedNetwork } = useSharedData();
 
@@ -48,6 +74,7 @@ export const useBlockFeed = () => {
             transactions {
               totalCount
             }
+            coinbase
           }
         }
       }
@@ -88,13 +115,28 @@ export const useBlockFeed = () => {
           if (blockToUpdate) {
             blockToUpdate.chains.set(block.chainId, block);
             updateTotalTransactions(blockToUpdate);
+            updateTotalRewards(blockToUpdate);
           } else {
             // Otherwise, create a new block group for this height.
+            let initialReward = 0;
+            try {
+              if (block.coinbase && block.coinbase.trim() !== '') {
+                const coinbaseData = JSON.parse(block.coinbase);
+                const event = coinbaseData?.events?.[0];
+                if (event && event.params && event.params.length > 2) {
+                    const amount = event.params[2];
+                    initialReward = parseFloat(String(amount)) || 0;
+                }
+              }
+            } catch (e: any) {
+              console.error(`Failed to parse initial coinbase for block ${block.height}, chain ${block.chainId}:`, block.coinbase, 'Error:', e.message);
+            }
             const newGroup = {
               height: block.height,
               chains: new Map([[block.chainId, block]]),
               createdAt: block.creationTime,
               totalTransactions: block.transactions?.totalCount || 0,
+              totalRewards: initialReward,
             };
             displayedBlockGroups.value.set(block.height, newGroup);
           }
@@ -142,14 +184,30 @@ export const useBlockFeed = () => {
       if (blockToUpdate) {
         blockToUpdate.chains.set(block.chainId, block);
         updateTotalTransactions(blockToUpdate);
+        updateTotalRewards(blockToUpdate);
       } else {
         const heights = Array.from(displayedBlockGroups.value.keys());
+        let initialReward = 0;
+        try {
+          if (block.coinbase && block.coinbase.trim() !== '') {
+            const coinbaseData = JSON.parse(block.coinbase);
+            const event = coinbaseData?.events?.[0];
+            if (event && event.params && event.params.length > 2) {
+                const amount = event.params[2];
+                initialReward = parseFloat(String(amount)) || 0;
+            }
+          }
+        } catch (e: any) {
+          console.error(`Failed to parse initial coinbase for block ${block.height}, chain ${block.chainId}:`, block.coinbase, 'Error:', e.message);
+        }
+
         if (heights.length === 0) { // First block ever
           const newGroup = {
             height: block.height,
             chains: new Map([[block.chainId, block]]),
             createdAt: block.creationTime,
             totalTransactions: block.transactions?.totalCount || 0,
+            totalRewards: initialReward,
           };
           displayedBlockGroups.value.set(block.height, newGroup);
           return;
@@ -163,6 +221,7 @@ export const useBlockFeed = () => {
             chains: new Map([[block.chainId, block]]),
             createdAt: block.creationTime,
             totalTransactions: block.transactions?.totalCount || 0,
+            totalRewards: initialReward,
           };
           displayedBlockGroups.value.set(block.height, newGroup);
 
