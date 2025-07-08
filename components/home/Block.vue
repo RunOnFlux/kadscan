@@ -10,7 +10,8 @@ const props = defineProps<{
   totalTransactions: number,
   createdAt: any,
   index: number,
-  totalItems: number
+  totalItems: number,
+  totalRewards: number
 }>()
 
 const now = ref(new Date());
@@ -70,7 +71,7 @@ const timeAgo = computed(() => {
 
         <Tooltip value="Block Reward">
           <div class="text-[11px] text-[#f5f5f5] border border-gray-600 bg-transparent rounded-md px-2 py-1">
-            0.0 kda
+            {{ (props.totalRewards || 0).toFixed(1) }} kda
           </div>
         </Tooltip>
       </div>
