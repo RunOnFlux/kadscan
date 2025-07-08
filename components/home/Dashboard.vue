@@ -63,7 +63,7 @@ const marketCapInKda = computed(() => {
 <template>
   <div class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] mb-4 py-5">
     <div class="grid grid-cols-1 md:grid-cols-3 divide-x divide-[#222222]">
-      <div class="flex flex-col justify-center px-4">
+      <div class="flex flex-col justify-center px-5">
         <div class="flex items-start">
           <KadenaIcon class="w-7 h-7 ml-[3px] mr-[9px]" />
           <div>
@@ -92,7 +92,7 @@ const marketCapInKda = computed(() => {
         <div class="border-t border-[#222222] my-5 md:hidden"></div>
       </div>
 
-      <div class="flex flex-col justify-center px-4 pt-4 md:pt-0">
+      <div class="flex flex-col justify-center px-5 pt-4 md:pt-0">
         <div class="flex justify-between items-start">
           <div class="flex items-start">
             <ServerIcon class="w-7 h-7 ml-[3px] mr-[12px]" />
@@ -145,7 +145,7 @@ const marketCapInKda = computed(() => {
         <div class="border-t border-[#222222] my-5 md:hidden"></div>
       </div>
 
-      <div class="flex flex-col px-4">
+      <div class="flex flex-col px-5">
         <div class="text-xs text-[#bbbbbb] mb-[1px]">PRICE HISTORY 14 DAYS</div>
         <div class="h-[105px]">
           <Chart

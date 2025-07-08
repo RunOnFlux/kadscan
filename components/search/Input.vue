@@ -32,7 +32,7 @@ onUnmounted(() => {
 
 <template>
   <div
-    class="relative max-w-[766px]"
+    class="relative max-w-[764px]"
     v-outside="close"
   >
     <div
@@ -80,7 +80,7 @@ onUnmounted(() => {
 
       <div
         @click="search(data.query as any)"
-        class="flex items-center justify-center bg-[#0784c3] hover:bg-[#0670a6] rounded-lg w-[36px] h-[34px] shrink-0 cursor-pointer"
+        class="flex items-center justify-center bg-[#009367] hover:bg-[#00805b] rounded-lg w-[36px] h-[34px] shrink-0 cursor-pointer"
       >
         <IconSearch
           class="w-5 h-5 text-[#fafafa]"
