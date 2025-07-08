@@ -57,7 +57,6 @@ export const useBlockFeed = () => {
         return sum;
       }
     }, 0);
-    console.log(`Updated rewards for block group ${blockGroup.height}:`, blockGroup.totalRewards);
   }
 
   const { startSubscription, newBlocks } = useBlockWss();
@@ -166,7 +165,6 @@ export const useBlockFeed = () => {
     if (!newNetwork) {
       return;
     }
-    console.log(`Block feed reacting to network change: ${newNetwork.id}`);
     displayedBlockGroups.value.clear();
     await fetchInitialBlocks(newNetwork);
     startSubscription();

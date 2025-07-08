@@ -1,6 +1,7 @@
 import { createClient } from 'graphql-ws'
 import { ref, onUnmounted, readonly, watch } from 'vue'
 import { useSharedData } from '~/composables/useSharedData';
+import { updateTransactionCount } from '~/composables/useTransactionCount';
 
 /**
  * @description The singleton graphql-ws client instance.
@@ -60,7 +61,14 @@ const startSubscription = () => {
         // 'next' is called every time the server sends data.
         next: (result: any) => {
           if (result.data?.newBlocks) {
-            newBlocks.value.unshift(...(Array.isArray(result.data.newBlocks) ? result.data.newBlocks : [result.data.newBlocks]))
+            const blocks = Array.isArray(result.data.newBlocks) ? result.data.newBlocks : [result.data.newBlocks];
+            blocks.forEach((block: any) => {
+              if (block.transactions.totalCount > 0) {
+                updateTransactionCount(block.height, block.chainId, block.transactions.totalCount, block.creationTime);
+              }
+            });
+
+            newBlocks.value.unshift(...blocks);
             // Ensure the array does not grow indefinitely by capping it at 10 blocks.
             if (newBlocks.value.length > 10) {
               newBlocks.value.length = 10
@@ -121,7 +129,6 @@ export const useBlockWss = () => {
       url: wssUrl,
       connectionParams: () => ({}),
     });
-    console.log(`Block WSS client initialized for ${network.id}`);
   }, { immediate: true, deep: true });
 
   /**
