@@ -71,7 +71,6 @@ watch([holders], ([newPage]) => {
 
   updateCursor(newPage.pageInfo.startCursor)
 })
-
 </script>
 
 <template>

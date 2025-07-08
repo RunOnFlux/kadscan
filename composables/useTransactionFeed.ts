@@ -3,7 +3,7 @@ import { useTransactionWss } from '~/composables/useTransactionWss';
 import { useCustomCardSettings } from '~/composables/useCustomCardSettings';
 import { useSharedData } from '~/composables/useSharedData';
 import { updateGasPriceStats, resetGasPriceStats } from '~/composables/useAverageGasPrice';
-import { resetTransactionCount, fetchInitialTransactionCount } from '~/composables/useTransactionCount';
+import { resetTransactionCount, useTransactionCount } from '~/composables/useTransactionCount';
 
 export const useTransactionFeed = () => {
   const regularTransactions = ref(new Map());
@@ -22,31 +22,28 @@ export const useTransactionFeed = () => {
   const { startSubscription, newTransactions } = useTransactionWss();
 
   const homeTransactionsQuery = `
-    query HomeTxListInit($heightCount: Int, $completedHeights: Boolean, $first: Int, $transactionsFirst2: Int) {
-      completedBlockHeights(heightCount: $heightCount, completedHeights: $completedHeights, first: $first) {
+    query HomeTxListInit($last: Int) {
+      transactions(last: $last) {
+        totalCount
         edges {
           node {
-            transactions(first: $transactionsFirst2) {
-              edges {
-                node {
-                  cmd {
-                    meta {
-                      chainId
-                      creationTime
-                      gasPrice
-                      sender
-                    }
-                  }
-                  result {
-                    ... on TransactionResult {
-                      gas
-                    }
-                  }
-                  hash
+            hash
+            cmd {
+              meta {
+                chainId
+                creationTime
+                gasPrice
+                sender
+              }
+            }
+            result {
+              ... on TransactionResult {
+                gas
+                block {
+                  height
                 }
               }
             }
-            height
           }
         }
       }
@@ -54,7 +51,7 @@ export const useTransactionFeed = () => {
   `;
 
   // Fetch the initial transactions before the websocket connection is established
-  const fetchInitialTransactions = async (network: { id: string }) => {
+  const fetchInitialTransactions = async (network: { id:string }) => {
     try {
       const response: any = await $fetch('/api/graphql', {
         method: 'POST',
@@ -62,44 +59,40 @@ export const useTransactionFeed = () => {
           query: homeTransactionsQuery,
           networkId: network.id,
           variables: {
-            heightCount: 1,
-            completedHeights: false,
-            first: 6,
-            transactionsFirst2: 10,
+            last: 12,
           },
         },
       });
 
-      const responseData = response?.data?.completedBlockHeights;
+      const responseData = response?.data?.transactions;
 
       if (responseData && responseData.edges) {
+        const stats = useTransactionCount();
+        stats.value.transactionCount = responseData.totalCount;
+
         const allRegularTxs: any[] = [];
         const allCoinbaseTxs: any[] = [];
 
         responseData.edges.forEach((edge: any) => {
-          if (edge.node.transactions && edge.node.transactions.edges) {
-            edge.node.transactions.edges.forEach((txEdge: any) => {
-              const tx = txEdge.node;
-              const fee = (tx.result.gas || 0) * parseFloat(tx.cmd.meta.gasPrice || '0');
-              const newTransaction = {
-                hash: tx.hash,
-                createdAt: tx.cmd.meta.creationTime,
-                sender: tx.cmd.meta.sender,
-                chainId: tx.cmd.meta.chainId,
-                fee,
-              };
+          const tx = edge.node;
+          const fee = (tx.result.gas || 0) * parseFloat(tx.cmd.meta.gasPrice || '0');
+          const newTransaction = {
+            hash: tx.hash,
+            createdAt: tx.cmd.meta.creationTime,
+            sender: tx.cmd.meta.sender,
+            chainId: tx.cmd.meta.chainId,
+            fee,
+          };
 
-              // update gas price stats
-              if(parseFloat(tx.cmd.meta.gasPrice) > 0) {
-                updateGasPriceStats(parseFloat(tx.cmd.meta.gasPrice), newTransaction.hash, newTransaction.createdAt);
-              }
+          // update gas price stats
+          if(parseFloat(tx.cmd.meta.gasPrice) > 0) {
+            updateGasPriceStats(parseFloat(tx.cmd.meta.gasPrice), newTransaction.hash, newTransaction.createdAt);
+          }
 
-              if (tx.cmd.meta.sender === 'coinbase') {
-                allCoinbaseTxs.push(newTransaction);
-              } else {
-                allRegularTxs.push(newTransaction);
-              }
-            });
+          if (tx.cmd.meta.sender === 'coinbase') {
+            allCoinbaseTxs.push(newTransaction);
+          } else {
+            allRegularTxs.push(newTransaction);
           }
         });
 
@@ -129,7 +122,6 @@ export const useTransactionFeed = () => {
     resetTransactionCount();
 
     // 2. Fetch all initial data before starting subscriptions
-    await fetchInitialTransactionCount();
     await fetchInitialTransactions(newNetwork);
 
     // 3. Start live updates

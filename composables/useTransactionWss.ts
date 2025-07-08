@@ -1,7 +1,6 @@
 import { createClient } from 'graphql-ws'
 import { ref, onUnmounted, readonly, watch } from 'vue'
 import { useSharedData } from '~/composables/useSharedData';
-import { updateTransactionCount } from '~/composables/useTransactionCount';
 
 let client: any = null;
 let unsubscribe: (() => void) | null = null;
@@ -10,30 +9,24 @@ const error = ref<string | null>(null);
 const newTransactions = ref<any[]>([]);
 
 const subscriptionQuery = `
-  subscription HomeTxList($first: Int) {
-    newBlocks {
-      height
-      chainId
-      transactions(first: $first) {
-        edges {
-          node {
-            result {
-              ... on TransactionResult {
-                gas
-              }
-            }
-            cmd {
-              meta {
-                chainId
-                creationTime
-                gasPrice
-                sender
-              }
-            }
-            hash
+  subscription HomeTxList($quantity: Int) {
+    transactions(quantity: $quantity) {
+      hash
+      cmd {
+        meta {
+          chainId
+          creationTime
+          gasPrice
+          sender
+        }
+      }
+      result {
+        ... on TransactionResult {
+          gas
+          block {
+            height
           }
         }
-        totalCount
       }
     }
   }
@@ -46,18 +39,13 @@ const startSubscription = () => {
   }
   try {
     unsubscribe = client.subscribe(
-      { query: subscriptionQuery, variables: { first: 200 } },
+      { query: subscriptionQuery, variables: { quantity: 12 } },
       {
         next: (result: any) => {
-          if (result.data?.newBlocks && Array.isArray(result.data.newBlocks) && result.data.newBlocks.length > 0) {
-            const allTxs = result.data.newBlocks.flatMap((block: any) => {
-              if (block.transactions.totalCount > 0) {
-                updateTransactionCount(block.height, block.chainId, block.transactions.totalCount, block.transactions.edges[0].node.cmd.meta.creationTime);
-                return block.transactions.edges.map((edge: any) => edge.node)
-              }
-              return []
-            });
-            newTransactions.value.unshift(...allTxs);
+          if (result.data?.transactions) {
+            const transaction = result.data.transactions;
+            const txs = Array.isArray(transaction) ? transaction : [transaction];
+            newTransactions.value.unshift(...txs);
             if (newTransactions.value.length > 50) {
               newTransactions.value.length = 50;
             }
