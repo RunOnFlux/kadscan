@@ -121,7 +121,6 @@ export const useBlockWss = () => {
       url: wssUrl,
       connectionParams: () => ({}),
     });
-    console.log(`Block WSS client initialized for ${network.id}`);
   }, { immediate: true, deep: true });
 
   /**

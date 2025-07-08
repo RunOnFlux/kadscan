@@ -121,7 +121,6 @@ export const useTransactionFeed = () => {
     if (!newNetwork) {
       return;
     }
-    console.log(`Transaction feed reacting to network change: ${newNetwork.id}`);
     
     // 1. Reset all stats
     regularTransactions.value.clear();

@@ -112,7 +112,6 @@ export const useTransactionWss = () => {
       url: wssUrl,
       connectionParams: () => ({}),
     });
-    console.log(`Transaction WSS client initialized for ${network.id}`);
   }, { immediate: true, deep: true });
   
   onUnmounted(() => {

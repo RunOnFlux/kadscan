@@ -53,8 +53,6 @@ const { data: holders, pending, error } = await useAsyncData('holders-off-token'
 
   const totalPages = Math.max(Math.ceil(getHolders.totalCount / limit.value), 1)
 
-  console.log('getHolders', getHolders);
-
   return {
     pageInfo: getHolders.pageInfo,
     totalCount: getHolders.totalCount,
@@ -74,7 +72,6 @@ watch([holders], ([newPage]) => {
   updateCursor(newPage.pageInfo.startCursor)
 })
 
-console.log('holders', holders.value);
 </script>
 
 <template>
