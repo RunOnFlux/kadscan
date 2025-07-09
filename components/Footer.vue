@@ -88,6 +88,7 @@ const scrollToTop = () => {
           target="_blank"
           class="flex items-center gap-2 text-xs text-[#f5f5f5] hover:text-white transition-colors"
         >
+          <span>Powered by</span>
           <img
             src="public/hackachain.svg"
             class="h-[22px]"

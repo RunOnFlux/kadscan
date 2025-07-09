@@ -18,28 +18,18 @@
         background: linear-gradient(100deg, #009367 66%, #134237 100%);
         box-shadow: 0px 0px 15px 0px #1c955080;
       "
-      class="relative hidden lg:flex p-4 rounded-xl text-white w-[320px] h-[100px] flex-shrink-0 mx-[100px] mt-[25px] self-center"
+      class="relative hidden lg:flex p-4 rounded-xl text-white w-[400px] h-[125px] flex-shrink-0 mx-[60px] self-center"
     >
-      <div
-        class="absolute top-2.5 right-2.5 text-xs bg-black/20 rounded-md px-1.5 py-0.5"
-      >
-        Ad
-      </div>
       <div class="flex items-center gap-4 h-full">
-        <img
-          src="/kadindexer-logo.png"
-          alt="Kadindexer Logo"
-          class="h-12 w-12 flex-shrink-0"
-        />
         <div class="flex flex-col">
           <h2 class="font-bold text-lg leading-tight">
-            Kadindexer
+            Kadscan is powered by Kadindexer
           </h2>
           <p class="text-xs font-light leading-tight mt-1">
-            Fast, reliable, and developer-friendly.
+            Build better on Kadena using a fast, reliable and developer friendly GraphQL API with access to all of Kadena data.
           </p>
           <div class="font-semibold text-sm flex items-center mt-2">
-            Build Better on Kadena
+            Kadindexer
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -56,6 +46,11 @@
             </svg>
           </div>
         </div>
+        <img
+          src="/kadindexer-logo.png"
+          alt="Kadindexer Logo"
+          class="h-12 w-12 flex-shrink-0 mb-[33px]"
+        />
       </div>
     </a>
   </div>
