@@ -4,7 +4,7 @@ import IconDownload from '~/components/icon/Download.vue';
 import StatsGrid from '~/components/StatsGrid.vue';
 import DataTable from '~/components/DataTable.vue';
 import { useBlocks } from '~/composables/useBlocks';
-import { useString } from '~/composables/useString';
+import { useFormat } from '~/composables/useFormat';
 
 definePageMeta({
   layout: 'app',
@@ -17,7 +17,7 @@ useHead({
 const route = useRoute();
 const router = useRouter();
 const { blocks, loading, fetchBlocks } = useBlocks();
-const { truncateAddress } = useString();
+const { truncateAddress } = useFormat();
 
 const mockedCards = [
   { label: 'NETWORK UTILIZATION (24H)', value: '--' },

@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { useTime } from './useTime';
+import { useFormat } from './useFormat';
 
 const GQL_QUERY = `
 query Blocks($heightCount: Int, $completedHeights: Boolean, $first: Int) {
@@ -35,6 +35,7 @@ query Blocks($heightCount: Int, $completedHeights: Boolean, $first: Int) {
 `;
 
 const processBlockDetails = (node: any) => {
+  const { formatGasPrice } = useFormat();
   let miner = 'N/A';
   let reward = '0';
   
@@ -61,17 +62,10 @@ const processBlockDetails = (node: any) => {
     }
   }
 
-  const formatGasPrice = (price: number): string => {
-    if (price === 0) return '0';
-    // Format to a high number of decimal places and remove trailing zeros
-    // to prevent scientific notation on small numbers.
-    return price.toFixed(12).replace(/\.?0+$/, '');
-  };
-
   return {
     miner,
     reward: `${reward} KDA`,
-    gasPrice: `${formatGasPrice(gasPrice)} KDA`,
+    gasPrice: gasPrice === 0 ? `0.0` : `${formatGasPrice(gasPrice)} KDA`,
     gasLimit: '150,000',
   };
 };
@@ -79,7 +73,7 @@ const processBlockDetails = (node: any) => {
 export const useBlocks = () => {
   const blocks = ref<any[]>([]);
   const loading = ref(false);
-  const { formatRelativeTime } = useTime();
+  const { formatRelativeTime } = useFormat();
 
   const fetchBlocks = async (limit: number) => {
     loading.value = true;
