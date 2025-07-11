@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import IconDownload from '~/components/icon/Download.vue';
 import StatsGrid from '~/components/StatsGrid.vue';
 import DataTable from '~/components/DataTable.vue';
@@ -16,7 +16,7 @@ useHead({
 
 const route = useRoute();
 const router = useRouter();
-const { blocks, loading, fetchBlocks } = useBlocks();
+const { blocks, loading, fetchBlocks, pageInfo, totalCount } = useBlocks();
 const { truncateAddress } = useFormat();
 
 const mockedCards = [
@@ -42,19 +42,43 @@ const rowOptions = [
   { label: '50', value: 50 },
   { label: '100', value: 100 },
 ];
-const selectedRows = ref(rowOptions[0]);
-
+const rowsToShow = ref(rowOptions[0]);
 const currentPage = ref(Number(route.query.page) || 1);
-const totalPages = ref(915537); // This will likely need to be updated from API data later
 
-watch(currentPage, (newPage) => {
-  router.push({ query: { ...route.query, page: newPage } });
+const totalPages = computed(() => {
+  if (!totalCount.value) return 1;
+  return Math.ceil(totalCount.value / rowsToShow.value.value);
 });
 
-watch(selectedRows, (newSelectedRows) => {
-  fetchBlocks(newSelectedRows.value);
-}, { immediate: true });
+watch(
+  [currentPage, rowsToShow],
+  ([newPage, newRows], [oldPage, oldRows]) => {
+    const query = { ...route.query, page: newPage };
+    if (newRows.value !== oldRows?.value) {
+      query.page = 1;
+      currentPage.value = 1;
+    }
+    router.push({ query });
+  },
+  { deep: true }
+);
 
+watch(
+  () => route.query.page,
+  (newPage, oldPage) => {
+    const params = { limit: rowsToShow.value.value };
+    if (Number(newPage) > 1) {
+      if (Number(newPage) > Number(oldPage ?? '0')) {
+        params.after = pageInfo.value?.endCursor;
+      } else {
+        params.before = pageInfo.value?.startCursor;
+      }
+    }
+    fetchBlocks(params);
+    currentPage.value = Number(newPage) || 1;
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
@@ -72,13 +96,15 @@ watch(selectedRows, (newSelectedRows) => {
       v-else
       :headers="tableHeaders"
       :items="blocks"
-      :totalItems="22888423"
+      :totalItems="totalCount"
       itemNamePlural="blocks"
       subtitle="(Showing blocks between #22888398 to #22888422)"
       v-model:currentPage="currentPage"
       :totalPages="totalPages"
-      v-model:selectedRows="selectedRows"
+      v-model:selectedRows="rowsToShow"
       :rowOptions="rowOptions"
+      :has-next-page="pageInfo?.hasNextPage"
+      :has-previous-page="pageInfo?.hasPreviousPage"
     >
       <template #actions>
         <button class="flex items-center gap-2 px-2 py-1 text-[12px] font-medium text-[#fafafa] bg-[#151515] border border-gray-600 rounded-md hover:bg-[#252525]">
@@ -88,13 +114,13 @@ watch(selectedRows, (newSelectedRows) => {
       </template>
 
       <template #block="{ item }">
-        <NuxtLink :to="`/blocks/${item.block}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.block }}</NuxtLink>
+        <NuxtLink :to="`/blocks/${item.block}/chain/${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.block }}</NuxtLink>
       </template>
       <template #txn="{ item }">
-        <NuxtLink :to="`/blocks/${item.block}/chain/${item.chainId}/transactions`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.txn }}</NuxtLink>
+        <NuxtLink :to="`/transactions/${item.txn}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.txn }}</NuxtLink>
       </template>
       <template #miner="{ item }">
-        <NuxtLink to="#" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.miner, 10, 10) }}</NuxtLink>
+        <NuxtLink :to="`/account/${item.miner}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.miner, 10, 10) }}</NuxtLink>
       </template>
       <template #gasLimit="{ item }">
         <span class="text-[#f5f5f5]">{{ item.gasLimit }}</span>

@@ -39,6 +39,14 @@ defineProps({
     type: Array as () => Array<any>,
     required: true,
   },
+  hasNextPage: {
+    type: Boolean,
+    default: false,
+  },
+  hasPreviousPage: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(['update:currentPage', 'update:selectedRows']);
@@ -64,6 +72,8 @@ const formatTotalItems = (num: number) => {
         <PaginationControls
           :currentPage="currentPage"
           :totalPages="totalPages"
+          :has-next-page="hasNextPage"
+          :has-previous-page="hasPreviousPage"
           @update:currentPage="emit('update:currentPage', $event)"
         />
       </div>
@@ -116,6 +126,8 @@ const formatTotalItems = (num: number) => {
       <PaginationControls
         :currentPage="currentPage"
         :totalPages="totalPages"
+        :has-next-page="hasNextPage"
+        :has-previous-page="hasPreviousPage"
         @update:currentPage="emit('update:currentPage', $event)"
       />
     </div>

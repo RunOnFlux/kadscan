@@ -11,6 +11,14 @@ const props = defineProps({
     type: Number,
     required: true,
   },
+  hasNextPage: {
+    type: Boolean,
+    default: false,
+  },
+  hasPreviousPage: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(['update:currentPage']);
@@ -51,14 +59,14 @@ const goToNext = () => {
 <template>
   <nav class="flex items-center gap-1" aria-label="Pagination">
     <button
-      :disabled="isFirstPage"
+      :disabled="!hasPreviousPage"
       @click="goToFirst"
       class="relative inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-medium text-[#6ab5db] hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed disabled:text-[#bbbbbb]"
     >
       First
     </button>
     <button
-      :disabled="isFirstPage"
+      :disabled="!hasPreviousPage"
       @click="goToPrevious"
       class="relative inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-medium text-[#6ab5db] hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed disabled:text-[#bbbbbb]"
     >
@@ -68,14 +76,14 @@ const goToNext = () => {
       Page {{ currentPage }} of {{ formatTotalPages }}
     </span>
     <button
-      :disabled="isLastPage"
+      :disabled="!hasNextPage"
       @click="goToNext"
       class="relative inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-medium text-[#6ab5db] hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed disabled:text-[#bbbbbb]"
     >
       <IconChevron class="h-4 w-4" />
     </button>
     <button
-      :disabled="isLastPage"
+      :disabled="!hasNextPage"
       @click="goToLast"
       class="relative inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-medium text-[#6ab5db] hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed disabled:text-[#bbbbbb]"
     >

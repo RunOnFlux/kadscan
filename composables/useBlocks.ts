@@ -2,8 +2,22 @@ import { ref } from 'vue';
 import { useFormat } from './useFormat';
 
 const GQL_QUERY = `
-query Blocks($heightCount: Int, $completedHeights: Boolean, $first: Int) {
-  completedBlockHeights(heightCount: $heightCount, completedHeights: $completedHeights, first: $first) {
+query Blocks(
+  $heightCount: Int,
+  $completedHeights: Boolean,
+  $first: Int,
+  $last: Int,
+  $after: String,
+  $before: String
+) {
+  completedBlockHeights(
+    heightCount: $heightCount,
+    completedHeights: $completedHeights,
+    first: $first,
+    last: $last,
+    after: $after,
+    before: $before
+  ) {
     edges {
       node {
         chainId
@@ -22,7 +36,9 @@ query Blocks($heightCount: Int, $completedHeights: Boolean, $first: Int) {
         }
         height
         coinbase
+        hash
       }
+      cursor
     }
     pageInfo {
       endCursor
@@ -31,6 +47,12 @@ query Blocks($heightCount: Int, $completedHeights: Boolean, $first: Int) {
       startCursor
     }
   }
+}
+`;
+
+const TOTAL_COUNT_QUERY = `
+query Query {
+  lastBlockHeight
 }
 `;
 
@@ -67,6 +89,7 @@ const processBlockDetails = (node: any) => {
     reward: `${reward} KDA`,
     gasPrice: gasPrice === 0 ? `0.0` : `${formatGasPrice(gasPrice)} KDA`,
     gasLimit: '150,000',
+    hash: node.hash,
   };
 };
 
@@ -74,10 +97,33 @@ export const useBlocks = () => {
   const blocks = ref<any[]>([]);
   const loading = ref(false);
   const { formatRelativeTime } = useFormat();
+  const pageInfo = ref<any>(null);
+  const totalCount = ref(0);
 
-  const fetchBlocks = async (limit: number) => {
+  const fetchTotalCount = async () => {
+    try {
+      const response: any = await $fetch('/api/graphql', {
+        method: 'POST',
+        body: { query: TOTAL_COUNT_QUERY },
+      });
+      totalCount.value = response?.data?.lastBlockHeight || 0;
+    } catch (error) {
+      console.error('Error fetching total block count:', error);
+    }
+  };
+
+  const fetchBlocks = async ({
+    limit,
+    after,
+    before,
+  }: {
+    limit: number,
+    after?: string,
+    before?: string,
+  }) => {
     loading.value = true;
     try {
+      const isForward = !!after || (!after && !before);
       const response: any = await $fetch('/api/graphql', {
         method: 'POST',
         body: {
@@ -85,12 +131,18 @@ export const useBlocks = () => {
           variables: {
             heightCount: 6,
             completedHeights: false,
-            first: limit,
+            first: isForward ? limit : null,
+            last: isForward ? null : limit,
+            after,
+            before,
           }
         }
       });
 
-      const rawBlocks = response?.data?.completedBlockHeights?.edges || [];
+      const result = response?.data?.completedBlockHeights;
+      pageInfo.value = result?.pageInfo || null;
+
+      const rawBlocks = result?.edges || [];
       blocks.value = rawBlocks.map((edge: any) => {
         const details = processBlockDetails(edge.node);
         return {
@@ -98,6 +150,7 @@ export const useBlocks = () => {
           chainId: edge.node.chainId,
           age: formatRelativeTime(edge.node.creationTime),
           txn: edge.node.transactions.totalCount,
+          cursor: edge.cursor,
           ...details,
         };
       });
@@ -109,9 +162,13 @@ export const useBlocks = () => {
     }
   };
 
+  fetchTotalCount();
+
   return {
     blocks,
     loading,
     fetchBlocks,
+    pageInfo,
+    totalCount
   };
 }; 
