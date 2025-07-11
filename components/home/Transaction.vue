@@ -2,7 +2,7 @@
 import { formatDistanceToNowStrict } from 'date-fns'
 import { computed, ref, onMounted, onUnmounted } from 'vue';
 import Tooltip from '../Tooltip.vue';
-import { shortenString, shortenAddress } from '~/composables/string';
+import { useFormat } from '~/composables/useFormat';
 import TransactionList from '~/components/icon/TransactionList.vue'
 
 const props = defineProps<{
@@ -15,6 +15,7 @@ const props = defineProps<{
   totalItems: number;
 }>()
 
+const { truncateAddress } = useFormat();
 const now = ref(new Date());
 let interval: any;
 
@@ -57,7 +58,7 @@ const formattedFee = computed(() => {
         <div>
           <Tooltip :value="props.hash" variant="hash">
             <NuxtLink :to="`/transactions/${props.hash}`" class="text-[#6ab5db] hover:text-[#9ccee7] text-[15px]">
-              {{ shortenString(props.hash) }}
+              {{ truncateAddress(props.hash) }}
             </NuxtLink>
           </Tooltip>
           <div class="text-xs text-[#bbbbbb]">{{ timeAgo }}</div>
@@ -70,7 +71,7 @@ const formattedFee = computed(() => {
               Sender
               <Tooltip :value="props.sender" variant="hash">
                 <NuxtLink :to="`/account/${props.sender}`" class="text-[#6ab5db] hover:text-[#9ccee7]">
-                  {{ shortenAddress(props.sender) }}
+                  {{ truncateAddress(props.sender) }}
                 </NuxtLink>
               </Tooltip>
             </div>
