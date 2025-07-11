@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import IconDownload from '~/components/icon/Download.vue';
 import Select from '~/components/Select.vue';
+import IconChevron from '~/components/icon/Chevron.vue';
 
 definePageMeta({
   layout: 'app',
@@ -67,6 +68,16 @@ const rowOptions = [
   { label: '100', value: 100 },
 ];
 const selectedRows = ref(rowOptions[0]);
+
+const currentPage = ref(1);
+const totalPages = ref(915537);
+
+const isFirstPage = computed(() => currentPage.value === 1);
+const isLastPage = computed(() => currentPage.value === totalPages.value);
+
+const formatTotalPages = computed(() => {
+  return new Intl.NumberFormat('en-US').format(totalPages.value);
+});
 </script>
 
 <template>
@@ -99,24 +110,36 @@ const selectedRows = ref(rowOptions[0]);
           </p>
         </div>
         <div class="flex items-center gap-2">
-          <button class="flex items-center px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-gray-600 rounded-md hover:bg-[#252525]">
-            <IconDownload class="w-4 h-4 text-[#bbbbbb] me-1" />
+          <button class="flex items-center gap-2 px-2 py-1 text-[12px] font-medium text-[#fafafa] bg-[#151515] border border-gray-600 rounded-md hover:bg-[#252525]">
+            <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
             Download Page Data
           </button>
-          <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-            <button class="relative inline-flex items-center px-2 py-1.5 rounded-l-md border border-gray-600 bg-[#151515] text-xs font-normal text-gray-400 hover:bg-[#252525]">
+          <nav class="flex items-center gap-1" aria-label="Pagination">
+            <button
+              :disabled="isFirstPage"
+              class="relative inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-medium text-[#6ab5db] hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed disabled:text-[#bbbbbb]"
+            >
               First
             </button>
-            <button class="relative inline-flex items-center px-2 py-1.5 border border-gray-600 bg-[#151515] text-xs font-normal text-gray-400 hover:bg-[#252525]">
-              &lt;
+            <button
+              :disabled="isFirstPage"
+              class="relative inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-medium text-[#6ab5db] hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed disabled:text-[#bbbbbb]"
+            >
+              <IconChevron class="h-4 w-4 transform rotate-180" />
             </button>
-            <span class="relative inline-flex items-center px-3 py-1.5 border-y border-gray-600 bg-transparent text-xs font-normal text-gray-300">
-              Page 1 of 915537
+            <span class="relative inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-medium text-gray-300">
+              Page {{ currentPage }} of {{ formatTotalPages }}
             </span>
-            <button class="relative inline-flex items-center px-2 py-1.5 border border-gray-600 bg-[#151515] text-xs font-normal text-gray-400 hover:bg-[#252525]">
-              &gt;
+            <button
+              :disabled="isLastPage"
+              class="relative inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-medium text-[#6ab5db] hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed disabled:text-[#bbbbbb]"
+            >
+              <IconChevron class="h-4 w-4" />
             </button>
-            <button class="relative inline-flex items-center px-2 py-1.5 rounded-r-md border border-gray-600 bg-[#151515] text-xs font-normal text-gray-400 hover:bg-[#252525]">
+            <button
+              :disabled="isLastPage"
+              class="relative inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-medium text-[#6ab5db] hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed disabled:text-[#bbbbbb]"
+            >
               Last
             </button>
           </nav>
