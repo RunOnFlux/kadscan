@@ -3,6 +3,8 @@ import { ref, watch } from 'vue';
 import IconDownload from '~/components/icon/Download.vue';
 import StatsGrid from '~/components/StatsGrid.vue';
 import DataTable from '~/components/DataTable.vue';
+import { useBlocks } from '~/composables/useBlocks';
+import { useString } from '~/composables/useString';
 
 definePageMeta({
   layout: 'app',
@@ -14,12 +16,14 @@ useHead({
 
 const route = useRoute();
 const router = useRouter();
+const { blocks, loading, fetchBlocks } = useBlocks();
+const { truncateAddress } = useString();
 
 const mockedCards = [
-  { label: 'NETWORK UTILIZATION (24H)', value: '50.5%' },
-  { label: 'LAST SAFE BLOCK', value: '22888387' },
-  { label: 'BLOCKS BY MEV BUILDERS (24H)', value: '94.3%' },
-  { label: 'BURNED FEES', value: '4,598,326.61 KDA' },
+  { label: 'NETWORK UTILIZATION (24H)', value: '--' },
+  { label: 'LAST SAFE BLOCK', value: '--' },
+  { label: 'BLOCKS PRODUCED (24H)', value: '--' },
+  { label: 'REWARDS GIVEN (24H)', value: '--' },
 ];
 
 const tableHeaders = [
@@ -28,54 +32,10 @@ const tableHeaders = [
   { key: 'age', label: 'Age' },
   { key: 'txn', label: 'Txn' },
   { key: 'miner', label: 'Miner Account' },
-  { key: 'gasUsed', label: 'Gas Used' },
   { key: 'gasLimit', label: 'Gas Limit' },
   { key: 'gasPrice', label: 'Gas Price' },
   { key: 'reward', label: 'Reward' },
 ];
-
-const mockedBlocks = [
-  {
-    block: '22888422',
-    chainId: '14',
-    age: '14 secs ago',
-    txn: '272',
-    miner: 'BuilderNet',
-    gasUsed: 18536889,
-    gasUsedPercent: 51.49,
-    gasLimit: '36,000,000',
-    gasPrice: '2.209 Gwei',
-    reward: '0.01983 KDA',
-  },
-  {
-    block: '22888421',
-    chainId: '1',
-    age: '26 secs ago',
-    txn: '344',
-    miner: 'BuilderNet',
-    gasUsed: 35984476,
-    gasUsedPercent: 99.96,
-    gasLimit: '36,000,000',
-    gasPrice: '1.964 Gwei',
-    reward: '0.07411 KDA',
-  },
-  {
-    block: '22888420',
-    chainId: '5',
-    age: '38 secs ago',
-    txn: '8',
-    miner: 'rrsync-builder.eth',
-    gasUsed: 1591017,
-    gasUsedPercent: 4.42,
-    gasLimit: '36,035,121',
-    gasPrice: '2.216 Gwei',
-    reward: '0.00275 KDA',
-  },
-];
-
-const formatNumber = (num: number) => {
-  return new Intl.NumberFormat('en-US').format(num);
-}
 
 const rowOptions = [
   { label: '25', value: 25 },
@@ -85,11 +45,15 @@ const rowOptions = [
 const selectedRows = ref(rowOptions[0]);
 
 const currentPage = ref(Number(route.query.page) || 1);
-const totalPages = ref(915537);
+const totalPages = ref(915537); // This will likely need to be updated from API data later
 
 watch(currentPage, (newPage) => {
   router.push({ query: { ...route.query, page: newPage } });
 });
+
+watch(selectedRows, (newSelectedRows) => {
+  fetchBlocks(newSelectedRows.value);
+}, { immediate: true });
 
 </script>
 
@@ -102,10 +66,12 @@ watch(currentPage, (newPage) => {
     </div>
 
     <StatsGrid :cards="mockedCards" />
-
+    
+    <div v-if="loading" class="text-white text-center p-8">Loading...</div>
     <DataTable
+      v-else
       :headers="tableHeaders"
-      :items="mockedBlocks"
+      :items="blocks"
       :totalItems="22888423"
       itemNamePlural="blocks"
       subtitle="(Showing blocks between #22888398 to #22888422)"
@@ -128,11 +94,10 @@ watch(currentPage, (newPage) => {
         <NuxtLink :to="`/blocks/${item.block}/chain/${item.chainId}/transactions`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.txn }}</NuxtLink>
       </template>
       <template #miner="{ item }">
-        <NuxtLink to="#" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.miner }}</NuxtLink>
+        <NuxtLink to="#" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.miner) }}</NuxtLink>
       </template>
-      <template #gasUsed="{ item }">
-        <span class="text-[#f5f5f5]">{{ formatNumber(item.gasUsed) }}</span>
-        <span class="text-[13px] text-[#bbbbbb]"> ({{ item.gasUsedPercent }}%)</span>
+      <template #gasLimit="{ item }">
+        <span class="text-[#f5f5f5]">{{ item.gasLimit }}</span>
       </template>
     </DataTable>
   </div>
