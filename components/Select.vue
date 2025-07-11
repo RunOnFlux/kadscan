@@ -26,7 +26,7 @@ provideUseId(() => useId())
     >
       <div class="relative">
         <ListboxButton
-          class="flex items-center justify-center gap-11 px-[10px] py-[0.3rem] ring-0 outline-none shrink-0"
+          class="flex items-center justify-center gap-2 px-[10px] py-[0.3rem] ring-0 outline-none shrink-0"
         >
           <span class="text-[15px] text-[#f5f5f5] whitespace-nowrap block">
             {{ modelValue.label }}

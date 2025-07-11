@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue';
 import IconDownload from '~/components/icon/Download.vue';
 import Select from '~/components/Select.vue';
+import StatsGrid from '~/components/StatsGrid.vue';
 import IconChevron from '~/components/icon/Chevron.vue';
 
 definePageMeta({
@@ -88,16 +89,7 @@ const formatTotalPages = computed(() => {
       </h1>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <div
-        v-for="card in mockedCards"
-        :key="card.label"
-        class="bg-[#111111] border border-[#222222] rounded-xl p-4 shadow-[0_0_20px_rgba(255,255,255,0.0625)]"
-      >
-        <p class="text-[12px] text-[#bbbbbb] mb-1 uppercase tracking-wider">{{ card.label }}</p>
-        <p class="text-[19px] text-[#f5f5f5]">{{ card.value }}</p>
-      </div>
-    </div>
+    <StatsGrid :cards="mockedCards" />
 
     <div class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
       <div class="flex items-center justify-between mb-4">
@@ -194,6 +186,35 @@ const formatTotalPages = computed(() => {
             />
           </div>
         </div>
+        <nav class="flex items-center gap-1" aria-label="Pagination">
+          <button
+            :disabled="isFirstPage"
+            class="relative inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-medium text-[#6ab5db] hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed disabled:text-[#bbbbbb]"
+          >
+            First
+          </button>
+          <button
+            :disabled="isFirstPage"
+            class="relative inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-medium text-[#6ab5db] hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed disabled:text-[#bbbbbb]"
+          >
+            <IconChevron class="h-4 w-4 transform rotate-180" />
+          </button>
+          <span class="relative inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-medium text-gray-300">
+            Page {{ currentPage }} of {{ formatTotalPages }}
+          </span>
+          <button
+            :disabled="isLastPage"
+            class="relative inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-medium text-[#6ab5db] hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed disabled:text-[#bbbbbb]"
+          >
+            <IconChevron class="h-4 w-4" />
+          </button>
+          <button
+            :disabled="isLastPage"
+            class="relative inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-medium text-[#6ab5db] hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed disabled:text-[#bbbbbb]"
+          >
+            Last
+          </button>
+        </nav>
       </div>
     </div>
   </div>
