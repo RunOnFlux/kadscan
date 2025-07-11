@@ -62,7 +62,7 @@ const networkOptions = computed(() => {
     <div
       class="w-full h-[47px] z-50 bg-[#111111] border-b border-[#222222] fixed top-0 left-0 hidden md:flex"
     >
-      <div class="w-full flex items-center justify-between h-full px-5">
+      <div class="w-full max-w-[1400px] mx-auto flex items-center justify-between h-full px-5">
         <div class="flex items-center text-[12.5px] text-[#bbbbbb]">
           <span class="mr-1">KDA Price:</span>
           <span class="text-[#6ab5db] hover:text-[#9ccee7]">{{ formattedKdaPrice }}</span>

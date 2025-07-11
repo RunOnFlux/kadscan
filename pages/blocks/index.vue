@@ -31,7 +31,7 @@ const tableHeaders = [
   { key: 'chainId', label: 'Chain ID' },
   { key: 'age', label: 'Age' },
   { key: 'txn', label: 'Txn' },
-  { key: 'miner', label: 'Miner Account' },
+  { key: 'miner', label: 'Miner Account', class: 'w-[450px]' },
   { key: 'gasLimit', label: 'Gas Limit' },
   { key: 'gasPrice', label: 'Gas Price' },
   { key: 'reward', label: 'Reward' },
@@ -94,7 +94,7 @@ watch(selectedRows, (newSelectedRows) => {
         <NuxtLink :to="`/blocks/${item.block}/chain/${item.chainId}/transactions`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.txn }}</NuxtLink>
       </template>
       <template #miner="{ item }">
-        <NuxtLink to="#" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.miner) }}</NuxtLink>
+        <NuxtLink to="#" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.miner, 10, 10) }}</NuxtLink>
       </template>
       <template #gasLimit="{ item }">
         <span class="text-[#f5f5f5]">{{ item.gasLimit }}</span>

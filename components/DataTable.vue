@@ -4,7 +4,7 @@ import Select from '~/components/Select.vue';
 
 defineProps({
   headers: {
-    type: Array as () => Array<{ key: string, label: string }>,
+    type: Array as () => Array<{ key: string, label: string, class?: string }>,
     required: true,
   },
   items: {
@@ -78,6 +78,7 @@ const formatTotalItems = (num: number) => {
               :key="header.key"
               scope="col"
               class="px-4 py-2 text-left text-[13px] font-bold text-[#f5f5f5]"
+              :class="header.class"
             >
               {{ header.label }}
             </th>
@@ -89,6 +90,7 @@ const formatTotalItems = (num: number) => {
               v-for="header in headers"
               :key="header.key"
               class="px-4 py-3 whitespace-nowrap text-[15px]"
+              :class="header.class"
             >
               <slot :name="header.key" :item="item">
                 <span class="text-[#f5f5f5]">{{ item[header.key] }}</span>

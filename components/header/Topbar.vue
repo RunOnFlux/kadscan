@@ -32,7 +32,7 @@ const {
     class="w-full bg-[#111111] border-b border-[#222222] shadow-[0_4px_10px_-5px_rgba(255,255,255,0.0625)] z-[10]"
   >
     <div
-      class="w-full px-3 lg:px-4 flex items-center justify-between h-[62px] lg:h-[56px]"
+      class="w-full max-w-[1400px] mx-auto px-3 lg:px-4 flex items-center justify-between h-[62px] lg:h-[56px]"
     >
       <NuxtLink
         to="/"
