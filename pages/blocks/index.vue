@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import IconDownload from '~/components/icon/Download.vue';
 import Select from '~/components/Select.vue';
 import StatsGrid from '~/components/StatsGrid.vue';
 import IconChevron from '~/components/icon/Chevron.vue';
+import PaginationControls from '~/components/PaginationControls.vue';
 
 definePageMeta({
   layout: 'app',
@@ -12,6 +13,9 @@ definePageMeta({
 useHead({
   title: 'Blocks'
 });
+
+const route = useRoute();
+const router = useRouter();
 
 const mockedCards = [
   { label: 'NETWORK UTILIZATION (24H)', value: '50.5%' },
@@ -70,15 +74,13 @@ const rowOptions = [
 ];
 const selectedRows = ref(rowOptions[0]);
 
-const currentPage = ref(1);
+const currentPage = ref(Number(route.query.page) || 1);
 const totalPages = ref(915537);
 
-const isFirstPage = computed(() => currentPage.value === 1);
-const isLastPage = computed(() => currentPage.value === totalPages.value);
-
-const formatTotalPages = computed(() => {
-  return new Intl.NumberFormat('en-US').format(totalPages.value);
+watch(currentPage, (newPage) => {
+  router.push({ query: { ...route.query, page: newPage } });
 });
+
 </script>
 
 <template>
@@ -106,35 +108,10 @@ const formatTotalPages = computed(() => {
             <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
             Download Page Data
           </button>
-          <nav class="flex items-center gap-1" aria-label="Pagination">
-            <button
-              :disabled="isFirstPage"
-              class="relative inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-medium text-[#6ab5db] hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed disabled:text-[#bbbbbb]"
-            >
-              First
-            </button>
-            <button
-              :disabled="isFirstPage"
-              class="relative inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-medium text-[#6ab5db] hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed disabled:text-[#bbbbbb]"
-            >
-              <IconChevron class="h-4 w-4 transform rotate-180" />
-            </button>
-            <span class="relative inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-medium text-gray-300">
-              Page {{ currentPage }} of {{ formatTotalPages }}
-            </span>
-            <button
-              :disabled="isLastPage"
-              class="relative inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-medium text-[#6ab5db] hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed disabled:text-[#bbbbbb]"
-            >
-              <IconChevron class="h-4 w-4" />
-            </button>
-            <button
-              :disabled="isLastPage"
-              class="relative inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-medium text-[#6ab5db] hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed disabled:text-[#bbbbbb]"
-            >
-              Last
-            </button>
-          </nav>
+          <PaginationControls
+            v-model:currentPage="currentPage"
+            :totalPages="totalPages"
+          />
         </div>
       </div>
       <div class="overflow-x-auto">
@@ -186,35 +163,10 @@ const formatTotalPages = computed(() => {
             />
           </div>
         </div>
-        <nav class="flex items-center gap-1" aria-label="Pagination">
-          <button
-            :disabled="isFirstPage"
-            class="relative inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-medium text-[#6ab5db] hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed disabled:text-[#bbbbbb]"
-          >
-            First
-          </button>
-          <button
-            :disabled="isFirstPage"
-            class="relative inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-medium text-[#6ab5db] hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed disabled:text-[#bbbbbb]"
-          >
-            <IconChevron class="h-4 w-4 transform rotate-180" />
-          </button>
-          <span class="relative inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-medium text-gray-300">
-            Page {{ currentPage }} of {{ formatTotalPages }}
-          </span>
-          <button
-            :disabled="isLastPage"
-            class="relative inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-medium text-[#6ab5db] hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed disabled:text-[#bbbbbb]"
-          >
-            <IconChevron class="h-4 w-4" />
-          </button>
-          <button
-            :disabled="isLastPage"
-            class="relative inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-medium text-[#6ab5db] hover:bg-[#252525] disabled:opacity-50 disabled:cursor-not-allowed disabled:text-[#bbbbbb]"
-          >
-            Last
-          </button>
-        </nav>
+        <PaginationControls
+          v-model:currentPage="currentPage"
+          :totalPages="totalPages"
+        />
       </div>
     </div>
   </div>
