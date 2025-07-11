@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, watch } from 'vue';
 import IconDownload from '~/components/icon/Download.vue';
-import Select from '~/components/Select.vue';
 import StatsGrid from '~/components/StatsGrid.vue';
-import IconChevron from '~/components/icon/Chevron.vue';
-import PaginationControls from '~/components/PaginationControls.vue';
+import DataTable from '~/components/DataTable.vue';
 
 definePageMeta({
   layout: 'app',
@@ -22,6 +20,18 @@ const mockedCards = [
   { label: 'LAST SAFE BLOCK', value: '22888387' },
   { label: 'BLOCKS BY MEV BUILDERS (24H)', value: '94.3%' },
   { label: 'BURNED FEES', value: '4,598,326.61 KDA' },
+];
+
+const tableHeaders = [
+  { key: 'block', label: 'Block' },
+  { key: 'chainId', label: 'Chain ID' },
+  { key: 'age', label: 'Age' },
+  { key: 'txn', label: 'Txn' },
+  { key: 'miner', label: 'Miner Account' },
+  { key: 'gasUsed', label: 'Gas Used' },
+  { key: 'gasLimit', label: 'Gas Limit' },
+  { key: 'gasPrice', label: 'Gas Price' },
+  { key: 'reward', label: 'Reward' },
 ];
 
 const mockedBlocks = [
@@ -93,81 +103,37 @@ watch(currentPage, (newPage) => {
 
     <StatsGrid :cards="mockedCards" />
 
-    <div class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
-      <div class="flex items-center justify-between mb-4">
-        <div>
-          <h2 class="text-[15px] text-normal text-[#f5f5f5]">
-            Total of 22,888,423 blocks
-          </h2>
-          <p class="text-[13px] text-[#bbbbbb]">
-            (Showing blocks between #22888398 to #22888422)
-          </p>
-        </div>
-        <div class="flex items-center gap-2">
-          <button class="flex items-center gap-2 px-2 py-1 text-[12px] font-medium text-[#fafafa] bg-[#151515] border border-gray-600 rounded-md hover:bg-[#252525]">
-            <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
-            Download Page Data
-          </button>
-          <PaginationControls
-            v-model:currentPage="currentPage"
-            :totalPages="totalPages"
-          />
-        </div>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-[#222222]">
-          <thead class="bg-transparent">
-            <tr>
-              <th scope="col" class="px-4 py-2 text-left text-[13px] font-bold text-[#f5f5f5]">Block</th>
-              <th scope="col" class="px-4 py-2 text-left text-[13px] font-bold text-[#f5f5f5]">Chain ID</th>
-              <th scope="col" class="px-4 py-2 text-left text-[13px] font-bold text-[#f5f5f5]">Age</th>
-              <th scope="col" class="px-4 py-2 text-left text-[13px] font-bold text-[#f5f5f5]">Txn</th>
-              <th scope="col" class="px-4 py-2 text-left text-[13px] font-bold text-[#f5f5f5]">Miner Account</th>
-              <th scope="col" class="px-4 py-2 text-left text-[13px] font-bold text-[#f5f5f5]">Gas Used</th>
-              <th scope="col" class="px-4 py-2 text-left text-[13px] font-bold text-[#f5f5f5]">Gas Limit</th>
-              <th scope="col" class="px-4 py-2 text-left text-[13px] font-bold text-[#f5f5f5]">Gas Price</th>
-              <th scope="col" class="px-4 py-2 text-left text-[13px] font-bold text-[#f5f5f5]">Reward</th>
-            </tr>
-          </thead>
-          <tbody class="bg-transparent divide-y divide-[#222222]">
-            <tr v-for="block in mockedBlocks" :key="block.block">
-              <td class="px-4 py-3 whitespace-nowrap text-[15px]">
-                <NuxtLink :to="`/blocks/${block.block}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ block.block }}</NuxtLink>
-              </td>
-              <td class="px-4 py-3 whitespace-nowrap text-[15px] text-[#f5f5f5]">{{ block.chainId }}</td>
-              <td class="px-4 py-3 whitespace-nowrap text-[15px] text-[#f5f5f5]">{{ block.age }}</td>
-              <td class="px-4 py-3 whitespace-nowrap text-[15px]">
-                <NuxtLink :to="`/blocks/${block.block}/chain/${block.chainId}/transactions`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ block.txn }}</NuxtLink>
-              </td>
-              <td class="px-4 py-3 whitespace-nowrap text-[15px]">
-                <NuxtLink to="#" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ block.miner }}</NuxtLink>
-              </td>
-              <td class="px-4 py-3 whitespace-nowrap text-[15px] text-[#f5f5f5]">
-                {{ formatNumber(block.gasUsed) }} <span class="text-[13px] text-[#bbbbbb]">({{ block.gasUsedPercent }}%)</span>
-              </td>
-              <td class="px-4 py-3 whitespace-nowrap text-[15px] text-[#f5f5f5]">{{ block.gasLimit }}</td>
-              <td class="px-4 py-3 whitespace-nowrap text-[15px] text-[#f5f5f5]">{{ block.gasPrice }}</td>
-              <td class="px-4 py-3 whitespace-nowrap text-[15px] text-[#f5f5f5]">{{ block.reward }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="pt-4 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <span class="text-[15px] text-[#bbbbbb]">Show rows:</span>
-          <div class="border border-gray-600 rounded-md">
-            <Select
-              v-model="selectedRows"
-              :items="rowOptions"
-              position="top-left"
-            />
-          </div>
-        </div>
-        <PaginationControls
-          v-model:currentPage="currentPage"
-          :totalPages="totalPages"
-        />
-      </div>
-    </div>
+    <DataTable
+      :headers="tableHeaders"
+      :items="mockedBlocks"
+      :totalItems="22888423"
+      itemNamePlural="blocks"
+      subtitle="(Showing blocks between #22888398 to #22888422)"
+      v-model:currentPage="currentPage"
+      :totalPages="totalPages"
+      v-model:selectedRows="selectedRows"
+      :rowOptions="rowOptions"
+    >
+      <template #actions>
+        <button class="flex items-center gap-2 px-2 py-1 text-[12px] font-medium text-[#fafafa] bg-[#151515] border border-gray-600 rounded-md hover:bg-[#252525]">
+          <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
+          Download Page Data
+        </button>
+      </template>
+
+      <template #block="{ item }">
+        <NuxtLink :to="`/blocks/${item.block}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.block }}</NuxtLink>
+      </template>
+      <template #txn="{ item }">
+        <NuxtLink :to="`/blocks/${item.block}/chain/${item.chainId}/transactions`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.txn }}</NuxtLink>
+      </template>
+      <template #miner="{ item }">
+        <NuxtLink to="#" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.miner }}</NuxtLink>
+      </template>
+      <template #gasUsed="{ item }">
+        <span class="text-[#f5f5f5]">{{ formatNumber(item.gasUsed) }}</span>
+        <span class="text-[13px] text-[#bbbbbb]"> ({{ item.gasUsedPercent }}%)</span>
+      </template>
+    </DataTable>
   </div>
 </template>
