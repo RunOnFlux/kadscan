@@ -31,7 +31,7 @@ const tableHeaders = [
   { key: 'chainId', label: 'Chain ID' },
   { key: 'age', label: 'Age' },
   { key: 'txn', label: 'Txn' },
-  { key: 'miner', label: 'Miner Account', class: 'w-[450px]' },
+  { key: 'miner', label: 'Miner Account' },
   { key: 'gasLimit', label: 'Gas Limit' },
   { key: 'gasPrice', label: 'Gas Price' },
   { key: 'reward', label: 'Reward' },
