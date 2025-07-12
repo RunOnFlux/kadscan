@@ -100,11 +100,15 @@ export const useBlocks = () => {
   const pageInfo = ref<any>(null);
   const totalCount = ref(0);
 
-  const fetchTotalCount = async () => {
+  const fetchTotalCount = async ({ networkId }: { networkId: string }) => {
+    if (!networkId) return;
     try {
       const response: any = await $fetch('/api/graphql', {
         method: 'POST',
-        body: { query: TOTAL_COUNT_QUERY },
+        body: { 
+          query: TOTAL_COUNT_QUERY,
+          networkId,
+        },
       });
       totalCount.value = response?.data?.lastBlockHeight || 0;
     } catch (error) {
@@ -113,14 +117,17 @@ export const useBlocks = () => {
   };
 
   const fetchBlocks = async ({
+    networkId,
     limit,
     after,
     before,
   }: {
+    networkId: string,
     limit: number,
     after?: string,
     before?: string,
   }) => {
+    if (!networkId) return;
     loading.value = true;
     try {
       const isForward = !!after || (!after && !before);
@@ -135,7 +142,8 @@ export const useBlocks = () => {
             last: isForward ? null : limit,
             after,
             before,
-          }
+          },
+          networkId,
         }
       });
 
@@ -162,13 +170,12 @@ export const useBlocks = () => {
     }
   };
 
-  fetchTotalCount();
-
   return {
     blocks,
     loading,
     fetchBlocks,
     pageInfo,
-    totalCount
+    totalCount,
+    fetchTotalCount,
   };
 }; 

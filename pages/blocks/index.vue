@@ -5,6 +5,7 @@ import StatsGrid from '~/components/StatsGrid.vue';
 import DataTable from '~/components/DataTable.vue';
 import { useBlocks } from '~/composables/useBlocks';
 import { useFormat } from '~/composables/useFormat';
+import { useSharedData } from '~/composables/useSharedData';
 
 definePageMeta({
   layout: 'app',
@@ -16,8 +17,9 @@ useHead({
 
 const route = useRoute();
 const router = useRouter();
-const { blocks, loading, fetchBlocks, pageInfo, totalCount } = useBlocks();
+const { blocks, loading, fetchBlocks, pageInfo, totalCount, fetchTotalCount } = useBlocks();
 const { truncateAddress } = useFormat();
+const { selectedNetwork } = useSharedData();
 
 const mockedCards = [
   { label: 'NETWORK UTILIZATION (24H)', value: '--' },
@@ -74,20 +76,45 @@ watch(
 );
 
 watch(
-  () => route.query.page,
-  (newPage, oldPage) => {
-    const params: { limit: number, after?: string, before?: string } = { limit: rowsToShow.value.value };
-    if (Number(newPage) > 1) {
-      if (Number(newPage) > Number(oldPage ?? '0')) {
+  [() => route.query.page, selectedNetwork],
+  ([page, network], [oldPage, oldNetwork]) => {
+    if (!network) {
+      return;
+    }
+
+    const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
+
+    if (networkChanged) {
+      fetchTotalCount({ networkId: network.id });
+      if (Number(page) !== 1) {
+        router.push({ query: { page: 1 } });
+        return;
+      }
+    }
+
+    const pageNumber = Number(page) || 1;
+    const oldPageNumber = Number(oldPage) || 1;
+
+    const params: { networkId: string; limit: number, after?: string, before?: string } = {
+      networkId: network.id,
+      limit: rowsToShow.value.value
+    };
+
+    if (pageNumber > 1) {
+      if (pageNumber > oldPageNumber) {
         params.after = pageInfo.value?.endCursor;
       } else {
         params.before = pageInfo.value?.startCursor;
       }
     }
+    
     fetchBlocks(params);
-    currentPage.value = Number(newPage) || 1;
+    currentPage.value = pageNumber;
   },
-  { immediate: true }
+  {
+    immediate: true,
+    deep: true,
+  }
 );
 </script>
 
