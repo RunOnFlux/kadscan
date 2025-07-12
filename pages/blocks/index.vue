@@ -26,6 +26,16 @@ const mockedCards = [
   { label: 'REWARDS GIVEN (24H)', value: '--' },
 ];
 
+const subtitle = computed(() => {
+  if (blocks.value.length === 0 || loading.value) {
+    return '';
+  }
+  const blockNumbers = blocks.value.map((b: any) => b.block);
+  const oldestBlock = Math.min(...blockNumbers);
+  const latestBlock = Math.max(...blockNumbers);
+  return `(Showing blocks between #${oldestBlock} to #${latestBlock})`;
+});
+
 const tableHeaders = [
   { key: 'block', label: 'Block' },
   { key: 'chainId', label: 'Chain ID' },
@@ -66,7 +76,7 @@ watch(
 watch(
   () => route.query.page,
   (newPage, oldPage) => {
-    const params = { limit: rowsToShow.value.value };
+    const params: { limit: number, after?: string, before?: string } = { limit: rowsToShow.value.value };
     if (Number(newPage) > 1) {
       if (Number(newPage) > Number(oldPage ?? '0')) {
         params.after = pageInfo.value?.endCursor;
@@ -89,7 +99,7 @@ watch(
       </h1>
     </div>
 
-    <StatsGrid :cards="mockedCards" />
+    <!-- <StatsGrid :cards="mockedCards" /> -->
     
     <div v-if="loading" class="text-white text-center p-8">Loading...</div>
     <DataTable
@@ -98,7 +108,7 @@ watch(
       :items="blocks"
       :totalItems="totalCount"
       itemNamePlural="blocks"
-      subtitle="(Showing blocks between #22888398 to #22888422)"
+      :subtitle="subtitle"
       v-model:currentPage="currentPage"
       :totalPages="totalPages"
       v-model:selectedRows="rowsToShow"
