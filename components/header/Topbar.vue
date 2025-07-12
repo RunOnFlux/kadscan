@@ -36,11 +36,17 @@ const {
     >
       <NuxtLink
         to="/"
-        class="flex items-center"
+        class="flex items-end"
       >
         <IconLogoWhite
           class="h-7"
         />
+        <span
+          v-if="selectedNetwork"
+          class="text-xs font-bold text-gray-400"
+        >
+          {{ selectedNetwork.name }}
+        </span>
       </NuxtLink>
 
       <div
