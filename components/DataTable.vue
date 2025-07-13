@@ -58,7 +58,7 @@ const formatTotalItems = (num: number) => {
 
 <template>
   <div class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
-    <div class="flex items-center justify-between mb-4">
+    <div class="flex flex-col md:flex-row gap-y-2 justify-between items-start md:items-center mb-4">
       <div>
         <h2 class="text-[15px] text-normal text-[#f5f5f5]">
           Total of {{ formatTotalItems(totalItems) }} {{ itemNamePlural }}
@@ -67,7 +67,7 @@ const formatTotalItems = (num: number) => {
           {{ subtitle }}
         </p>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 w-full md:w-fit justify-end">
         <slot name="actions" />
         <PaginationControls
           :currentPage="currentPage"
@@ -111,7 +111,7 @@ const formatTotalItems = (num: number) => {
       </table>
     </div>
 
-    <div class="pt-4 flex items-center justify-between">
+    <div class="pt-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
       <div class="flex items-center gap-2">
         <span class="text-[15px] text-[#bbbbbb]">Show rows:</span>
         <div class="border border-gray-600 rounded-md">
@@ -123,13 +123,15 @@ const formatTotalItems = (num: number) => {
           />
         </div>
       </div>
-      <PaginationControls
-        :currentPage="currentPage"
-        :totalPages="totalPages"
-        :has-next-page="hasNextPage"
-        :has-previous-page="hasPreviousPage"
-        @update:currentPage="emit('update:currentPage', $event)"
-      />
+      <div class="w-full md:w-fit flex justify-end">
+        <PaginationControls
+          :currentPage="currentPage"
+          :totalPages="totalPages"
+          :has-next-page="hasNextPage"
+          :has-previous-page="hasPreviousPage"
+          @update:currentPage="emit('update:currentPage', $event)"
+        />
+      </div>
     </div>
   </div>
 </template> 
