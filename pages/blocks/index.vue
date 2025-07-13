@@ -21,12 +21,13 @@ const { blocks, loading, fetchBlocks, pageInfo, totalCount, fetchTotalCount } = 
 const { truncateAddress } = useFormat();
 const { selectedNetwork } = useSharedData();
 
-const mockedCards = [
-  { label: 'NETWORK UTILIZATION (24H)', value: '--' },
-  { label: 'LAST SAFE BLOCK', value: '--' },
-  { label: 'BLOCKS PRODUCED (24H)', value: '--' },
-  { label: 'REWARDS GIVEN (24H)', value: '--' },
-];
+/// TODO: get real analytics
+// const mockedCards = [
+//   { label: 'NETWORK UTILIZATION (24H)', value: '--' },
+//   { label: 'LAST SAFE BLOCK', value: '--' },
+//   { label: 'BLOCKS PRODUCED (24H)', value: '--' },
+//   { label: 'REWARDS GIVEN (24H)', value: '--' },
+// ];
 
 const subtitle = computed(() => {
   if (blocks.value.length === 0 || loading.value) {
@@ -126,6 +127,8 @@ watch(
       </h1>
     </div>
 
+
+    <!-- TODO: get real analytics -->
     <!-- <StatsGrid :cards="mockedCards" /> -->
     
     <div v-if="loading" class="text-white text-center p-8">Loading...</div>
