@@ -9,6 +9,7 @@ import SelectOptions from '~/components/SelectOptions.vue'
 const props = defineProps<{
   modelValue: any;
   items: any[];
+  fontSize?: number;
   position?: 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right' | 'left-top' | 'left-bottom' | 'right-top' | 'right-bottom';
 }>()
 
@@ -26,9 +27,9 @@ provideUseId(() => useId())
     >
       <div class="relative">
         <ListboxButton
-          class="flex items-center justify-center gap-2 px-[10px] py-[0.3rem] ring-0 outline-none shrink-0"
+          class="flex items-center justify-center gap-2 px-2 py-1 ring-0 outline-none shrink-0"
         >
-          <span class="text-[15px] text-[#f5f5f5] whitespace-nowrap block">
+          <span class="text-[#f5f5f5] whitespace-nowrap block" :class="fontSize ? `text-[${fontSize}px]` : 'text-[15px]'">
             {{ modelValue.label }}
           </span>
 

@@ -42,6 +42,7 @@ onUnmounted(() => {
         class="hidden sm:block"
       >
         <Select
+          fontSize="15"
           v-model="data.filter"
           :items="data.filters"
           @click="close"

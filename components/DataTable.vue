@@ -111,27 +111,26 @@ const formatTotalItems = (num: number) => {
       </table>
     </div>
 
-    <div class="pt-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    <div class="pt-4 flex items-center justify-between">
       <div class="flex items-center gap-2">
         <span class="text-[15px] text-[#bbbbbb]">Show rows:</span>
-        <div class="border border-gray-600 rounded-md">
+        <div class="border border-[#222222] rounded-md">
           <Select
             :modelValue="selectedRows"
             @update:modelValue="emit('update:selectedRows', $event)"
             :items="rowOptions"
-            position="top-left"
+            position="bot-left"
+            fontSize="12"
           />
         </div>
       </div>
-      <div class="w-full md:w-fit flex justify-end">
-        <PaginationControls
-          :currentPage="currentPage"
-          :totalPages="totalPages"
-          :has-next-page="hasNextPage"
-          :has-previous-page="hasPreviousPage"
-          @update:currentPage="emit('update:currentPage', $event)"
-        />
-      </div>
+      <PaginationControls
+        :currentPage="currentPage"
+        :totalPages="totalPages"
+        :has-next-page="hasNextPage"
+        :has-previous-page="hasPreviousPage"
+        @update:currentPage="emit('update:currentPage', $event)"
+      />
     </div>
   </div>
 </template> 
