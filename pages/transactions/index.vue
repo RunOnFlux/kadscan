@@ -5,6 +5,7 @@ import DataTable from '~/components/DataTable.vue';
 import Tooltip from '~/components/Tooltip.vue';
 import Copy from '~/components/Copy.vue';
 import SkeletonTable from '~/components/skeleton/Table.vue';
+import ColumnGas from '~/components/column/Gas.vue';
 import { useTransactions } from '~/composables/useTransactions';
 import { useFormat } from '~/composables/useFormat';
 import { useSharedData } from '~/composables/useSharedData';
@@ -45,8 +46,9 @@ const tableHeaders = [
   { key: 'chainId', label: 'Chain ID' },
   { key: 'time', label: 'Time' },
   { key: 'sender', label: 'Sender' },
-  { key: 'gasPrice', label: 'Gas Price' },
   { key: 'gas', label: 'Gas' },
+  { key: 'gasLimit', label: 'Gas Limit' },
+  { key: 'gasPrice', label: 'Gas Price' },
 ];
 
 const rowOptions = [
@@ -173,6 +175,9 @@ function downloadData() {
           </Tooltip>
           <Copy :value="item.sender" tooltipText="Copy Address" />
         </div>
+      </template>
+      <template #gas="{ item }">
+        <ColumnGas :gas="item.gas" :gas-limit="item.rawGasLimit" />
       </template>
     </DataTable>
   </div>

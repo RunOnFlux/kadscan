@@ -16,6 +16,7 @@ const GQL_QUERY = `
           hash
           cmd {
             meta {
+              gasLimit
               chainId
               creationTime
               gasPrice
@@ -87,6 +88,8 @@ export const useTransactions = () => {
           sender: edge.node.cmd.meta.sender,
           gasPrice: formatGasPrice(edge.node.cmd.meta.gasPrice),
           gas: edge.node.result.gas,
+          gasLimit: new Intl.NumberFormat().format(edge.node.cmd.meta.gasLimit),
+          rawGasLimit: edge.node.cmd.meta.gasLimit,
           cursor: edge.cursor,
         };
       });
