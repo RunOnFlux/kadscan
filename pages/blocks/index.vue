@@ -3,9 +3,13 @@ import { ref, watch, computed } from 'vue';
 import IconDownload from '~/components/icon/Download.vue';
 import StatsGrid from '~/components/StatsGrid.vue';
 import DataTable from '~/components/DataTable.vue';
+import Tooltip from '~/components/Tooltip.vue';
+import Copy from '~/components/Copy.vue';
+import SkeletonTable from '~/components/skeleton/Table.vue';
 import { useBlocks } from '~/composables/useBlocks';
 import { useFormat } from '~/composables/useFormat';
 import { useSharedData } from '~/composables/useSharedData';
+import { exportableToCsv, downloadCSV } from '~/composables/csv';
 
 definePageMeta({
   layout: 'app',
@@ -21,12 +25,13 @@ const { blocks, loading, fetchBlocks, pageInfo, totalCount, fetchTotalCount } = 
 const { truncateAddress } = useFormat();
 const { selectedNetwork } = useSharedData();
 
-const mockedCards = [
-  { label: 'NETWORK UTILIZATION (24H)', value: '--' },
-  { label: 'LAST SAFE BLOCK', value: '--' },
-  { label: 'BLOCKS PRODUCED (24H)', value: '--' },
-  { label: 'REWARDS GIVEN (24H)', value: '--' },
-];
+/// TODO: get real analytics
+// const mockedCards = [
+//   { label: 'NETWORK UTILIZATION (24H)', value: '--' },
+//   { label: 'LAST SAFE BLOCK', value: '--' },
+//   { label: 'BLOCKS PRODUCED (24H)', value: '--' },
+//   { label: 'REWARDS GIVEN (24H)', value: '--' },
+// ];
 
 const subtitle = computed(() => {
   if (blocks.value.length === 0 || loading.value) {
@@ -116,6 +121,11 @@ watch(
     deep: true,
   }
 );
+
+function downloadData() {
+  const csv = exportableToCsv(blocks.value, tableHeaders);
+  downloadCSV(csv, `kadena-blocks-page-${currentPage.value}.csv`);
+}
 </script>
 
 <template>
@@ -126,9 +136,11 @@ watch(
       </h1>
     </div>
 
+
+    <!-- TODO: get real analytics -->
     <!-- <StatsGrid :cards="mockedCards" /> -->
     
-    <div v-if="loading" class="text-white text-center p-8">Loading...</div>
+    <SkeletonTable v-if="loading" />
     <DataTable
       v-else
       :headers="tableHeaders"
@@ -144,7 +156,10 @@ watch(
       :has-previous-page="pageInfo?.hasPreviousPage"
     >
       <template #actions>
-        <button class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap">
+        <button
+          @click="downloadData"
+          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
+        >
           <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
           Download Page Data
         </button>
@@ -157,7 +172,12 @@ watch(
         <NuxtLink :to="`/transactions/${item.txn}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.txn }}</NuxtLink>
       </template>
       <template #miner="{ item }">
-        <NuxtLink :to="`/account/${item.miner}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.miner, 10, 10) }}</NuxtLink>
+        <div class="flex items-center">
+          <Tooltip :value="item.miner" variant="hash">
+            <NuxtLink :to="`/account/${item.miner}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.miner, 10, 10) }}</NuxtLink>
+          </Tooltip>
+          <Copy :value="item.miner" tooltipText="Copy Address" />
+        </div>
       </template>
       <template #gasLimit="{ item }">
         <span class="text-[#f5f5f5]">{{ item.gasLimit }}</span>
