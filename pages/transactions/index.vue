@@ -1,232 +1,150 @@
 <script setup lang="ts">
-import { gql } from 'nuxt-graphql-request/utils';
+import { ref, watch, computed } from 'vue';
+import IconDownload from '~/components/icon/Download.vue';
+import DataTable from '~/components/DataTable.vue';
+import { useTransactions } from '~/composables/useTransactions';
+import { useFormat } from '~/composables/useFormat';
+import { useSharedData } from '~/composables/useSharedData';
 
 definePageMeta({
   layout: 'app',
-})
+});
 
 useHead({
   title: 'Transactions'
-})
+});
 
-const {
-  transactionTableColumns
-} = useAppConfig()
+const route = useRoute();
+const router = useRouter();
+const { transactions, loading, fetchTransactions, pageInfo, totalCount } = useTransactions();
+const { truncateAddress } = useFormat();
+const { selectedNetwork } = useSharedData();
 
-const query = gql`
-  query GetTransactions($first: Int, $last: Int, $after: Cursor, $before: Cursor, $chainId: Int) {
-    allTransactions(first: $first, last: $last, after: $after, before: $before, orderBy: ID_DESC, filter: {chainId: {equalTo: $chainId}}) {
-      nodes {
-        chainId
-        code
-        createdAt
-        continuation
-        creationtime
-        data
-        gas
-        gaslimit
-        gasprice
-        id
-        metadata
-        blockId
-        logs
-        nonce
-        nodeId
-        numEvents
-        pactid
-        payloadHash
-        proof
-        requestkey
-        result
-        sender
-        rollback
-        step
-        ttl
-        txid
-        updatedAt
-        blockByBlockId {
-          height
-        }
-      }
-      pageInfo {
-        startCursor
-        endCursor
-        hasPreviousPage
-        hasNextPage
-      }
-      totalCount
+const subtitle = computed(() => {
+  if (transactions.value.length === 0 || loading.value) {
+    return '';
+  }
+  const total = totalCount.value > 1000 ? '1000+' : totalCount.value;
+  return `(Showing ${transactions.value.length} of the last ${total} transactions)`;
+});
+
+const tableHeaders = [
+  { key: 'requestKey', label: 'Request Key' },
+  { key: 'block', label: 'Block' },
+  { key: 'chainId', label: 'Chain ID' },
+  { key: 'time', label: 'Time' },
+  { key: 'sender', label: 'Sender' },
+  { key: 'gasPrice', label: 'Gas Price' },
+  { key: 'gas', label: 'Gas' },
+];
+
+const rowOptions = [
+  { label: '25', value: 25 },
+  { label: '50', value: 50 },
+  { label: '100', value: 100 },
+];
+const rowsToShow = ref(rowOptions[0]);
+const currentPage = ref(Number(route.query.page) || 1);
+
+const totalPages = computed(() => {
+  if (!totalCount.value) return 1;
+  return Math.ceil(totalCount.value / rowsToShow.value.value);
+});
+
+watch(
+  [currentPage, rowsToShow],
+  ([newPage, newRows], [oldPage, oldRows]) => {
+    const query = { ...route.query, page: newPage };
+    if (newRows.value !== oldRows?.value) {
+      query.page = 1;
+      currentPage.value = 1;
     }
+    router.push({ query });
+  },
+  { deep: true }
+);
+
+watch(
+  [() => route.query.page, selectedNetwork],
+  ([page, network], [oldPage, oldNetwork]) => {
+    if (!network) {
+      return;
+    }
+
+    const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
+
+    if (networkChanged) {
+      if (Number(page) !== 1) {
+        router.push({ query: { page: 1 } });
+        return;
+      }
+    }
+
+    const pageNumber = Number(page) || 1;
+    const oldPageNumber = Number(oldPage) || 1;
+
+    const params: { networkId: string; limit: number, after?: string, before?: string } = {
+      networkId: network.id,
+      limit: rowsToShow.value.value
+    };
+
+    if (pageNumber > 1) {
+      if (pageNumber > oldPageNumber) {
+        params.after = pageInfo.value?.endCursor;
+      } else {
+        params.before = pageInfo.value?.startCursor;
+      }
+    }
+    
+    fetchTransactions(params);
+    currentPage.value = pageNumber;
+  },
+  {
+    immediate: true,
+    deep: true,
   }
-`
-
-const {
-  page,
-  limit,
-  params,
-  cursor,
-  updatePage,
-  updateCursor,
-} = usePagination();
-
-const chain = ref<any>(null);
-const totalTransactions = ref(null)
-
-const updateChain = (newChain: any) => {
-  chain.value = newChain;
-  cursor.value = undefined;
-  page.value = 1;
-}
-
-const { $graphql, $coingecko } = useNuxtApp();
-
-const { data: blockchain, status: cgStatus, error: blockchainError } = await useAsyncData('transactions-chart', async () => {
-  const res = await $coingecko.request('coins/kadena');
-  return res;
-}, {
-  // remove
-  lazy: true,
-});
-
-const { data: transactions, status, pending, error } = await useAsyncData('transactions-recent', async () => {
-  const {
-    allTransactions,
-  } = await $graphql.default.request(query, {
-    ...params.value,
-    chainId: chain.value,
-  });
-
-  const totalPages = Math.max(Math.ceil(allTransactions.totalCount / limit.value), 1);
-
-  if (!totalTransactions.value) {
-    totalTransactions.value = allTransactions.totalCount;
-  }
-
-  return {
-    ...allTransactions,
-    totalPages
-  };
-}, {
-  watch: [params, chain],
-  // remove
-  lazy: true,
-});
-
-watch([transactions], ([newPage]) => {
-  if (!newPage) {
-    return;
-  }
-
-  updateCursor(newPage?.pageInfo?.startCursor)
-})
+);
 </script>
 
 <template>
-  <PageRoot
-    :error="error"
-  >
-    <PageTitle>
-      Transactions
-    </PageTitle>
-
-    <div
-      class="grid gap-3 bazk:grid-cols-4 bazk:gap-6"
-    >
-      <Card
-        label="Market Cap (24h)"
-        :isLoading="cgStatus === 'pending'"
-        :description="moneyCompact.format(blockchain?.market_data?.market_cap?.usd || 0)"
-        :delta="blockchain?.market_data?.market_cap_change_percentage_24h"
-      />
-
-      <Card
-        label="Total Volume (24h)"
-        :isLoading="cgStatus === 'pending'"
-        :description="moneyCompact.format(blockchain?.market_data?.total_volume?.usd || 0)"
-        :delta="blockchain?.market_data?.price_change_percentage_24h || 0"
-      />
-
-      <Card
-        label="Circulating Supply (24h)"
-        :isLoading="cgStatus === 'pending'"
-        :description="moneyCompact.format(blockchain?.market_data?.circulating_supply || 0)"
-      />
-
-      <Card
-        :description="totalTransactions || ''"
-        label="Total transactions (All time)"
-        :isLoading="pending && !totalTransactions"
-      />
+  <div>
+    <div class="flex items-center justify-between pb-5 border-b border-[#222222] mb-6">
+      <h1 class="text-[19px] font-semibold leading-[150%] text-[#fafafa]">
+        Transactions
+      </h1>
     </div>
 
-    <TableContainer>
-      <TableRoot
-        :chain="chain"
-        @chain="updateChain"
-        title="Recent Transactions"
-        :pending="pending"
-        :rows="transactions?.nodes || []"
-        :columns="transactionTableColumns"
-      >
-        <template #status="{ row }">
-          <ColumnStatus
-            :row="row"
-          />
-        </template>
+    <div v-if="loading" class="text-white text-center p-8">Loading...</div>
+    <DataTable
+      v-else
+      :headers="tableHeaders"
+      :items="transactions"
+      :totalItems="totalCount"
+      itemNamePlural="transactions"
+      :subtitle="subtitle"
+      v-model:currentPage="currentPage"
+      :totalPages="totalPages"
+      v-model:selectedRows="rowsToShow"
+      :rowOptions="rowOptions"
+      :has-next-page="pageInfo?.hasNextPage"
+      :has-previous-page="pageInfo?.hasPreviousPage"
+    >
+      <template #actions>
+        <button class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap">
+          <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
+          Download Page Data
+        </button>
+      </template>
 
-        <template #requestKey="{ row }">
-          <ColumnLink
-            withCopy
-            :label="row.requestkey"
-            :to="`/transactions/${row.requestkey}`"
-          />
-        </template>
-
-        <template #createdAt="{ row }">
-          <ColumnDate
-            :row="row"
-          />
-        </template>
-
-        <template #sender="{ row }">
-          <ColumnAddress
-            :value="row.sender"
-          />
-        </template>
-
-        <template #block="{ row }">
-          <ColumnLink
-            :to="row.blockByBlockId ?`/blocks/chain/${row.chainId}/height/${row?.blockByBlockId?.height}`: ''"
-            :label="row?.blockByBlockId?.height ?? 'null'"
-          />
-        </template>
-
-        <template #icon="{ row }">
-          <EyeLink
-            :to="`/transactions/${row.requestkey}`"
-          />
-        </template>
-
-        <template
-          #empty
-        >
-          <EmptyTable
-            image="/empty/txs.png"
-            title="No transactions found yet"
-            description="We couldn't find any recent transactions"
-          />
-        </template>
-
-        <template
-          #footer
-        >
-          <PaginateTable
-            :currentPage="page"
-            :totalItems="transactions.totalCount ?? 1"
-            :totalPages="transactions.totalPages"
-            @pageChange="updatePage(Number($event), transactions.pageInfo, transactions.totalCount ?? 1, transactions.totalPages)"
-          />
-        </template>
-      </TableRoot>
-    </TableContainer>
-  </PageRoot>
+      <template #requestKey="{ item }">
+        <NuxtLink :to="`/transactions/${item.requestKey}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.requestKey, 10, 10) }}</NuxtLink>
+      </template>
+      <template #block="{ item }">
+        <NuxtLink :to="`/blocks/chain/${item.chainId}/height/${item.block}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.block }}</NuxtLink>
+      </template>
+      <template #sender="{ item }">
+        <NuxtLink :to="`/account/${item.sender}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.sender, 10, 10) }}</NuxtLink>
+      </template>
+    </DataTable>
+  </div>
 </template>
