@@ -26,11 +26,17 @@ const { truncateAddress } = useFormat();
 const { selectedNetwork } = useSharedData();
 
 const subtitle = computed(() => {
-  if (transactions.value.length === 0 || loading.value) {
+  if (transactions.value.length === 0 || loading.value || !totalCount.value) {
     return '';
   }
-  const formattedTotal = new Intl.NumberFormat().format(totalCount.value);
-  return `(Showing ${transactions.value.length} of ${formattedTotal} transactions)`;
+
+  const newestTxIndex = totalCount.value - ((currentPage.value - 1) * rowsToShow.value.value);
+  const oldestTxIndex = newestTxIndex - transactions.value.length + 1;
+
+  const formattedNewest = new Intl.NumberFormat().format(newestTxIndex);
+  const formattedOldest = new Intl.NumberFormat().format(oldestTxIndex);
+
+  return `(Showing transactions between #${formattedOldest} to #${formattedNewest})`;
 });
 
 const tableHeaders = [
