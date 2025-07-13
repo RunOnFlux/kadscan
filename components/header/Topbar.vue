@@ -116,7 +116,7 @@ const {
       leave-to-class="transform scale-95 opacity-0"
     >
       <DisclosurePanel
-        class="flex lg:hidden w-full gap-2 flex-col pt-1 pb-3 px-4 bg-[#111111]"
+        class="flex md:hidden w-full gap-2 flex-col pt-1 pb-3 px-4 bg-[#111111]"
       >
         <HeaderRouteMobile
           :key="route.tag + i + '-mobile'"

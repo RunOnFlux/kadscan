@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { usePopper } from '~/composables/usePopper';
 
 const props = defineProps<{
@@ -8,9 +8,15 @@ const props = defineProps<{
 }>();
 
 const isVisible = ref(false);
-const [reference, popper] = usePopper({
+const [reference, popper, instance] = usePopper({
   placement: 'top',
-  offsetDistance: 12
+  offsetDistance: 2
+});
+
+watch(() => props.value, () => {
+  if (instance.value && isVisible.value) {
+    instance.value.update();
+  }
 });
 
 const tooltipClass = computed(() => {

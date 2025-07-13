@@ -3,6 +3,7 @@ import { ref, watch, computed } from 'vue';
 import IconDownload from '~/components/icon/Download.vue';
 import DataTable from '~/components/DataTable.vue';
 import Tooltip from '~/components/Tooltip.vue';
+import Copy from '~/components/Copy.vue';
 import { useTransactions } from '~/composables/useTransactions';
 import { useFormat } from '~/composables/useFormat';
 import { useSharedData } from '~/composables/useSharedData';
@@ -138,17 +139,23 @@ watch(
       </template>
 
       <template #requestKey="{ item }">
-        <Tooltip :value="item.requestKey" variant="hash">
-          <NuxtLink :to="`/transactions/${item.requestKey}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.requestKey, 10, 10) }}</NuxtLink>
-        </Tooltip>
+        <div class="flex items-center">
+          <Tooltip :value="item.requestKey" variant="hash">
+            <NuxtLink :to="`/transactions/${item.requestKey}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.requestKey, 10, 10) }}</NuxtLink>
+          </Tooltip>
+          <Copy :value="item.requestKey" tooltipText="Copy Transaction Request Key" />
+        </div>
       </template>
       <template #block="{ item }">
         <NuxtLink :to="`/blocks/${item.block}/chain/${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.block }}</NuxtLink>
       </template>
       <template #sender="{ item }">
-        <Tooltip :value="item.sender" variant="hash">
-          <NuxtLink :to="`/account/${item.sender}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.sender, 10, 10) }}</NuxtLink>
-        </Tooltip>
+        <div class="flex items-center">
+          <Tooltip :value="item.sender" variant="hash">
+            <NuxtLink :to="`/account/${item.sender}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.sender, 10, 10) }}</NuxtLink>
+          </Tooltip>
+          <Copy :value="item.sender" tooltipText="Copy Address" />
+        </div>
       </template>
     </DataTable>
   </div>
