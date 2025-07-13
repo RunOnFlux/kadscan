@@ -143,7 +143,7 @@ watch(
         </Tooltip>
       </template>
       <template #block="{ item }">
-        <NuxtLink :to="`/blocks/chain/${item.chainId}/height/${item.block}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.block }}</NuxtLink>
+        <NuxtLink :to="`/blocks/${item.block}/chain/${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.block }}</NuxtLink>
       </template>
       <template #sender="{ item }">
         <Tooltip :value="item.sender" variant="hash">
