@@ -40,6 +40,18 @@ const subtitle = computed(() => {
   return `(Showing transactions between #${formattedOldest} to #${formattedNewest})`;
 });
 
+const getFeeInKda = (item: any) => {
+  if (!item.gas || !item.rawGasPrice) {
+    return '0 KDA';
+  }
+  const feeInKda = item.gas * item.rawGasPrice;
+  const formattedFee = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 4,
+    maximumFractionDigits: 12,
+  }).format(feeInKda);
+  return `${formattedFee} KDA`;
+};
+
 const tableHeaders = [
   { key: 'requestKey', label: 'Request Key' },
   { key: 'block', label: 'Block' },
@@ -49,6 +61,7 @@ const tableHeaders = [
   { key: 'gas', label: 'Gas' },
   { key: 'gasLimit', label: 'Gas Limit' },
   { key: 'gasPrice', label: 'Gas Price' },
+  { key: 'fee', label: 'Fee' },
 ];
 
 const rowOptions = [
@@ -178,6 +191,9 @@ function downloadData() {
       </template>
       <template #gas="{ item }">
         <ColumnGas :gas="item.gas" :gas-limit="item.rawGasLimit" />
+      </template>
+      <template #fee="{ item }">
+        <span class="text-[#f5f5f5]">{{ getFeeInKda(item) }}</span>
       </template>
     </DataTable>
   </div>

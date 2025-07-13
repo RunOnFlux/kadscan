@@ -30,7 +30,7 @@ const formattedGas = computed(() => {
     </div>
     <div class="w-full bg-[#33393e] rounded-full h-[2px]">
       <div
-        class="bg-[#01ff58] h-[2px] rounded-full"
+        class="bg-[#57ff90] h-[2px] rounded-full"
         :style="{ width: `${percentage}%` }"
       ></div>
     </div>

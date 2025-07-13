@@ -87,6 +87,7 @@ export const useTransactions = () => {
           time: formatRelativeTime(edge.node.cmd.meta.creationTime),
           sender: edge.node.cmd.meta.sender,
           gasPrice: formatGasPrice(edge.node.cmd.meta.gasPrice),
+          rawGasPrice: edge.node.cmd.meta.gasPrice,
           gas: edge.node.result.gas,
           gasLimit: new Intl.NumberFormat().format(edge.node.cmd.meta.gasLimit),
           rawGasLimit: edge.node.cmd.meta.gasLimit,
