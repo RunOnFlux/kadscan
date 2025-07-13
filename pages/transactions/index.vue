@@ -2,6 +2,7 @@
 import { ref, watch, computed } from 'vue';
 import IconDownload from '~/components/icon/Download.vue';
 import DataTable from '~/components/DataTable.vue';
+import Tooltip from '~/components/Tooltip.vue';
 import { useTransactions } from '~/composables/useTransactions';
 import { useFormat } from '~/composables/useFormat';
 import { useSharedData } from '~/composables/useSharedData';
@@ -137,13 +138,17 @@ watch(
       </template>
 
       <template #requestKey="{ item }">
-        <NuxtLink :to="`/transactions/${item.requestKey}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.requestKey, 10, 10) }}</NuxtLink>
+        <Tooltip :value="item.requestKey" variant="hash">
+          <NuxtLink :to="`/transactions/${item.requestKey}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.requestKey, 10, 10) }}</NuxtLink>
+        </Tooltip>
       </template>
       <template #block="{ item }">
         <NuxtLink :to="`/blocks/chain/${item.chainId}/height/${item.block}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.block }}</NuxtLink>
       </template>
       <template #sender="{ item }">
-        <NuxtLink :to="`/account/${item.sender}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.sender, 10, 10) }}</NuxtLink>
+        <Tooltip :value="item.sender" variant="hash">
+          <NuxtLink :to="`/account/${item.sender}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.sender, 10, 10) }}</NuxtLink>
+        </Tooltip>
       </template>
     </DataTable>
   </div>
