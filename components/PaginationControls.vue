@@ -57,7 +57,7 @@ const goToNext = () => {
 </script>
 
 <template>
-  <nav class="flex items-center gap-1" aria-label="Pagination">
+  <nav class="flex items-stretch gap-0.5" aria-label="Pagination">
     <button
       :disabled="!hasPreviousPage"
       @click="goToFirst"
