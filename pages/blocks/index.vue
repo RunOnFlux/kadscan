@@ -144,7 +144,7 @@ watch(
       :has-previous-page="pageInfo?.hasPreviousPage"
     >
       <template #actions>
-        <button class="flex items-center gap-2 px-2 py-1 text-[12px] font-medium text-[#fafafa] bg-[#151515] border border-gray-600 rounded-md hover:bg-[#252525] whitespace-nowrap">
+        <button class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap">
           <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
           Download Page Data
         </button>
