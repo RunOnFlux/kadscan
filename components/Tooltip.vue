@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, nextTick } from 'vue';
 import { usePopper } from '~/composables/usePopper';
 
 const props = defineProps<{
@@ -16,6 +16,15 @@ const [reference, popper, instance] = usePopper({
 watch(() => props.value, () => {
   if (instance.value && isVisible.value) {
     instance.value.update();
+  }
+});
+
+watch(isVisible, async (visible) => {
+  if (visible) {
+    await nextTick();
+    if (instance.value) {
+      instance.value.update();
+    }
   }
 });
 
@@ -40,7 +49,7 @@ const tooltipClass = computed(() => {
       <Transition name="fade">
         <div
           ref="popper"
-          v-if="isVisible"
+          v-show="isVisible"
           :class="tooltipClass"
         >
           <div class="bg-[#313131] text-[#e5e5e5] text-xs px-2 py-1 rounded-md shadow-lg relative text-center">
