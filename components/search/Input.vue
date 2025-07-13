@@ -36,7 +36,7 @@ onUnmounted(() => {
     v-outside="close"
   >
     <div
-      class="flex gap-2 items-center w-full p-[6px] bg-[#111111] rounded-lg border border-[#222222]"
+      class="flex gap-2 items-center max-w-[675px] w-full p-[6px] bg-[#111111] rounded-lg border border-[#222222]"
     >
       <div
         class="hidden sm:block"
