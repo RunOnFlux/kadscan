@@ -7,6 +7,8 @@ import Copy from '~/components/Copy.vue';
 import { useTransactions } from '~/composables/useTransactions';
 import { useFormat } from '~/composables/useFormat';
 import { useSharedData } from '~/composables/useSharedData';
+import { exportableToCsv } from '~/composables/csv';
+import { downloadCSV } from '~/composables/csv';
 
 definePageMeta({
   layout: 'app',
@@ -106,6 +108,11 @@ watch(
     deep: true,
   }
 );
+
+function downloadData() {
+  const csv = exportableToCsv(transactions.value, tableHeaders);
+  downloadCSV(csv, `kadena-transactions-page-${currentPage.value}.csv`);
+}
 </script>
 
 <template>
@@ -132,7 +139,10 @@ watch(
       :has-previous-page="pageInfo?.hasPreviousPage"
     >
       <template #actions>
-        <button class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap">
+        <button
+          @click="downloadData"
+          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
+        >
           <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
           Download Page Data
         </button>

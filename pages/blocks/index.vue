@@ -8,6 +8,7 @@ import Copy from '~/components/Copy.vue';
 import { useBlocks } from '~/composables/useBlocks';
 import { useFormat } from '~/composables/useFormat';
 import { useSharedData } from '~/composables/useSharedData';
+import { exportableToCsv, downloadCSV } from '~/composables/csv';
 
 definePageMeta({
   layout: 'app',
@@ -119,6 +120,11 @@ watch(
     deep: true,
   }
 );
+
+function downloadData() {
+  const csv = exportableToCsv(blocks.value, tableHeaders);
+  downloadCSV(csv, `kadena-blocks-page-${currentPage.value}.csv`);
+}
 </script>
 
 <template>
@@ -149,7 +155,10 @@ watch(
       :has-previous-page="pageInfo?.hasPreviousPage"
     >
       <template #actions>
-        <button class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap">
+        <button
+          @click="downloadData"
+          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
+        >
           <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
           Download Page Data
         </button>

@@ -1,6 +1,7 @@
+// @ts-ignore
 import { convertArrayToCSV } from 'convert-array-to-csv'
 
-function flatObjectToString(obj) {
+function flatObjectToString(obj: any) {
   var s = "";
   Object.keys(obj).map(key => {
     if (obj[key] === null) {
@@ -19,9 +20,9 @@ function flatObjectToString(obj) {
   return s;
 }
 
-function listToFlatString(list) {
+function listToFlatString(list: any[]) {
   var s = "";
-  list.map(item => {
+  list.map((item: any) => {
     Object.keys(item).map(key => {
       s += "";
       if (item[key] instanceof Array) {
@@ -37,7 +38,7 @@ function listToFlatString(list) {
   return s;
 }
 
-function flatten(object, addToList, prefix) {
+function flatten(object: any, addToList: any, prefix: any) {
   Object.keys(object).map(key => {
       if (object[key] === null) {
           addToList[prefix + key] = "";
@@ -54,6 +55,20 @@ function flatten(object, addToList, prefix) {
       }
   });
   return addToList;
+}
+
+export function exportableToCsv(data: any[], headers: any[]) {
+  const header = headers.map(h => h.label);
+  const body = data.map(item => {
+    return headers.map(header => {
+      return item[header.key];
+    });
+  });
+
+  return convertArrayToCSV(body, {
+    header,
+    separator: ','
+  });
 }
 
 export function transactionToCsv({ transaction, transfers, events }: any) {
