@@ -1,189 +1,167 @@
 <script setup lang="ts">
-import { gql } from 'nuxt-graphql-request/utils';
+import { ref, watch, computed } from 'vue';
+import IconDownload from '~/components/icon/Download.vue';
+import StatsGrid from '~/components/StatsGrid.vue';
+import DataTable from '~/components/DataTable.vue';
+import { useBlocks } from '~/composables/useBlocks';
+import { useFormat } from '~/composables/useFormat';
+import { useSharedData } from '~/composables/useSharedData';
 
 definePageMeta({
   layout: 'app',
-})
+});
 
 useHead({
   title: 'Blocks'
-})
-
-const {
-  blocksTableColumns
-} = useAppConfig()
-
-const query = gql`
-  query GetBlocks($first: Int, $last: Int, $after: Cursor, $before: Cursor) {
-    allBlocks(first: $first, last: $last, after: $after, before: $before, orderBy: ID_DESC) {
-      nodes {
-        chainId
-        coinbase
-        createdAt
-        hash
-        height
-        id
-        nodeId
-        minerData
-        transactionsCount
-      }
-      pageInfo {
-        startCursor
-        endCursor
-        hasPreviousPage
-        hasNextPage
-      }
-      totalCount
-    }
-  }
-`
-
-const {
-  page,
-  limit,
-  params,
-  updatePage,
-  updateCursor,
-} = usePagination(20);
-
-const { $graphql } = useNuxtApp();
-
-const { data: blocks, pending, error } = await useAsyncData('blocks-recent', async () => {
-  const { allBlocks } = await $graphql.default.request(query, {
-    ...params.value,
-  });
-
-  const totalPages = Math.max(Math.ceil(allBlocks.totalCount / limit.value), 1)
-
-  return {
-    ...allBlocks,
-    totalPages
-  };
-}, {
-  watch: [page],
-  // remove
-  lazy: true,
 });
 
-watch([blocks], ([newPage]) => {
-  if (!newPage) {
-    return
-  }
+const route = useRoute();
+const router = useRouter();
+const { blocks, loading, fetchBlocks, pageInfo, totalCount, fetchTotalCount } = useBlocks();
+const { truncateAddress } = useFormat();
+const { selectedNetwork } = useSharedData();
 
-  updateCursor(newPage.pageInfo.startCursor)
-})
+const mockedCards = [
+  { label: 'NETWORK UTILIZATION (24H)', value: '--' },
+  { label: 'LAST SAFE BLOCK', value: '--' },
+  { label: 'BLOCKS PRODUCED (24H)', value: '--' },
+  { label: 'REWARDS GIVEN (24H)', value: '--' },
+];
+
+const subtitle = computed(() => {
+  if (blocks.value.length === 0 || loading.value) {
+    return '';
+  }
+  const blockNumbers = blocks.value.map((b: any) => b.block);
+  const oldestBlock = Math.min(...blockNumbers);
+  const latestBlock = Math.max(...blockNumbers);
+  return `(Showing blocks between #${oldestBlock} to #${latestBlock})`;
+});
+
+const tableHeaders = [
+  { key: 'block', label: 'Block' },
+  { key: 'chainId', label: 'Chain ID' },
+  { key: 'age', label: 'Age' },
+  { key: 'txn', label: 'Txn' },
+  { key: 'miner', label: 'Miner Account' },
+  { key: 'gasLimit', label: 'Gas Limit' },
+  { key: 'gasPrice', label: 'Gas Price' },
+  { key: 'reward', label: 'Reward' },
+];
+
+const rowOptions = [
+  { label: '25', value: 25 },
+  { label: '50', value: 50 },
+  { label: '100', value: 100 },
+];
+const rowsToShow = ref(rowOptions[0]);
+const currentPage = ref(Number(route.query.page) || 1);
+
+const totalPages = computed(() => {
+  if (!totalCount.value) return 1;
+  return Math.ceil(totalCount.value / rowsToShow.value.value);
+});
+
+watch(
+  [currentPage, rowsToShow],
+  ([newPage, newRows], [oldPage, oldRows]) => {
+    const query = { ...route.query, page: newPage };
+    if (newRows.value !== oldRows?.value) {
+      query.page = 1;
+      currentPage.value = 1;
+    }
+    router.push({ query });
+  },
+  { deep: true }
+);
+
+watch(
+  [() => route.query.page, selectedNetwork],
+  ([page, network], [oldPage, oldNetwork]) => {
+    if (!network) {
+      return;
+    }
+
+    const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
+
+    if (networkChanged) {
+      fetchTotalCount({ networkId: network.id });
+      if (Number(page) !== 1) {
+        router.push({ query: { page: 1 } });
+        return;
+      }
+    }
+
+    const pageNumber = Number(page) || 1;
+    const oldPageNumber = Number(oldPage) || 1;
+
+    const params: { networkId: string; limit: number, after?: string, before?: string } = {
+      networkId: network.id,
+      limit: rowsToShow.value.value
+    };
+
+    if (pageNumber > 1) {
+      if (pageNumber > oldPageNumber) {
+        params.after = pageInfo.value?.endCursor;
+      } else {
+        params.before = pageInfo.value?.startCursor;
+      }
+    }
+    
+    fetchBlocks(params);
+    currentPage.value = pageNumber;
+  },
+  {
+    immediate: true,
+    deep: true,
+  }
+);
 </script>
 
 <template>
-  <PageRoot
-    :error="error"
-  >
-    <PageTitle>
-      Blocks
-    </PageTitle>
+  <div>
+    <div class="flex items-center justify-between pb-5 border-b border-[#222222] mb-6">
+      <h1 class="text-[19px] font-semibold leading-[150%] text-[#fafafa]">
+        Blocks
+      </h1>
+    </div>
 
-    <!-- <div
-      class="grid gap-3 bazk:grid-cols-4 bazk:gap-6"
+    <!-- <StatsGrid :cards="mockedCards" /> -->
+    
+    <div v-if="loading" class="text-white text-center p-8">Loading...</div>
+    <DataTable
+      v-else
+      :headers="tableHeaders"
+      :items="blocks"
+      :totalItems="totalCount"
+      itemNamePlural="blocks"
+      :subtitle="subtitle"
+      v-model:currentPage="currentPage"
+      :totalPages="totalPages"
+      v-model:selectedRows="rowsToShow"
+      :rowOptions="rowOptions"
+      :has-next-page="pageInfo?.hasNextPage"
+      :has-previous-page="pageInfo?.hasPreviousPage"
     >
-      <Card
-        :description="integer.format(blocks.totalCount)"
-        label="Mined Blocks"
-      />
+      <template #actions>
+        <button class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap">
+          <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
+          Download Page Data
+        </button>
+      </template>
 
-      <Card
-        label="Todo"
-        description="-"
-      />
-
-      <Card
-        label="Todo"
-        description="-"
-      />
-
-      <Card
-        :description="integer.format(blocks.totalCount - 1)"
-        label="Last Mined Block Height"
-      />
-    </div> -->
-
-    <TableContainer>
-      <TableRoot
-        :pending="pending"
-        title="Recent Blocks"
-        :rows="blocks?.nodes || []"
-        :columns="blocksTableColumns"
-      >
-        <template
-          #empty
-        >
-          <EmptyTable
-            image="/empty/txs.png"
-            title="No recent blocks found yet"
-            description="We couldn't find any recent blocks"
-          />
-        </template>
-
-        <template #fees="{ row }">
-          <ColumnBlockFees
-            v-bind="row"
-          />
-        </template>
-
-        <template #hash="{ row }">
-          <ValueLink
-            withCopy
-            :label="row.hash"
-            :value="row.hash"
-            class="max-w-[195px]"
-          />
-        </template>
-
-        <template #height="{ row }">
-          <ColumnLink
-            withCopy
-            :to="`/blocks/chain/${row.chainId}/height/${row.height}`"
-            :label="row.height"
-            :value="row.height"
-          />
-        </template>
-
-        <template #miner="{ row }">
-          <ColumnMiner
-            :minerData="row.minerData"
-          />
-        </template>
-
-        <template #status="{ row }">
-          <ColumnStatus
-            :key="'status-' + row.requestKey"
-            :row="row"
-          />
-        </template>
-
-        <template #createdAt="{ row }">
-          <ColumnDate
-            :row="row"
-          />
-        </template>
-
-        <template #icon="{ row }">
-          <EyeLink
-            :to="`/blocks/chain/${row.chainId}/height/${row.height}`"
-          />
-        </template>
-
-        <template
-          #footer
-        >
-          <PaginateTable
-            itemsLabel="Blocks"
-            :currentPage="page"
-            :totalItems="blocks.totalCount ?? 1"
-            :totalPages="blocks.totalPages"
-            @pageChange="updatePage(Number($event), blocks.pageInfo, blocks.totalCount ?? 1, blocks.totalPages)"
-          />
-        </template>
-      </TableRoot>
-    </TableContainer>
-  </PageRoot>
+      <template #block="{ item }">
+        <NuxtLink :to="`/blocks/${item.block}/chain/${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.block }}</NuxtLink>
+      </template>
+      <template #txn="{ item }">
+        <NuxtLink :to="`/transactions/${item.txn}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.txn }}</NuxtLink>
+      </template>
+      <template #miner="{ item }">
+        <NuxtLink :to="`/account/${item.miner}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.miner, 10, 10) }}</NuxtLink>
+      </template>
+      <template #gasLimit="{ item }">
+        <span class="text-[#f5f5f5]">{{ item.gasLimit }}</span>
+      </template>
+    </DataTable>
+  </div>
 </template>

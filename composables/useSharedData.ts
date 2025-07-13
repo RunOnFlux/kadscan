@@ -1,5 +1,5 @@
 import { ref, computed, onMounted } from 'vue';
-import { useGasPriceStats } from '~/composables/useAverageGasPrice';
+import { useGasPriceStats, useIsInitialGasPrice } from '~/composables/useAverageGasPrice';
 
 // State for CoinGecko data
 const kadenaCoinData = ref({
@@ -53,13 +53,15 @@ export function useSharedData() {
 
   // Expose the gas stats directly from its own composable, called here in the correct context
   const gasPriceStats = useGasPriceStats();
+  const isInitialGasPrice = useIsInitialGasPrice();
 
   return {
     kdaPrice: computed(() => kadenaCoinData.value.price),
     kdaVariation: computed(() => kadenaCoinData.value.variation),
     kdaMarketCap: computed(() => kadenaCoinData.value.marketCap),
     gasPriceStats: gasPriceStats, // Pass through the reactive stats
-    
+    isInitialGasPrice: isInitialGasPrice,
+
     // Network properties
     availableNetworks: computed(() => availableNetworks),
     selectedNetwork: computed(() => selectedNetwork.value),

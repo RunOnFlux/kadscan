@@ -21,7 +21,7 @@ await useAsyncData('global-kda-fetch', () => fetchSharedKadenaData());
         alt="Kadena background illustration"
         class="absolute top-0 left-0 w-full h-[250px] object-cover -z-10 pointer-events-none"
       />
-      <div class="h-full px-3 pt-6 pb-10 lg:px-5 lg:pt-4 lg:pb-20">
+      <div class="h-full px-3 pt-6 pb-10 lg:px-5 lg:pt-4 lg:pb-20 max-w-[1400px] w-full mx-auto">
         <slot />
       </div>
     </div>

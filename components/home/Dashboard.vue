@@ -3,7 +3,7 @@ import { computed, defineProps, toRef } from 'vue';
 import Chart from '~/components/Chart.vue';
 import { integer, money } from '~/composables/number';
 import { useTransactionCount } from '~/composables/useTransactionCount';
-
+import { useFormat } from '~/composables/useFormat';
 import KadenaIcon from '~/components/icon/Kadena.vue';
 import NetworkIcon from '~/components/icon/Network.vue';
 import ServerIcon from '~/components/icon/Server.vue';
@@ -21,6 +21,7 @@ const props = defineProps<{
   gasPriceStats: any,
 }>();
 
+const { formatGasPrice } = useFormat();
 const gasPriceStatsRef = toRef(props, 'gasPriceStats');
 const transactionsCountRef = toRef(props, 'transactionsCount');
 
@@ -38,8 +39,7 @@ const formattedVariation = computed(() => {
 const formattedAvgGasPrice = computed(() => {
   if (gasPriceStatsRef.value.txCount === 0) return null;
   const avgGasPrice = gasPriceStatsRef.value.totalGasPrice / gasPriceStatsRef.value.txCount;
-  const feeStr = avgGasPrice.toFixed(9);
-  return feeStr.replace(/(\.\d*[1-9])0+$/, '$1').replace(/\.0+$/, '.0');
+  return formatGasPrice(avgGasPrice);
 });
 
 const lastFinalizedBlock = computed(() => {

@@ -1,16 +1,25 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import { useSharedData } from '~/composables/useSharedData';
-import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
+import { fetchInitialGasPriceStats } from '~/composables/useAverageGasPrice';
+import { Listbox, ListboxButton } from '@headlessui/vue'
+import SelectOptions from '~/components/SelectOptions.vue';
 
-const { 
-  kdaPrice, 
-  kdaVariation, 
+const {
+  kdaPrice,
+  kdaVariation,
   gasPriceStats,
+  isInitialGasPrice,
   availableNetworks,
   selectedNetwork,
   setNetwork
 } = useSharedData();
+
+watch(selectedNetwork, (network) => {
+  if (network) {
+    fetchInitialGasPriceStats(network.id);
+  }
+}, { immediate: true });
 
 // Simple number formatter
 const formatNumber = (value: number, decimals: number = 2) => {
@@ -42,6 +51,7 @@ const medGasPrice = computed(() => {
   const avg = gasPriceStats.value.totalGasPrice / gasPriceStats.value.txCount;
   return formatNumber(avg, 10);
 });
+
 </script>
 
 <template>
@@ -49,19 +59,20 @@ const medGasPrice = computed(() => {
     <div
       class="w-full h-[47px] z-50 bg-[#111111] border-b border-[#222222] fixed top-0 left-0 hidden md:flex"
     >
-      <div class="w-full flex items-center justify-between h-full px-5">
+      <div class="w-full max-w-[1400px] mx-auto flex items-center justify-between h-full px-5">
         <div class="flex items-center text-[12.5px] text-[#bbbbbb]">
           <span class="mr-1">KDA Price:</span>
           <span class="text-[#6ab5db] hover:text-[#9ccee7]">{{ formattedKdaPrice }}</span>
           <span :class="variationColor" class="ml-1">{{ formattedVariation ? `(${formattedVariation})` : '' }}</span>
-          
+
           <span class="ml-4 mr-1">Med Gas Price:</span>
           <span class="text-[#6ab5db] hover:text-[#9ccee7]">{{ medGasPrice ? medGasPrice + ' KDA' : '-' }}</span>
+          <span v-if="isInitialGasPrice && medGasPrice" class="ml-1 text-[12px] text-[#888888]">(last 100 txs)</span>
         </div>
 
         <Menu as="div" class="relative inline-block text-left">
           <div>
-            <MenuButton class="w-[35px] h-[35px] rounded-lg bg-[#151515] border border-[#222222] flex items-center justify-center hover:bg-[#222222]">
+            <MenuButton class="h-8 w-8 rounded-lg flex items-center justify-center border border-[#222222]">
               <IconKadena class="h-4 w-4" />
             </MenuButton>
           </div>
@@ -81,7 +92,7 @@ const medGasPrice = computed(() => {
                     @click="setNetwork(network)"
                     :class="[
                       active ? 'bg-[#222222]' : '',
-                      selectedNetwork.id === network.id ? 'text-[#6ab5db]' : 'text-white',
+                      selectedNetwork.id === network.id ? 'text-[#6ab5db]' : 'text-[#fafafa]',
                       'group flex w-full items-center hover:bg-[#222222] justify-start rounded-md px-3 py-2 text-sm',
                     ]"
                   >

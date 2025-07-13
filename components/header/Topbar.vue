@@ -32,15 +32,21 @@ const {
     class="w-full bg-[#111111] border-b border-[#222222] shadow-[0_4px_10px_-5px_rgba(255,255,255,0.0625)] z-[10]"
   >
     <div
-      class="w-full px-3 lg:px-4 flex items-center justify-between h-[62px] lg:h-[56px]"
+      class="w-full max-w-[1400px] mx-auto px-3 lg:px-4 flex items-center justify-between h-[62px] lg:h-[56px]"
     >
       <NuxtLink
         to="/"
-        class="flex items-center"
+        class="flex items-end"
       >
         <IconLogoWhite
           class="h-7"
         />
+        <span
+          v-if="selectedNetwork"
+          class="text-xs font-bold text-gray-400"
+        >
+          {{ selectedNetwork.name }}
+        </span>
       </NuxtLink>
 
       <div
@@ -61,7 +67,7 @@ const {
       <div class="flex items-center gap-2 md:hidden">
         <Menu as="div" class="relative inline-block text-left">
           <div>
-            <MenuButton class="h-8 w-8 rounded flex items-center justify-center border border-[#222222]">
+            <MenuButton class="h-8 w-8 rounded-lg flex items-center justify-center border border-[#222222]">
               <IconKadena class="h-4 w-4" />
             </MenuButton>
           </div>
@@ -81,7 +87,7 @@ const {
                     @click="setNetwork(network)"
                     :class="[
                       active ? 'bg-[#222222]' : '',
-                      selectedNetwork.id === network.id ? 'text-[#ff00ff]' : 'text-white',
+                      selectedNetwork.id === network.id ? 'text-[#6ab5db]' : 'text-[#fafafa]',
                       'group flex w-full items-center hover:bg-[#222222] justify-start rounded-md px-3 py-2 text-sm',
                     ]"
                   >
@@ -94,7 +100,7 @@ const {
         </Menu>
         
         <DisclosureButton
-          class="h-8 w-8 rounded flex items-center justify-center border border-[#222222] text-[#949494]"
+          class="h-8 w-8 rounded-lg flex items-center justify-center border border-[#222222] text-[#949494]"
         >
           <IconMenu class="w-6 h-6" />
         </DisclosureButton>
