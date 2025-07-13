@@ -95,7 +95,7 @@ const processBlockDetails = (node: any) => {
 
 export const useBlocks = () => {
   const blocks = ref<any[]>([]);
-  const loading = ref(false);
+  const loading = ref(true);
   const { formatRelativeTime } = useFormat();
   const pageInfo = ref<any>(null);
   const totalCount = ref(0);

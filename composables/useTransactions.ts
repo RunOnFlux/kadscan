@@ -39,7 +39,7 @@ const GQL_QUERY = `
 
 export const useTransactions = () => {
   const transactions = ref<any[]>([]);
-  const loading = ref(false);
+  const loading = ref(true);
   const { formatRelativeTime, formatGasPrice } = useFormat();
   const pageInfo = ref<any>(null);
   const totalCount = ref(0);

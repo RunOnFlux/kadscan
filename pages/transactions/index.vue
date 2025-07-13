@@ -4,6 +4,7 @@ import IconDownload from '~/components/icon/Download.vue';
 import DataTable from '~/components/DataTable.vue';
 import Tooltip from '~/components/Tooltip.vue';
 import Copy from '~/components/Copy.vue';
+import SkeletonTable from '~/components/skeleton/Table.vue';
 import { useTransactions } from '~/composables/useTransactions';
 import { useFormat } from '~/composables/useFormat';
 import { useSharedData } from '~/composables/useSharedData';
@@ -123,7 +124,7 @@ function downloadData() {
       </h1>
     </div>
 
-    <div v-if="loading" class="text-white text-center p-8">Loading...</div>
+    <SkeletonTable v-if="loading" />
     <DataTable
       v-else
       :headers="tableHeaders"
