@@ -10,7 +10,7 @@ const props = defineProps<{
 const isVisible = ref(false);
 const [reference, popper, instance] = usePopper({
   placement: 'top',
-  offsetDistance: 2
+  offsetDistance: 4
 });
 
 watch(() => props.value, () => {
