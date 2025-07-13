@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import { useSharedData } from '~/composables/useSharedData';
+import { fetchInitialGasPriceStats } from '~/composables/useAverageGasPrice';
 import { Listbox, ListboxButton } from '@headlessui/vue'
 import SelectOptions from '~/components/SelectOptions.vue';
 
@@ -8,10 +9,17 @@ const {
   kdaPrice,
   kdaVariation,
   gasPriceStats,
+  isInitialGasPrice,
   availableNetworks,
   selectedNetwork,
   setNetwork
 } = useSharedData();
+
+watch(selectedNetwork, (network) => {
+  if (network) {
+    fetchInitialGasPriceStats(network.id);
+  }
+}, { immediate: true });
 
 // Simple number formatter
 const formatNumber = (value: number, decimals: number = 2) => {
@@ -59,6 +67,7 @@ const medGasPrice = computed(() => {
 
           <span class="ml-4 mr-1">Med Gas Price:</span>
           <span class="text-[#6ab5db] hover:text-[#9ccee7]">{{ medGasPrice ? medGasPrice + ' KDA' : '-' }}</span>
+          <span v-if="isInitialGasPrice && medGasPrice" class="ml-1 text-[12px] text-[#888888]">(last 100 txs)</span>
         </div>
 
         <Menu as="div" class="relative inline-block text-left">
