@@ -3,6 +3,8 @@ import { ref, watch, computed } from 'vue';
 import IconDownload from '~/components/icon/Download.vue';
 import StatsGrid from '~/components/StatsGrid.vue';
 import DataTable from '~/components/DataTable.vue';
+import Tooltip from '~/components/Tooltip.vue';
+import Copy from '~/components/Copy.vue';
 import { useBlocks } from '~/composables/useBlocks';
 import { useFormat } from '~/composables/useFormat';
 import { useSharedData } from '~/composables/useSharedData';
@@ -160,7 +162,12 @@ watch(
         <NuxtLink :to="`/transactions/${item.txn}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.txn }}</NuxtLink>
       </template>
       <template #miner="{ item }">
-        <NuxtLink :to="`/account/${item.miner}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.miner, 10, 10) }}</NuxtLink>
+        <div class="flex items-center">
+          <Tooltip :value="item.miner" variant="hash">
+            <NuxtLink :to="`/account/${item.miner}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.miner, 10, 10) }}</NuxtLink>
+          </Tooltip>
+          <Copy :value="item.miner" tooltipText="Copy Address" />
+        </div>
       </template>
       <template #gasLimit="{ item }">
         <span class="text-[#f5f5f5]">{{ item.gasLimit }}</span>
