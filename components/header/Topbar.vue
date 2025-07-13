@@ -67,7 +67,7 @@ const {
       <div class="flex items-center gap-2 md:hidden">
         <Menu as="div" class="relative inline-block text-left">
           <div>
-            <MenuButton class="h-8 w-8 rounded flex items-center justify-center border border-[#222222]">
+            <MenuButton class="h-8 w-8 rounded-lg flex items-center justify-center border border-[#222222]">
               <IconKadena class="h-4 w-4" />
             </MenuButton>
           </div>
@@ -100,7 +100,7 @@ const {
         </Menu>
         
         <DisclosureButton
-          class="h-8 w-8 rounded flex items-center justify-center border border-[#222222] text-[#949494]"
+          class="h-8 w-8 rounded-lg flex items-center justify-center border border-[#222222] text-[#949494]"
         >
           <IconMenu class="w-6 h-6" />
         </DisclosureButton>
