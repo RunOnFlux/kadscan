@@ -26,8 +26,8 @@ const subtitle = computed(() => {
   if (transactions.value.length === 0 || loading.value) {
     return '';
   }
-  const total = totalCount.value > 1000 ? '1000+' : totalCount.value;
-  return `(Showing ${transactions.value.length} of the last ${total} transactions)`;
+  const formattedTotal = new Intl.NumberFormat().format(totalCount.value);
+  return `(Showing ${transactions.value.length} of ${formattedTotal} transactions)`;
 });
 
 const tableHeaders = [
