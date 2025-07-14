@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { IconArrowRight, IconReceive, IconArrow } from '#components'
 import Select from '~/components/Select.vue'
+import IconMenu from '~/components/icon/Menu.vue'
+import IconCode from '~/components/icon/IconCode.vue'
+import Information from '~/components/icon/Information.vue'
+import Tooltip from '~/components/Tooltip.vue'
 
 const buyOptions = [
   { label: 'Buy', value: 'buy' },
@@ -47,11 +51,21 @@ const transaction = {
   sponsoredBanner: '/sponsored-banner.png',
 };
 
-const tabs = [
-  { label: 'Overview', active: true },
-  { label: 'Logs (1)', active: false },
-  { label: 'State', active: false },
-];
+const tabLabels = ['Overview', 'Logs (1)', 'State']
+const activeTab = ref(tabLabels[0])
+
+const apiOptions = [
+  { label: 'API', value: 'api' },
+  { label: 'Option 1', value: 'option1' },
+  { label: 'Option 2', value: 'option2' },
+]
+const apiSelected = ref(apiOptions[0])
+
+const menuOptions = [
+  { label: 'Option 1', value: 'option1' },
+  { label: 'Option 2', value: 'option2' },
+]
+const menuSelected = ref(menuOptions[0])
 
 definePageMeta({
   layout: 'app',
@@ -66,143 +80,157 @@ useHead({
   <PageRoot>
     <div class="flex flex-col gap-6">
       <!-- Título e navegação -->
-      <div class="flex items-center justify-between gap-2">
+      <div class="flex items-center justify-between gap-2 border-b border-[#222222] pb-4">
         <div class="flex items-center gap-2">
           <h1 class="text-[#fafafa] font-semibold text-[20px]">
             Transaction Details
           </h1>
-          <div class="flex items-center gap-1 ml-2">
-            <div class="group flex items-center justify-center bg-[#1a1c1d] hover:bg-[#fafafa] rounded-md w-[26px] h-[24px] shrink-0 cursor-pointer transition-colors duration-200">
-              <IconArrow class="w-6 h-6 text-[#fafafa] group-hover:text-[#1a1c1d] transition-colors duration-200" />
-            </div>
-            <div class="group flex items-center justify-center bg-[#1a1c1d] hover:bg-[#fafafa] rounded-md w-[26px] h-[24px] shrink-0 cursor-pointer transition-colors duration-200">
-              <IconArrowRight class="w-6 h-6 text-[#fafafa] group-hover:text-[#1a1c1d] transition-colors duration-200" />
-            </div>
-          </div>
         </div>
-        <div class="flex items-center gap-2">
-          <Select v-model="buySelected" :items="buyOptions" />
-          <Select v-model="playSelected" :items="playOptions" />
-          <Select v-model="gamingSelected" :items="gamingOptions" />
-        </div>
-      </div>
-
-      <!-- Sponsored -->
-      <div class="bg-gray-900 rounded-lg p-3 flex items-center gap-2 text-xs text-font-500">
-        <span class="font-semibold text-font-400">Sponsored:</span>
-        <span>Stake: 200% Bonus, 75k Raffle, Best VIP Program, Instant Withdrawals - Provably Fair.</span>
-        <a href="#" class="text-kadscan-500 font-semibold ml-1">Claim Bonus</a>
       </div>
 
       <!-- Tabs -->
-      <div class="flex gap-2">
-        <button
-          v-for="tab in tabs"
-          :key="tab.label"
-          :class="[
-            'px-4 py-1 rounded font-semibold text-sm',
-            tab.active ? 'bg-kadscan-500 text-white' : 'bg-gray-700 text-font-400'
-          ]"
-        >
-          {{ tab.label }}
-        </button>
+      <div class="flex items-center justify-between">
+        <div class="flex gap-2">
+          <button
+            v-for="label in tabLabels"
+            :key="label"
+            :class="[
+              'px-2 py-1 rounded-lg text-sm transition-colors',
+              activeTab === label
+                ? 'bg-kadscan-500 text-[#fafafa]'
+                : 'bg-[#222] text-[#fafafa]'
+            ]"
+            @click="activeTab = label"
+          >
+            {{ label }}
+          </button>
+        </div>
+        <div class="flex gap-2 items-center">
+          <button class="flex items-center gap-2 bg-[#151515] text-[#fafafa] px-2 py-1 rounded text-sm border border-[#333] hover:bg-[#222] transition-colors">
+            <IconCode class="w-4 h-4" />
+            API
+          </button>
+          <div class="bg-[#151515] rounded border border-[#333] px-1 flex items-center justify-center">
+            <Select v-model="menuSelected" :items="menuOptions" size="small">
+              <template #default>
+                <IconMenu class="w-4 h-4 text-[#fafafa]" />
+              </template>
+            </Select>
+          </div>
+        </div>
       </div>
 
-      <!-- Bloco de ação -->
-      <div class="bg-gray-800 rounded-lg p-4 flex flex-col gap-2">
-        <div class="flex items-center gap-3">
-          <img src="/favicon.ico" alt="ETH" class="w-8 h-8 rounded-full bg-gray-700" />
-          <span class="text-font-500 text-xs font-semibold">TRANSACTION ACTION</span>
-        </div>
-        <div class="flex flex-wrap items-center gap-2 text-base text-font-400">
-          <span>Transfer</span>
-          <span class="font-mono text-white">{{ transaction.value }} ETH</span>
-          <span class="text-font-500">(${{ transaction.valueUsd }})</span>
-          <span>by</span>
-          <ValueLink :label="transaction.from.label" :to="`/account/${transaction.from.address}`" />
-          <span>to</span>
-          <ValueLink :label="transaction.to.name" :to="`/account/${transaction.to.address}`" />
+      <!-- Bloco de ação estilizado -->
+      <div class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] px-5 py-5 flex items-center gap-4 min-h-[56px]">
+        <!-- Logo Kadena -->
+        <img src="/favicon.ico" alt="Kadena" class="w-8 h-8 rounded-full bg-[#00EAC7] object-contain" />
+        <div class="flex flex-col flex-1 min-w-0">
+          <span class="text-xs text-[#f5f5f5] font-semibold tracking-wide">TRANSACTION ACTION</span>
+          <div class="flex flex-wrap items-center gap-2 text-sm text-[#fafafa]">
+            <span class="text-[#bbb]">Transfer</span>
+            <span class="font-mono text-[#f5f5f5]">{{ transaction.value }} ETH</span>
+            <span class="text-[#bbbbbb]">(${{ transaction.valueUsd }})</span>
+            <span v-if="transaction.from.label" class="text-[#bbbbbb]">by</span>
+            <ValueLink class="text-[#bb0a0a]" v-if="transaction.from.label" :label="transaction.from.label" :to="`/account/${transaction.from.address}`" />
+            <span class="text-[#bbbbbb]">to</span>
+            <ValueLink :label="transaction.to.name" :to="`/account/${transaction.to.address}`" />
+          </div>
         </div>
       </div>
 
       <!-- Bloco de detalhes -->
-      <div class="bg-gray-800 rounded-lg p-4 flex flex-col gap-4">
-        <div class="flex flex-col md:flex-row md:gap-8 gap-4">
-          <div class="flex-1 flex flex-col gap-2">
-            <LabelValue label="Transaction Hash">
-              <template #value>
-                <div class="flex items-center gap-2">
-                  <span class="font-mono text-xs text-font-400">{{ transaction.hash }}</span>
-                  <Copy :value="transaction.hash" />
-                </div>
-              </template>
-            </LabelValue>
-            <LabelValue label="Status">
-              <template #value>
-                <Tag :label="transaction.status" :variant="transaction.status === 'Success' ? 'success' : 'failed'" />
-              </template>
-            </LabelValue>
-            <LabelValue label="Block">
-              <template #value>
-                <div class="flex items-center gap-2">
-                  <ValueLink :label="transaction.block" :to="`/blocks/${transaction.block}`" />
-                  <span class="bg-gray-700 text-xs px-2 py-1 rounded">
-                    {{ transaction.blockConfirmations }} Block Confirmations
-                  </span>
-                </div>
-              </template>
-            </LabelValue>
-            <LabelValue label="Timestamp">
-              <template #value>
-                <div class="flex items-center gap-2">
-                  <IconStatus status="success" class="w-4 h-4 text-font-500" />
-                  <span class="text-font-400 text-xs">
-                    {{ transaction.age }} ({{ new Date(transaction.timestamp).toUTCString() }})
-                  </span>
-                </div>
-              </template>
-            </LabelValue>
-            <LabelValue label="Sponsored:">
-              <template #value>
-                <img :src="transaction.sponsoredBanner" alt="Sponsored" class="rounded w-full max-w-[400px]" />
-              </template>
-            </LabelValue>
+      <div class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 flex flex-col gap-2 text-base">
+        <div class="flex items-center gap-2">
+          <Tooltip value="Hash único que identifica esta transação na blockchain.">
+            <Information class="w-4 h-4 text-[#bbbbbb] cursor-pointer" />
+          </Tooltip>
+          <span class="text-[#bbbbbb] text-sm w-44 flex-shrink-0">Transaction Hash:</span>
+          <div class="flex items-center gap-2 flex-1 min-w-0">
+            <span class="font-mono text-[#fafafa] break-all text-sm">{{ transaction.hash }}</span>
+            <Copy :value="transaction.hash" />
           </div>
-          <div class="flex-1 flex flex-col gap-2">
-            <LabelValue label="From:">
-              <template #value>
-                <div class="flex items-center gap-2">
-                  <ValueLink :label="transaction.from.name" :to="`/account/${transaction.from.address}`" />
-                  <span class="text-font-500 text-xs">({{ transaction.from.label }})</span>
-                  <Copy :value="transaction.from.address" />
-                </div>
-              </template>
-            </LabelValue>
-            <LabelValue label="To:">
-              <template #value>
-                <div class="flex items-center gap-2">
-                  <ValueLink :label="transaction.to.address" :to="`/account/${transaction.to.address}`" />
-                  <span class="text-font-500 text-xs">({{ transaction.to.name }})</span>
-                  <Copy :value="transaction.to.address" />
-                </div>
-              </template>
-            </LabelValue>
-            <LabelValue label="Value:">
-              <template #value>
-                <span class="font-mono">
-                  Ξ {{ transaction.value }}
-                  <span class="text-font-500">(${{ transaction.valueUsd }})</span>
-                </span>
-              </template>
-            </LabelValue>
-            <LabelValue label="Transaction Fee:">
-              <template #value>
-                <span class="font-mono">
-                  {{ transaction.txnFee }} ETH
-                  <span class="text-font-500">(${{ transaction.txnFeeUsd }})</span>
-                </span>
-              </template>
-            </LabelValue>
+        </div>
+        <div class="flex items-center gap-2">
+          <Tooltip value="Indica o status atual da transação, como pendente, confirmada ou falha.">
+            <Information class="w-4 h-4 text-[#bbbbbb] cursor-pointer" />
+          </Tooltip>
+          <span class="text-[#bbbbbb] text-sm w-44 flex-shrink-0">Status:</span>
+          <div class="flex items-center gap-2 flex-1 min-w-0">
+            <Tag :label="transaction.status" :variant="transaction.status === 'Success' ? 'success' : 'failed'" />
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <Tooltip value="Número do bloco onde esta transação foi registrada.">
+            <Information class="w-4 h-4 text-[#bbbbbb] cursor-pointer" />
+          </Tooltip>
+          <span class="text-[#bbbbbb] text-sm w-44 flex-shrink-0">Block:</span>
+          <div class="flex items-center gap-2 flex-1 min-w-0">
+            <ValueLink :label="transaction.block" :to="`/blocks/${transaction.block}`" class="text-blue-400 hover:underline" />
+            <span class="bg-[#222] text-xs px-2 py-1 rounded">{{ transaction.blockConfirmations }} Block Confirmations</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <Tooltip value="Data e hora em que a transação foi validada na blockchain.">
+            <Information class="w-4 h-4 text-[#bbbbbb] cursor-pointer" />
+          </Tooltip>
+          <span class="text-[#bbbbbb] text-sm w-44 flex-shrink-0">Timestamp:</span>
+          <div class="flex items-center gap-2 flex-1 min-w-0">
+            <span class="text-[#fafafa] text-sm">{{ transaction.age }} ({{ new Date(transaction.timestamp).toUTCString() }})</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <Tooltip value="Indica se a transação foi patrocinada por terceiros.">
+            <Information class="w-4 h-4 text-[#bbbbbb] cursor-pointer" />
+          </Tooltip>
+          <span class="text-[#bbbbbb] text-sm w-44 flex-shrink-0">Sponsored:</span>
+          <div class="flex items-center gap-2 flex-1 min-w-0">
+            <span v-if="transaction.sponsoredBanner" class="flex items-center gap-1">
+              <img :src="transaction.sponsoredBanner" alt="Sponsored" class="rounded w-20 h-5 object-contain" />
+              <span class="text-[#fafafa] text-sm">Sponsored</span>
+            </span>
+            <span v-else class="text-[#bbbbbb] text-sm">-</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <Tooltip value="Endereço ou conta de origem da transação.">
+            <Information class="w-4 h-4 text-[#bbbbbb] cursor-pointer" />
+          </Tooltip>
+          <span class="text-[#bbbbbb] text-sm w-44 flex-shrink-0">From:</span>
+          <div class="flex items-center gap-2 flex-1 min-w-0">
+            <ValueLink :label="transaction.from.name" :to="`/account/${transaction.from.address}`" class="text-blue-400 hover:underline" />
+            <span class="text-[#bbbbbb] text-xs">({{ transaction.from.label }})</span>
+            <Copy :value="transaction.from.address" />
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <Tooltip value="Endereço ou conta de destino da transação.">
+            <Information class="w-4 h-4 text-[#bbbbbb] cursor-pointer" />
+          </Tooltip>
+          <span class="text-[#bbbbbb] text-sm w-44 flex-shrink-0">To:</span>
+          <div class="flex items-center gap-2 flex-1 min-w-0">
+            <ValueLink :label="transaction.to.address" :to="`/account/${transaction.to.address}`" class="text-blue-400 hover:underline" />
+            <span class="text-[#bbbbbb] text-xs">({{ transaction.to.name }})</span>
+            <Copy :value="transaction.to.address" />
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <Tooltip value="Quantidade de criptomoeda transferida nesta transação.">
+            <Information class="w-4 h-4 text-[#bbbbbb] cursor-pointer" />
+          </Tooltip>
+          <span class="text-[#bbbbbb] text-sm w-44 flex-shrink-0">Value:</span>
+          <div class="flex items-center gap-2 flex-1 min-w-0">
+            <span class="font-mono text-[#fafafa]">Ξ {{ transaction.value }}</span>
+            <span class="text-[#bbbbbb]">(${{ transaction.valueUsd }})</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <Tooltip value="Taxa paga para processar esta transação na blockchain.">
+            <Information class="w-4 h-4 text-[#bbbbbb] cursor-pointer" />
+          </Tooltip>
+          <span class="text-[#bbbbbb] text-sm w-44 flex-shrink-0">Transaction Fee:</span>
+          <div class="flex items-center gap-2 flex-1 min-w-0">
+            <span class="font-mono text-[#fafafa]">{{ transaction.txnFee }} ETH</span>
+            <span class="text-[#bbbbbb]">(${{ transaction.txnFeeUsd }})</span>
           </div>
         </div>
       </div>
