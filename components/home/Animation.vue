@@ -24,7 +24,8 @@ onMounted(() => {
   const camera = new THREE.PerspectiveCamera(65, width / height, 0.1, 20)
 
   const geometry = new THREE.BoxGeometry(1, 1, 1)
-  const material = new THREE.MeshBasicMaterial({ color: '#ffffff', wireframe: true })
+  const wireframeMaterial = new THREE.MeshBasicMaterial({ color: '#ffffff', wireframe: true });
+  const solidMaterial = new THREE.MeshBasicMaterial({ color: 0x009367, wireframe: true });
 
   renderer.setSize(width, height)
   renderer.setPixelRatio(window.devicePixelRatio)
@@ -32,6 +33,7 @@ onMounted(() => {
   camera.position.z = 5
 
   function createAnimatedCube() {
+    const material = anime.utils.random(1, 10) === 1 ? solidMaterial : wireframeMaterial;
     const cube = new THREE.Mesh(geometry, material)
 
     const startX = -80;
