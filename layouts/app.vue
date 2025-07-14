@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { fetchSharedKadenaData } from '~/composables/useSharedData';
+import HomeAnimation from '~/components/home/Animation.vue';
 
 const route = useRoute();
 
@@ -15,13 +16,11 @@ await useAsyncData('global-kda-fetch', () => fetchSharedKadenaData());
     <HeaderTopbar/>
 
     <div class="w-full grow relative">
-      <img
-        v-if="route.name === 'index'"
-        src="/kadena-background.webp"
-        alt="Kadena background illustration"
-        class="absolute top-0 left-0 w-full h-[250px] object-cover -z-10 pointer-events-none"
-      />
-      <div class="h-full px-3 pt-6 pb-10 lg:px-5 lg:pt-4 lg:pb-20 max-w-[1400px] w-full mx-auto">
+      <div class="relative h-full px-3 pt-6 pb-10 lg:px-5 lg:pt-4 lg:pb-20 max-w-[1400px] w-full mx-auto">
+        <HomeAnimation
+            v-if="route.name === 'index'"
+            class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1400px] h-[250px] object-cover -z-10 pointer-events-none"
+        />
         <slot />
       </div>
     </div>
