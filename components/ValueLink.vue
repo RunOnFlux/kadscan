@@ -26,7 +26,7 @@ withDefaults(
     >
       <span
         class=" text-sm"
-        :class="[to ? 'hover:text-kadscan-500 text-font-400' : 'text-font-450']"
+        :class="[to ? 'hover:text-[#9ccee7] text-[#6AB5DB]' : 'text-font-450']"
       >
         {{ label }}
       </span>
