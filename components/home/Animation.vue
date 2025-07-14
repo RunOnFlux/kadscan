@@ -33,24 +33,35 @@ onMounted(() => {
 
   function createAnimatedCube() {
     const cube = new THREE.Mesh(geometry, material)
-    const x = anime.utils.random(-10, 10)
-    const y = anime.utils.random(-5, 5)
-    const z = [-10, 7];
+
+    const startX = -80;
+    const endX = 80;
+    
+    const startY = anime.utils.random(-15, 15);
+    const endY = anime.utils.random(-15, 15);
+
+    const startZ = anime.utils.random(-15, -5);
+    const endZ = anime.utils.random(-10, 7);
+
     const r = () => anime.utils.random(-Math.PI * 2, Math.PI * 2)
-    const duration = 4000;
+    const duration = 16000;
     
     anime.createTimeline({
-      delay: anime.utils.random(0, duration),
-      defaults: { loop: true, duration, ease: 'inSine', },
+      delay: anime.utils.random(0, 16000),
+      defaults: { loop: true, duration, ease: 'linear', },
     })
-    .add(cube.position, { x, y, z }, 0)
+    .add(cube.position, { 
+      x: [startX, endX],
+      y: [startY, endY],
+      z: [startZ, endZ] 
+    }, 0)
     .add(cube.rotation, { x: r, y: r, z: r }, 0)
     .init();
     
     scene.add(cube)
   }
 
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 20; i++) {
     createAnimatedCube()
   }
 
