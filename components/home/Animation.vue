@@ -44,10 +44,10 @@ onMounted(() => {
     const endZ = anime.utils.random(-10, 7);
 
     const r = () => anime.utils.random(-Math.PI * 2, Math.PI * 2)
-    const duration = 16000;
+    const duration = 20000;
     
     anime.createTimeline({
-      delay: anime.utils.random(0, 16000),
+      delay: anime.utils.random(0, duration),
       defaults: { loop: true, duration, ease: 'linear', },
     })
     .add(cube.position, { 
