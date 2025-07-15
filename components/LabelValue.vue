@@ -18,7 +18,7 @@ defineProps<{
     ]"
   >
     <div
-      class="w-full min-w-[300px] max-w-[300px] h-full flex items-center gap-2"
+      class="w-full min-w-[300px] max-w-[300px] h-full flex gap-2"
     >
       <Tooltip
         v-if="description"
