@@ -372,12 +372,10 @@ useHead({
                   </template>
                 </LabelValue>
                 <LabelValue
-                  tooltipText="Copy POW Hash"
                   label="POW Hash"
                   :value="block.powHash"
                 />
                 <LabelValue
-                  tooltipText="Copy Payload Hash"
                   label="Payload Hash"
                   :value="block.payloadHash"
                 />

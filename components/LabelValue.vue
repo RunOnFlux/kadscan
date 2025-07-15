@@ -5,7 +5,7 @@ defineProps<{
   col?: boolean;
   withCopy?: boolean;
   description?: string;
-  tooltipText?: string;
+  copyTooltip?: string;
 }>()
 </script>
 
@@ -46,7 +46,7 @@ defineProps<{
         </span>
 
         <Copy
-          :tooltipText="tooltipText"
+          :tooltipText="copyTooltip"
           v-if="withCopy && value"
           :value="value"
         />
