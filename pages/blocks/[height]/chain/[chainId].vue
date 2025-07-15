@@ -7,6 +7,7 @@ import { useSharedData } from '~/composables/useSharedData';
 import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
 import IconHourglass from '~/components/icon/Hourglass.vue';
 import IconCancel from '~/components/icon/Cancel.vue';
+import GasUsage from '~/components/column/Gas.vue';
 
 definePageMeta({
   layout: 'app',
@@ -334,9 +335,11 @@ useHead({
               <LabelValue label="Gas Used">
                 <template #value>
                   <span v-if="gasLoading">Calculating...</span>
-                  <span v-else>{{
-                    totalGasUsed?.toLocaleString() || 'N/A'
-                  }}</span>
+                  <GasUsage
+                    v-else
+                    :gas="totalGasUsed"
+                    :gas-limit="150000"
+                  />
                 </template>
               </LabelValue>
               <LabelValue label="Gas Limit" value="150,000" />
