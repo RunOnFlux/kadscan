@@ -74,7 +74,7 @@ const blockStatus = computed(() => {
 
   if(lastBlockHeight.value - 8 >= block.value.height && !block.value.canonical) {
     return {
-      text: 'Failed',
+      text: 'Orphaned',
       icon: IconCancel,
       classes: 'bg-[#7f1d1d66] border-[#f87171] text-[#f87171]',
     };
@@ -82,14 +82,14 @@ const blockStatus = computed(() => {
 
   if(block.value.canonical) {
     return {
-      text: 'Finalized',
+      text: 'Canonical',
       icon: IconCheckmarkFill,
       classes: 'bg-[#0f1f1d] border-[#00a186] text-[#00a186]',
     };
   }
 
   return {
-    text: 'Pending',
+    text: 'Unconfirmed',
     icon: IconHourglass,
     classes: 'bg-[#17150d] border-[#eab308] text-[#eab308]',
   };
@@ -163,17 +163,6 @@ useHead({
           @click="activeView = 'overview'"
         >
           Overview
-        </button>
-        <button
-          class="px-[10px] py-[5px] text-[13px] rounded-lg border font-medium transition-colors bg-[#009367] border-[#222222] text-[#f5f5f5]"
-          :class="{
-            'bg-[#009367] text-[#f5f5f5]': activeView === 'neighbors',
-            'bg-transparent text-[#bbbbbb] hover:bg-[#222222]':
-              activeView !== 'neighbors',
-          }"
-          @click="activeView = 'neighbors'"
-        >
-          Neighbors
         </button>
       </div>
 
@@ -273,7 +262,7 @@ useHead({
                   <template #value>
                     <Tooltip value="Click to view Transactions">
                       <NuxtLink
-                        :to="`/transactions?block=${block.hash}&chainId=${block.chainId}`"
+                        :to="`/transactions?block=${block.height}&chainId=${block.chainId}`"
                         class="text-[#6ab5db] hover:text-[#9ccee7]"
                       >
                         {{ block.transactions.totalCount }} transactions
@@ -340,11 +329,14 @@ useHead({
             </DivideItem>
           </Divide>
         </div>
+
+        <!-- More Details -->
         <div
           v-if="!loading && !error && block"
           class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5"
         >
           <Divide>
+            <!-- Epoch -->
             <DivideItem v-if="showMore">
               <div class="flex flex-col gap-4">
                 <LabelValue
@@ -356,6 +348,8 @@ useHead({
                 <LabelValue label="Weight" :value="block.weight" />
               </div>
             </DivideItem>
+
+            <!-- Hash -->
             <DivideItem v-if="showMore">
               <div class="flex flex-col gap-4">
                 <LabelValue label="Hash" :value="block.hash" />
@@ -389,6 +383,38 @@ useHead({
                 />
               </div>
             </DivideItem>
+
+            <!-- Neighbors -->
+            <DivideItem v-if="showMore">
+              <div
+                v-if="block.neighbors && block.neighbors.length > 0"
+                class="flex flex-col gap-4"
+              >
+                <div
+                  v-for="neighbor in block.neighbors"
+                  :key="neighbor.hash"
+                  class="flex items-center"
+                >
+                  <span class="text-[#bbbbbb] text-[15px] min-w-[300px]">Neighbor at Chain #{{ neighbor.chainId }}</span>
+                  <div class="flex items-center gap-2">
+                    <NuxtLink
+                      :to="`/blocks/${block.height}/chain/${neighbor.chainId}`"
+                      class="text-[15px] text-[#6ab5db] hover:text-[#9ccee7]"
+                      >{{ neighbor.hash }}</NuxtLink
+                    >
+                    <Copy
+                      :value="neighbor.hash"
+                      tooltipText="Copy Block Hash"
+                      iconSize="h-5 w-5"
+                      buttonClass="w-5 h-5"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div v-else class="text-gray-500">No neighbors found for this block.</div>         
+            </DivideItem>
+
+            <!-- More Details -->
             <DivideItem>
               <LabelValue label="More Details:">
                 <template #value>
@@ -408,40 +434,9 @@ useHead({
                 </template>
               </LabelValue>
             </DivideItem>
+
           </Divide>
         </div>
-      </div>
-
-      <div
-        v-if="activeView === 'neighbors'"
-        class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5"
-      >
-        <div
-          v-if="block.neighbors && block.neighbors.length > 0"
-          class="flex flex-col gap-4"
-        >
-          <div
-            v-for="neighbor in block.neighbors"
-            :key="neighbor.hash"
-            class="flex items-center"
-          >
-            <span class="text-[#bbbbbb] text-[15px] min-w-[300px]">Chain {{ neighbor.chainId }}</span>
-            <div class="flex items-center gap-2">
-              <NuxtLink
-                :to="`/blocks/${block.height}/chain/${neighbor.chainId}`"
-                class="text-[15px] text-[#6ab5db] hover:text-[#9ccee7]"
-                >{{ neighbor.hash }}</NuxtLink
-              >
-              <Copy
-                :value="neighbor.hash"
-                tooltipText="Copy Block Hash"
-                iconSize="h-5 w-5"
-                buttonClass="w-5 h-5"
-              />
-            </div>
-          </div>
-        </div>
-        <div v-else class="text-gray-500">No neighbors found for this block.</div>
       </div>
     </div>
   </div>
