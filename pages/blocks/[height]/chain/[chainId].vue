@@ -180,11 +180,19 @@ useHead({
           class="px-3 py-1.5 text-[13px] rounded-xl border transition-colors"
           :class="
             selectedBlockIndex === index
-              ? 'bg-[#0f1f1d] border border-[#00a186] rounded-md text-[#00a186]'
-              : 'bg-[#111111] border border-[#222222] rounded-md text-[#bbbbbb] hover:bg-[#222222] hover:text-[#fafafa]'
+              ? 'bg-[#0f1f1d] border border-[#00a186] rounded-lg text-[#00a186]'
+              : 'bg-[#111111] border border-[#222222] rounded-lg text-[#bbbbbb] hover:bg-[#222222] hover:text-[#fafafa]'
           "
         >
           Index {{ index }}
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2 mb-2">
+        <button
+          class="px-[10px] py-[5px] text-[13px] rounded-lg border font-medium transition-colors bg-[#009367] border-[#222222] text-[#f5f5f5]"
+        >
+          Overview
         </button>
       </div>
 
