@@ -360,14 +360,18 @@ useHead({
                 <LabelValue label="Parent Hash">
                   <template #value>
                     <div class="flex items-center gap-2">
-                      <Tooltip :value="block.parent.hash" variant="hash">
-                        <NuxtLink
-                          :to="`/blocks/${block.parent.height}/chain/${block.parent.chainId}`"
-                          class="text-[#6ab5db] hover:text-[#9ccee7]"
-                        >
-                          {{ block.parent.hash }}
-                        </NuxtLink>
-                      </Tooltip>
+                      <NuxtLink
+                        :to="`/blocks/${block.parent.height}/chain/${block.parent.chainId}`"
+                        class="text-[#6ab5db] hover:text-[#9ccee7]"
+                      >
+                        {{ block.parent.hash }}
+                      </NuxtLink>
+                      <Copy
+                        :value="block.parent.hash"
+                        tooltipText="Copy Parent Hash"
+                        iconSize="h-5 w-5"
+                        buttonClass="w-5 h-5"
+                      />
                     </div>
                   </template>
                 </LabelValue>
@@ -426,6 +430,12 @@ useHead({
                 class="text-[15px] text-[#6ab5db] hover:text-[#9ccee7]"
                 >{{ neighbor.hash }}</NuxtLink
               >
+              <Copy
+                :value="neighbor.hash"
+                tooltipText="Copy Block Hash"
+                iconSize="h-5 w-5"
+                buttonClass="w-5 h-5"
+              />
             </div>
           </div>
         </div>
