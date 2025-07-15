@@ -273,7 +273,7 @@ useHead({
                   <template #value>
                     <Tooltip value="Click to view Transactions">
                       <NuxtLink
-                        :to="`/transactions?block=${block.hash}`"
+                        :to="`/transactions?block=${block.hash}&chainId=${block.chainId}`"
                         class="text-[#6ab5db] hover:text-[#9ccee7]"
                       >
                         {{ block.transactions.totalCount }} transactions
