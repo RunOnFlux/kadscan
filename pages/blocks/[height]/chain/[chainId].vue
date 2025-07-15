@@ -251,10 +251,10 @@ useHead({
                   <template #value>
                     <div
                       v-if="blockStatus"
-                      class="px-2 py-1 text-[12px] rounded-md border flex items-center gap-1"
+                      class="px-2 py-1.5 text-[11px] rounded-md border flex items-center gap-1 leading-none"
                       :class="blockStatus.classes"
                     >
-                      <component :is="blockStatus.icon" class="w-3 h-3" />
+                      <component :is="blockStatus.icon" class="w-2.5 h-2.5" />
                       <span>
                         {{ blockStatus.text }}
                       </span>
