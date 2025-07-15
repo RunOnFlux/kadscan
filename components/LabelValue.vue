@@ -4,7 +4,8 @@ defineProps<{
   value?: string | number;
   col?: boolean;
   withCopy?: boolean;
-  description?: string
+  description?: string;
+  tooltipText?: string;
 }>()
 </script>
 
@@ -17,7 +18,7 @@ defineProps<{
     ]"
   >
     <div
-      class="w-full max-w-[200px] h-full flex items-center gap-2"
+      class="w-full min-w-[300px] max-w-[300px] h-full flex items-center gap-2"
     >
       <Tooltip
         v-if="description"
@@ -25,7 +26,7 @@ defineProps<{
       />
 
       <span
-        class="text-font-500 text-xs md:text-sm font-medium"
+        class="text-[#bbbbbb] text-[15px] font-normal"
       >
         {{ label }}
       </span>
@@ -33,7 +34,7 @@ defineProps<{
 
     <div
       :class="[!value && 'flex-col', value && 'items-center']"
-      class="text-font-400 text-sm fix flex gap-2 break-words"
+      class="text-[#f5f5f5] text-[15px] fix flex gap-2 break-words"
     >
       <slot
         name="value"
@@ -45,6 +46,7 @@ defineProps<{
         </span>
 
         <Copy
+          :tooltipText="tooltipText"
           v-if="withCopy && value"
           :value="value"
         />

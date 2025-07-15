@@ -23,6 +23,7 @@ export default defineEventHandler(async (event) => {
       },
       body: { query, variables },
     });
+    console.log("--------------------------------");
     console.log("query", query);
     console.log("variables", variables);
     console.log("response", response);

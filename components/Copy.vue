@@ -4,9 +4,10 @@ import Tooltip from './Tooltip.vue';
 
 const props = defineProps<{
   value: string | number | undefined;
-  isSmall?: boolean;
   tooltipText?: string;
-}>()
+  iconSize?: string;
+  buttonClass?: string;
+}>();
 
 const isCopied = ref(false);
 const dynamicTooltipText = ref(props.tooltipText);
@@ -47,26 +48,28 @@ const onCopy = async () => {
   <Tooltip v-if="props.tooltipText" :value="dynamicTooltipText">
     <button
       @click.prevent="onCopy()"
-      class="w-8 h-8 rounded-lg place-items-center grid group"
-      :class="isSmall && '!w-6 !h-6'"
+      class="rounded-lg place-items-center grid group"
+      :class="buttonClass || 'w-8 h-8'"
     >
       <IconCheckmark v-if="isCopied" class="w-3 h-3 text-[#888888]" />
       <IconCopy
         v-else
-        class="w-5 h-5 text-[#888888] group-hover:text-kadscan-400"
+        :sizeClass="iconSize || 'w-5 h-5'"
+        class="text-[#888888] group-hover:text-kadscan-400"
       />
     </button>
   </Tooltip>
   <button
     v-else
     @click.prevent="onCopy()"
-    class="w-8 h-8 rounded-lg place-items-center grid group"
-    :class="isSmall && '!w-6 !h-6'"
+    class="rounded-lg place-items-center grid group"
+    :class="buttonClass || 'w-8 h-8'"
   >
     <IconCheckmark v-if="isCopied" class="w-3 h-3 text-[#888888]" />
     <IconCopy
       v-else
-      class="w-5 h-5 text-[#888888] group-hover:text-kadscan-400"
+      :sizeClass="iconSize || 'w-5 h-5'"
+      class="text-[#888888] group-hover:text-kadscan-400"
     />
   </button>
 </template>

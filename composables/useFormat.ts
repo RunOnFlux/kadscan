@@ -26,11 +26,45 @@ export const useFormat = () => {
     }
     const hours = Math.round(minutes / 60);
     if (hours < 24) {
-      return `${hours} hours ago`;
+      return `${hours} hrs ago`;
     }
     const days = Math.round(hours / 24);
     return `${days} days ago`;
   };
+
+  const formatFullDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    const relativeTime = formatRelativeTime(dateString);
+
+    const options: Intl.DateTimeFormatOptions = {
+      month: 'short',
+      day: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+      timeZone: 'UTC',
+    };
+
+    const formatter = new Intl.DateTimeFormat('en-US', options);
+    const parts = formatter.formatToParts(date);
+    const getValue = (type: Intl.DateTimeFormatPartTypes) => parts.find((part) => part.type === type)?.value;
+
+    const month = getValue('month');
+    const day = getValue('day');
+    const year = getValue('year');
+    const hour = getValue('hour');
+    const minute = getValue('minute');
+    const second = getValue('second');
+    const dayPeriod = getValue('dayPeriod');
+
+    const rearrangedDate = `${month}-${day}-${year}`;
+    const time = `${hour}:${minute}:${second} ${dayPeriod}`;
+
+    return `${relativeTime} (${rearrangedDate} ${time} +UTC)`;
+  };
+
 
   const formatGasPrice = (price: number, precision: number = 8): string => {
     if (price === null || price === undefined) return '0';
@@ -42,6 +76,7 @@ export const useFormat = () => {
   return {
     truncateAddress,
     formatRelativeTime,
+    formatFullDate,
     formatGasPrice,
   };
 }; 

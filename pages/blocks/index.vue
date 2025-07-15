@@ -51,7 +51,7 @@ const tableHeaders = [
   { key: 'miner', label: 'Miner Account' },
   { key: 'gasLimit', label: 'Gas Limit' },
   { key: 'gasPrice', label: 'Gas Price' },
-  { key: 'reward', label: 'Reward' },
+  { key: 'reward', label: 'Block Reward' },
 ];
 
 const rowOptions = [
@@ -135,7 +135,6 @@ function downloadData() {
         Blocks
       </h1>
     </div>
-
 
     <!-- TODO: get real analytics -->
     <!-- <StatsGrid :cards="mockedCards" /> -->
