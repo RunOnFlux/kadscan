@@ -23,9 +23,15 @@ defineProps<{
       <Tooltip
         v-if="description"
         :value="description"
-      />
-
+      >
+        <span
+          class="text-[#bbbbbb] text-[15px] font-normal"
+        >
+          {{ label }}
+        </span>
+      </Tooltip>
       <span
+        v-else
         class="text-[#bbbbbb] text-[15px] font-normal"
       >
         {{ label }}

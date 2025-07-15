@@ -14,6 +14,31 @@ definePageMeta({
   layout: 'app',
 });
 
+const textContent = {
+  blockHeight: { label: 'Block Height:', description: 'The unique number identifying the block in the blockchain, also known as its position in the chain.' },
+  chainId: { label: 'Chain ID', description: 'The specific chain (0-19) on which this block was mined.' },
+  status: { label: 'Status', description: 'The current confirmation status of the block. Canonical means it is part of the main chain.' },
+  creationTime: { label: 'Creation Time', description: 'The timestamp when the block was created by the miner.' },
+  transactions: { label: 'Transactions', description: 'The list of transactions included in this block.' },
+  events: { label: 'Events', description: 'The total number of events emitted by the transactions in this block.' },
+  minerAccount: { label: 'Miner Account', description: 'The address of the account that mined this block.' },
+  blockReward: { label: 'Block Reward', description: 'The amount of KDA awarded for mining this block.' },
+  difficulty: { label: 'Difficulty', description: 'A measure of how difficult it was to find a hash below the target for this block.' },
+  gasUsed: { label: 'Gas Used', description: 'The total amount of gas consumed by all transactions in this block.' },
+  gasLimit: { label: 'Gas Limit', description: 'The maximum amount of gas that can be used in a block.' },
+  nonce: { label: 'Nonce', description: 'A random value used by miners to create a valid proof-of-work hash.' },
+  epoch: { label: 'Epoch', description: 'The start date and time of the current epoch.' },
+  flags: { label: 'Flags', description: 'Hex-encoded bits used for validation.' },
+  target: { label: 'Target', description: 'The boundary below which the block hash must be for the block to be valid.' },
+  weight: { label: 'Weight', description: 'A measure of the total difficulty of the chain up to this block.' },
+  hash: { label: 'Hash', description: 'The unique identifier for this block (also known as Block Header Hash).' },
+  parentHash: { label: 'Parent Hash', description: 'The hash of the preceding block in this chain.' },
+  powHash: { label: 'POW Hash', description: 'The result of the proof-of-work computation.' },
+  payloadHash: { label: 'Payload Hash', description: 'The hash of all transactions and their outputs in this block.' },
+  moreDetails: { label: 'More Details:', description: 'Show or hide additional block details.' },
+  neighbor: { label: 'Neighbor at Chain #', description: 'A block at the same height on a different chain.' },
+};
+
 const activeView = ref('overview');
 
 const { formatFullDate, truncateAddress } = useFormat();
@@ -174,7 +199,7 @@ useHead({
             <!-- Section 1: Core Information -->
             <DivideItem>
               <div class="flex flex-col gap-4">
-                <LabelValue label="Block Height">
+                <LabelValue :label="textContent.blockHeight.label" :description="textContent.blockHeight.description">
                   <template #value>
                     <div class="flex items-center gap-2">
                       <span class="text-[#f5f5f5]">{{ block.height }}</span>
@@ -209,7 +234,7 @@ useHead({
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue label="Chain ID">
+                <LabelValue :label="textContent.chainId.label" :description="textContent.chainId.description">
                   <template #value>
                     <div class="flex items-center gap-2">
                       <span>{{ String(block.chainId) }}</span>
@@ -236,7 +261,7 @@ useHead({
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue label="Status">
+                <LabelValue :label="textContent.status.label" :description="textContent.status.description">
                   <template #value>
                     <div
                       v-if="blockStatus"
@@ -250,7 +275,7 @@ useHead({
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue label="Creation Time">
+                <LabelValue :label="textContent.creationTime.label" :description="textContent.creationTime.description">
                   <template #value>
                     <div class="flex items-center gap-1 text-white">
                       <IconClock class="w-4 h-4" />
@@ -258,7 +283,7 @@ useHead({
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue label="Transactions">
+                <LabelValue :label="textContent.transactions.label" :description="textContent.transactions.description">
                   <template #value>
                     <Tooltip value="Click to view Transactions">
                       <NuxtLink
@@ -271,7 +296,8 @@ useHead({
                   </template>
                 </LabelValue>
                 <LabelValue
-                  label="Events"
+                  :label="textContent.events.label"
+                  :description="textContent.events.description"
                   :value="`${block.events.totalCount} events`"
                 />
               </div>
@@ -280,7 +306,7 @@ useHead({
             <!-- Section 2: Miner and Difficulty -->
             <DivideItem>
               <div class="flex flex-col gap-4">
-                <LabelValue label="Miner Account">
+                <LabelValue :label="textContent.minerAccount.label" :description="textContent.minerAccount.description">
                   <template #value>
                     <div class="flex items-center gap-2">
                       <Tooltip :value="minerAccount" variant="hash">
@@ -301,19 +327,19 @@ useHead({
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue label="Block Reward">
+                <LabelValue :label="textContent.blockReward.label" :description="textContent.blockReward.description">
                   <template #value v-if="blockReward != null">
                     {{ blockReward }} KDA
                   </template>
                 </LabelValue>
-                <LabelValue label="Difficulty" :value="block.difficulty" />
+                <LabelValue :label="textContent.difficulty.label" :description="textContent.difficulty.description" :value="block.difficulty" />
               </div>
             </DivideItem>
 
             <!-- Section 3: Gas -->
             <DivideItem>
               <div class="flex flex-col gap-4">
-                <LabelValue label="Gas Used">
+                <LabelValue :label="textContent.gasUsed.label" :description="textContent.gasUsed.description">
                   <template #value>
                     <span v-if="gasLoading">Calculating...</span>
                     <GasUsage
@@ -323,8 +349,8 @@ useHead({
                     />
                   </template>
                 </LabelValue>
-                <LabelValue label="Gas Limit" value="150,000" />
-                <LabelValue label="Nonce" :value="block.nonce" />
+                <LabelValue :label="textContent.gasLimit.label" :description="textContent.gasLimit.description" value="150,000" />
+                <LabelValue :label="textContent.nonce.label" :description="textContent.nonce.description" :value="block.nonce" />
               </div>
             </DivideItem>
           </Divide>
@@ -340,27 +366,63 @@ useHead({
             <DivideItem v-if="showMore">
               <div class="flex flex-col gap-4">
                 <LabelValue
-                  label="Epoch"
-                  :value="formatFullDate(block.epoch)"
-                />
-                <LabelValue label="Flags" :value="block.flags" />
-                <LabelValue label="Target" :value="block.target" />
-                <LabelValue label="Weight" :value="block.weight" />
+                  :label="textContent.epoch.label"
+                  :description="textContent.epoch.description"
+                >
+                  <template #value>
+                    <div class="flex items-center gap-2">
+                      <span>{{ formatFullDate(block.epoch) }}</span>
+                    </div>
+                  </template>
+                </LabelValue>
+                <LabelValue :label="textContent.flags.label" :description="textContent.flags.description">
+                  <template #value>
+                    <div class="flex items-center gap-2">
+                      <span>{{ block.flags }}</span>
+                    </div>
+                  </template>
+                </LabelValue>
+                <LabelValue :label="textContent.target.label" :description="textContent.target.description">
+                  <template #value>
+                    <div class="flex items-center gap-2">
+                      <span>{{ block.target }}</span>
+                    </div>
+                  </template>
+                </LabelValue>
+                <LabelValue :label="textContent.weight.label" :description="textContent.weight.description">
+                  <template #value>
+                    <div class="flex items-center gap-2">
+                      <span>{{ block.weight }}</span>
+                    </div>
+                  </template>
+                </LabelValue>
               </div>
             </DivideItem>
 
             <!-- Hash -->
             <DivideItem v-if="showMore">
               <div class="flex flex-col gap-4">
-                <LabelValue label="Hash" :value="block.hash" />
-                <LabelValue label="Parent Hash">
+                <LabelValue :label="textContent.hash.label" :description="textContent.hash.description">
+                  <template #value>
+                    <div class="flex items-center gap-2">
+                      <span>{{ block.hash }}</span>
+                      <Copy
+                        :value="block.hash"
+                        tooltipText="Copy Hash"
+                        iconSize="h-5 w-5"
+                        buttonClass="w-5 h-5"
+                      />
+                    </div>
+                  </template>
+                </LabelValue>
+                <LabelValue :label="textContent.parentHash.label" :description="textContent.parentHash.description">
                   <template #value>
                     <div class="flex items-center gap-2">
                       <NuxtLink
-                        :to="`/blocks/${block.parent.height}/chain/${block.parent.chainId}`"
-                        class="text-[#6ab5db] hover:text-[#9ccee7]"
-                      >
-                        {{ block.parent.hash }}
+                          :to="`/blocks/${block.parent.height}/chain/${block.parent.chainId}`"
+                          class="text-[#6ab5db] hover:text-[#9ccee7]"
+                        >
+                          {{ block.parent.hash }}
                       </NuxtLink>
                       <Copy
                         :value="block.parent.hash"
@@ -371,14 +433,32 @@ useHead({
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue
-                  label="POW Hash"
-                  :value="block.powHash"
-                />
-                <LabelValue
-                  label="Payload Hash"
-                  :value="block.payloadHash"
-                />
+                <LabelValue :label="textContent.powHash.label" :description="textContent.powHash.description">
+                   <template #value>
+                    <div class="flex items-center gap-2">
+                      <span>{{ block.powHash }}</span>
+                      <Copy
+                        :value="block.powHash"
+                        tooltip-text="Copy POW Hash"
+                        iconSize="h-5 w-5"
+                        buttonClass="w-5 h-5"
+                      />
+                    </div>
+                  </template>
+                </LabelValue>
+                <LabelValue :label="textContent.payloadHash.label" :description="textContent.payloadHash.description">
+                  <template #value>
+                    <div class="flex items-center gap-2">
+                      <span>{{ block.payloadHash }}</span>
+                      <Copy
+                        :value="block.payloadHash"
+                        tooltip-text="Copy Payload Hash"
+                        iconSize="h-5 w-5"
+                        buttonClass="w-5 h-5"
+                      />
+                    </div>
+                  </template>
+                </LabelValue>
               </div>
             </DivideItem>
 
@@ -388,33 +468,35 @@ useHead({
                 v-if="block.neighbors && block.neighbors.length > 0"
                 class="flex flex-col gap-4"
               >
-                <div
+                <LabelValue
                   v-for="neighbor in block.neighbors"
                   :key="neighbor.hash"
-                  class="flex items-center"
+                  :label="`${textContent.neighbor.label}${neighbor.chainId}`"
+                  :description="textContent.neighbor.description"
                 >
-                  <span class="text-[#bbbbbb] text-[15px] min-w-[300px]">Neighbor at Chain #{{ neighbor.chainId }}</span>
-                  <div class="flex items-center gap-2">
-                    <NuxtLink
-                      :to="`/blocks/${block.height}/chain/${neighbor.chainId}`"
-                      class="text-[15px] text-[#6ab5db] hover:text-[#9ccee7]"
-                      >{{ neighbor.hash }}</NuxtLink
-                    >
-                    <Copy
-                      :value="neighbor.hash"
-                      tooltipText="Copy Block Hash"
-                      iconSize="h-5 w-5"
-                      buttonClass="w-5 h-5"
-                    />
-                  </div>
-                </div>
+                  <template #value>
+                    <div class="flex items-center gap-2">
+                      <NuxtLink
+                        :to="`/blocks/${block.height}/chain/${neighbor.chainId}`"
+                        class="text-[15px] text-[#6ab5db] hover:text-[#9ccee7]"
+                        >{{ neighbor.hash }}</NuxtLink
+                      >
+                      <Copy
+                        :value="neighbor.hash"
+                        tooltipText="Copy Block Hash"
+                        iconSize="h-5 w-5"
+                        buttonClass="w-5 h-5"
+                      />
+                    </div>
+                  </template>
+                </LabelValue>
               </div>
-              <div v-else class="text-gray-500">No neighbors found for this block.</div>         
+              <div v-else class="text-gray-500">No neighbors found for this block.</div>
             </DivideItem>
 
             <!-- More Details -->
             <DivideItem>
-              <LabelValue label="More Details:">
+              <LabelValue :label="textContent.moreDetails.label" :description="textContent.moreDetails.description">
                 <template #value>
                   <button
                     @click="showMore = !showMore"
@@ -432,7 +514,6 @@ useHead({
                 </template>
               </LabelValue>
             </DivideItem>
-
           </Divide>
         </div>
       </div>
