@@ -8,6 +8,7 @@ import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
 import IconHourglass from '~/components/icon/Hourglass.vue';
 import IconCancel from '~/components/icon/Cancel.vue';
 import GasUsage from '~/components/column/Gas.vue';
+import SkeletonBlockDetails from '~/components/skeleton/BlockDetails.vue';
 
 definePageMeta({
   layout: 'app',
@@ -139,7 +140,7 @@ useHead({
       >
     </div>
 
-    <div v-if="loading" class="text-white">Loading block data...</div>
+    <SkeletonBlockDetails v-if="loading" />
 
     <div
       v-else-if="error || !block"
