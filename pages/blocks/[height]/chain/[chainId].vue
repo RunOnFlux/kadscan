@@ -379,6 +379,72 @@ useHead({
             </DivideItem>
           </Divide>
         </div>
+        <div
+          v-if="!loading && !error && block"
+          class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5"
+        >
+          <Divide>
+            <DivideItem v-if="showMore">
+              <div class="flex flex-col gap-4">
+                <LabelValue
+                  label="Epoch"
+                  :value="formatFullDate(block.epoch)"
+                />
+                <LabelValue label="Flags" :value="block.flags" />
+                <LabelValue label="Target" :value="block.target" />
+                <LabelValue label="Weight" :value="block.weight" />
+              </div>
+            </DivideItem>
+            <DivideItem v-if="showMore">
+              <div class="flex flex-col gap-4">
+                <LabelValue label="Hash" :value="block.hash" />
+                <LabelValue label="Parent Hash">
+                  <template #value>
+                    <div class="flex items-center gap-2">
+                      <Tooltip :value="block.parent.hash" variant="hash">
+                        <NuxtLink
+                          :to="`/blocks/${block.parent.height}/chain/${block.parent.chainId}`"
+                          class="text-[#6ab5db] hover:text-[#9ccee7]"
+                        >
+                          {{ block.parent.hash }}
+                        </NuxtLink>
+                      </Tooltip>
+                    </div>
+                  </template>
+                </LabelValue>
+                <LabelValue
+                  tooltipText="Copy POW Hash"
+                  label="POW Hash"
+                  :value="block.powHash"
+                />
+                <LabelValue
+                  tooltipText="Copy Payload Hash"
+                  label="Payload Hash"
+                  :value="block.payloadHash"
+                />
+              </div>
+            </DivideItem>
+            <DivideItem>
+              <LabelValue label="More Details:">
+                <template #value>
+                  <button
+                    @click="showMore = !showMore"
+                    class="text-[#6ab5db] hover:text-[#9ccee7] flex items-center gap-1 whitespace-nowrap"
+                  >
+                    <template v-if="!showMore">
+                      <span>+</span>
+                      <span>Click to show more</span>
+                    </template>
+                    <template v-else>
+                      <span>-</span>
+                      <span>Click to show less</span>
+                    </template>
+                  </button>
+                </template>
+              </LabelValue>
+            </DivideItem>
+          </Divide>
+        </div>
       </div>
 
       <div
