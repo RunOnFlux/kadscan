@@ -51,9 +51,9 @@ query Blocks(
 `;
 
 const TOTAL_COUNT_QUERY = `
-query Query {
-  lastBlockHeight
-}
+  query Query {
+    lastBlockHeight
+  }
 `;
 
 const processBlockDetails = (node: any) => {

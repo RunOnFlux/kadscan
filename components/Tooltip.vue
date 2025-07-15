@@ -2,15 +2,20 @@
 import { ref, computed, watch, nextTick } from 'vue';
 import { usePopper } from '~/composables/usePopper';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   value?: string,
   variant?: 'default' | 'hash',
-}>();
+  offsetDistance?: number,
+  disabled?: boolean,
+}>(), {
+  offsetDistance: 4,
+  disabled: false,
+});
 
 const isVisible = ref(false);
 const [reference, popper, instance] = usePopper({
   placement: 'top',
-  offsetDistance: 4
+  offsetDistance: props.offsetDistance
 });
 
 watch(() => props.value, () => {
@@ -41,7 +46,7 @@ const tooltipClass = computed(() => {
   <div
     ref="reference"
     class="relative inline-block"
-    @mouseenter="isVisible = true"
+    @mouseenter="!disabled && (isVisible = true)"
     @mouseleave="isVisible = false"
   >
     <slot />
