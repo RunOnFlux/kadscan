@@ -117,7 +117,6 @@ export const useBlock = (
         for (const edge of txEdges) {
           if (edge.node?.result?.gas) {
             totalGasUsed.value += Number(edge.node.result.gas);
-            console.log("totalGasUsed", totalGasUsed.value);
           }
         }
 
@@ -169,8 +168,6 @@ export const useBlock = (
       competingBlocks.value = nodes;
 
       const foundIndex = nodes.findIndex((node: any) => node.canonical);
-      console.log("foundIndex", foundIndex);
-      console.log("nodes", nodes[0].canonical);
       canonicalIndex.value = foundIndex;
 
       if (foundIndex !== -1) {
