@@ -74,7 +74,7 @@ const blockStatus = computed(() => {
     return {
       text: 'Failed',
       icon: IconCancel,
-      classes: 'bg-red-900/40 border-red-400 text-red-400',
+      classes: 'bg-[#7f1d1d66] border-[#f87171] text-[#f87171]',
     };
   }
 
@@ -172,7 +172,7 @@ useHead({
 
       <div
         v-if="competingBlocks.length > 1"
-        class="py-2 flex gap-2 overflow-x-auto"
+        class="pt-2 pb-5 flex gap-2 overflow-x-auto border-b border-[#222222] mb-6"
       >
         <button
           v-for="(competingBlock, index) in competingBlocks.slice(0, 10)"
@@ -180,8 +180,10 @@ useHead({
           @click="selectedBlockIndex = index"
           class="px-3 py-1.5 text-[13px] rounded-xl border transition-colors"
           :class="
-            selectedBlockIndex === index
+            (canonicalIndex === index && selectedBlockIndex === index)
               ? 'bg-[#0f1f1d] border border-[#00a186] rounded-lg text-[#00a186]'
+              : selectedBlockIndex === index
+              ? 'bg-[#7f1d1d66] border border-[#f87171] rounded-lg text-[#f87171]'
               : 'bg-[#111111] border border-[#222222] rounded-lg text-[#bbbbbb] hover:bg-[#222222] hover:text-[#fafafa]'
           "
         >
