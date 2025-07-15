@@ -152,47 +152,6 @@ useHead({
     </div>
 
     <div v-else>
-      <div
-        v-if="competingBlocks.length > 1 && canonicalIndex === -1"
-        class="w-full p-4 text-center mb-1 text-[15px] rounded-xl border bg-red-900/40 border-red-400 text-red-400"
-      >
-        <span>
-          Multiple competing blocks have been detected. Please wait for one to
-          be finalized.
-        </span>
-      </div>
-
-      <div
-        v-if="competingBlocks.length > 1 && canonicalIndex !== -1"
-        class="w-full p-4 text-center mb-1 text-[15px] rounded-xl border bg-[#0f1f1d] border-[#00a186] text-[#00a186]"
-      >
-        <span v-if="canonicalIndex !== -1">
-          This block had multiple versions, and
-          <strong>Index {{ canonicalIndex }}</strong> is the canonical one.
-        </span>
-      </div>
-
-      <div
-        v-if="competingBlocks.length > 1"
-        class="pt-2 pb-5 flex gap-2 overflow-x-auto border-b border-[#222222] mb-6"
-      >
-        <button
-          v-for="(competingBlock, index) in competingBlocks.slice(0, 10)"
-          :key="index"
-          @click="selectedBlockIndex = index"
-          class="px-3 py-1.5 text-[13px] rounded-xl border transition-colors"
-          :class="
-            (canonicalIndex === index && selectedBlockIndex === index)
-              ? 'bg-[#0f1f1d] border border-[#00a186] rounded-lg text-[#00a186]'
-              : selectedBlockIndex === index
-              ? 'bg-[#7f1d1d66] border border-[#f87171] rounded-lg text-[#f87171]'
-              : 'bg-[#111111] border border-[#222222] rounded-lg text-[#bbbbbb] hover:bg-[#222222] hover:text-[#fafafa]'
-          "
-        >
-          Index {{ index }}
-        </button>
-      </div>
-
       <div class="flex items-center gap-2 mb-2">
         <button
           class="px-[10px] py-[5px] text-[13px] rounded-lg border font-medium transition-colors bg-[#009367] border-[#222222] text-[#f5f5f5]"
@@ -464,7 +423,7 @@ useHead({
             <div class="flex items-center gap-2">
               <NuxtLink
                 :to="`/blocks/${block.height}/chain/${neighbor.chainId}`"
-                class="text-[#6ab5db] hover:text-[#9ccee7]"
+                class="text-[15px] text-[#6ab5db] hover:text-[#9ccee7]"
                 >{{ neighbor.hash }}</NuxtLink
               >
             </div>
