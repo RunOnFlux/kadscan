@@ -40,6 +40,33 @@ const GQL_QUERY = `
   }
 `;
 
+const BLOCK_TRANSACTIONS_QUERY = `
+  query blockTransactions($startHeight: Int!, $endHeight: Int, $chainIds: [String!], $first: Int, $after: String) {
+    blocksFromHeight(startHeight: $startHeight, endHeight: $endHeight, chainIds: $chainIds) {
+      edges {
+        node {
+          transactions(first: $first, after: $after) {
+            totalCount
+            edges {
+              node {
+                result {
+                  ... on TransactionResult {
+                    gas
+                  }
+                }
+              }
+            }
+            pageInfo {
+              endCursor
+              hasNextPage
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const useBlock = (
   height: Ref<number>,
   chainId: Ref<number>,
@@ -50,6 +77,60 @@ export const useBlock = (
   const canonicalIndex = ref(-1);
   const loading = ref(true);
   const error = ref<any>(null);
+  const totalGasUsed = ref<number | null>(null);
+  const gasLoading = ref(false);
+
+  const calculateTotalGas = async () => {
+    if (!block.value || !networkId.value) {
+      return;
+    }
+
+    gasLoading.value = true;
+    totalGasUsed.value = 0;
+    let hasNextPage = true;
+    let cursor: string | undefined = undefined;
+
+    try {
+      while (hasNextPage) {
+        const response: any = await $fetch('/api/graphql', {
+          method: 'POST',
+          body: {
+            query: BLOCK_TRANSACTIONS_QUERY,
+            variables: {
+              startHeight: height.value,
+              endHeight: height.value,
+              chainIds: [String(chainId.value)],
+              first: 100,
+              after: cursor,
+            },
+            networkId: networkId.value,
+          },
+        });
+
+        if (response.errors) {
+          throw new Error(response.errors.map((e: any) => e.message).join(', '));
+        }
+
+        const txEdges = response.data?.blocksFromHeight?.edges?.[0]?.node?.transactions?.edges || [];
+        const pageInfo = response.data?.blocksFromHeight?.edges?.[0]?.node?.transactions?.pageInfo;
+
+        for (const edge of txEdges) {
+          if (edge.node?.result?.gas) {
+            totalGasUsed.value += Number(edge.node.result.gas);
+            console.log("totalGasUsed", totalGasUsed.value);
+          }
+        }
+
+        hasNextPage = pageInfo?.hasNextPage || false;
+        cursor = pageInfo?.endCursor;
+      }
+    } catch (e) {
+      console.error('Error calculating total gas:', e);
+      totalGasUsed.value = null; // Reset on error
+    } finally {
+      gasLoading.value = false;
+    }
+  };
 
   const fetchBlock = async () => {
     if (height.value === undefined || chainId.value === undefined || !networkId.value) {
@@ -97,6 +178,10 @@ export const useBlock = (
       } else {
         block.value = nodes.length > 0 ? nodes[0] : null;
       }
+
+      if (block.value) {
+        calculateTotalGas();
+      }
     } catch (e) {
       error.value = e;
       block.value = null;
@@ -113,5 +198,7 @@ export const useBlock = (
     loading,
     error,
     fetchBlock,
+    totalGasUsed,
+    gasLoading,
   };
 }; 

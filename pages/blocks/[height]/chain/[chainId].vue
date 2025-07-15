@@ -30,6 +30,8 @@ const {
   fetchBlock,
   competingBlocks,
   canonicalIndex,
+  totalGasUsed,
+  gasLoading,
 } = useBlock(height, chainId, networkId);
 
 watch(
@@ -325,6 +327,22 @@ useHead({
               <LabelValue label="Difficulty" :value="block.difficulty" />
             </div>
           </DivideItem>
+
+          <!-- Section 3: Gas -->
+          <DivideItem>
+            <div class="flex flex-col gap-4">
+              <LabelValue label="Gas Used">
+                <template #value>
+                  <span v-if="gasLoading">Calculating...</span>
+                  <span v-else>{{
+                    totalGasUsed?.toLocaleString() || 'N/A'
+                  }}</span>
+                </template>
+              </LabelValue>
+              <LabelValue label="Gas Limit" value="150,000" />
+              <LabelValue label="Nonce" :value="block.nonce" />
+            </div>
+          </DivideItem>
         </Divide>
       </div>
 
@@ -337,7 +355,6 @@ useHead({
             <div class="flex flex-col gap-4">
               <LabelValue label="Epoch" :value="formatFullDate(block.epoch)" />
               <LabelValue label="Flags" :value="block.flags" />
-              <LabelValue label="Nonce" :value="block.nonce" />
               <LabelValue label="Target" :value="block.target" />
               <LabelValue label="Weight" :value="block.weight" />
             </div>
