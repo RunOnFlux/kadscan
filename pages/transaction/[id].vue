@@ -140,7 +140,7 @@ useHead({
 
       <!-- Bloco de detalhes -->
       <div class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 flex flex-col gap-2 text-base">
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 mb-2">
           <Tooltip value="Hash único que identifica esta transação na blockchain.">
             <Information class="w-4 h-4 text-[#bbbbbb] cursor-pointer" />
           </Tooltip>
@@ -150,7 +150,7 @@ useHead({
             <Copy :value="transaction.hash" />
           </div>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 mb-2">
           <Tooltip value="Indica o status atual da transação, como pendente, confirmada ou falha.">
             <Information class="w-4 h-4 text-[#bbbbbb] cursor-pointer" />
           </Tooltip>
@@ -159,17 +159,17 @@ useHead({
             <Tag :label="transaction.status" :variant="transaction.status === 'Success' ? 'success' : 'failed'" />
           </div>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 mb-2">
           <Tooltip value="Número do bloco onde esta transação foi registrada.">
             <Information class="w-4 h-4 text-[#bbbbbb] cursor-pointer" />
           </Tooltip>
           <span class="text-[#bbbbbb] text-sm w-44 flex-shrink-0">Block:</span>
-          <div class="flex items-center gap-2 flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-1 min-w-0 mb-4">
             <ValueLink :label="transaction.block" :to="`/blocks/${transaction.block}`" class="text-blue-400 hover:underline" />
             <span class="bg-[#222] text-xs px-2 py-1 rounded">{{ transaction.blockConfirmations }} Block Confirmations</span>
           </div>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 mb-2">
           <Tooltip value="Data e hora em que a transação foi validada na blockchain.">
             <Information class="w-4 h-4 text-[#bbbbbb] cursor-pointer" />
           </Tooltip>
@@ -177,20 +177,7 @@ useHead({
           <div class="flex items-center gap-2 flex-1 min-w-0">
             <span class="text-[#fafafa] text-sm">{{ transaction.age }} ({{ new Date(transaction.timestamp).toUTCString() }})</span>
           </div>
-        </div>
-        <div class="flex items-center gap-2">
-          <Tooltip value="Indica se a transação foi patrocinada por terceiros.">
-            <Information class="w-4 h-4 text-[#bbbbbb] cursor-pointer" />
-          </Tooltip>
-          <span class="text-[#bbbbbb] text-sm w-44 flex-shrink-0">Sponsored:</span>
-          <div class="flex items-center gap-2 flex-1 min-w-0">
-            <span v-if="transaction.sponsoredBanner" class="flex items-center gap-1">
-              <img :src="transaction.sponsoredBanner" alt="Sponsored" class="rounded w-20 h-5 object-contain" />
-              <span class="text-[#fafafa] text-sm">Sponsored</span>
-            </span>
-            <span v-else class="text-[#bbbbbb] text-sm">-</span>
-          </div>
-        </div>
+        </div>  
         <div class="flex items-center gap-2">
           <Tooltip value="Endereço ou conta de origem da transação.">
             <Information class="w-4 h-4 text-[#bbbbbb] cursor-pointer" />
