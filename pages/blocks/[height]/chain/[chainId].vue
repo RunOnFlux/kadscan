@@ -93,10 +93,6 @@ watch(
 );
 
 const blockStatus = computed(() => {
-  if (!block.value || !lastBlockHeight.value) {
-    return null;
-  }
-
   if(lastBlockHeight.value - 8 >= block.value.height && !block.value.canonical) {
     return {
       text: 'Orphaned',
