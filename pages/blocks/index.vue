@@ -81,7 +81,7 @@ watch(
 );
 
 watch(
-  [() => route.query.page, selectedNetwork],
+  [() => route.query.page, selectedNetwork, rowsToShow],
   ([page, network], [oldPage, oldNetwork]) => {
     if (!network) {
       return;
