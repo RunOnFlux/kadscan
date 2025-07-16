@@ -251,7 +251,7 @@ useHead({
                         <Tooltip value="View next Chain" :offset-distance="8">
                           <button
                             @click="goToBlock(height, chainId + 1)"
-                            :disabled="chainId === 20"
+                            :disabled="chainId === 19"
                             class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#fafafa] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3" />
