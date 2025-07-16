@@ -199,7 +199,7 @@ useHead({
             <!-- Section 1: Core Information -->
             <DivideItem>
               <div class="flex flex-col gap-4">
-                <LabelValue :label="textContent.blockHeight.label" :description="textContent.blockHeight.description">
+                <LabelValue :label="textContent.blockHeight.label" :description="textContent.blockHeight.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-2">
                       <span class="text-[#f5f5f5]">{{ block.height }}</span>
@@ -234,7 +234,7 @@ useHead({
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.chainId.label" :description="textContent.chainId.description">
+                <LabelValue :label="textContent.chainId.label" :description="textContent.chainId.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-2">
                       <span>{{ String(block.chainId) }}</span>
@@ -261,7 +261,7 @@ useHead({
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.status.label" :description="textContent.status.description">
+                <LabelValue :label="textContent.status.label" :description="textContent.status.description" tooltipPos="right">
                   <template #value>
                     <div
                       v-if="blockStatus"
@@ -275,7 +275,7 @@ useHead({
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.creationTime.label" :description="textContent.creationTime.description">
+                <LabelValue :label="textContent.creationTime.label" :description="textContent.creationTime.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-1 text-white">
                       <IconClock class="w-4 h-4" />
@@ -283,7 +283,12 @@ useHead({
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.transactions.label" :description="textContent.transactions.description">
+                <LabelValue
+                  :label="textContent.transactions.label"
+                  :value="block.transactions.totalCount"
+                  :description="textContent.transactions.description"
+                  tooltipPos="right"
+                >
                   <template #value>
                     <Tooltip value="Click to view Transactions">
                       <NuxtLink
@@ -299,6 +304,7 @@ useHead({
                   :label="textContent.events.label"
                   :description="textContent.events.description"
                   :value="`${block.events.totalCount} events`"
+                  tooltipPos="right"
                 />
               </div>
             </DivideItem>
@@ -306,7 +312,7 @@ useHead({
             <!-- Section 2: Miner and Difficulty -->
             <DivideItem>
               <div class="flex flex-col gap-4">
-                <LabelValue :label="textContent.minerAccount.label" :description="textContent.minerAccount.description">
+                <LabelValue :label="textContent.minerAccount.label" :description="textContent.minerAccount.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-2">
                       <Tooltip :value="minerAccount" variant="hash">
@@ -327,19 +333,19 @@ useHead({
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.blockReward.label" :description="textContent.blockReward.description">
+                <LabelValue :label="textContent.blockReward.label" :description="textContent.blockReward.description" tooltipPos="right">
                   <template #value v-if="blockReward != null">
                     {{ blockReward }} KDA
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.difficulty.label" :description="textContent.difficulty.description" :value="block.difficulty" />
+                <LabelValue :label="textContent.difficulty.label" :description="textContent.difficulty.description" :value="block.difficulty" tooltipPos="right" />
               </div>
             </DivideItem>
 
             <!-- Section 3: Gas -->
             <DivideItem>
               <div class="flex flex-col gap-4">
-                <LabelValue :label="textContent.gasUsed.label" :description="textContent.gasUsed.description">
+                <LabelValue :label="textContent.gasUsed.label" :description="textContent.gasUsed.description" tooltipPos="right">
                   <template #value>
                     <span v-if="gasLoading">Calculating...</span>
                     <GasUsage
@@ -349,8 +355,8 @@ useHead({
                     />
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.gasLimit.label" :description="textContent.gasLimit.description" value="150,000" />
-                <LabelValue :label="textContent.nonce.label" :description="textContent.nonce.description" :value="block.nonce" />
+                <LabelValue :label="textContent.gasLimit.label" :description="textContent.gasLimit.description" value="150,000" tooltipPos="right" />
+                <LabelValue :label="textContent.nonce.label" :description="textContent.nonce.description" :value="block.nonce" tooltipPos="right" />
               </div>
             </DivideItem>
           </Divide>
@@ -368,6 +374,7 @@ useHead({
                 <LabelValue
                   :label="textContent.epoch.label"
                   :description="textContent.epoch.description"
+                  tooltipPos="right"
                 >
                   <template #value>
                     <div class="flex items-center gap-2">
@@ -375,21 +382,21 @@ useHead({
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.flags.label" :description="textContent.flags.description">
+                <LabelValue :label="textContent.flags.label" :description="textContent.flags.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-2">
                       <span>{{ block.flags }}</span>
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.target.label" :description="textContent.target.description">
+                <LabelValue :label="textContent.target.label" :description="textContent.target.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-2">
                       <span>{{ block.target }}</span>
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.weight.label" :description="textContent.weight.description">
+                <LabelValue :label="textContent.weight.label" :description="textContent.weight.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-2">
                       <span>{{ block.weight }}</span>
@@ -402,7 +409,7 @@ useHead({
             <!-- Hash -->
             <DivideItem v-if="showMore">
               <div class="flex flex-col gap-4">
-                <LabelValue :label="textContent.hash.label" :description="textContent.hash.description">
+                <LabelValue :label="textContent.hash.label" :description="textContent.hash.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-2">
                       <span>{{ block.hash }}</span>
@@ -415,7 +422,7 @@ useHead({
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.parentHash.label" :description="textContent.parentHash.description">
+                <LabelValue :label="textContent.parentHash.label" :description="textContent.parentHash.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-2">
                       <NuxtLink
@@ -433,7 +440,7 @@ useHead({
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.powHash.label" :description="textContent.powHash.description">
+                <LabelValue :label="textContent.powHash.label" :description="textContent.powHash.description" tooltipPos="right">
                    <template #value>
                     <div class="flex items-center gap-2">
                       <span>{{ block.powHash }}</span>
@@ -446,7 +453,7 @@ useHead({
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.payloadHash.label" :description="textContent.payloadHash.description">
+                <LabelValue :label="textContent.payloadHash.label" :description="textContent.payloadHash.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-2">
                       <span>{{ block.payloadHash }}</span>
@@ -473,6 +480,7 @@ useHead({
                   :key="neighbor.hash"
                   :label="`${textContent.neighbor.label}${neighbor.chainId}`"
                   :description="textContent.neighbor.description"
+                  tooltipPos="right"
                 >
                   <template #value>
                     <div class="flex items-center gap-2">
@@ -496,7 +504,7 @@ useHead({
 
             <!-- More Details -->
             <DivideItem>
-              <LabelValue :label="textContent.moreDetails.label" :description="textContent.moreDetails.description">
+              <LabelValue :label="textContent.moreDetails.label" :description="textContent.moreDetails.description" tooltipPos="right">
                 <template #value>
                   <button
                     @click="showMore = !showMore"

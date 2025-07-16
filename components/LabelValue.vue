@@ -6,6 +6,7 @@ defineProps<{
   withCopy?: boolean;
   description?: string;
   copyTooltip?: string;
+  tooltipPos?: 'top' | 'right' | 'bottom' | 'left';
 }>()
 </script>
 
@@ -23,6 +24,8 @@ defineProps<{
       <Tooltip
         v-if="description"
         :value="description"
+        :placement="tooltipPos"
+        :offset-distance="16"
       >
         <span
           class="text-[#bbbbbb] text-[15px] font-normal"
