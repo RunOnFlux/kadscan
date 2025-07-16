@@ -87,14 +87,14 @@ const blockStatus = computed(() => {
 
   if(block.value.canonical) {
     return {
-      text: 'Canonical',
+      text: 'Finalized',
       icon: IconCheckmarkFill,
       classes: 'bg-[#0f1f1d] border-[#00a186] text-[#00a186]',
     };
   }
 
   return {
-    text: 'Unconfirmed',
+    text: 'Pending',
     icon: IconHourglass,
     classes: 'bg-[#17150d] border-[#eab308] text-[#eab308]',
   };
