@@ -21,9 +21,19 @@ useHead({
 
 const route = useRoute();
 const router = useRouter();
-const { blocks, loading, fetchBlocks, pageInfo, totalCount, fetchTotalCount } = useBlocks();
 const { truncateAddress } = useFormat();
 const { selectedNetwork } = useSharedData();
+
+const {
+  blocks,
+  loading,
+  fetchBlocks,
+  pageInfo,
+  totalCount,
+  fetchTotalCount,
+  rowsToShow,
+  updateRowsToShow
+} = useBlocks();
 
 /// TODO: get real analytics
 // const mockedCards = [
@@ -59,50 +69,61 @@ const rowOptions = [
   { label: '50', value: 50 },
   { label: '100', value: 100 },
 ];
-const rowsToShow = ref(rowOptions[0]);
 const currentPage = ref(Number(route.query.page) || 1);
+
+const selectedRowOption = computed({
+  get: () => rowOptions.find(option => option.value === rowsToShow.value) || rowOptions[0],
+  set: (value) => {
+    if (value) {
+      updateRowsToShow(value);
+    }
+  },
+});
 
 const totalPages = computed(() => {
   if (!totalCount.value) return 1;
-  return Math.ceil(totalCount.value / rowsToShow.value.value);
+  return Math.ceil(totalCount.value / rowsToShow.value);
 });
 
 watch(
   [currentPage, rowsToShow],
   ([newPage, newRows], [oldPage, oldRows]) => {
     const query = { ...route.query, page: newPage };
-    if (newRows.value !== oldRows?.value) {
+    if (newRows !== oldRows) {
       query.page = 1;
       currentPage.value = 1;
     }
     router.push({ query });
   },
-  { deep: true }
 );
 
 watch(
   [() => route.query.page, selectedNetwork, rowsToShow],
-  ([page, network], [oldPage, oldNetwork]) => {
+  ([page, network], [oldPage, oldNetwork, oldRows]) => {
     if (!network) {
       return;
     }
 
     const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
-
     if (networkChanged) {
       fetchTotalCount({ networkId: network.id });
-      if (Number(page) !== 1) {
-        router.push({ query: { page: 1 } });
-        return;
-      }
+    }
+
+    if (rowsToShow.value !== oldRows && Number(page) !== 1) {
+      router.push({ query: { page: 1 } });
+      return;
+    }
+
+    if (networkChanged && Number(page) !== 1) {
+      router.push({ query: { page: 1 } });
+      return;
     }
 
     const pageNumber = Number(page) || 1;
     const oldPageNumber = Number(oldPage) || 1;
 
-    const params: { networkId: string; limit: number, after?: string, before?: string } = {
+    const params: { networkId: string; after?: string, before?: string } = {
       networkId: network.id,
-      limit: rowsToShow.value.value
     };
 
     if (pageNumber > 1) {
@@ -149,7 +170,7 @@ function downloadData() {
       :subtitle="subtitle"
       v-model:currentPage="currentPage"
       :totalPages="totalPages"
-      v-model:selectedRows="rowsToShow"
+      v-model:selectedRows="selectedRowOption"
       :rowOptions="rowOptions"
       :has-next-page="pageInfo?.hasNextPage"
       :has-previous-page="pageInfo?.hasPreviousPage"

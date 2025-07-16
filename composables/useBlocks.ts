@@ -93,12 +93,18 @@ const processBlockDetails = (node: any) => {
   };
 };
 
+const blocks = ref<any[]>([]);
+const loading = ref(true);
+const { formatRelativeTime } = useFormat();
+const pageInfo = ref<any>(null);
+const totalCount = ref(0);
+const rowsToShow = ref<number>(25);
+
 export const useBlocks = () => {
-  const blocks = ref<any[]>([]);
-  const loading = ref(true);
-  const { formatRelativeTime } = useFormat();
-  const pageInfo = ref<any>(null);
-  const totalCount = ref(0);
+  const updateRowsToShow = (rows: any) => {
+    console.log("new rows", rows)
+    rowsToShow.value = rows.value;
+  };
 
   const fetchTotalCount = async ({ networkId }: { networkId: string }) => {
     if (!networkId) return;
@@ -118,17 +124,15 @@ export const useBlocks = () => {
 
   const fetchBlocks = async ({
     networkId,
-    limit,
     after,
     before,
   }: {
     networkId: string,
-    limit: number,
     after?: string,
     before?: string,
   }) => {
     if (!networkId) return;
-    loading.value = true;
+    loading.value = blocks.value.length === 0;
     try {
       const isForward = !!after || (!after && !before);
       const response: any = await $fetch('/api/graphql', {
@@ -138,8 +142,8 @@ export const useBlocks = () => {
           variables: {
             heightCount: 6,
             completedHeights: false,
-            first: isForward ? limit : null,
-            last: isForward ? null : limit,
+            first: isForward ? rowsToShow.value : null,
+            last: isForward ? null : rowsToShow.value,
             after,
             before,
           },
@@ -151,7 +155,7 @@ export const useBlocks = () => {
       pageInfo.value = result?.pageInfo || null;
 
       const rawBlocks = result?.edges || [];
-      blocks.value = rawBlocks.map((edge: any) => {
+      const blocksMap = rawBlocks.map((edge: any) => {
         const details = processBlockDetails(edge.node);
         return {
           block: edge.node.height,
@@ -162,6 +166,7 @@ export const useBlocks = () => {
           ...details,
         };
       });
+      blocks.value = blocksMap;
     } catch (error) {
       console.error('Error fetching or processing blocks:', error);
       blocks.value = [];
@@ -172,6 +177,8 @@ export const useBlocks = () => {
 
   return {
     blocks,
+    rowsToShow,
+    updateRowsToShow,
     loading,
     fetchBlocks,
     pageInfo,
