@@ -5,6 +5,7 @@ import { useTransactionCount } from '~/composables/useTransactionCount';
 import { useGasPriceStats } from '~/composables/useAverageGasPrice';
 import { useCustomCardSettings } from '~/composables/useCustomCardSettings';
 import { useSharedData } from '~/composables/useSharedData';
+import { useBinance } from '~/composables/useBinance';
 
 definePageMeta({
   layout: 'app',
@@ -15,11 +16,26 @@ useHead({
 })
 
 const { $coingecko } = useNuxtApp();
+const { fetchKadenaCandlestickData } = useBinance();
 const { kdaPrice, kdaVariation, kdaMarketCap, gasPriceStats: sharedGasStats } = useSharedData();
 
 // This part is complex because the original fetch also gets chart data.
 // For now, we will fetch it separately here. A deeper refactor could move this too.
 const { data: chartData, status: cgStatus } = await useAsyncData('home-chart-etl', async () => {
+  try {
+    const binanceData = await fetchKadenaCandlestickData('1d', 14);
+
+    if (binanceData && binanceData.data) {
+      const prices = binanceData.data.map((kline: any) => [
+        kline[0],
+        parseFloat(kline[4]),
+      ]);
+      return { prices };
+    }
+  } catch (error) {
+    console.error('Failed to fetch from Binance, falling back to CoinGecko', error);
+  }
+
   return await $coingecko.request('coins/kadena/market_chart', {
       days: 14,
       interval: 'daily',

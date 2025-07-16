@@ -1,5 +1,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useGasPriceStats, useIsInitialGasPrice } from '~/composables/useAverageGasPrice';
+import { useNetworkInfo } from '~/composables/useNetworkInfo';
+import { useBinance } from '~/composables/useBinance';
 
 // State for CoinGecko data
 const kadenaCoinData = ref<{
@@ -16,17 +18,25 @@ const kadenaCoinData = ref<{
 export async function fetchSharedKadenaData() {
   const { $coingecko } = useNuxtApp();
   const { fetchKadenaTickerData } = useBinance();
+  const { fetchCirculatingSupply } = useNetworkInfo();
 
   try {
-    const binanceData: any = await fetchKadenaTickerData();
-    if (binanceData && binanceData.data) {
-      kadenaCoinData.value.price = parseFloat(binanceData.data.lastPrice);
+    const [binanceData, networkInfo] = (await Promise.all([
+      fetchKadenaTickerData(),
+      fetchCirculatingSupply(),
+    ])) as [any, any];
+
+    if (binanceData?.data && networkInfo?.coinsInCirculation) {
+      const price = parseFloat(binanceData.data.lastPrice);
+      const circulatingSupply = networkInfo.coinsInCirculation;
+
+      kadenaCoinData.value.price = price;
       kadenaCoinData.value.variation = parseFloat(binanceData.data.priceChangePercent);
-      kadenaCoinData.value.marketCap = null;
+      kadenaCoinData.value.marketCap = price * circulatingSupply;
       return;
     }
   } catch (error) {
-    console.error('Failed to fetch Kadena data from Binance:', error);
+    console.error('Failed to fetch Kadena data from Binance or indexer:', error);
   }
 
   try {
