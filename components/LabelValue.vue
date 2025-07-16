@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Informational from '~/components/icon/Informational.vue';
 defineProps<{
   label: string;
   value?: string | number;
@@ -26,24 +27,21 @@ defineProps<{
         !row && 'w-full h-fullmin-w-[300px] max-w-[300px]',
       ]"
     >
-      <Tooltip
-        v-if="description"
-        :value="description"
-        :placement="tooltipPos"
-        :offset-distance="16"
-      >
+      <div class="flex items-center gap-2">
+        <Tooltip
+          v-if="description"
+          :value="description"
+          :placement="tooltipPos"
+          :offset-distance="16"
+        >
+          <Informational class="w-4 h-4" />
+        </Tooltip>
         <span
           class="text-[#bbbbbb] text-[15px] font-normal"
         >
           {{ label }}
         </span>
-      </Tooltip>
-      <span
-        v-else
-        class="text-[#bbbbbb] text-[15px] font-normal"
-      >
-        {{ label }}
-      </span>
+      </div>
     </div>
 
     <div

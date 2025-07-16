@@ -28,6 +28,7 @@ const textContent = {
   difficulty: { label: 'Difficulty:', description: 'A measure of how difficult it was to find a hash below the target for this block' },
   gasUsed: { label: 'Gas Used:', description: 'Total gas consumed by transactions in this block' },
   gasLimit: { label: 'Gas Limit:', description: 'Maximum gas allowed in the block' },
+  gasPrice: { label: 'Gas Price:', description: 'Average gas price of transactions in this block' },
   kadenaPrice: { label: 'Kadena Price:', description: 'Closing price of Kadena on date of transaction' },
   nonce: { label: 'Nonce:', description: 'A random value used by miners to create a valid proof-of-work hash' },
   epoch: { label: 'Epoch:', description: 'Start time of the current epoch' },
@@ -65,6 +66,7 @@ const {
   competingBlocks,
   canonicalIndex,
   totalGasUsed,
+  totalGasPrice,
   gasLoading,
   kadenaPrice,
 } = useBlock(height, chainId, networkId);
@@ -82,21 +84,24 @@ const blockStatus = computed(() => {
       text: 'Orphaned',
       icon: IconCancel,
       classes: 'bg-[#7f1d1d66] border-[#f87171] text-[#f87171]',
+      description: 'Block is not part of the canonical chain and is orphaned',
     };
   }
 
   if(block.value.canonical) {
     return {
-      text: 'Canonical',
+      text: 'Finalized',
       icon: IconCheckmarkFill,
       classes: 'bg-[#0f1f1d] border-[#00a186] text-[#00a186]',
+      description: 'Block is part of the canonical chain and safe to use',
     };
   }
 
   return {
-    text: 'Unconfirmed',
+    text: 'Pending',
     icon: IconHourglass,
     classes: 'bg-[#17150d] border-[#eab308] text-[#eab308]',
+    description: 'Block is not part of the canonical chain and is pending to be finalized or orphaned',
   };
 });
 
@@ -116,6 +121,16 @@ const formattedKadenaPrice = computed(() => {
     return 'N/A';
   }
   return `$${removeTrailingZeros(kadenaPrice.value)}`;
+});
+
+const formattedGasPrice = computed(() => {
+  if (totalGasPrice.value === null) {
+    return '0';
+  }
+  if(parseFloat(totalGasPrice.value) === 0) {
+    return '0';
+  }
+  return `${(totalGasPrice.value)} KDA`;
 });
 
 const minerAccount = computed(() => coinbaseData.value?.events?.[0]?.params?.[1]);
@@ -307,16 +322,18 @@ useHead({
                 </LabelValue>
                 <LabelValue :row="isMobile" :label="textContent.status.label" :description="textContent.status.description" tooltipPos="right">
                   <template #value>
-                    <div
-                      v-if="blockStatus"
-                      class="px-2 py-1.5 text-[11px] rounded-md border flex items-center gap-1 leading-none"
-                      :class="blockStatus.classes"
-                    >
-                      <component :is="blockStatus.icon" class="w-2.5 h-2.5" />
-                      <span>
-                        {{ blockStatus.text }}
-                      </span>
-                    </div>
+                    <Tooltip :value="blockStatus.description" :offset-distance="8">
+                      <div
+                        v-if="blockStatus"
+                        class="px-2 py-1.5 text-[11px] rounded-md border flex items-center gap-1 leading-none"
+                        :class="blockStatus.classes"
+                      >
+                        <component :is="blockStatus.icon" class="w-2.5 h-2.5" />
+                        <span>
+                          {{ blockStatus.text }}
+                        </span>
+                      </div>
+                  </Tooltip>
                   </template>
                 </LabelValue>
                 <LabelValue :label="textContent.creationTime.label" :description="textContent.creationTime.description" tooltipPos="right">
@@ -399,6 +416,7 @@ useHead({
                   </template>
                 </LabelValue>
                 <LabelValue :label="textContent.gasLimit.label" :description="textContent.gasLimit.description" value="150,000" tooltipPos="right" />
+                <LabelValue :label="textContent.gasPrice.label" :description="textContent.gasPrice.description" :value="formattedGasPrice" tooltipPos="right" />
                 <LabelValue :label="textContent.kadenaPrice.label" :description="textContent.kadenaPrice.description" :value="formattedKadenaPrice" tooltipPos="right" />
               </div>
             </DivideItem>
