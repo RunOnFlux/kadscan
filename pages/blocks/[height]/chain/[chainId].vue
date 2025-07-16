@@ -1,31 +1,61 @@
 <script lang="ts" setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onUnmounted, onMounted } from 'vue';
 import { useFormat } from '~/composables/useFormat';
 import { useBlock } from '~/composables/useBlock';
 import { useBlocks } from '~/composables/useBlocks';
 import { useSharedData } from '~/composables/useSharedData';
+import { useScreenSize } from '~/composables/useScreenSize';
 import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
 import IconHourglass from '~/components/icon/Hourglass.vue';
 import IconCancel from '~/components/icon/Cancel.vue';
 import GasUsage from '~/components/column/Gas.vue';
 import SkeletonBlockDetails from '~/components/skeleton/BlockDetails.vue';
+import { useBinance } from '~/composables/useBinance';
 
 definePageMeta({
   layout: 'app',
 });
 
-const activeView = ref('overview');
+const textContent = {
+  blockHeight: { label: 'Block Height:', description: 'The unique numerical position of the block in the blockchain' },
+  chainId: { label: 'Chain ID:', description: 'The specific chain (0-19) on which this block was mined' },
+  status: { label: 'Status:', description: 'Indicates if the block is confirmed and part of the canonical chain' },
+  creationTime: { label: 'Creation Time:', description: 'Timestamp when the block was created' },
+  transactions: { label: 'Transactions:', description: 'Transactions included in this block' },
+  events: { label: 'Events:', description: 'Number of events emitted by the block’s transactions' },
+  minerAccount: { label: 'Miner Account:', description: 'Address of the miner who produced this block' },
+  blockReward: { label: 'Block Reward:', description: 'Amount of KDA awarded for mining this block' },
+  difficulty: { label: 'Difficulty:', description: 'A measure of how difficult it was to find a hash below the target for this block' },
+  gasUsed: { label: 'Gas Used:', description: 'Total gas consumed by transactions in this block' },
+  gasLimit: { label: 'Gas Limit:', description: 'Maximum gas allowed in the block' },
+  kadenaPrice: { label: 'Kadena Price:', description: 'Closing price of Kadena on date of transaction' },
+  nonce: { label: 'Nonce:', description: 'A random value used by miners to create a valid proof-of-work hash' },
+  epoch: { label: 'Epoch:', description: 'Start time of the current epoch' },
+  flags: { label: 'Flags:', description: 'Hex-encoded bits used for configuration' },
+  target: { label: 'Target:', description: 'Hash must be below this value to be valid' },
+  weight: { label: 'Weight:', description: 'Cumulative difficulty up to this block' },
+  hash: { label: 'Hash:', description: 'Unique hash of this block (header hash)' },
+  parentHash: { label: 'Parent Hash:', description: 'Hash of the previous block in this chain' },
+  powHash: { label: 'POW Hash:', description: 'Hash result of the proof-of-work computation' },
+  payloadHash: { label: 'Payload Hash:', description: 'Hash of the block’s transaction payload' },
+  neighbor: { label: 'Neighbor at Chain #', description: 'Block at same height on another chain' },
+  moreDetails: { label: 'More Details' },
+};
 
-const { formatFullDate, truncateAddress } = useFormat();
+
+const { formatFullDate, truncateAddress, removeTrailingZeros } = useFormat();
 const route = useRoute();
 const router = useRouter();
+const { isMobile } = useScreenSize();
 const { selectedNetwork } = useSharedData();
 const { totalCount: lastBlockHeight, fetchTotalCount } = useBlocks();
 
+const activeView = ref('overview');
 const showMore = ref(false);
 const height = computed(() => Number(route.params.height));
 const chainId = computed(() => Number(route.params.chainId));
 const networkId = computed(() => selectedNetwork.value?.id);
+const selectedBlockIndex = ref(0);
 
 const {
   block: initialBlock,
@@ -36,19 +66,8 @@ const {
   canonicalIndex,
   totalGasUsed,
   gasLoading,
+  kadenaPrice,
 } = useBlock(height, chainId, networkId);
-
-watch(
-  networkId,
-  (newNetworkId) => {
-    if (newNetworkId) {
-      fetchTotalCount({ networkId: newNetworkId });
-    }
-  },
-  { immediate: true }
-);
-
-const selectedBlockIndex = ref(0);
 
 const block = computed(() => {
   if (competingBlocks.value.length > 0) {
@@ -57,24 +76,10 @@ const block = computed(() => {
   return initialBlock.value;
 });
 
-watch(
-  canonicalIndex,
-  (newIndex) => {
-    if (newIndex !== -1) {
-      selectedBlockIndex.value = newIndex;
-    }
-  },
-  { immediate: true }
-);
-
 const blockStatus = computed(() => {
-  if (!block.value || !lastBlockHeight.value) {
-    return null;
-  }
-
-  if(lastBlockHeight.value - 8 >= block.value.height && !block.value.canonical) {
+  if(lastBlockHeight.value - 10 >= block.value.height && !block.value.canonical) {
     return {
-      text: 'Failed',
+      text: 'Orphaned',
       icon: IconCancel,
       classes: 'bg-[#7f1d1d66] border-[#f87171] text-[#f87171]',
     };
@@ -82,14 +87,14 @@ const blockStatus = computed(() => {
 
   if(block.value.canonical) {
     return {
-      text: 'Finalized',
+      text: 'Canonical',
       icon: IconCheckmarkFill,
       classes: 'bg-[#0f1f1d] border-[#00a186] text-[#00a186]',
     };
   }
 
   return {
-    text: 'Pending',
+    text: 'Unconfirmed',
     icon: IconHourglass,
     classes: 'bg-[#17150d] border-[#eab308] text-[#eab308]',
   };
@@ -106,21 +111,85 @@ const coinbaseData = computed(() => {
   }
 });
 
+const formattedKadenaPrice = computed(() => {
+  if (kadenaPrice.value === null) {
+    return 'N/A';
+  }
+  return `$${removeTrailingZeros(kadenaPrice.value)}`;
+});
+
 const minerAccount = computed(() => coinbaseData.value?.events?.[0]?.params?.[1]);
 const blockReward = computed(() => coinbaseData.value?.events?.[0]?.params?.[2]);
+const isLastBlock = computed(() => lastBlockHeight.value === height.value);
 
 const goToBlock = (newHeight: number, newChainId: number) => {
   if (newHeight < 0) return;
   router.push(`/blocks/${newHeight}/chain/${newChainId}`);
 };
 
-const isLastBlock = computed(() => lastBlockHeight.value === height.value);
+let pollingInterval: ReturnType<typeof setInterval> | null = null;
+
+const stopPolling = () => {
+  if (pollingInterval) {
+    clearInterval(pollingInterval);
+    pollingInterval = null;
+  }
+};
+
+const startPolling = () => {
+  stopPolling();
+  pollingInterval = setInterval(() => {
+    if (networkId.value) {
+      fetchBlock();
+      fetchTotalCount({ networkId: networkId.value });
+    }
+  }, 2000);
+};
+
+onUnmounted(() => {
+  stopPolling();
+});
 
 watch(
   [height, chainId, networkId],
   () => {
     if (networkId.value) {
       fetchBlock();
+    }
+  },
+  { immediate: true }
+);
+
+watch(
+  [() => block.value, lastBlockHeight],
+  ([currentBlock, newLastBlockHeight]) => {
+    const isCanonical = currentBlock?.canonical;
+    const isOldEnough = newLastBlockHeight - height.value >= 6;
+
+    if (isCanonical || isOldEnough) {
+      stopPolling();
+    } else {
+      startPolling();
+    }
+  },
+  { deep: true }
+);
+
+watch(
+  networkId,
+  (newNetworkId) => {
+    if (newNetworkId) {
+      fetchTotalCount({ networkId: newNetworkId });
+    }
+  },
+  { immediate: true }
+);
+
+watch(
+  canonicalIndex,
+  (newIndex) => {
+    if (newIndex !== -1) {
+      selectedBlockIndex.value = newIndex;
     }
   },
   { immediate: true }
@@ -142,57 +211,16 @@ useHead({
       >
     </div>
 
-    <SkeletonBlockDetails v-if="loading" />
+    <SkeletonBlockDetails v-if="loading && !pollingInterval" />
 
     <div
       v-else-if="error || !block"
       class="bg-[#111111] border items-center justify-center border-[#222222] rounded-xl p-8 text-white"
     >
-      Block not found. It may not exist or has not been indexed yet. TODO: Cooler screen for this :D 
+      Block not found. It may not exist or has not been indexed yet. I own you a cool screen displaying the estimated time to index this block.
     </div>
 
     <div v-else>
-      <div
-        v-if="competingBlocks.length > 1 && canonicalIndex === -1"
-        class="w-full p-4 text-center mb-1 text-[15px] rounded-xl border bg-red-900/40 border-red-400 text-red-400"
-      >
-        <span>
-          Multiple competing blocks have been detected. Please wait for one to
-          be finalized.
-        </span>
-      </div>
-
-      <div
-        v-if="competingBlocks.length > 1 && canonicalIndex !== -1"
-        class="w-full p-4 text-center mb-1 text-[15px] rounded-xl border bg-[#0f1f1d] border-[#00a186] text-[#00a186]"
-      >
-        <span v-if="canonicalIndex !== -1">
-          This block had multiple versions, and
-          <strong>Index {{ canonicalIndex }}</strong> is the canonical one.
-        </span>
-      </div>
-
-      <div
-        v-if="competingBlocks.length > 1"
-        class="pt-2 pb-5 flex gap-2 overflow-x-auto border-b border-[#222222] mb-6"
-      >
-        <button
-          v-for="(competingBlock, index) in competingBlocks.slice(0, 10)"
-          :key="index"
-          @click="selectedBlockIndex = index"
-          class="px-3 py-1.5 text-[13px] rounded-xl border transition-colors"
-          :class="
-            (canonicalIndex === index && selectedBlockIndex === index)
-              ? 'bg-[#0f1f1d] border border-[#00a186] rounded-lg text-[#00a186]'
-              : selectedBlockIndex === index
-              ? 'bg-[#7f1d1d66] border border-[#f87171] rounded-lg text-[#f87171]'
-              : 'bg-[#111111] border border-[#222222] rounded-lg text-[#bbbbbb] hover:bg-[#222222] hover:text-[#fafafa]'
-          "
-        >
-          Index {{ index }}
-        </button>
-      </div>
-
       <div class="flex items-center gap-2 mb-2">
         <button
           class="px-[10px] py-[5px] text-[13px] rounded-lg border font-medium transition-colors bg-[#009367] border-[#222222] text-[#f5f5f5]"
@@ -205,17 +233,6 @@ useHead({
         >
           Overview
         </button>
-        <button
-          class="px-[10px] py-[5px] text-[13px] rounded-lg border font-medium transition-colors bg-[#009367] border-[#222222] text-[#f5f5f5]"
-          :class="{
-            'bg-[#009367] text-[#f5f5f5]': activeView === 'neighbors',
-            'bg-transparent text-[#bbbbbb] hover:bg-[#222222]':
-              activeView !== 'neighbors',
-          }"
-          @click="activeView = 'neighbors'"
-        >
-          Neighbors
-        </button>
       </div>
 
       <div v-if="activeView === 'overview'">
@@ -226,7 +243,7 @@ useHead({
             <!-- Section 1: Core Information -->
             <DivideItem>
               <div class="flex flex-col gap-4">
-                <LabelValue label="Block Height">
+                <LabelValue :row="isMobile" :label="textContent.blockHeight.label" :description="textContent.blockHeight.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-2">
                       <span class="text-[#f5f5f5]">{{ block.height }}</span>
@@ -261,7 +278,7 @@ useHead({
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue label="Chain ID">
+                <LabelValue :row="isMobile" :label="textContent.chainId.label" :description="textContent.chainId.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-2">
                       <span>{{ String(block.chainId) }}</span>
@@ -278,7 +295,7 @@ useHead({
                         <Tooltip value="View next Chain" :offset-distance="8">
                           <button
                             @click="goToBlock(height, chainId + 1)"
-                            :disabled="chainId === 20"
+                            :disabled="chainId === 19"
                             class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#fafafa] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3" />
@@ -288,21 +305,21 @@ useHead({
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue label="Status">
+                <LabelValue :row="isMobile" :label="textContent.status.label" :description="textContent.status.description" tooltipPos="right">
                   <template #value>
                     <div
                       v-if="blockStatus"
-                      class="px-2 py-1 text-[12px] rounded-md border flex items-center gap-1"
+                      class="px-2 py-1.5 text-[11px] rounded-md border flex items-center gap-1 leading-none"
                       :class="blockStatus.classes"
                     >
-                      <component :is="blockStatus.icon" class="w-3 h-3" />
+                      <component :is="blockStatus.icon" class="w-2.5 h-2.5" />
                       <span>
                         {{ blockStatus.text }}
                       </span>
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue label="Creation Time">
+                <LabelValue :label="textContent.creationTime.label" :description="textContent.creationTime.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-1 text-white">
                       <IconClock class="w-4 h-4" />
@@ -310,19 +327,28 @@ useHead({
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue label="Transactions">
+                <LabelValue
+                  :label="textContent.transactions.label"
+                  :value="block.transactions.totalCount"
+                  :description="textContent.transactions.description"
+                  tooltipPos="right"
+                >
                   <template #value>
-                    <NuxtLink
-                      :to="`/transactions?block=${block.hash}`"
-                      class="text-[#6ab5db] hover:text-[#9ccee7]"
-                    >
-                      {{ block.transactions.totalCount }} transactions
-                    </NuxtLink>
+                    <Tooltip value="Click to view Transactions">
+                      <NuxtLink
+                        :to="`/transactions?block=${block.height}&chainId=${block.chainId}`"
+                        class="text-[#6ab5db] hover:text-[#9ccee7]"
+                      >
+                        {{ block.transactions.totalCount }} transactions in this block
+                      </NuxtLink>
+                    </Tooltip>
                   </template>
                 </LabelValue>
                 <LabelValue
-                  label="Events"
-                  :value="`${block.events.totalCount} events`"
+                  :label="textContent.events.label"
+                  :description="textContent.events.description"
+                  :value="`${block.events.totalCount} events in this block`"
+                  tooltipPos="right"
                 />
               </div>
             </DivideItem>
@@ -330,7 +356,7 @@ useHead({
             <!-- Section 2: Miner and Difficulty -->
             <DivideItem>
               <div class="flex flex-col gap-4">
-                <LabelValue label="Miner Account">
+                <LabelValue :label="textContent.minerAccount.label" :description="textContent.minerAccount.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-2">
                       <Tooltip :value="minerAccount" variant="hash">
@@ -351,92 +377,174 @@ useHead({
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue label="Block Reward">
+                <LabelValue :label="textContent.blockReward.label" :description="textContent.blockReward.description" tooltipPos="right">
                   <template #value v-if="blockReward != null">
                     {{ blockReward }} KDA
                   </template>
                 </LabelValue>
-                <LabelValue label="Difficulty" :value="block.difficulty" />
+                <LabelValue :label="textContent.difficulty.label" :description="textContent.difficulty.description" :value="block.difficulty" tooltipPos="right" />
+                <LabelValue :label="textContent.nonce.label" :description="textContent.nonce.description" :value="block.nonce" tooltipPos="right" />
               </div>
             </DivideItem>
 
             <!-- Section 3: Gas -->
             <DivideItem>
               <div class="flex flex-col gap-4">
-                <LabelValue label="Gas Used">
+                <LabelValue :label="textContent.gasUsed.label" :description="textContent.gasUsed.description" tooltipPos="right">
                   <template #value>
-                    <span v-if="gasLoading">Calculating...</span>
                     <GasUsage
-                      v-else
                       :gas="totalGasUsed"
                       :gas-limit="150000"
                     />
                   </template>
                 </LabelValue>
-                <LabelValue label="Gas Limit" value="150,000" />
-                <LabelValue label="Nonce" :value="block.nonce" />
+                <LabelValue :label="textContent.gasLimit.label" :description="textContent.gasLimit.description" value="150,000" tooltipPos="right" />
+                <LabelValue :label="textContent.kadenaPrice.label" :description="textContent.kadenaPrice.description" :value="formattedKadenaPrice" tooltipPos="right" />
               </div>
             </DivideItem>
           </Divide>
         </div>
+
+        <!-- More Details -->
         <div
           v-if="!loading && !error && block"
           class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5"
         >
           <Divide>
+            <!-- Epoch -->
             <DivideItem v-if="showMore">
               <div class="flex flex-col gap-4">
                 <LabelValue
-                  label="Epoch"
-                  :value="formatFullDate(block.epoch)"
-                />
-                <LabelValue label="Flags" :value="block.flags" />
-                <LabelValue label="Target" :value="block.target" />
-                <LabelValue label="Weight" :value="block.weight" />
-              </div>
-            </DivideItem>
-            <DivideItem v-if="showMore">
-              <div class="flex flex-col gap-4">
-                <LabelValue label="Hash" :value="block.hash" />
-                <LabelValue label="Parent Hash">
+                  :label="textContent.epoch.label"
+                  :description="textContent.epoch.description"
+                  tooltipPos="right"
+                >
                   <template #value>
                     <div class="flex items-center gap-2">
-                      <Tooltip :value="block.parent.hash" variant="hash">
-                        <NuxtLink
+                      <span>{{ formatFullDate(block.epoch) }}</span>
+                    </div>
+                  </template>
+                </LabelValue>
+                <LabelValue :label="textContent.flags.label" :description="textContent.flags.description" tooltipPos="right">
+                  <template #value>
+                    <div class="flex items-center gap-2">
+                      <span>{{ block.flags }}</span>
+                    </div>
+                  </template>
+                </LabelValue>
+                <LabelValue :label="textContent.weight.label" :description="textContent.weight.description" tooltipPos="right">
+                  <template #value>
+                    <div class="flex items-center gap-2">
+                      <span>{{ block.weight }}</span>
+                    </div>
+                  </template>
+                </LabelValue>
+                <LabelValue :label="textContent.target.label" :description="textContent.target.description" tooltipPos="right">
+                  <template #value>
+                    <div class="flex items-center gap-2">
+                      <span>{{ block.target }}</span>
+                    </div>
+                  </template>
+                </LabelValue>
+              </div>
+            </DivideItem>
+
+            <!-- Hash -->
+            <DivideItem v-if="showMore">
+              <div class="flex flex-col gap-4">
+                <LabelValue :label="textContent.hash.label" :description="textContent.hash.description" tooltipPos="right">
+                  <template #value>
+                    <div class="flex items-center gap-2">
+                      <span>{{ block.hash }}</span>
+                    </div>
+                  </template>
+                </LabelValue>
+                <LabelValue :label="textContent.parentHash.label" :description="textContent.parentHash.description" tooltipPos="right">
+                  <template #value>
+                    <div class="flex items-center gap-2">
+                      <NuxtLink
                           :to="`/blocks/${block.parent.height}/chain/${block.parent.chainId}`"
                           class="text-[#6ab5db] hover:text-[#9ccee7]"
                         >
                           {{ block.parent.hash }}
-                        </NuxtLink>
-                      </Tooltip>
+                      </NuxtLink>
+                      <Copy
+                        :value="block.parent.hash"
+                        tooltipText="Copy Parent Hash"
+                        iconSize="h-5 w-5"
+                        buttonClass="w-5 h-5"
+                      />
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue
-                  tooltipText="Copy POW Hash"
-                  label="POW Hash"
-                  :value="block.powHash"
-                />
-                <LabelValue
-                  tooltipText="Copy Payload Hash"
-                  label="Payload Hash"
-                  :value="block.payloadHash"
-                />
+                <LabelValue :label="textContent.powHash.label" :description="textContent.powHash.description" tooltipPos="right">
+                   <template #value>
+                    <div class="flex items-center gap-2">
+                      <span>{{ block.powHash }}</span>
+                    </div>
+                  </template>
+                </LabelValue>
+                <LabelValue :label="textContent.payloadHash.label" :description="textContent.payloadHash.description" tooltipPos="right">
+                  <template #value>
+                    <div class="flex items-center gap-2">
+                      <span>{{ block.payloadHash }}</span>
+
+                    </div>
+                  </template>
+                </LabelValue>
               </div>
             </DivideItem>
+
+            <!-- Neighbors -->
+            <DivideItem v-if="showMore">
+              <div
+                v-if="block.neighbors && block.neighbors.length > 0"
+                class="flex flex-col gap-4"
+              >
+                <LabelValue
+                  v-for="neighbor in block.neighbors"
+                  :key="neighbor.hash"
+                  :label="`${textContent.neighbor.label}${neighbor.chainId}`"
+                  :description="textContent.neighbor.description"
+                  tooltipPos="right"
+                >
+                  <template #value>
+                    <div class="flex items-center gap-2">
+                      <NuxtLink
+                        :to="`/blocks/${block.height}/chain/${neighbor.chainId}`"
+                        class="text-[15px] text-[#6ab5db] hover:text-[#9ccee7]"
+                        >{{ neighbor.hash }}</NuxtLink
+                      >
+                      <Copy
+                        :value="neighbor.hash"
+                        tooltipText="Copy Block Hash"
+                        iconSize="h-5 w-5"
+                        buttonClass="w-5 h-5"
+                      />
+                    </div>
+                  </template>
+                </LabelValue>
+              </div>
+              <div v-else class="text-gray-500">No neighbors found for this block.</div>
+            </DivideItem>
+
+            <!-- More Details -->
             <DivideItem>
-              <LabelValue label="More Details:">
+              <LabelValue
+                :label="isMobile ? '' : textContent.moreDetails.label"
+                tooltipPos="right"
+              >
                 <template #value>
                   <button
                     @click="showMore = !showMore"
                     class="text-[#6ab5db] hover:text-[#9ccee7] flex items-center gap-1 whitespace-nowrap"
                   >
                     <template v-if="!showMore">
-                      <span>+</span>
+                      <span v-if="!isMobile">+</span>
                       <span>Click to show more</span>
                     </template>
                     <template v-else>
-                      <span>-</span>
+                      <span v-if="!isMobile">-</span>
                       <span>Click to show less</span>
                     </template>
                   </button>
@@ -445,32 +553,6 @@ useHead({
             </DivideItem>
           </Divide>
         </div>
-      </div>
-
-      <div
-        v-if="activeView === 'neighbors'"
-        class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5"
-      >
-        <div
-          v-if="block.neighbors && block.neighbors.length > 0"
-          class="flex flex-col gap-4"
-        >
-          <div
-            v-for="neighbor in block.neighbors"
-            :key="neighbor.hash"
-            class="flex items-center"
-          >
-            <span class="text-[#bbbbbb] text-[15px] min-w-[300px]">Chain {{ neighbor.chainId }}</span>
-            <div class="flex items-center gap-2">
-              <NuxtLink
-                :to="`/blocks/${block.height}/chain/${neighbor.chainId}`"
-                class="text-[#6ab5db] hover:text-[#9ccee7]"
-                >{{ neighbor.hash }}</NuxtLink
-              >
-            </div>
-          </div>
-        </div>
-        <div v-else class="text-gray-500">No neighbors found for this block.</div>
       </div>
     </div>
   </div>

@@ -2,7 +2,11 @@ import { ref, computed, onMounted } from 'vue';
 import { useGasPriceStats, useIsInitialGasPrice } from '~/composables/useAverageGasPrice';
 
 // State for CoinGecko data
-const kadenaCoinData = ref({
+const kadenaCoinData = ref<{
+  price: number | null,
+  variation: number | null,
+  marketCap: number | null
+}>({
   price: null,
   variation: null,
   marketCap: null,
@@ -11,6 +15,20 @@ const kadenaCoinData = ref({
 // Function to fetch CoinGecko data
 export async function fetchSharedKadenaData() {
   const { $coingecko } = useNuxtApp();
+  const { fetchKadenaTickerData } = useBinance();
+
+  try {
+    const binanceData: any = await fetchKadenaTickerData();
+    if (binanceData && binanceData.data) {
+      kadenaCoinData.value.price = parseFloat(binanceData.data.lastPrice);
+      kadenaCoinData.value.variation = parseFloat(binanceData.data.priceChangePercent);
+      kadenaCoinData.value.marketCap = null;
+      return;
+    }
+  } catch (error) {
+    console.error('Failed to fetch Kadena data from Binance:', error);
+  }
+
   try {
     const data = await $coingecko.request('coins/kadena');
     kadenaCoinData.value.price = data?.market_data?.current_price?.usd ?? null;

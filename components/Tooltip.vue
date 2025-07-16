@@ -7,14 +7,16 @@ const props = withDefaults(defineProps<{
   variant?: 'default' | 'hash',
   offsetDistance?: number,
   disabled?: boolean,
+  placement?: 'top' | 'right' | 'bottom' | 'left',
 }>(), {
   offsetDistance: 4,
   disabled: false,
+  placement: 'top',
 });
 
 const isVisible = ref(false);
 const [reference, popper, instance] = usePopper({
-  placement: 'top',
+  placement: props.placement,
   offsetDistance: props.offsetDistance
 });
 
@@ -40,6 +42,22 @@ const tooltipClass = computed(() => {
   }
   return `${base} max-w-[200px]`;
 });
+
+const arrowClass = computed(() => {
+  const base = '-z-10 absolute w-3 h-3 bg-[#313131] rotate-45';
+  switch (props.placement) {
+    case 'top':
+      return `${base} left-1/2 -translate-x-1/2 bottom-[-4px]`;
+    case 'right':
+      return `${base} left-[-4px] top-1/2 -translate-y-1/2`;
+    case 'bottom':
+      return `${base} left-1/2 -translate-x-1/2 top-[-4px]`;
+    case 'left':
+      return `${base} right-[-4px] top-1/2 -translate-y-1/2`;
+    default:
+      return '';
+  }
+});
 </script>
 
 <template>
@@ -57,9 +75,9 @@ const tooltipClass = computed(() => {
           v-show="isVisible"
           :class="tooltipClass"
         >
-          <div class="bg-[#313131] text-[#e5e5e5] text-xs px-2 py-1 rounded-md shadow-lg relative text-center">
+          <div class="z-[10] bg-[#313131] text-[#e5e5e5] text-xs px-2 py-1 rounded-md shadow-lg relative text-center isolate">
             {{ value }}
-            <div class="absolute w-3 h-3 bg-[#313131] rotate-45 left-1/2 -translate-x-1/2 bottom-[-4px]"></div>
+            <div :class="arrowClass"></div>
           </div>
         </div>
       </Transition>

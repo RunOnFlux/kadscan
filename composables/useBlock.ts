@@ -1,4 +1,5 @@
 import { ref } from 'vue';
+import { useBinance } from '~/composables/useBinance';
 
 const GQL_QUERY = `
   query blocksFromHeight($startHeight: Int!, $endHeight: Int, $chainIds: [String!]) {
@@ -67,18 +68,41 @@ const BLOCK_TRANSACTIONS_QUERY = `
   }
 `;
 
+const block = ref<any>(null);
+const competingBlocks = ref<any[]>([]);
+const canonicalIndex = ref(-1);
+const loading = ref(true);
+const error = ref<any>(null);
+const kadenaPrice = ref<number | null>(null);
+const kadenaPriceLastDay = ref<Date | null>(null);
+const totalGasUsed = ref<number | null>(null);
+const gasLoading = ref(false);
+
 export const useBlock = (
   height: Ref<number>,
   chainId: Ref<number>,
   networkId: Ref<string | undefined>
 ) => {
-  const block = ref<any>(null);
-  const competingBlocks = ref<any[]>([]);
-  const canonicalIndex = ref(-1);
-  const loading = ref(true);
-  const error = ref<any>(null);
-  const totalGasUsed = ref<number | null>(null);
-  const gasLoading = ref(false);
+  const { fetchKadenaPriceAtDate } = useBinance();
+
+  const fetchKadenaPrice = async (newCreationTime: any) => {
+    if (!block.value?.creationTime) {
+      return;
+    }
+    
+    let newCreationTimeDayOnly = new Date(newCreationTime);
+    newCreationTimeDayOnly.setUTCHours(0, 0, 0, 0);
+    let creationTimeDayOnly = new Date(block.value.creationTime);
+    creationTimeDayOnly.setUTCHours(0, 0, 0, 0);
+    
+    if (kadenaPrice.value === null || kadenaPriceLastDay.value?.getTime() !== newCreationTimeDayOnly.getTime()) {
+      const priceData: any = await fetchKadenaPriceAtDate(newCreationTimeDayOnly);
+      kadenaPriceLastDay.value = newCreationTimeDayOnly;
+      if (priceData && priceData.price) {
+        kadenaPrice.value = priceData.price;
+      }
+    }
+  };
 
   const calculateTotalGas = async () => {
     if (!block.value || !networkId.value) {
@@ -86,11 +110,14 @@ export const useBlock = (
     }
 
     gasLoading.value = true;
-    totalGasUsed.value = 0;
+    if (totalGasUsed.value === null) {
+      totalGasUsed.value = 0;
+    }
     let hasNextPage = true;
     let cursor: string | undefined = undefined;
 
     try {
+      let gasAccumulator = 0;
       while (hasNextPage) {
         const response: any = await $fetch('/api/graphql', {
           method: 'POST',
@@ -114,14 +141,19 @@ export const useBlock = (
         const txEdges = response.data?.blocksFromHeight?.edges?.[0]?.node?.transactions?.edges || [];
         const pageInfo = response.data?.blocksFromHeight?.edges?.[0]?.node?.transactions?.pageInfo;
 
+
         for (const edge of txEdges) {
           if (edge.node?.result?.gas) {
-            totalGasUsed.value += Number(edge.node.result.gas);
+            gasAccumulator += Number(edge.node.result.gas);
           }
         }
 
         hasNextPage = pageInfo?.hasNextPage || false;
         cursor = pageInfo?.endCursor;
+      }
+
+      if(totalGasUsed.value !== gasAccumulator) {
+        totalGasUsed.value = gasAccumulator;
       }
     } catch (e) {
       console.error('Error calculating total gas:', e);
@@ -136,7 +168,7 @@ export const useBlock = (
       return;
     }
 
-    loading.value = true;
+    loading.value = block.value === null;
     error.value = null;
     competingBlocks.value = [];
     canonicalIndex.value = -1;
@@ -178,11 +210,11 @@ export const useBlock = (
 
       if (block.value) {
         calculateTotalGas();
+        fetchKadenaPrice(block.value.creationTime);
       }
     } catch (e) {
       error.value = e;
       block.value = null;
-      console.error('Error fetching or processing block:', e);
     } finally {
       loading.value = false;
     }
@@ -195,6 +227,9 @@ export const useBlock = (
     loading,
     error,
     fetchBlock,
+    fetchKadenaPrice,
+    kadenaPrice,
+    kadenaPriceLastDay,
     totalGasUsed,
     gasLoading,
   };
