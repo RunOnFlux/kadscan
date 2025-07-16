@@ -36,7 +36,7 @@ useHead({
 
 <style>
   body {
-    background-color: #131313;
+    background-color: #171717;
     height: 100%;
   }
 
