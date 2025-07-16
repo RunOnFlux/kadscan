@@ -28,7 +28,7 @@ const textContent = {
   difficulty: { label: 'Difficulty:', description: 'A measure of how difficult it was to find a hash below the target for this block' },
   gasUsed: { label: 'Gas Used:', description: 'Total gas consumed by transactions in this block' },
   gasLimit: { label: 'Gas Limit:', description: 'Maximum gas allowed in the block' },
-  kadenaPrice: { label: 'Kadena Price:', description: 'Price of Kadena at the time this block was created' },
+  kadenaPrice: { label: 'Kadena Price:', description: 'Closing price of Kadena on date of transaction' },
   nonce: { label: 'Nonce:', description: 'A random value used by miners to create a valid proof-of-work hash' },
   epoch: { label: 'Epoch:', description: 'Start time of the current epoch' },
   flags: { label: 'Flags:', description: 'Hex-encoded bits used for configuration' },
@@ -49,9 +49,7 @@ const router = useRouter();
 const { isMobile } = useScreenSize();
 const { selectedNetwork } = useSharedData();
 const { totalCount: lastBlockHeight, fetchTotalCount } = useBlocks();
-const { fetchKadenaPriceAtTimestamp } = useBinance();
 
-const kadenaPrice = ref(null);
 const activeView = ref('overview');
 const showMore = ref(false);
 const height = computed(() => Number(route.params.height));
@@ -68,6 +66,7 @@ const {
   canonicalIndex,
   totalGasUsed,
   gasLoading,
+  kadenaPrice,
 } = useBlock(height, chainId, networkId);
 
 const block = computed(() => {
@@ -110,6 +109,13 @@ const coinbaseData = computed(() => {
   } catch (e) {
     return null;
   }
+});
+
+const formattedKadenaPrice = computed(() => {
+  if (kadenaPrice.value === null) {
+    return 'N/A';
+  }
+  return `$${removeTrailingZeros(kadenaPrice.value)}`;
 });
 
 const minerAccount = computed(() => coinbaseData.value?.events?.[0]?.params?.[1]);
@@ -184,19 +190,6 @@ watch(
   (newIndex) => {
     if (newIndex !== -1) {
       selectedBlockIndex.value = newIndex;
-    }
-  },
-  { immediate: true }
-);
-
-watch(
-  () => block.value?.creationTime,
-  async (creationTime) => {
-    if (creationTime) {
-      const priceData = await fetchKadenaPriceAtTimestamp(creationTime);
-      if (priceData && priceData.price) {
-        kadenaPrice.value = `$${removeTrailingZeros(priceData.price)}`;
-      }
     }
   },
   { immediate: true }

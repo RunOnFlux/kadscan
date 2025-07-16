@@ -61,7 +61,7 @@ export const useBinance = () => {
     }
   };
 
-  const fetchKadenaPriceAtTimestamp = async (timestamp: string) => {
+  const fetchKadenaPriceAtDate = async (timestamp: Date) => {
     try {
       const response: any = await $fetch('/api/binance', {
         method: 'POST',
@@ -69,8 +69,8 @@ export const useBinance = () => {
           action: 'getKadenaCandlestickData',
           params: {
             symbol: 'KDAUSDT',
-            interval: '1m',
-            startTime: new Date(timestamp).getTime(),
+            interval: '1d',
+            startTime: timestamp.getTime(),
             limit: 1,
           },
         },
@@ -93,6 +93,6 @@ export const useBinance = () => {
     fetchKadenaPrice,
     fetchKadenaTickerData,
     fetchKadenaCandlestickData,
-    fetchKadenaPriceAtTimestamp,
+    fetchKadenaPriceAtDate,
   };
 }; 

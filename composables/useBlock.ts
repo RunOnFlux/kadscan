@@ -1,4 +1,5 @@
 import { ref } from 'vue';
+import { useBinance } from '~/composables/useBinance';
 
 const GQL_QUERY = `
   query blocksFromHeight($startHeight: Int!, $endHeight: Int, $chainIds: [String!]) {
@@ -72,6 +73,8 @@ const competingBlocks = ref<any[]>([]);
 const canonicalIndex = ref(-1);
 const loading = ref(true);
 const error = ref<any>(null);
+const kadenaPrice = ref<number | null>(null);
+const kadenaPriceLastDay = ref<Date | null>(null);
 const totalGasUsed = ref<number | null>(null);
 const gasLoading = ref(false);
 
@@ -80,6 +83,27 @@ export const useBlock = (
   chainId: Ref<number>,
   networkId: Ref<string | undefined>
 ) => {
+  const { fetchKadenaPriceAtDate } = useBinance();
+
+  const fetchKadenaPrice = async (newCreationTime: any) => {
+    if (!block.value?.creationTime) {
+      return;
+    }
+    
+    let newCreationTimeDayOnly = new Date(newCreationTime);
+    newCreationTimeDayOnly.setUTCHours(0, 0, 0, 0);
+    let creationTimeDayOnly = new Date(block.value.creationTime);
+    creationTimeDayOnly.setUTCHours(0, 0, 0, 0);
+    
+    if (kadenaPrice.value === null || kadenaPriceLastDay.value?.getTime() !== newCreationTimeDayOnly.getTime()) {
+      const priceData: any = await fetchKadenaPriceAtDate(newCreationTimeDayOnly);
+      kadenaPriceLastDay.value = newCreationTimeDayOnly;
+      if (priceData && priceData.price) {
+        kadenaPrice.value = priceData.price;
+      }
+    }
+  };
+
   const calculateTotalGas = async () => {
     if (!block.value || !networkId.value) {
       return;
@@ -186,6 +210,7 @@ export const useBlock = (
 
       if (block.value) {
         calculateTotalGas();
+        fetchKadenaPrice(block.value.creationTime);
       }
     } catch (e) {
       error.value = e;
@@ -202,6 +227,9 @@ export const useBlock = (
     loading,
     error,
     fetchBlock,
+    fetchKadenaPrice,
+    kadenaPrice,
+    kadenaPriceLastDay,
     totalGasUsed,
     gasLoading,
   };
