@@ -82,6 +82,7 @@ const blockStatus = computed(() => {
       text: 'Orphaned',
       icon: IconCancel,
       classes: 'bg-[#7f1d1d66] border-[#f87171] text-[#f87171]',
+      description: 'Block is not part of the canonical chain and is orphaned',
     };
   }
 
@@ -90,6 +91,7 @@ const blockStatus = computed(() => {
       text: 'Finalized',
       icon: IconCheckmarkFill,
       classes: 'bg-[#0f1f1d] border-[#00a186] text-[#00a186]',
+      description: 'Block is part of the canonical chain and safe to use',
     };
   }
 
@@ -97,6 +99,7 @@ const blockStatus = computed(() => {
     text: 'Pending',
     icon: IconHourglass,
     classes: 'bg-[#17150d] border-[#eab308] text-[#eab308]',
+    description: 'Block is not part of the canonical chain and is pending to be finalized or orphaned',
   };
 });
 
@@ -307,16 +310,18 @@ useHead({
                 </LabelValue>
                 <LabelValue :row="isMobile" :label="textContent.status.label" :description="textContent.status.description" tooltipPos="right">
                   <template #value>
-                    <div
-                      v-if="blockStatus"
-                      class="px-2 py-1.5 text-[11px] rounded-md border flex items-center gap-1 leading-none"
-                      :class="blockStatus.classes"
-                    >
-                      <component :is="blockStatus.icon" class="w-2.5 h-2.5" />
-                      <span>
-                        {{ blockStatus.text }}
-                      </span>
-                    </div>
+                    <Tooltip :value="blockStatus.description" :offset-distance="8">
+                      <div
+                        v-if="blockStatus"
+                        class="px-2 py-1.5 text-[11px] rounded-md border flex items-center gap-1 leading-none"
+                        :class="blockStatus.classes"
+                      >
+                        <component :is="blockStatus.icon" class="w-2.5 h-2.5" />
+                        <span>
+                          {{ blockStatus.text }}
+                        </span>
+                      </div>
+                  </Tooltip>
                   </template>
                 </LabelValue>
                 <LabelValue :label="textContent.creationTime.label" :description="textContent.creationTime.description" tooltipPos="right">
