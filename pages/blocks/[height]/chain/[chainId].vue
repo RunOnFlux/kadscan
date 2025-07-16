@@ -443,12 +443,6 @@ useHead({
                   <template #value>
                     <div class="flex items-center gap-2">
                       <span>{{ block.hash }}</span>
-                      <Copy
-                        :value="block.hash"
-                        tooltipText="Copy Hash"
-                        iconSize="h-5 w-5"
-                        buttonClass="w-5 h-5"
-                      />
                     </div>
                   </template>
                 </LabelValue>
@@ -474,12 +468,6 @@ useHead({
                    <template #value>
                     <div class="flex items-center gap-2">
                       <span>{{ block.powHash }}</span>
-                      <Copy
-                        :value="block.powHash"
-                        tooltip-text="Copy POW Hash"
-                        iconSize="h-5 w-5"
-                        buttonClass="w-5 h-5"
-                      />
                     </div>
                   </template>
                 </LabelValue>
@@ -487,12 +475,7 @@ useHead({
                   <template #value>
                     <div class="flex items-center gap-2">
                       <span>{{ block.payloadHash }}</span>
-                      <Copy
-                        :value="block.payloadHash"
-                        tooltip-text="Copy Payload Hash"
-                        iconSize="h-5 w-5"
-                        buttonClass="w-5 h-5"
-                      />
+
                     </div>
                   </template>
                 </LabelValue>
