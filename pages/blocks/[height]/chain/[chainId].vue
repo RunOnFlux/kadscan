@@ -383,6 +383,7 @@ useHead({
                   </template>
                 </LabelValue>
                 <LabelValue :label="textContent.difficulty.label" :description="textContent.difficulty.description" :value="block.difficulty" tooltipPos="right" />
+                <LabelValue :label="textContent.nonce.label" :description="textContent.nonce.description" :value="block.nonce" tooltipPos="right" />
               </div>
             </DivideItem>
 
@@ -399,7 +400,6 @@ useHead({
                 </LabelValue>
                 <LabelValue :label="textContent.gasLimit.label" :description="textContent.gasLimit.description" value="150,000" tooltipPos="right" />
                 <LabelValue :label="textContent.kadenaPrice.label" :description="textContent.kadenaPrice.description" :value="formattedKadenaPrice" tooltipPos="right" />
-                <LabelValue :label="textContent.nonce.label" :description="textContent.nonce.description" :value="block.nonce" tooltipPos="right" />
               </div>
             </DivideItem>
           </Divide>
