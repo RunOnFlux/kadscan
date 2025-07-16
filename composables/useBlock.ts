@@ -67,19 +67,19 @@ const BLOCK_TRANSACTIONS_QUERY = `
   }
 `;
 
+const block = ref<any>(null);
+const competingBlocks = ref<any[]>([]);
+const canonicalIndex = ref(-1);
+const loading = ref(true);
+const error = ref<any>(null);
+const totalGasUsed = ref<number | null>(null);
+const gasLoading = ref(false);
+
 export const useBlock = (
   height: Ref<number>,
   chainId: Ref<number>,
   networkId: Ref<string | undefined>
 ) => {
-  const block = ref<any>(null);
-  const competingBlocks = ref<any[]>([]);
-  const canonicalIndex = ref(-1);
-  const loading = ref(true);
-  const error = ref<any>(null);
-  const totalGasUsed = ref<number | null>(null);
-  const gasLoading = ref(false);
-
   const calculateTotalGas = async () => {
     if (!block.value || !networkId.value) {
       return;
@@ -136,7 +136,7 @@ export const useBlock = (
       return;
     }
 
-    loading.value = true;
+    loading.value = block.value === null;
     error.value = null;
     competingBlocks.value = [];
     canonicalIndex.value = -1;
