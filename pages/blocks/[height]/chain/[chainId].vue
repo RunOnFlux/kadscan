@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { ref, computed, watch, onUnmounted } from 'vue';
+import { ref, computed, watch, onUnmounted, onMounted } from 'vue';
 import { useFormat } from '~/composables/useFormat';
 import { useBlock } from '~/composables/useBlock';
 import { useBlocks } from '~/composables/useBlocks';
 import { useSharedData } from '~/composables/useSharedData';
+import { useScreenSize } from '~/composables/useScreenSize';
 import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
 import IconHourglass from '~/components/icon/Hourglass.vue';
 import IconCancel from '~/components/icon/Cancel.vue';
@@ -43,6 +44,7 @@ const textContent = {
 const { formatFullDate, truncateAddress } = useFormat();
 const route = useRoute();
 const router = useRouter();
+const { isMobile } = useScreenSize();
 const { selectedNetwork } = useSharedData();
 const { totalCount: lastBlockHeight, fetchTotalCount } = useBlocks();
 
@@ -517,18 +519,22 @@ useHead({
 
             <!-- More Details -->
             <DivideItem>
-              <LabelValue :label="textContent.moreDetails.label" :description="textContent.moreDetails.description" tooltipPos="right">
+              <LabelValue
+                :label="isMobile ? '' : textContent.moreDetails.label"
+                :description="textContent.moreDetails.description"
+                tooltipPos="right"
+              >
                 <template #value>
                   <button
                     @click="showMore = !showMore"
                     class="text-[#6ab5db] hover:text-[#9ccee7] flex items-center gap-1 whitespace-nowrap"
                   >
                     <template v-if="!showMore">
-                      <span>+</span>
+                      <span v-if="!isMobile">+</span>
                       <span>Click to show more</span>
                     </template>
                     <template v-else>
-                      <span>-</span>
+                      <span v-if="!isMobile">-</span>
                       <span>Click to show less</span>
                     </template>
                   </button>
