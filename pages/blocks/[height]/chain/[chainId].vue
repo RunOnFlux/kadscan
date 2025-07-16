@@ -16,28 +16,28 @@ definePageMeta({
 });
 
 const textContent = {
-  blockHeight: { label: 'Block Height:', description: 'The unique number identifying the block in the blockchain, also known as its position in the chain.' },
-  chainId: { label: 'Chain ID:', description: 'The specific chain (0-19) on which this block was mined.' },
-  status: { label: 'Status:', description: 'The current confirmation status of the block. Canonical means it is part of the main chain.' },
-  creationTime: { label: 'Creation Time:', description: 'The timestamp when the block was created by the miner.' },
-  transactions: { label: 'Transactions:', description: 'The list of transactions included in this block.' },
-  events: { label: 'Events:', description: 'The total number of events emitted by the transactions in this block.' },
-  minerAccount: { label: 'Miner Account:', description: 'The address of the account that mined this block.' },
-  blockReward: { label: 'Block Reward:', description: 'The amount of KDA awarded for mining this block.' },
-  difficulty: { label: 'Difficulty:', description: 'A measure of how difficult it was to find a hash below the target for this block.' },
-  gasUsed: { label: 'Gas Used:', description: 'The total amount of gas consumed by all transactions in this block.' },
-  gasLimit: { label: 'Gas Limit:', description: 'The maximum amount of gas that can be used in a block.' },
-  nonce: { label: 'Nonce:', description: 'A random value used by miners to create a valid proof-of-work hash.' },
-  epoch: { label: 'Epoch:', description: 'The start date and time of the current epoch.' },
-  flags: { label: 'Flags:', description: 'Hex-encoded bits used for validation.' },
-  target: { label: 'Target:', description: 'The boundary below which the block hash must be for the block to be valid.' },
-  weight: { label: 'Weight:', description: 'A measure of the total difficulty of the chain up to this block.' },
-  hash: { label: 'Hash:', description: 'The unique identifier for this block (also known as Block Header Hash).' },
-  parentHash: { label: 'Parent Hash:', description: 'The hash of the preceding block in this chain.' },
-  powHash: { label: 'POW Hash:', description: 'The result of the proof-of-work computation.' },
-  payloadHash: { label: 'Payload Hash:', description: 'The hash of all transactions and their outputs in this block.' },
-  moreDetails: { label: 'More Details', description: 'Show or hide additional block details.' },
-  neighbor: { label: 'Neighbor at Chain #', description: 'A block at the same height on a different chain.' },
+  blockHeight: { label: 'Block Height:', description: 'The unique numerical position of the block in the blockchain' },
+  chainId: { label: 'Chain ID:', description: 'The specific chain (0-19) on which this block was mined' },
+  status: { label: 'Status:', description: 'Indicates if the block is confirmed and part of the canonical chain' },
+  creationTime: { label: 'Creation Time:', description: 'Timestamp when the block was created' },
+  transactions: { label: 'Transactions:', description: 'Transactions included in this block' },
+  events: { label: 'Events:', description: 'Number of events emitted by the block’s transactions' },
+  minerAccount: { label: 'Miner Account:', description: 'Address of the miner who produced this block' },
+  blockReward: { label: 'Block Reward:', description: 'Amount of KDA awarded for mining this block' },
+  difficulty: { label: 'Difficulty:', description: 'A measure of how difficult it was to find a hash below the target for this block' },
+  gasUsed: { label: 'Gas Used:', description: 'Total gas consumed by transactions in this block' },
+  gasLimit: { label: 'Gas Limit:', description: 'Maximum gas allowed in the block' },
+  nonce: { label: 'Nonce:', description: 'A random value used by miners to create a valid proof-of-work hash' },
+  epoch: { label: 'Epoch:', description: 'Start time of the current epoch' },
+  flags: { label: 'Flags:', description: 'Hex-encoded bits used for configuration' },
+  target: { label: 'Target:', description: 'Hash must be below this value to be valid' },
+  weight: { label: 'Weight:', description: 'Cumulative difficulty up to this block' },
+  hash: { label: 'Hash:', description: 'Unique hash of this block (header hash)' },
+  parentHash: { label: 'Parent Hash:', description: 'Hash of the previous block in this chain' },
+  powHash: { label: 'POW Hash:', description: 'Hash result of the proof-of-work computation' },
+  payloadHash: { label: 'Payload Hash:', description: 'Hash of the block’s transaction payload' },
+  neighbor: { label: 'Neighbor at Chain #', description: 'Block at same height on another chain' },
+  moreDetails: { label: 'More Details' },
 };
 
 
@@ -329,7 +329,7 @@ useHead({
                         :to="`/transactions?block=${block.height}&chainId=${block.chainId}`"
                         class="text-[#6ab5db] hover:text-[#9ccee7]"
                       >
-                        {{ block.transactions.totalCount }} transactions
+                        {{ block.transactions.totalCount }} transactions in this block
                       </NuxtLink>
                     </Tooltip>
                   </template>
@@ -337,7 +337,7 @@ useHead({
                 <LabelValue
                   :label="textContent.events.label"
                   :description="textContent.events.description"
-                  :value="`${block.events.totalCount} events`"
+                  :value="`${block.events.totalCount} events in this block`"
                   tooltipPos="right"
                 />
               </div>
@@ -421,17 +421,17 @@ useHead({
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.target.label" :description="textContent.target.description" tooltipPos="right">
-                  <template #value>
-                    <div class="flex items-center gap-2">
-                      <span>{{ block.target }}</span>
-                    </div>
-                  </template>
-                </LabelValue>
                 <LabelValue :label="textContent.weight.label" :description="textContent.weight.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-2">
                       <span>{{ block.weight }}</span>
+                    </div>
+                  </template>
+                </LabelValue>
+                <LabelValue :label="textContent.target.label" :description="textContent.target.description" tooltipPos="right">
+                  <template #value>
+                    <div class="flex items-center gap-2">
+                      <span>{{ block.target }}</span>
                     </div>
                   </template>
                 </LabelValue>
@@ -521,7 +521,6 @@ useHead({
             <DivideItem>
               <LabelValue
                 :label="isMobile ? '' : textContent.moreDetails.label"
-                :description="textContent.moreDetails.description"
                 tooltipPos="right"
               >
                 <template #value>
