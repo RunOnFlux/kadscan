@@ -73,10 +73,23 @@ export const useFormat = () => {
     return feeStr.replace(/(\.\d*[1-9])0+$/, '$1').replace(/\.0+$/, '.0');
   };
 
+  const removeTrailingZeros = (value: string | number | null | undefined): string => {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    const stringValue = String(value);
+    const num = parseFloat(stringValue);
+    if (isNaN(num)) {
+      return stringValue;
+    }
+    return num.toString();
+  };
+
   return {
     truncateAddress,
     formatRelativeTime,
     formatFullDate,
     formatGasPrice,
+    removeTrailingZeros,
   };
 }; 

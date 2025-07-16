@@ -43,13 +43,15 @@ const textContent = {
 };
 
 
-const { formatFullDate, truncateAddress } = useFormat();
+const { formatFullDate, truncateAddress, removeTrailingZeros } = useFormat();
 const route = useRoute();
 const router = useRouter();
 const { isMobile } = useScreenSize();
-const { selectedNetwork, kadenaPrice } = useSharedData();
+const { selectedNetwork } = useSharedData();
 const { totalCount: lastBlockHeight, fetchTotalCount } = useBlocks();
+const { fetchKadenaPriceAtTimestamp } = useBinance();
 
+const kadenaPrice = ref(null);
 const activeView = ref('overview');
 const showMore = ref(false);
 const height = computed(() => Number(route.params.height));
@@ -67,16 +69,6 @@ const {
   totalGasUsed,
   gasLoading,
 } = useBlock(height, chainId, networkId);
-
-const { fetchKadenaPrice, fetchKadenaCandlestickData, fetchKadenaPriceAtTimestamp } = useBinance();
-
-onMounted(async () => {
-  console.log('Testing Binance API:');
-  const price = await fetchKadenaPrice();
-  console.log('Kadena Price:', price);
-  const candlestickData = await fetchKadenaCandlestickData();
-  console.log('Kadena Candlestick Data:', candlestickData);
-});
 
 const block = computed(() => {
   if (competingBlocks.value.length > 0) {
@@ -199,12 +191,12 @@ watch(
 
 watch(
   () => block.value?.creationTime,
-  (creationTime) => {
+  async (creationTime) => {
     if (creationTime) {
-      console.log(`Block creation time: ${creationTime}`);
-      fetchKadenaPriceAtTimestamp(creationTime).then((historicalPrice) => {
-        console.log(`Price at block creation time:`, historicalPrice);
-      });
+      const priceData = await fetchKadenaPriceAtTimestamp(creationTime);
+      if (priceData && priceData.price) {
+        kadenaPrice.value = `$${removeTrailingZeros(priceData.price)}`;
+      }
     }
   },
   { immediate: true }
@@ -413,7 +405,7 @@ useHead({
                   </template>
                 </LabelValue>
                 <LabelValue :label="textContent.gasLimit.label" :description="textContent.gasLimit.description" value="150,000" tooltipPos="right" />
-                <LabelValue :label="textContent.kadenaPrice.label" :description="textContent.kadenaPrice.description" :value="kadenaPrice" tooltipPos="right" />
+                <LabelValue :label="textContent.kadenaPrice.label" :description="textContent.kadenaPrice.description" :value="formattedKadenaPrice" tooltipPos="right" />
                 <LabelValue :label="textContent.nonce.label" :description="textContent.nonce.description" :value="block.nonce" tooltipPos="right" />
               </div>
             </DivideItem>
