@@ -1,9 +1,8 @@
 <template>
   <div>
     <!-- Header Skeleton -->
-    <div class="flex items-center pb-5 border-b border-[#222222] mb-6 gap-2">
-      <div class="h-6 w-24 bg-gray-600 rounded animate-pulse"></div>
-      <div class="h-6 w-24 bg-gray-600 rounded animate-pulse"></div>
+    <div class="flex items-center mb-2 gap-2">
+      <div class="h-7 w-20 bg-gray-600 rounded-lg animate-pulse"></div>
     </div>
 
     <!-- Main Content Skeleton -->
@@ -31,7 +30,7 @@
 
     <!-- More Details Card Skeleton -->
     <div class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mt-4">
-      <div class="h-5 w-1/4 bg-gray-600 rounded animate-pulse"></div>
+      <div class="h-5 w-2/5 bg-gray-600 rounded animate-pulse"></div>
     </div>
   </div>
 </template> 
