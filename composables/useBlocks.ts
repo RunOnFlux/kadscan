@@ -3,16 +3,14 @@ import { useFormat } from './useFormat';
 
 const GQL_QUERY = `
 query Blocks(
-  $heightCount: Int,
-  $completedHeights: Boolean,
+  $minimumDepth: Int!,
   $first: Int,
   $last: Int,
   $after: String,
   $before: String
 ) {
-  completedBlockHeights(
-    heightCount: $heightCount,
-    completedHeights: $completedHeights,
+  blocksFromDepth(
+    minimumDepth: $minimumDepth,
     first: $first,
     last: $last,
     after: $after,
@@ -140,8 +138,7 @@ export const useBlocks = () => {
         body: {
           query: GQL_QUERY,
           variables: {
-            heightCount: 6,
-            completedHeights: false,
+            minimumDepth: 0,
             first: isForward ? rowsToShow.value : null,
             last: isForward ? null : rowsToShow.value,
             after,
@@ -151,7 +148,8 @@ export const useBlocks = () => {
         }
       });
 
-      const result = response?.data?.completedBlockHeights;
+      const result = response?.data?.blocksFromDepth;
+      console.log("result", result)
       pageInfo.value = result?.pageInfo || null;
 
       const rawBlocks = result?.edges || [];
