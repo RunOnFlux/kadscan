@@ -193,10 +193,11 @@ function downloadData() {
       </template>
       <template #miner="{ item }">
         <div class="flex items-center">
-          <Tooltip :value="item.miner" variant="hash">
+          <Tooltip v-if="item.miner!=='N/A'" :value="item.miner" variant="hash">
             <NuxtLink :to="`/account/${item.miner}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.miner, 10, 10) }}</NuxtLink>
           </Tooltip>
-          <Copy :value="item.miner" tooltipText="Copy Address" />
+          <Copy v-if="item.miner!=='N/A'" :value="item.miner" tooltipText="Copy Address" />
+            <span v-else class="text-[#f5f5f5]">{{ item.miner }}</span>
         </div>
       </template>
       <template #gasLimit="{ item }">
