@@ -343,9 +343,7 @@ useHead({
               <div class="flex flex-col gap-4">
                 <LabelValue :label="textContent.gasUsed.label" :description="textContent.gasUsed.description" tooltipPos="right">
                   <template #value>
-                    <span v-if="gasLoading">Calculating...</span>
                     <GasUsage
-                      v-else
                       :gas="totalGasUsed"
                       :gas-limit="150000"
                     />
