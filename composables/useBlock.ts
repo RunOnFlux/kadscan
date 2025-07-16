@@ -86,11 +86,14 @@ export const useBlock = (
     }
 
     gasLoading.value = true;
-    totalGasUsed.value = 0;
+    if (totalGasUsed.value === null) {
+      totalGasUsed.value = 0;
+    }
     let hasNextPage = true;
     let cursor: string | undefined = undefined;
 
     try {
+      let gasAccumulator = 0;
       while (hasNextPage) {
         const response: any = await $fetch('/api/graphql', {
           method: 'POST',
@@ -114,14 +117,19 @@ export const useBlock = (
         const txEdges = response.data?.blocksFromHeight?.edges?.[0]?.node?.transactions?.edges || [];
         const pageInfo = response.data?.blocksFromHeight?.edges?.[0]?.node?.transactions?.pageInfo;
 
+
         for (const edge of txEdges) {
           if (edge.node?.result?.gas) {
-            totalGasUsed.value += Number(edge.node.result.gas);
+            gasAccumulator += Number(edge.node.result.gas);
           }
         }
 
         hasNextPage = pageInfo?.hasNextPage || false;
         cursor = pageInfo?.endCursor;
+      }
+
+      if(totalGasUsed.value !== gasAccumulator) {
+        totalGasUsed.value = gasAccumulator;
       }
     } catch (e) {
       console.error('Error calculating total gas:', e);

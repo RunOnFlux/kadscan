@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onUnmounted } from 'vue';
 import { useFormat } from '~/composables/useFormat';
 import { useBlock } from '~/composables/useBlock';
 import { useBlocks } from '~/composables/useBlocks';
@@ -39,7 +39,6 @@ const textContent = {
   neighbor: { label: 'Neighbor at Chain #', description: 'A block at the same height on a different chain.' },
 };
 
-const activeView = ref('overview');
 
 const { formatFullDate, truncateAddress } = useFormat();
 const route = useRoute();
@@ -47,10 +46,12 @@ const router = useRouter();
 const { selectedNetwork } = useSharedData();
 const { totalCount: lastBlockHeight, fetchTotalCount } = useBlocks();
 
+const activeView = ref('overview');
 const showMore = ref(false);
 const height = computed(() => Number(route.params.height));
 const chainId = computed(() => Number(route.params.chainId));
 const networkId = computed(() => selectedNetwork.value?.id);
+const selectedBlockIndex = ref(0);
 
 const {
   block: initialBlock,
@@ -63,18 +64,6 @@ const {
   gasLoading,
 } = useBlock(height, chainId, networkId);
 
-watch(
-  networkId,
-  (newNetworkId) => {
-    if (newNetworkId) {
-      fetchTotalCount({ networkId: newNetworkId });
-    }
-  },
-  { immediate: true }
-);
-
-const selectedBlockIndex = ref(0);
-
 const block = computed(() => {
   if (competingBlocks.value.length > 0) {
     return competingBlocks.value[selectedBlockIndex.value];
@@ -82,18 +71,8 @@ const block = computed(() => {
   return initialBlock.value;
 });
 
-watch(
-  canonicalIndex,
-  (newIndex) => {
-    if (newIndex !== -1) {
-      selectedBlockIndex.value = newIndex;
-    }
-  },
-  { immediate: true }
-);
-
 const blockStatus = computed(() => {
-  if(lastBlockHeight.value - 8 >= block.value.height && !block.value.canonical) {
+  if(lastBlockHeight.value - 6 >= block.value.height && !block.value.canonical) {
     return {
       text: 'Orphaned',
       icon: IconCancel,
@@ -129,19 +108,76 @@ const coinbaseData = computed(() => {
 
 const minerAccount = computed(() => coinbaseData.value?.events?.[0]?.params?.[1]);
 const blockReward = computed(() => coinbaseData.value?.events?.[0]?.params?.[2]);
+const isLastBlock = computed(() => lastBlockHeight.value === height.value);
 
 const goToBlock = (newHeight: number, newChainId: number) => {
   if (newHeight < 0) return;
   router.push(`/blocks/${newHeight}/chain/${newChainId}`);
 };
 
-const isLastBlock = computed(() => lastBlockHeight.value === height.value);
+let pollingInterval: ReturnType<typeof setInterval> | null = null;
+
+const stopPolling = () => {
+  if (pollingInterval) {
+    clearInterval(pollingInterval);
+    pollingInterval = null;
+  }
+};
+
+const startPolling = () => {
+  stopPolling();
+  pollingInterval = setInterval(() => {
+    if (networkId.value) {
+      fetchBlock();
+      fetchTotalCount({ networkId: networkId.value });
+    }
+  }, 2000);
+};
+
+onUnmounted(() => {
+  stopPolling();
+});
 
 watch(
   [height, chainId, networkId],
   () => {
     if (networkId.value) {
       fetchBlock();
+    }
+  },
+  { immediate: true }
+);
+
+watch(
+  [() => block.value, lastBlockHeight],
+  ([currentBlock, newLastBlockHeight]) => {
+    const isCanonical = currentBlock?.canonical;
+    const isOldEnough = newLastBlockHeight - height.value >= 6;
+
+    if (isCanonical || isOldEnough) {
+      stopPolling();
+    } else {
+      startPolling();
+    }
+  },
+  { deep: true }
+);
+
+watch(
+  networkId,
+  (newNetworkId) => {
+    if (newNetworkId) {
+      fetchTotalCount({ networkId: newNetworkId });
+    }
+  },
+  { immediate: true }
+);
+
+watch(
+  canonicalIndex,
+  (newIndex) => {
+    if (newIndex !== -1) {
+      selectedBlockIndex.value = newIndex;
     }
   },
   { immediate: true }
