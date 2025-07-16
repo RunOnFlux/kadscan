@@ -18,6 +18,25 @@ export const useBinance = () => {
     }
   };
 
+  const fetchKadenaTickerData = async () => {
+    try {
+      const response = await $fetch('/api/binance', {
+        method: 'POST',
+        body: {
+          action: 'getKadenaTickerData',
+          params: {
+            symbol: 'KDAUSDT',
+          },
+        },
+      });
+
+      return response;
+    } catch (error) {
+      console.error('Error fetching Kadena ticker data:', error);
+      return null;
+    }
+  };
+
   const fetchKadenaCandlestickData = async (
     interval: string = '1d',
     limit: number = 30
@@ -72,6 +91,7 @@ export const useBinance = () => {
 
   return {
     fetchKadenaPrice,
+    fetchKadenaTickerData,
     fetchKadenaCandlestickData,
     fetchKadenaPriceAtTimestamp,
   };

@@ -5,6 +5,8 @@ const getApiEndpoint = (action: string, params: Record<string, any>) => {
   switch (action) {
     case 'getKadenaPrice':
       return `https://api.binance.com/api/v3/ticker/price?${query}`;
+    case 'getKadenaTickerData':
+      return `https://api.binance.com/api/v3/ticker/24hr?${query}`;
     case 'getKadenaCandlestickData':
       return `https://api.binance.com/api/v3/klines?${query}`;
     default:

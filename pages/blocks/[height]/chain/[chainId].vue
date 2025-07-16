@@ -10,6 +10,7 @@ import IconHourglass from '~/components/icon/Hourglass.vue';
 import IconCancel from '~/components/icon/Cancel.vue';
 import GasUsage from '~/components/column/Gas.vue';
 import SkeletonBlockDetails from '~/components/skeleton/BlockDetails.vue';
+import { useBinance } from '~/composables/useBinance';
 
 definePageMeta({
   layout: 'app',
@@ -27,6 +28,7 @@ const textContent = {
   difficulty: { label: 'Difficulty:', description: 'A measure of how difficult it was to find a hash below the target for this block' },
   gasUsed: { label: 'Gas Used:', description: 'Total gas consumed by transactions in this block' },
   gasLimit: { label: 'Gas Limit:', description: 'Maximum gas allowed in the block' },
+  kadenaPrice: { label: 'Kadena Price:', description: 'Price of Kadena at the time this block was created' },
   nonce: { label: 'Nonce:', description: 'A random value used by miners to create a valid proof-of-work hash' },
   epoch: { label: 'Epoch:', description: 'Start time of the current epoch' },
   flags: { label: 'Flags:', description: 'Hex-encoded bits used for configuration' },
@@ -45,7 +47,7 @@ const { formatFullDate, truncateAddress } = useFormat();
 const route = useRoute();
 const router = useRouter();
 const { isMobile } = useScreenSize();
-const { selectedNetwork } = useSharedData();
+const { selectedNetwork, kadenaPrice } = useSharedData();
 const { totalCount: lastBlockHeight, fetchTotalCount } = useBlocks();
 
 const activeView = ref('overview');
@@ -65,6 +67,16 @@ const {
   totalGasUsed,
   gasLoading,
 } = useBlock(height, chainId, networkId);
+
+const { fetchKadenaPrice, fetchKadenaCandlestickData, fetchKadenaPriceAtTimestamp } = useBinance();
+
+onMounted(async () => {
+  console.log('Testing Binance API:');
+  const price = await fetchKadenaPrice();
+  console.log('Kadena Price:', price);
+  const candlestickData = await fetchKadenaCandlestickData();
+  console.log('Kadena Candlestick Data:', candlestickData);
+});
 
 const block = computed(() => {
   if (competingBlocks.value.length > 0) {
@@ -180,6 +192,19 @@ watch(
   (newIndex) => {
     if (newIndex !== -1) {
       selectedBlockIndex.value = newIndex;
+    }
+  },
+  { immediate: true }
+);
+
+watch(
+  () => block.value?.creationTime,
+  (creationTime) => {
+    if (creationTime) {
+      console.log(`Block creation time: ${creationTime}`);
+      fetchKadenaPriceAtTimestamp(creationTime).then((historicalPrice) => {
+        console.log(`Price at block creation time:`, historicalPrice);
+      });
     }
   },
   { immediate: true }
@@ -388,6 +413,7 @@ useHead({
                   </template>
                 </LabelValue>
                 <LabelValue :label="textContent.gasLimit.label" :description="textContent.gasLimit.description" value="150,000" tooltipPos="right" />
+                <LabelValue :label="textContent.kadenaPrice.label" :description="textContent.kadenaPrice.description" :value="kadenaPrice" tooltipPos="right" />
                 <LabelValue :label="textContent.nonce.label" :description="textContent.nonce.description" :value="block.nonce" tooltipPos="right" />
               </div>
             </DivideItem>
