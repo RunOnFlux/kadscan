@@ -28,6 +28,7 @@ const textContent = {
   difficulty: { label: 'Difficulty:', description: 'A measure of how difficult it was to find a hash below the target for this block' },
   gasUsed: { label: 'Gas Used:', description: 'Total gas consumed by transactions in this block' },
   gasLimit: { label: 'Gas Limit:', description: 'Maximum gas allowed in the block' },
+  gasPrice: { label: 'Gas Price:', description: 'Average gas price of transactions in this block' },
   kadenaPrice: { label: 'Kadena Price:', description: 'Closing price of Kadena on date of transaction' },
   nonce: { label: 'Nonce:', description: 'A random value used by miners to create a valid proof-of-work hash' },
   epoch: { label: 'Epoch:', description: 'Start time of the current epoch' },
@@ -65,6 +66,7 @@ const {
   competingBlocks,
   canonicalIndex,
   totalGasUsed,
+  totalGasPrice,
   gasLoading,
   kadenaPrice,
 } = useBlock(height, chainId, networkId);
@@ -119,6 +121,16 @@ const formattedKadenaPrice = computed(() => {
     return 'N/A';
   }
   return `$${removeTrailingZeros(kadenaPrice.value)}`;
+});
+
+const formattedGasPrice = computed(() => {
+  if (totalGasPrice.value === null) {
+    return '0';
+  }
+  if(parseFloat(totalGasPrice.value) === 0) {
+    return '0';
+  }
+  return `${(totalGasPrice.value)} KDA`;
 });
 
 const minerAccount = computed(() => coinbaseData.value?.events?.[0]?.params?.[1]);
@@ -404,6 +416,7 @@ useHead({
                   </template>
                 </LabelValue>
                 <LabelValue :label="textContent.gasLimit.label" :description="textContent.gasLimit.description" value="150,000" tooltipPos="right" />
+                <LabelValue :label="textContent.gasPrice.label" :description="textContent.gasPrice.description" :value="formattedGasPrice" tooltipPos="right" />
                 <LabelValue :label="textContent.kadenaPrice.label" :description="textContent.kadenaPrice.description" :value="formattedKadenaPrice" tooltipPos="right" />
               </div>
             </DivideItem>

@@ -55,6 +55,11 @@ const BLOCK_TRANSACTIONS_QUERY = `
                     gas
                   }
                 }
+                cmd {
+                  meta {
+                    gasPrice
+                  }
+                }
               }
             }
             pageInfo {
@@ -76,6 +81,7 @@ const error = ref<any>(null);
 const kadenaPrice = ref<number | null>(null);
 const kadenaPriceLastDay = ref<Date | null>(null);
 const totalGasUsed = ref<number | null>(null);
+const totalGasPrice = ref<string | null>(null);
 const gasLoading = ref(false);
 
 export const useBlock = (
@@ -89,7 +95,7 @@ export const useBlock = (
     if (!block.value?.creationTime) {
       return;
     }
-    
+
     let newCreationTimeDayOnly = new Date(newCreationTime);
     newCreationTimeDayOnly.setUTCHours(0, 0, 0, 0);
     let creationTimeDayOnly = new Date(block.value.creationTime);
@@ -112,12 +118,14 @@ export const useBlock = (
     gasLoading.value = true;
     if (totalGasUsed.value === null) {
       totalGasUsed.value = 0;
+      totalGasPrice.value = "0";
     }
     let hasNextPage = true;
     let cursor: string | undefined = undefined;
 
     try {
       let gasAccumulator = 0;
+      let gasPriceAccumulator = 0;
       while (hasNextPage) {
         const response: any = await $fetch('/api/graphql', {
           method: 'POST',
@@ -145,19 +153,22 @@ export const useBlock = (
         for (const edge of txEdges) {
           if (edge.node?.result?.gas) {
             gasAccumulator += Number(edge.node.result.gas);
+            gasPriceAccumulator += parseFloat(edge.node.cmd.meta.gasPrice);
           }
         }
-
+        gasPriceAccumulator = gasPriceAccumulator / txEdges.length;
         hasNextPage = pageInfo?.hasNextPage || false;
         cursor = pageInfo?.endCursor;
       }
 
       if(totalGasUsed.value !== gasAccumulator) {
         totalGasUsed.value = gasAccumulator;
+        totalGasPrice.value = gasPriceAccumulator.toFixed(9);
       }
     } catch (e) {
       console.error('Error calculating total gas:', e);
       totalGasUsed.value = null; // Reset on error
+      totalGasPrice.value = null;
     } finally {
       gasLoading.value = false;
     }
@@ -231,6 +242,7 @@ export const useBlock = (
     kadenaPrice,
     kadenaPriceLastDay,
     totalGasUsed,
+    totalGasPrice,
     gasLoading,
   };
 }; 
