@@ -72,7 +72,7 @@ const block = computed(() => {
 });
 
 const blockStatus = computed(() => {
-  if(lastBlockHeight.value - 6 >= block.value.height && !block.value.canonical) {
+  if(lastBlockHeight.value - 10 >= block.value.height && !block.value.canonical) {
     return {
       text: 'Orphaned',
       icon: IconCancel,
@@ -199,13 +199,13 @@ useHead({
       >
     </div>
 
-    <SkeletonBlockDetails v-if="loading" />
+    <SkeletonBlockDetails v-if="loading && !pollingInterval" />
 
     <div
       v-else-if="error || !block"
       class="bg-[#111111] border items-center justify-center border-[#222222] rounded-xl p-8 text-white"
     >
-      Block not found. It may not exist or has not been indexed yet. TODO: Cooler screen for this :D 
+      Block not found. It may not exist or has not been indexed yet. I own you a cool screen displaying the estimated time to index this block.
     </div>
 
     <div v-else>

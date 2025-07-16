@@ -190,7 +190,6 @@ export const useBlock = (
     } catch (e) {
       error.value = e;
       block.value = null;
-      console.error('Error fetching or processing block:', e);
     } finally {
       loading.value = false;
     }
