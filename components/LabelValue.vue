@@ -3,6 +3,7 @@ defineProps<{
   label: string;
   value?: string | number;
   col?: boolean;
+  row?: boolean;
   withCopy?: boolean;
   description?: string;
   copyTooltip?: string;
@@ -15,11 +16,15 @@ defineProps<{
     class="flex flex-col md:flex-row"
     :class="[
       col && '!flex-col !items-start',
+      row && '!flex-row !gap-6',
       value && 'md:items-center'
     ]"
   >
     <div
-      class="w-full min-w-[300px] max-w-[300px] h-full flex gap-2"
+      class="flex gap-2"
+      :class="[
+        !row && 'w-full h-fullmin-w-[300px] max-w-[300px]',
+      ]"
     >
       <Tooltip
         v-if="description"
