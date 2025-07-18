@@ -74,10 +74,10 @@ const processBlockDetails = (node: any) => {
     const gasPrices = node.transactions.edges
       .slice(1) // Skip coinbase transaction
       .map((edge: any) => edge.node.cmd.meta.gasPrice)
-      .filter((price: any) => typeof price === 'number');
+      .filter((price: any) => typeof price === 'string');
     
     if (gasPrices.length > 0) {
-      const sum = gasPrices.reduce((acc: number, price: number) => acc + price, 0);
+      const sum = gasPrices.reduce((acc: string, price: string) => parseFloat(acc) + parseFloat(price), 0);
       gasPrice = sum / gasPrices.length;
     }
   }
@@ -149,7 +149,7 @@ export const useBlocks = () => {
       });
 
       const result = response?.data?.blocksFromDepth;
-      console.log("result", result)
+      console.log("isForward", isForward)
       pageInfo.value = result?.pageInfo || null;
 
       const rawBlocks = result?.edges || [];
