@@ -35,6 +35,7 @@ query Blocks(
         height
         coinbase
         hash
+        canonical
       }
       cursor
     }
@@ -159,6 +160,7 @@ export const useBlocks = () => {
           block: edge.node.height,
           chainId: edge.node.chainId,
           age: formatRelativeTime(edge.node.creationTime),
+          canonical: edge.node.canonical,
           txn: edge.node.transactions.totalCount,
           cursor: edge.cursor,
           ...details,

@@ -6,6 +6,9 @@ import DataTable from '~/components/DataTable.vue';
 import Tooltip from '~/components/Tooltip.vue';
 import Copy from '~/components/Copy.vue';
 import SkeletonTable from '~/components/skeleton/Table.vue';
+import IconHourglass from '~/components/icon/Hourglass.vue';
+import IconCancel from '~/components/icon/Cancel.vue';
+import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
 import { useBlocks } from '~/composables/useBlocks';
 import { useFormat } from '~/composables/useFormat';
 import { useSharedData } from '~/composables/useSharedData';
@@ -29,7 +32,7 @@ const {
   loading,
   fetchBlocks,
   pageInfo,
-  totalCount,
+  totalCount: lastBlockHeight,
   fetchTotalCount,
   rowsToShow,
   updateRowsToShow
@@ -57,6 +60,7 @@ const tableHeaders = [
   { key: 'block', label: 'Block' },
   { key: 'chainId', label: 'Chain ID' },
   { key: 'age', label: 'Age' },
+  { key: 'status', label: 'Status' },
   { key: 'txn', label: 'Txn' },
   { key: 'miner', label: 'Miner Account' },
   { key: 'gasLimit', label: 'Gas Limit' },
@@ -81,9 +85,36 @@ const selectedRowOption = computed({
 });
 
 const totalPages = computed(() => {
-  if (!totalCount.value) return 1;
-  return Math.ceil(totalCount.value / rowsToShow.value);
+  if (!lastBlockHeight.value) return 1;
+  return Math.ceil(lastBlockHeight.value / rowsToShow.value);
 });
+
+function blockStatus(blockHeight: number, canonical: boolean) {
+  if(lastBlockHeight.value - 8 >= blockHeight && !canonical) {
+    return {
+      text: 'Orphaned',
+      icon: IconCancel,
+      classes: 'bg-[#7f1d1d66] border-[#f87171] text-[#f87171]',
+      description: 'Block is not part of the canonical chain and is orphaned',
+    };
+  }
+
+  if(canonical) {
+    return {
+      text: 'Finalized',
+      icon: IconCheckmarkFill,
+      classes: 'bg-[#0f1f1d] border-[#00a186] text-[#00a186]',
+      description: 'Block is part of the canonical chain and safe to use',
+    };
+  }
+
+  return {
+    text: 'Pending',
+    icon: IconHourglass,
+    classes: 'bg-[#17150d] border-[#444649] text-[#989898]',
+    description: 'Block is not part of the canonical chain and is pending to be finalized or orphaned',
+  };
+};
 
 watch(
   [currentPage, rowsToShow],
@@ -165,7 +196,7 @@ function downloadData() {
       v-else
       :headers="tableHeaders"
       :items="blocks"
-      :totalItems="totalCount"
+      :totalItems="lastBlockHeight"
       itemNamePlural="blocks"
       :subtitle="subtitle"
       v-model:currentPage="currentPage"
@@ -188,6 +219,20 @@ function downloadData() {
       <template #block="{ item }">
         <NuxtLink :to="`/blocks/${item.block}/chain/${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.block }}</NuxtLink>
       </template>
+      <template #status="{ item }">
+        <Tooltip :value="blockStatus(item.block, item.canonical).description" :offset-distance="8">
+          <div
+            v-if="blockStatus"
+            class="px-2 py-1.5 text-[11px] rounded-md border flex items-center gap-1 leading-none"
+            :class="blockStatus(item.block, item.canonical).classes"
+          >
+            <component :is="blockStatus(item.block, item.canonical).icon" class="w-2.5 h-2.5" />
+            <span>
+              {{ blockStatus(item.block, item.canonical).text }}
+            </span>
+          </div>
+        </Tooltip>
+      </template>
       <template #txn="{ item }">
         <NuxtLink :to="`/transactions/${item.txn}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.txn }}</NuxtLink>
       </template>
@@ -199,9 +244,6 @@ function downloadData() {
           <Copy v-if="item.miner!=='N/A'" :value="item.miner" tooltipText="Copy Address" />
             <span v-else class="text-[#f5f5f5]">{{ item.miner }}</span>
         </div>
-      </template>
-      <template #gasLimit="{ item }">
-        <span class="text-[#f5f5f5]">{{ item.gasLimit }}</span>
       </template>
     </DataTable>
   </div>
