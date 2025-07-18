@@ -26,7 +26,7 @@
             Kadscan is powered by Kadindexer
           </h2>
           <p class="text-xs font-light leading-tight mt-1">
-            Build better on Kadena using a fast, reliable and developer friendly GraphQL API with access to all of Kadena data.
+            Build better on Kadena using a fast, reliable and developer friendly GraphQL API with access to all of Kadena's data.
           </p>
           <div class="font-semibold text-sm flex items-center mt-2">
             Kadindexer
