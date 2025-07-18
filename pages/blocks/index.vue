@@ -154,7 +154,7 @@ watch(
     const pageNumber = Number(page) || 1;
     const oldPageNumber = Number(oldPage) || 1;
 
-    const params: { networkId: string; after?: string, before?: string } = {
+    const params: { networkId: string; after?: string, before?: string, toLastPage?: boolean } = {
       networkId: network.id,
     };
 
@@ -164,6 +164,12 @@ watch(
       } else {
         params.before = pageInfo.value?.startCursor;
       }
+    }
+
+    if(pageNumber === totalPages.value) {
+      params.after = null;
+      params.before = null;
+      params.toLastPage = true;
     }
     
     await fetchBlocks(params);

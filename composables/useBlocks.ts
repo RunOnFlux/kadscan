@@ -125,10 +125,12 @@ export const useBlocks = () => {
     networkId,
     after,
     before,
+    toLastPage = false,
   }: {
     networkId: string,
     after?: string,
     before?: string,
+    toLastPage?: boolean,
   }) => {
     if (!networkId) return;
     loading.value = blocks.value.length === 0;
@@ -140,8 +142,8 @@ export const useBlocks = () => {
           query: GQL_QUERY,
           variables: {
             minimumDepth: 0,
-            first: isForward ? rowsToShow.value : null,
-            last: isForward ? null : rowsToShow.value,
+            first: toLastPage ? null : isForward ? rowsToShow.value : null,
+            last: toLastPage ? rowsToShow.value : isForward ? null : rowsToShow.value,
             after,
             before,
           },
