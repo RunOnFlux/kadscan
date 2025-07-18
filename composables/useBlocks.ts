@@ -150,7 +150,6 @@ export const useBlocks = () => {
       });
 
       const result = response?.data?.blocksFromDepth;
-      console.log("isForward", isForward)
       pageInfo.value = result?.pageInfo || null;
 
       const rawBlocks = result?.edges || [];

@@ -39,6 +39,10 @@ defineProps({
     type: Array as () => Array<any>,
     required: true,
   },
+  loadingPage: {
+    type: Boolean,
+    default: false,
+  },
   hasNextPage: {
     type: Boolean,
     default: false,
@@ -49,7 +53,7 @@ defineProps({
   },
 });
 
-const emit = defineEmits(['update:currentPage', 'update:selectedRows']);
+const emit = defineEmits(['update:currentPage', 'update:selectedRows', 'update:loadingPage']);
 
 const formatTotalItems = (num: number) => {
   return new Intl.NumberFormat('en-US').format(num);
@@ -72,9 +76,11 @@ const formatTotalItems = (num: number) => {
         <PaginationControls
           :currentPage="currentPage"
           :totalPages="totalPages"
+          :loadingPage="loadingPage"
           :has-next-page="hasNextPage"
           :has-previous-page="hasPreviousPage"
           @update:currentPage="emit('update:currentPage', $event)"
+          @update:loadingPage="emit('update:loadingPage', $event)"
         />
       </div>
     </div>
@@ -127,9 +133,11 @@ const formatTotalItems = (num: number) => {
       <PaginationControls
         :currentPage="currentPage"
         :totalPages="totalPages"
+        :loadingPage="loadingPage"
         :has-next-page="hasNextPage"
         :has-previous-page="hasPreviousPage"
         @update:currentPage="emit('update:currentPage', $event)"
+        @update:loadingPage="emit('update:loadingPage', $event)"
       />
     </div>
   </div>

@@ -79,7 +79,7 @@ const block = computed(() => {
 });
 
 const blockStatus = computed(() => {
-  if(lastBlockHeight.value - 8 >= block.value.height && !block.value.canonical) {
+  if(lastBlockHeight.value - 10 >= block.value.height && !block.value.canonical) {
     return {
       text: 'Orphaned',
       icon: IconCancel,

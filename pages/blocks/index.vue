@@ -74,6 +74,7 @@ const rowOptions = [
   { label: '100', value: 100 },
 ];
 const currentPage = ref(Number(route.query.page) || 1);
+const loadingPage = ref(false);
 
 const selectedRowOption = computed({
   get: () => rowOptions.find(option => option.value === rowsToShow.value) || rowOptions[0],
@@ -90,7 +91,7 @@ const totalPages = computed(() => {
 });
 
 function blockStatus(blockHeight: number, canonical: boolean) {
-  if(lastBlockHeight.value - 8 >= blockHeight && !canonical) {
+  if(lastBlockHeight.value - 10 >= blockHeight && !canonical) {
     return {
       text: 'Orphaned',
       icon: IconCancel,
@@ -130,14 +131,14 @@ watch(
 
 watch(
   [() => route.query.page, selectedNetwork, rowsToShow],
-  ([page, network], [oldPage, oldNetwork, oldRows]) => {
+  async ([page, network], [oldPage, oldNetwork, oldRows]) => {
     if (!network) {
       return;
     }
 
     const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
     if (networkChanged) {
-      fetchTotalCount({ networkId: network.id });
+      await fetchTotalCount({ networkId: network.id });
     }
 
     if (rowsToShow.value !== oldRows && Number(page) !== 1) {
@@ -165,8 +166,9 @@ watch(
       }
     }
     
-    fetchBlocks(params);
+    await fetchBlocks(params);
     currentPage.value = pageNumber;
+    loadingPage.value = false;
   },
   {
     immediate: true,
@@ -203,6 +205,7 @@ function downloadData() {
       :totalPages="totalPages"
       v-model:selectedRows="selectedRowOption"
       :rowOptions="rowOptions"
+      v-model:loadingPage="loadingPage"
       :has-next-page="pageInfo?.hasNextPage"
       :has-previous-page="pageInfo?.hasPreviousPage"
     >
