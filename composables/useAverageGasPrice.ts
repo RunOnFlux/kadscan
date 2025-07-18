@@ -62,8 +62,8 @@ const fetchInitialGasPriceStats = async (networkId: string) => {
       let totalGas = 0;
       let count = 0;
       for (const edge of responseData.edges) {
-        if (edge.node.cmd.meta.gasPrice > 0) {
-          totalGas += edge.node.cmd.meta.gasPrice;
+        if (parseFloat(edge.node.cmd.meta.gasPrice) > 0) {
+          totalGas += parseFloat(edge.node.cmd.meta.gasPrice);
           count++;
           // also populate the processed map
           gasPriceProcessed.value.set(edge.node.hash, edge.node.cmd.meta.creationTime);

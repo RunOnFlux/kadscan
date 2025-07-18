@@ -100,7 +100,7 @@ const blockStatus = computed(() => {
   return {
     text: 'Pending',
     icon: IconHourglass,
-    classes: 'bg-[#17150d] border-[#eab308] text-[#eab308]',
+    classes: 'bg-[#17150d] border-[#444649] text-[#989898]',
     description: 'Block is not part of the canonical chain and is pending to be finalized or orphaned',
   };
 });
@@ -333,7 +333,7 @@ useHead({
                           {{ blockStatus.text }}
                         </span>
                       </div>
-                  </Tooltip>
+                    </Tooltip>
                   </template>
                 </LabelValue>
                 <LabelValue :label="textContent.creationTime.label" :description="textContent.creationTime.description" tooltipPos="right">

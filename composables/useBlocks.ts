@@ -3,16 +3,14 @@ import { useFormat } from './useFormat';
 
 const GQL_QUERY = `
 query Blocks(
-  $heightCount: Int,
-  $completedHeights: Boolean,
+  $minimumDepth: Int!,
   $first: Int,
   $last: Int,
   $after: String,
   $before: String
 ) {
-  completedBlockHeights(
-    heightCount: $heightCount,
-    completedHeights: $completedHeights,
+  blocksFromDepth(
+    minimumDepth: $minimumDepth,
     first: $first,
     last: $last,
     after: $after,
@@ -37,6 +35,7 @@ query Blocks(
         height
         coinbase
         hash
+        canonical
       }
       cursor
     }
@@ -76,10 +75,10 @@ const processBlockDetails = (node: any) => {
     const gasPrices = node.transactions.edges
       .slice(1) // Skip coinbase transaction
       .map((edge: any) => edge.node.cmd.meta.gasPrice)
-      .filter((price: any) => typeof price === 'number');
+      .filter((price: any) => typeof price === 'string');
     
     if (gasPrices.length > 0) {
-      const sum = gasPrices.reduce((acc: number, price: number) => acc + price, 0);
+      const sum = gasPrices.reduce((acc: string, price: string) => parseFloat(acc) + parseFloat(price), 0);
       gasPrice = sum / gasPrices.length;
     }
   }
@@ -93,12 +92,18 @@ const processBlockDetails = (node: any) => {
   };
 };
 
+const blocks = ref<any[]>([]);
+const loading = ref(true);
+const { formatRelativeTime } = useFormat();
+const pageInfo = ref<any>(null);
+const totalCount = ref(0);
+const rowsToShow = ref<number>(25);
+
 export const useBlocks = () => {
-  const blocks = ref<any[]>([]);
-  const loading = ref(true);
-  const { formatRelativeTime } = useFormat();
-  const pageInfo = ref<any>(null);
-  const totalCount = ref(0);
+  const updateRowsToShow = (rows: any) => {
+    console.log("new rows", rows)
+    rowsToShow.value = rows.value;
+  };
 
   const fetchTotalCount = async ({ networkId }: { networkId: string }) => {
     if (!networkId) return;
@@ -118,17 +123,17 @@ export const useBlocks = () => {
 
   const fetchBlocks = async ({
     networkId,
-    limit,
     after,
     before,
+    toLastPage = false,
   }: {
     networkId: string,
-    limit: number,
     after?: string,
     before?: string,
+    toLastPage?: boolean,
   }) => {
     if (!networkId) return;
-    loading.value = true;
+    loading.value = blocks.value.length === 0;
     try {
       const isForward = !!after || (!after && !before);
       const response: any = await $fetch('/api/graphql', {
@@ -136,10 +141,9 @@ export const useBlocks = () => {
         body: {
           query: GQL_QUERY,
           variables: {
-            heightCount: 6,
-            completedHeights: false,
-            first: isForward ? limit : null,
-            last: isForward ? null : limit,
+            minimumDepth: 0,
+            first: toLastPage ? null : isForward ? rowsToShow.value : null,
+            last: toLastPage ? rowsToShow.value : isForward ? null : rowsToShow.value,
             after,
             before,
           },
@@ -147,21 +151,23 @@ export const useBlocks = () => {
         }
       });
 
-      const result = response?.data?.completedBlockHeights;
+      const result = response?.data?.blocksFromDepth;
       pageInfo.value = result?.pageInfo || null;
 
       const rawBlocks = result?.edges || [];
-      blocks.value = rawBlocks.map((edge: any) => {
+      const blocksMap = rawBlocks.map((edge: any) => {
         const details = processBlockDetails(edge.node);
         return {
           block: edge.node.height,
           chainId: edge.node.chainId,
           age: formatRelativeTime(edge.node.creationTime),
+          canonical: edge.node.canonical,
           txn: edge.node.transactions.totalCount,
           cursor: edge.cursor,
           ...details,
         };
       });
+      blocks.value = blocksMap;
     } catch (error) {
       console.error('Error fetching or processing blocks:', error);
       blocks.value = [];
@@ -172,6 +178,8 @@ export const useBlocks = () => {
 
   return {
     blocks,
+    rowsToShow,
+    updateRowsToShow,
     loading,
     fetchBlocks,
     pageInfo,

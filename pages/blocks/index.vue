@@ -6,6 +6,9 @@ import DataTable from '~/components/DataTable.vue';
 import Tooltip from '~/components/Tooltip.vue';
 import Copy from '~/components/Copy.vue';
 import SkeletonTable from '~/components/skeleton/Table.vue';
+import IconHourglass from '~/components/icon/Hourglass.vue';
+import IconCancel from '~/components/icon/Cancel.vue';
+import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
 import { useBlocks } from '~/composables/useBlocks';
 import { useFormat } from '~/composables/useFormat';
 import { useSharedData } from '~/composables/useSharedData';
@@ -21,9 +24,19 @@ useHead({
 
 const route = useRoute();
 const router = useRouter();
-const { blocks, loading, fetchBlocks, pageInfo, totalCount, fetchTotalCount } = useBlocks();
 const { truncateAddress } = useFormat();
 const { selectedNetwork } = useSharedData();
+
+const {
+  blocks,
+  loading,
+  fetchBlocks,
+  pageInfo,
+  totalCount: lastBlockHeight,
+  fetchTotalCount,
+  rowsToShow,
+  updateRowsToShow
+} = useBlocks();
 
 /// TODO: get real analytics
 // const mockedCards = [
@@ -47,6 +60,7 @@ const tableHeaders = [
   { key: 'block', label: 'Block' },
   { key: 'chainId', label: 'Chain ID' },
   { key: 'age', label: 'Age' },
+  { key: 'status', label: 'Status' },
   { key: 'txn', label: 'Txn' },
   { key: 'miner', label: 'Miner Account' },
   { key: 'gasLimit', label: 'Gas Limit' },
@@ -59,50 +73,89 @@ const rowOptions = [
   { label: '50', value: 50 },
   { label: '100', value: 100 },
 ];
-const rowsToShow = ref(rowOptions[0]);
 const currentPage = ref(Number(route.query.page) || 1);
+const loadingPage = ref(false);
+
+const selectedRowOption = computed({
+  get: () => rowOptions.find(option => option.value === rowsToShow.value) || rowOptions[0],
+  set: (value) => {
+    if (value) {
+      updateRowsToShow(value);
+    }
+  },
+});
 
 const totalPages = computed(() => {
-  if (!totalCount.value) return 1;
-  return Math.ceil(totalCount.value / rowsToShow.value.value);
+  if (!lastBlockHeight.value) return 1;
+  return Math.ceil(lastBlockHeight.value / rowsToShow.value);
 });
+
+function blockStatus(blockHeight: number, canonical: boolean) {
+  if(lastBlockHeight.value - 10 >= blockHeight && !canonical) {
+    return {
+      text: 'Orphaned',
+      icon: IconCancel,
+      classes: 'bg-[#7f1d1d66] border-[#f87171] text-[#f87171]',
+      description: 'Block is not part of the canonical chain and is orphaned',
+    };
+  }
+
+  if(canonical) {
+    return {
+      text: 'Finalized',
+      icon: IconCheckmarkFill,
+      classes: 'bg-[#0f1f1d] border-[#00a186] text-[#00a186]',
+      description: 'Block is part of the canonical chain and safe to use',
+    };
+  }
+
+  return {
+    text: 'Pending',
+    icon: IconHourglass,
+    classes: 'bg-[#17150d] border-[#444649] text-[#989898]',
+    description: 'Block is not part of the canonical chain and is pending to be finalized or orphaned',
+  };
+};
 
 watch(
   [currentPage, rowsToShow],
   ([newPage, newRows], [oldPage, oldRows]) => {
     const query = { ...route.query, page: newPage };
-    if (newRows.value !== oldRows?.value) {
+    if (newRows !== oldRows) {
       query.page = 1;
       currentPage.value = 1;
     }
     router.push({ query });
   },
-  { deep: true }
 );
 
 watch(
   [() => route.query.page, selectedNetwork, rowsToShow],
-  ([page, network], [oldPage, oldNetwork]) => {
+  async ([page, network], [oldPage, oldNetwork, oldRows]) => {
     if (!network) {
       return;
     }
 
     const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
-
     if (networkChanged) {
-      fetchTotalCount({ networkId: network.id });
-      if (Number(page) !== 1) {
-        router.push({ query: { page: 1 } });
-        return;
-      }
+      await fetchTotalCount({ networkId: network.id });
+    }
+
+    if (rowsToShow.value !== oldRows && Number(page) !== 1) {
+      router.push({ query: { page: 1 } });
+      return;
+    }
+
+    if (networkChanged && Number(page) !== 1) {
+      router.push({ query: { page: 1 } });
+      return;
     }
 
     const pageNumber = Number(page) || 1;
     const oldPageNumber = Number(oldPage) || 1;
 
-    const params: { networkId: string; limit: number, after?: string, before?: string } = {
+    const params: { networkId: string; after?: string, before?: string, toLastPage?: boolean } = {
       networkId: network.id,
-      limit: rowsToShow.value.value
     };
 
     if (pageNumber > 1) {
@@ -112,9 +165,16 @@ watch(
         params.before = pageInfo.value?.startCursor;
       }
     }
+
+    if(pageNumber === totalPages.value) {
+      params.after = null;
+      params.before = null;
+      params.toLastPage = true;
+    }
     
-    fetchBlocks(params);
+    await fetchBlocks(params);
     currentPage.value = pageNumber;
+    loadingPage.value = false;
   },
   {
     immediate: true,
@@ -144,13 +204,14 @@ function downloadData() {
       v-else
       :headers="tableHeaders"
       :items="blocks"
-      :totalItems="totalCount"
+      :totalItems="lastBlockHeight"
       itemNamePlural="blocks"
       :subtitle="subtitle"
       v-model:currentPage="currentPage"
       :totalPages="totalPages"
-      v-model:selectedRows="rowsToShow"
+      v-model:selectedRows="selectedRowOption"
       :rowOptions="rowOptions"
+      v-model:loadingPage="loadingPage"
       :has-next-page="pageInfo?.hasNextPage"
       :has-previous-page="pageInfo?.hasPreviousPage"
     >
@@ -167,19 +228,31 @@ function downloadData() {
       <template #block="{ item }">
         <NuxtLink :to="`/blocks/${item.block}/chain/${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.block }}</NuxtLink>
       </template>
+      <template #status="{ item }">
+        <Tooltip :value="blockStatus(item.block, item.canonical).description" :offset-distance="8">
+          <div
+            v-if="blockStatus"
+            class="px-2 py-1.5 text-[11px] rounded-md border flex items-center gap-1 leading-none"
+            :class="blockStatus(item.block, item.canonical).classes"
+          >
+            <component :is="blockStatus(item.block, item.canonical).icon" class="w-2.5 h-2.5" />
+            <span>
+              {{ blockStatus(item.block, item.canonical).text }}
+            </span>
+          </div>
+        </Tooltip>
+      </template>
       <template #txn="{ item }">
         <NuxtLink :to="`/transactions/${item.txn}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.txn }}</NuxtLink>
       </template>
       <template #miner="{ item }">
         <div class="flex items-center">
-          <Tooltip :value="item.miner" variant="hash">
+          <Tooltip v-if="item.miner!=='N/A'" :value="item.miner" variant="hash">
             <NuxtLink :to="`/account/${item.miner}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.miner, 10, 10) }}</NuxtLink>
           </Tooltip>
-          <Copy :value="item.miner" tooltipText="Copy Address" />
+          <Copy v-if="item.miner!=='N/A'" :value="item.miner" tooltipText="Copy Address" />
+            <span v-else class="text-[#f5f5f5]">{{ item.miner }}</span>
         </div>
-      </template>
-      <template #gasLimit="{ item }">
-        <span class="text-[#f5f5f5]">{{ item.gasLimit }}</span>
       </template>
     </DataTable>
   </div>
