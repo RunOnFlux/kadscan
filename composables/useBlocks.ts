@@ -55,6 +55,35 @@ const TOTAL_COUNT_QUERY = `
   }
 `;
 
+const BLOCKS_BY_HEIGHT_QUERY = `
+query BlocksByHeight($startHeight: Int!, $endHeight: Int) {
+  blocksFromHeight(startHeight: $startHeight, endHeight: $endHeight) {
+    edges {
+      node {
+        chainId
+        creationTime
+        transactions {
+          totalCount
+          edges {
+            node {
+              cmd {
+                meta {
+                  gasPrice
+                }
+              }
+            }
+          }
+        }
+        height
+        coinbase
+        hash
+        canonical
+      }
+    }
+  }
+}
+`;
+
 const processBlockDetails = (node: any) => {
   const { formatGasPrice } = useFormat();
   let miner = 'N/A';
@@ -98,6 +127,10 @@ const { formatRelativeTime } = useFormat();
 const pageInfo = ref<any>(null);
 const totalCount = ref(0);
 const rowsToShow = ref<number>(25);
+
+// State for blocks by height
+const blocksByHeight = ref<any[]>([]);
+const loadingByHeight = ref(true);
 
 export const useBlocks = () => {
   const updateRowsToShow = (rows: any) => {
@@ -175,6 +208,53 @@ export const useBlocks = () => {
     }
   };
 
+  const fetchBlocksByHeight = async ({
+    networkId,
+    height,
+  }: {
+    networkId: string,
+    height: number,
+  }) => {
+    if (!networkId || !height) return;
+    loadingByHeight.value = blocksByHeight.value.length === 0;
+    try {
+      const response: any = await $fetch('/api/graphql', {
+        method: 'POST',
+        body: {
+          query: BLOCKS_BY_HEIGHT_QUERY,
+          variables: {
+            startHeight: height,
+            endHeight: height,
+          },
+          networkId,
+        }
+      });
+
+      const result = response?.data?.blocksFromHeight;
+      const rawBlocks = result?.edges || [];
+      
+      const blocksMap = rawBlocks.map((edge: any) => {
+        const details = processBlockDetails(edge.node);
+        return {
+          height: edge.node.height,
+          chainId: edge.node.chainId,
+          age: formatRelativeTime(edge.node.creationTime),
+          canonical: edge.node.canonical,
+          txn: edge.node.transactions.totalCount,
+          ...details,
+        };
+      });
+      
+      // Sort by chainId in ascending order (0-19)
+      blocksByHeight.value = blocksMap.sort((a: any, b: any) => a.chainId - b.chainId);
+    } catch (error) {
+      console.error('Error fetching or processing blocks by height:', error);
+      blocksByHeight.value = [];
+    } finally {
+      loadingByHeight.value = false;
+    }
+  };
+
   return {
     blocks,
     rowsToShow,
@@ -184,5 +264,8 @@ export const useBlocks = () => {
     pageInfo,
     totalCount,
     fetchTotalCount,
+    blocksByHeight,
+    loadingByHeight,
+    fetchBlocksByHeight,
   };
 }; 
