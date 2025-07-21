@@ -3,6 +3,7 @@ import { ref, watch, computed } from 'vue';
 import IconDownload from '~/components/icon/Download.vue';
 import StatsGrid from '~/components/StatsGrid.vue';
 import DataTable from '~/components/DataTable.vue';
+import FilterSelect from '~/components/FilterSelect.vue';
 import Tooltip from '~/components/Tooltip.vue';
 import Copy from '~/components/Copy.vue';
 import SkeletonTable from '~/components/skeleton/Table.vue';
@@ -37,6 +38,18 @@ const {
   rowsToShow,
   updateRowsToShow
 } = useBlocks();
+
+// Chain filter state
+const selectedChain = ref({ label: 'All', value: null });
+
+// Generate chain filter options (All + 0-19)
+const chainOptions = computed(() => {
+  const options = [{ label: 'All', value: null }];
+  for (let i = 0; i <= 19; i++) {
+    options.push({ label: i.toString(), value: i.toString() });
+  }
+  return options;
+});
 
 /// TODO: get real analytics
 // const mockedCards = [
@@ -130,13 +143,15 @@ watch(
 );
 
 watch(
-  [() => route.query.page, selectedNetwork, rowsToShow],
-  async ([page, network], [oldPage, oldNetwork, oldRows]) => {
+  [() => route.query.page, selectedNetwork, rowsToShow, selectedChain],
+  async ([page, network], [oldPage, oldNetwork, oldRows, oldChain]) => {
     if (!network) {
       return;
     }
 
     const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
+    const chainChanged = oldChain && selectedChain.value.value !== oldChain.value;
+    
     if (networkChanged) {
       await fetchTotalCount({ networkId: network.id });
     }
@@ -146,7 +161,7 @@ watch(
       return;
     }
 
-    if (networkChanged && Number(page) !== 1) {
+    if ((networkChanged || chainChanged) && Number(page) !== 1) {
       router.push({ query: { page: 1 } });
       return;
     }
@@ -154,9 +169,14 @@ watch(
     const pageNumber = Number(page) || 1;
     const oldPageNumber = Number(oldPage) || 1;
 
-    const params: { networkId: string; after?: string, before?: string, toLastPage?: boolean } = {
+    const params: { networkId: string; after?: string, before?: string, toLastPage?: boolean, chainIds?: string[] } = {
       networkId: network.id,
     };
+
+    // Add chainIds filter if a specific chain is selected
+    if (selectedChain.value.value !== null) {
+      params.chainIds = [selectedChain.value.value];
+    }
 
     if (pageNumber > 1) {
       if (pageNumber > oldPageNumber) {
@@ -216,6 +236,11 @@ function downloadData() {
       :has-previous-page="pageInfo?.hasPreviousPage"
     >
       <template #actions>
+        <FilterSelect
+          :modelValue="selectedChain"
+          @update:modelValue="selectedChain = $event"
+          :items="chainOptions"
+        />
         <button
           @click="downloadData"
           class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"

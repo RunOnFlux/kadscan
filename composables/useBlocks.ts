@@ -7,14 +7,16 @@ query Blocks(
   $first: Int,
   $last: Int,
   $after: String,
-  $before: String
+  $before: String,
+  $chainIds: [String!]
 ) {
   blocksFromDepth(
     minimumDepth: $minimumDepth,
     first: $first,
     last: $last,
     after: $after,
-    before: $before
+    before: $before,
+    chainIds: $chainIds
   ) {
     edges {
       node {
@@ -158,11 +160,13 @@ export const useBlocks = () => {
     after,
     before,
     toLastPage = false,
+    chainIds,
   }: {
     networkId: string,
     after?: string,
     before?: string,
     toLastPage?: boolean,
+    chainIds?: string[],
   }) => {
     if (!networkId) return;
     loading.value = blocks.value.length === 0;
@@ -178,6 +182,7 @@ export const useBlocks = () => {
             last: toLastPage ? rowsToShow.value : isForward ? null : rowsToShow.value,
             after,
             before,
+            chainIds,
           },
           networkId,
         }
