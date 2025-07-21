@@ -261,7 +261,11 @@ useHead({
                 <LabelValue :row="isMobile" :label="textContent.blockHeight.label" :description="textContent.blockHeight.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-2">
-                      <span class="text-[#f5f5f5]">{{ block.height }}</span>
+                      <Tooltip value="View all chains for this block height" :offset-distance="8">
+                        <NuxtLink :to="`/blocks/${block.height}`" class="text-[#6ab5db] hover:text-[#9ccee7] transition-colors">
+                          {{ block.height }}
+                        </NuxtLink>
+                      </Tooltip>
                       <div class="flex gap-1">
                         <Tooltip
                           value="View previous Block"

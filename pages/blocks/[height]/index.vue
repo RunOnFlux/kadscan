@@ -3,7 +3,6 @@ import { ref, watch, computed } from 'vue';
 import IconDownload from '~/components/icon/Download.vue';
 import StatsGrid from '~/components/StatsGrid.vue';
 import DataTable from '~/components/DataTable.vue';
-import FilterSelect from '~/components/FilterSelect.vue';
 import Tooltip from '~/components/Tooltip.vue';
 import Copy from '~/components/Copy.vue';
 import SkeletonTable from '~/components/skeleton/Table.vue';
@@ -19,73 +18,29 @@ definePageMeta({
   layout: 'app',
 });
 
-useHead({
-  title: 'Blocks'
-});
-
 const route = useRoute();
-const router = useRouter();
 const { truncateAddress } = useFormat();
 const { selectedNetwork } = useSharedData();
 
+const height = computed(() => Number(route.params.height));
+
 const {
-  blocks,
-  loading,
-  fetchBlocks,
-  pageInfo,
+  blocksByHeight: blocks,
+  loadingByHeight: loading,
+  fetchBlocksByHeight,
   totalCount: lastBlockHeight,
   fetchTotalCount,
-  rowsToShow,
-  updateRowsToShow
 } = useBlocks();
 
-// Chain filter state
-const selectedChain = ref({ label: 'All', value: null });
-
-// Generate chain filter options (All + 0-19)
-const chainOptions = computed(() => {
-  const options = [{ label: 'All', value: null }];
-  for (let i = 0; i <= 19; i++) {
-    options.push({ label: i.toString(), value: i.toString() });
-  }
-  return options;
+useHead({
+  title: `Blocks at Height #${height.value}`
 });
 
-/// TODO: get real analytics
-// const mockedCards = [
-//   { label: 'NETWORK UTILIZATION (24H)', value: '--' },
-//   { label: 'LAST SAFE BLOCK', value: '--' },
-//   { label: 'BLOCKS PRODUCED (24H)', value: '--' },
-//   { label: 'REWARDS GIVEN (24H)', value: '--' },
-// ];
-
 const subtitle = computed(() => {
-  console.log('🔍 Subtitle Debug - blocks.value:', blocks.value);
-  console.log('🔍 Subtitle Debug - blocks.value.length:', blocks.value.length);
-  console.log('🔍 Subtitle Debug - loading.value:', loading.value);
-  
   if (blocks.value.length === 0 || loading.value) {
-    console.log('🔍 Subtitle Debug - returning empty string');
     return '';
   }
-  
-  console.log('🔍 Subtitle Debug - First few blocks:', blocks.value.slice(0, 3));
-  
-  const blockNumbers = blocks.value.map((b: any) => {
-    console.log('🔍 Block object:', b);
-    console.log('🔍 Block.height:', b.height);
-    return b.height;
-  });
-  
-  console.log('🔍 Subtitle Debug - blockNumbers:', blockNumbers);
-  
-  const oldestBlock = Math.min(...blockNumbers);
-  const latestBlock = Math.max(...blockNumbers);
-  
-  console.log('🔍 Subtitle Debug - oldestBlock:', oldestBlock);
-  console.log('🔍 Subtitle Debug - latestBlock:', latestBlock);
-  
-  return `(Showing blocks between #${oldestBlock} to #${latestBlock})`;
+  return `(Showing all chains for block height #${height.value})`;
 });
 
 const tableHeaders = [
@@ -99,28 +54,6 @@ const tableHeaders = [
   { key: 'gasPrice', label: 'Gas Price' },
   { key: 'reward', label: 'Block Reward' },
 ];
-
-const rowOptions = [
-  { label: '25', value: 25 },
-  { label: '50', value: 50 },
-  { label: '100', value: 100 },
-];
-const currentPage = ref(Number(route.query.page) || 1);
-const loadingPage = ref(false);
-
-const selectedRowOption = computed({
-  get: () => rowOptions.find(option => option.value === rowsToShow.value) || rowOptions[0],
-  set: (value) => {
-    if (value) {
-      updateRowsToShow(value);
-    }
-  },
-});
-
-const totalPages = computed(() => {
-  if (!lastBlockHeight.value) return 1;
-  return Math.ceil(lastBlockHeight.value / rowsToShow.value);
-});
 
 function blockStatus(blockHeight: number, canonical: boolean) {
   if(lastBlockHeight.value - 10 >= blockHeight && !canonical) {
@@ -150,70 +83,21 @@ function blockStatus(blockHeight: number, canonical: boolean) {
 };
 
 watch(
-  [currentPage, rowsToShow],
-  ([newPage, newRows], [oldPage, oldRows]) => {
-    const query = { ...route.query, page: newPage };
-    if (newRows !== oldRows) {
-      query.page = 1;
-      currentPage.value = 1;
-    }
-    router.push({ query });
-  },
-);
-
-watch(
-  [() => route.query.page, selectedNetwork, rowsToShow, selectedChain],
-  async ([page, network], [oldPage, oldNetwork, oldRows, oldChain]) => {
-    if (!network) {
+  [height, selectedNetwork],
+  async ([newHeight, network], [oldHeight, oldNetwork]) => {
+    if (!network || !newHeight) {
       return;
     }
 
     const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
-    const chainChanged = oldChain && selectedChain.value.value !== oldChain.value;
-    
     if (networkChanged) {
       await fetchTotalCount({ networkId: network.id });
     }
 
-    if (rowsToShow.value !== oldRows && Number(page) !== 1) {
-      router.push({ query: { page: 1 } });
-      return;
-    }
-
-    if ((networkChanged || chainChanged) && Number(page) !== 1) {
-      router.push({ query: { page: 1 } });
-      return;
-    }
-
-    const pageNumber = Number(page) || 1;
-    const oldPageNumber = Number(oldPage) || 1;
-
-    const params: { networkId: string; after?: string, before?: string, toLastPage?: boolean, chainIds?: string[] } = {
+    await fetchBlocksByHeight({
       networkId: network.id,
-    };
-
-    // Add chainIds filter if a specific chain is selected
-    if (selectedChain.value.value !== null) {
-      params.chainIds = [selectedChain.value.value];
-    }
-
-    if (pageNumber > 1) {
-      if (pageNumber > oldPageNumber) {
-        params.after = pageInfo.value?.endCursor;
-      } else {
-        params.before = pageInfo.value?.startCursor;
-      }
-    }
-
-    if(pageNumber === totalPages.value) {
-      params.after = null;
-      params.before = null;
-      params.toLastPage = true;
-    }
-    
-    await fetchBlocks(params);
-    currentPage.value = pageNumber;
-    loadingPage.value = false;
+      height: newHeight,
+    });
   },
   {
     immediate: true,
@@ -223,7 +107,7 @@ watch(
 
 function downloadData() {
   const csv = exportableToCsv(blocks.value, tableHeaders);
-  downloadCSV(csv, `kadena-blocks-page-${currentPage.value}.csv`);
+  downloadCSV(csv, `kadena-blocks-height-${height.value}.csv`);
 }
 </script>
 
@@ -235,31 +119,23 @@ function downloadData() {
       </h1>
     </div>
 
-    <!-- TODO: get real analytics -->
-    <!-- <StatsGrid :cards="mockedCards" /> -->
-    
     <SkeletonTable v-if="loading" />
     <DataTable
       v-else
       :headers="tableHeaders"
       :items="blocks"
-      :totalItems="lastBlockHeight"
+      :totalItems="blocks.length"
       itemNamePlural="blocks"
       :subtitle="subtitle"
-      v-model:currentPage="currentPage"
-      :totalPages="totalPages"
-      v-model:selectedRows="selectedRowOption"
-      :rowOptions="rowOptions"
-      v-model:loadingPage="loadingPage"
-      :has-next-page="pageInfo?.hasNextPage"
-      :has-previous-page="pageInfo?.hasPreviousPage"
+      :currentPage="1"
+      :totalPages="1"
+      :selectedRows="{ label: String(blocks.length), value: blocks.length }"
+      :rowOptions="[{ label: String(blocks.length), value: blocks.length }]"
+      :loadingPage="false"
+      :has-next-page="false"
+      :has-previous-page="false"
     >
       <template #actions>
-        <FilterSelect
-          :modelValue="selectedChain"
-          @update:modelValue="selectedChain = $event"
-          :items="chainOptions"
-        />
         <button
           @click="downloadData"
           class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
@@ -287,7 +163,7 @@ function downloadData() {
         </Tooltip>
       </template>
       <template #txn="{ item }">
-        <NuxtLink :to="`/transactions/${item.txn}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.txn }}</NuxtLink>
+        <NuxtLink :to="`/transactions?block=${item.height}&chainId=${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.txn }}</NuxtLink>
       </template>
       <template #miner="{ item }">
         <div class="flex items-center">
@@ -300,4 +176,4 @@ function downloadData() {
       </template>
     </DataTable>
   </div>
-</template>
+</template> 
