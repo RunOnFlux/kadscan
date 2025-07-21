@@ -42,11 +42,17 @@ const {
   totalCount, 
   fetchTotalCount, 
   rowsToShow, 
-  updateRowsToShow 
+  updateRowsToShow,
+  clearState,
 } = useTransactions();
 
 // Chain filter state - initialize from URL parameters (commented due to query glitch)
 const selectedChain = ref({ label: 'All', value: null });
+
+// Clear global state on mount to show skeleton on page navigation
+onMounted(() => {
+  clearState();
+});
 
 // Initialize chain filter from URL parameter on component mount (commented due to query glitch)
 // onMounted(() => {

@@ -55,6 +55,12 @@ const totalCount = ref(0);
 const rowsToShow = ref(25);
 
 export const useTransactions = () => {
+  const clearState = () => {
+    transactions.value = [];
+    loading.value = true;
+    pageInfo.value = null;
+  };
+
   const updateRowsToShow = (rows: any) => {
     rowsToShow.value = rows.value;
   };
@@ -145,5 +151,6 @@ export const useTransactions = () => {
     fetchTotalCount,
     rowsToShow,
     updateRowsToShow,
+    clearState,
   };
 }; 
