@@ -13,6 +13,7 @@ import ColumnGas from '~/components/column/Gas.vue';
 import { useTransactions } from '~/composables/useTransactions';
 import { useFormat } from '~/composables/useFormat';
 import { useSharedData } from '~/composables/useSharedData';
+import { useScreenSize } from '~/composables/useScreenSize';
 import { exportableToCsv } from '~/composables/csv';
 import { downloadCSV } from '~/composables/csv';
 import { useBlocks } from '~/composables/useBlocks';
@@ -29,6 +30,7 @@ const route = useRoute();
 const router = useRouter();
 const { truncateAddress } = useFormat();
 const { selectedNetwork } = useSharedData();
+const { isMobile } = useScreenSize();
 
 const { totalCount: lastBlockHeight } = useBlocks();
 
@@ -256,7 +258,7 @@ function downloadData() {
           class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
         >
           <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
-          Download Page Data
+          {{ isMobile ? 'Download' : 'Download Page Data' }}
         </button>
       </template>
 
