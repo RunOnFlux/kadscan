@@ -22,16 +22,26 @@ useHead({
 
 const route = useRoute();
 const router = useRouter();
-const { transactions, loading, fetchTransactions, pageInfo, totalCount } = useTransactions();
 const { truncateAddress } = useFormat();
 const { selectedNetwork } = useSharedData();
+
+const { 
+  transactions, 
+  loading, 
+  fetchTransactions,
+  pageInfo, 
+  totalCount, 
+  fetchTotalCount, 
+  rowsToShow, 
+  updateRowsToShow 
+} = useTransactions();
 
 const subtitle = computed(() => {
   if (transactions.value.length === 0 || loading.value || !totalCount.value) {
     return '';
   }
 
-  const newestTxIndex = totalCount.value - ((currentPage.value - 1) * rowsToShow.value.value);
+  const newestTxIndex = totalCount.value - ((currentPage.value - 1) * rowsToShow.value);
   const oldestTxIndex = newestTxIndex - transactions.value.length + 1;
 
   const formattedNewest = new Intl.NumberFormat().format(newestTxIndex);
@@ -69,49 +79,62 @@ const rowOptions = [
   { label: '50', value: 50 },
   { label: '100', value: 100 },
 ];
-const rowsToShow = ref(rowOptions[0]);
 const currentPage = ref(Number(route.query.page) || 1);
+const loadingPage = ref(false);
+
+const selectedRowOption = computed({
+  get: () => rowOptions.find(option => option.value === rowsToShow.value) || rowOptions[0],
+  set: (value) => {
+    if (value) {
+      updateRowsToShow(value);
+    }
+  },
+});
 
 const totalPages = computed(() => {
   if (!totalCount.value) return 1;
-  return Math.ceil(totalCount.value / rowsToShow.value.value);
+  return Math.ceil(totalCount.value / rowsToShow.value);
 });
 
 watch(
   [currentPage, rowsToShow],
   ([newPage, newRows], [oldPage, oldRows]) => {
     const query = { ...route.query, page: newPage };
-    if (newRows.value !== oldRows?.value) {
+    if (newRows !== oldRows) {
       query.page = 1;
       currentPage.value = 1;
     }
     router.push({ query });
   },
-  { deep: true }
 );
 
 watch(
   [() => route.query.page, selectedNetwork, rowsToShow],
-  ([page, network], [oldPage, oldNetwork]) => {
+  async ([page, network], [oldPage, oldNetwork, oldRows]) => {
     if (!network) {
       return;
     }
 
     const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
-
     if (networkChanged) {
-      if (Number(page) !== 1) {
-        router.push({ query: { page: 1 } });
-        return;
-      }
+      await fetchTotalCount({ networkId: network.id });
+    }
+
+    if (rowsToShow.value !== oldRows && Number(page) !== 1) {
+      router.push({ query: { page: 1 } });
+      return;
+    }
+
+    if (networkChanged && Number(page) !== 1) {
+      router.push({ query: { page: 1 } });
+      return;
     }
 
     const pageNumber = Number(page) || 1;
     const oldPageNumber = Number(oldPage) || 1;
 
-    const params: { networkId: string; limit: number, after?: string, before?: string } = {
+    const params: { networkId: string; after?: string, before?: string, toLastPage?: boolean } = {
       networkId: network.id,
-      limit: rowsToShow.value.value
     };
 
     if (pageNumber > 1) {
@@ -121,9 +144,16 @@ watch(
         params.before = pageInfo.value?.startCursor;
       }
     }
+
+    if(pageNumber === totalPages.value) {
+      params.after = null;
+      params.before = null;
+      params.toLastPage = true;
+    }
     
-    fetchTransactions(params);
+    await fetchTransactions(params);
     currentPage.value = pageNumber;
+    loadingPage.value = false;
   },
   {
     immediate: true,
@@ -157,6 +187,7 @@ function downloadData() {
       :totalPages="totalPages"
       v-model:selectedRows="rowsToShow"
       :rowOptions="rowOptions"
+      v-model:loadingPage="loadingPage"
       :has-next-page="pageInfo?.hasNextPage"
       :has-previous-page="pageInfo?.hasPreviousPage"
     >

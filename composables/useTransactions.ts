@@ -38,26 +38,55 @@ const GQL_QUERY = `
   }
 `;
 
+const TOTAL_COUNT_QUERY = `
+query TransactionCount {
+  networkInfo {
+    transactionCount
+  }
+}
+`;
+
+const transactions = ref<any[]>([]);
+const loading = ref(true);
+const { formatRelativeTime, formatGasPrice } = useFormat();
+const pageInfo = ref<any>(null);
+const totalCount = ref(0);
+const rowsToShow = ref(25);
+
 export const useTransactions = () => {
-  const transactions = ref<any[]>([]);
-  const loading = ref(true);
-  const { formatRelativeTime, formatGasPrice } = useFormat();
-  const pageInfo = ref<any>(null);
-  const totalCount = ref(0);
+  const updateRowsToShow = (rows: any) => {
+    rowsToShow.value = rows.value;
+  };
+
+  const fetchTotalCount = async ({ networkId }: { networkId: string }) => {
+    if (!networkId) return;
+    try {
+      const response: any = await $fetch('/api/graphql', {
+        method: 'POST',
+        body: { 
+          query: TOTAL_COUNT_QUERY,
+          networkId,
+        },
+      });
+      totalCount.value = response?.data?.networkInfo?.transactionCount || 0;
+    } catch (error) {
+      console.error('Error fetching total block count:', error);
+    }
+  };
 
   const fetchTransactions = async ({
     networkId,
-    limit,
     after,
     before,
+    toLastPage = false,
   }: {
     networkId: string,
-    limit: number,
     after?: string,
     before?: string,
+    toLastPage?: boolean,
   }) => {
     if (!networkId) return;
-    loading.value = true;
+    loading.value = transactions.value.length === 0;
     try {
       const isForward = !!after || (!after && !before);
       const response: any = await $fetch('/api/graphql', {
@@ -65,8 +94,8 @@ export const useTransactions = () => {
         body: {
           query: GQL_QUERY,
           variables: {
-            first: isForward ? limit : null,
-            last: isForward ? null : limit,
+            first: toLastPage ? null : isForward ? rowsToShow.value : null,
+            last: toLastPage ? rowsToShow.value : isForward ? null : rowsToShow.value,
             after,
             before,
           },
@@ -86,7 +115,7 @@ export const useTransactions = () => {
           chainId: edge.node.cmd.meta.chainId,
           time: formatRelativeTime(edge.node.cmd.meta.creationTime),
           sender: edge.node.cmd.meta.sender,
-          gasPrice: formatGasPrice(edge.node.cmd.meta.gasPrice),
+          gasPrice: formatGasPrice(parseFloat(edge.node.cmd.meta.gasPrice)),
           rawGasPrice: edge.node.cmd.meta.gasPrice,
           gas: edge.node.result.gas,
           gasLimit: new Intl.NumberFormat().format(edge.node.cmd.meta.gasLimit),
@@ -108,5 +137,8 @@ export const useTransactions = () => {
     fetchTransactions,
     pageInfo,
     totalCount,
+    fetchTotalCount,
+    rowsToShow,
+    updateRowsToShow,
   };
 }; 

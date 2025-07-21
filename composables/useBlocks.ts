@@ -101,7 +101,6 @@ const rowsToShow = ref<number>(25);
 
 export const useBlocks = () => {
   const updateRowsToShow = (rows: any) => {
-    console.log("new rows", rows)
     rowsToShow.value = rows.value;
   };
 
