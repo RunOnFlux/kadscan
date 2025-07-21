@@ -5,27 +5,102 @@ import IconChevron from '~/components/icon/Chevron.vue'
 const props = defineProps<{
   modelValue: any;
   items: any[];
+  urlParamName?: string; // New prop for URL parameter name (e.g., "chain")
 }>()
 
 const emit = defineEmits(['update:modelValue'])
+
+const route = useRoute()
+const router = useRouter()
 
 // Track if showing dropdown and current chain number
 const showDropdown = ref(false)
 const currentChain = ref<number | null>(null)
 
-// Initialize current chain from modelValue
+// Initialize from URL parameter if urlParamName is provided
+const initializeFromUrl = () => {
+  if (!props.urlParamName) return null;
+  
+  const urlValue = route.query[props.urlParamName];
+  if (!urlValue) return null;
+  
+  // Handle "all" case or invalid values
+  if (urlValue === 'all' || urlValue === '') return null;
+  
+  const chainValue = parseInt(urlValue as string);
+  if (isNaN(chainValue) || chainValue < 0 || chainValue > 19) {
+    return null;
+  }
+  
+  return chainValue;
+}
+
+// Initialize current chain from URL or modelValue
+const initializeChain = () => {
+  // First try to get from URL if urlParamName is provided
+  const urlChain = initializeFromUrl();
+  if (urlChain !== null) {
+    currentChain.value = urlChain;
+    // Emit the URL value to sync with parent component
+    emit('update:modelValue', { label: urlChain.toString(), value: urlChain.toString() });
+    return;
+  }
+  
+  // Fallback to modelValue initialization
+  if (props.modelValue?.value === null) {
+    currentChain.value = null;
+  } else if (props.modelValue?.value) {
+    currentChain.value = parseInt(props.modelValue.value);
+  }
+}
+
+// Initialize on component mount
+onMounted(() => {
+  initializeChain();
+})
+
+// Watch for modelValue changes (from parent)
 watch(() => props.modelValue, (newValue) => {
   if (newValue?.value === null) {
-    currentChain.value = null
+    currentChain.value = null;
   } else if (newValue?.value) {
-    currentChain.value = parseInt(newValue.value)
+    currentChain.value = parseInt(newValue.value);
   }
 }, { immediate: true })
+
+// Watch for URL parameter changes (browser back/forward)
+watch(() => route.query[props.urlParamName || ''], (newValue) => {
+  if (!props.urlParamName) return;
+  
+  const urlChain = initializeFromUrl();
+  if (urlChain !== currentChain.value) {
+    currentChain.value = urlChain;
+    const modelValue = urlChain !== null 
+      ? { label: urlChain.toString(), value: urlChain.toString() }
+      : { label: 'All', value: null };
+    emit('update:modelValue', modelValue);
+  }
+})
+
+// Update URL when chain changes
+const updateUrl = (chainValue: number | null) => {
+  if (!props.urlParamName) return;
+  
+  const query = { ...route.query };
+  if (chainValue !== null) {
+    query[props.urlParamName] = chainValue.toString();
+  } else {
+    delete query[props.urlParamName];
+  }
+  
+  router.push({ query });
+}
 
 // Handle "All" button click
 const selectAll = () => {
   currentChain.value = null
   emit('update:modelValue', { label: 'All', value: null })
+  updateUrl(null);
 }
 
 // Handle direct input change
@@ -40,6 +115,7 @@ const handleInputChange = (event: Event) => {
   
   currentChain.value = value
   emit('update:modelValue', { label: value.toString(), value: value.toString() })
+  updateUrl(value);
 }
 
 // Handle chevron controls
@@ -52,6 +128,7 @@ const decrementChain = () => {
     return // Don't go below 0
   }
   emit('update:modelValue', { label: currentChain.value.toString(), value: currentChain.value.toString() })
+  updateUrl(currentChain.value);
 }
 
 const incrementChain = () => {
@@ -63,6 +140,7 @@ const incrementChain = () => {
     return // Don't go above 19
   }
   emit('update:modelValue', { label: currentChain.value.toString(), value: currentChain.value.toString() })
+  updateUrl(currentChain.value);
 }
 
 // Toggle dropdown

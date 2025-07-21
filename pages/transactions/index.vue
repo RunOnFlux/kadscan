@@ -45,8 +45,19 @@ const {
   updateRowsToShow 
 } = useTransactions();
 
-// Chain filter state
+// Chain filter state - initialize from URL parameters (commented due to query glitch)
 const selectedChain = ref({ label: 'All', value: null });
+
+// Initialize chain filter from URL parameter on component mount (commented due to query glitch)
+// onMounted(() => {
+//   const chainParam = route.query.chain;
+//   if (chainParam && chainParam !== 'all') {
+//     const chainValue = parseInt(chainParam as string);
+//     if (!isNaN(chainValue) && chainValue >= 0 && chainValue <= 19) {
+//       selectedChain.value = { label: chainValue.toString(), value: chainValue.toString() };
+//     }
+//   }
+// });
 
 // Generate chain filter options (All + 0-19)
 const chainOptions = computed(() => {
@@ -249,11 +260,12 @@ function downloadData() {
       :has-previous-page="pageInfo?.hasPreviousPage"
     >
       <template #actions>
-        <!-- TODO: fix filter select -->
+        <!-- TODO: fix filter select (query glitch with chainId variable) -->
         <!-- <FilterSelect
           :modelValue="selectedChain"
           @update:modelValue="selectedChain = $event"
           :items="chainOptions"
+          urlParamName="chain"
         /> -->
         <button
           @click="downloadData"
