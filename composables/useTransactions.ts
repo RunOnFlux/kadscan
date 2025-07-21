@@ -28,6 +28,7 @@ const GQL_QUERY = `
               gas
               block {
                 height
+                canonical
               }
             }
           }
@@ -111,7 +112,8 @@ export const useTransactions = () => {
       transactions.value = rawTxs.map((edge: any) => {
         return {
           requestKey: edge.node.hash,
-          block: edge.node.result.block?.height,
+          height: edge.node.result.block?.height,
+          canonical: edge.node.result.block?.canonical,
           chainId: edge.node.cmd.meta.chainId,
           time: formatRelativeTime(edge.node.cmd.meta.creationTime),
           sender: edge.node.cmd.meta.sender,

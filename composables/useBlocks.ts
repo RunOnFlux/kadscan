@@ -157,7 +157,7 @@ export const useBlocks = () => {
       const blocksMap = rawBlocks.map((edge: any) => {
         const details = processBlockDetails(edge.node);
         return {
-          block: edge.node.height,
+          height: edge.node.height,
           chainId: edge.node.chainId,
           age: formatRelativeTime(edge.node.creationTime),
           canonical: edge.node.canonical,

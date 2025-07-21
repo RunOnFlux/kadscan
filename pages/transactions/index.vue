@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
 import IconDownload from '~/components/icon/Download.vue';
+import IconHourglass from '~/components/icon/Hourglass.vue';
+import IconCancel from '~/components/icon/Cancel.vue';
+import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
 import DataTable from '~/components/DataTable.vue';
 import Tooltip from '~/components/Tooltip.vue';
 import Copy from '~/components/Copy.vue';
@@ -11,6 +14,7 @@ import { useFormat } from '~/composables/useFormat';
 import { useSharedData } from '~/composables/useSharedData';
 import { exportableToCsv } from '~/composables/csv';
 import { downloadCSV } from '~/composables/csv';
+import { useBlocks } from '~/composables/useBlocks';
 
 definePageMeta({
   layout: 'app',
@@ -24,6 +28,8 @@ const route = useRoute();
 const router = useRouter();
 const { truncateAddress } = useFormat();
 const { selectedNetwork } = useSharedData();
+
+const { totalCount: lastBlockHeight } = useBlocks();
 
 const { 
   transactions, 
@@ -64,8 +70,9 @@ const getFeeInKda = (item: any) => {
 
 const tableHeaders = [
   { key: 'requestKey', label: 'Request Key' },
-  { key: 'block', label: 'Block' },
-  { key: 'chainId', label: 'Chain ID' },
+  { key: 'height', label: 'Block' },
+  { key: 'chainId', label: 'Chain' },
+  { key: 'status', label: 'Status' },
   { key: 'time', label: 'Time' },
   { key: 'sender', label: 'Sender' },
   { key: 'gas', label: 'Gas' },
@@ -95,6 +102,33 @@ const totalPages = computed(() => {
   if (!totalCount.value) return 1;
   return Math.ceil(totalCount.value / rowsToShow.value);
 });
+
+function blockStatus(blockHeight: number, canonical: boolean) {
+  if(lastBlockHeight.value - 10 >= blockHeight && !canonical) {
+    return {
+      text: 'Orphaned',
+      icon: IconCancel,
+      classes: 'bg-[#7f1d1d66] border-[#f87171] text-[#f87171]',
+      description: 'Block is not part of the canonical chain and is orphaned',
+    };
+  }
+
+  if(canonical) {
+    return {
+      text: 'Finalized',
+      icon: IconCheckmarkFill,
+      classes: 'bg-[#0f1f1d] border-[#00a186] text-[#00a186]',
+      description: 'Block is part of the canonical chain and safe to use',
+    };
+  }
+
+  return {
+    text: 'Pending',
+    icon: IconHourglass,
+    classes: 'bg-[#17150d] border-[#444649] text-[#989898]',
+    description: 'Block is not part of the canonical chain and is pending to be finalized or orphaned',
+  };
+};
 
 watch(
   [currentPage, rowsToShow],
@@ -209,8 +243,22 @@ function downloadData() {
           <Copy :value="item.requestKey" tooltipText="Copy Transaction Request Key" />
         </div>
       </template>
-      <template #block="{ item }">
-        <NuxtLink :to="`/blocks/${item.block}/chain/${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.block }}</NuxtLink>
+      <template #height="{ item }">
+        <NuxtLink :to="`/blocks/${item.height}/chain/${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.height }}</NuxtLink>
+      </template>
+      <template #status="{ item }">
+        <Tooltip :value="blockStatus(item.height, item.canonical).description" :offset-distance="8">
+          <div
+            v-if="blockStatus"
+            class="px-2 py-1.5 text-[11px] rounded-md border flex items-center gap-1 leading-none"
+            :class="blockStatus(item.height, item.canonical).classes"
+          >
+            <component :is="blockStatus(item.height, item.canonical).icon" class="w-2.5 h-2.5" />
+            <span>
+              {{ blockStatus(item.height, item.canonical).text }}
+            </span>
+          </div>
+        </Tooltip>
       </template>
       <template #sender="{ item }">
         <div class="flex items-center">

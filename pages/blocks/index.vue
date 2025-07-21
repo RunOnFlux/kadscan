@@ -57,10 +57,10 @@ const subtitle = computed(() => {
 });
 
 const tableHeaders = [
-  { key: 'block', label: 'Block' },
-  { key: 'chainId', label: 'Chain ID' },
-  { key: 'age', label: 'Age' },
+  { key: 'height', label: 'Block' },
+  { key: 'chainId', label: 'Chain' },
   { key: 'status', label: 'Status' },
+  { key: 'age', label: 'Age' },
   { key: 'txn', label: 'Txn' },
   { key: 'miner', label: 'Miner Account' },
   { key: 'gasLimit', label: 'Gas Limit' },
@@ -225,19 +225,19 @@ function downloadData() {
         </button>
       </template>
 
-      <template #block="{ item }">
-        <NuxtLink :to="`/blocks/${item.block}/chain/${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.block }}</NuxtLink>
+      <template #height="{ item }">
+        <NuxtLink :to="`/blocks/${item.height}/chain/${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.height }}</NuxtLink>
       </template>
       <template #status="{ item }">
-        <Tooltip :value="blockStatus(item.block, item.canonical).description" :offset-distance="8">
+        <Tooltip :value="blockStatus(item.height, item.canonical).description" :offset-distance="8">
           <div
             v-if="blockStatus"
             class="px-2 py-1.5 text-[11px] rounded-md border flex items-center gap-1 leading-none"
-            :class="blockStatus(item.block, item.canonical).classes"
+            :class="blockStatus(item.height, item.canonical).classes"
           >
-            <component :is="blockStatus(item.block, item.canonical).icon" class="w-2.5 h-2.5" />
+            <component :is="blockStatus(item.height, item.canonical).icon" class="w-2.5 h-2.5" />
             <span>
-              {{ blockStatus(item.block, item.canonical).text }}
+              {{ blockStatus(item.height, item.canonical).text }}
             </span>
           </div>
         </Tooltip>
