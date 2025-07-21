@@ -135,6 +135,14 @@ const blocksByHeight = ref<any[]>([]);
 const loadingByHeight = ref(true);
 
 export const useBlocks = () => {
+  const clearState = () => {
+    blocks.value = [];
+    blocksByHeight.value = [];
+    loading.value = true;
+    loadingByHeight.value = true;
+    pageInfo.value = null;
+  };
+
   const updateRowsToShow = (rows: any) => {
     rowsToShow.value = rows.value;
   };
@@ -272,5 +280,6 @@ export const useBlocks = () => {
     blocksByHeight,
     loadingByHeight,
     fetchBlocksByHeight,
+    clearState,
   };
 }; 

@@ -38,7 +38,8 @@ const {
   totalCount: lastBlockHeight,
   fetchTotalCount,
   rowsToShow,
-  updateRowsToShow
+  updateRowsToShow,
+  clearState,
 } = useBlocks();
 
 // Chain filter state - initialize from URL parameters
@@ -46,6 +47,9 @@ const selectedChain = ref({ label: 'All', value: null });
 
 // Initialize chain filter from URL parameter on component mount
 onMounted(() => {
+  // Clear global state to show skeleton on page navigation
+  clearState();
+  
   const chainParam = route.query.chain;
   if (chainParam && chainParam !== 'all') {
     const chainValue = parseInt(chainParam as string);
