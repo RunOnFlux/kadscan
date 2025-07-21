@@ -13,6 +13,7 @@ import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
 import { useBlocks } from '~/composables/useBlocks';
 import { useFormat } from '~/composables/useFormat';
 import { useSharedData } from '~/composables/useSharedData';
+import { useScreenSize } from '~/composables/useScreenSize';
 import { exportableToCsv, downloadCSV } from '~/composables/csv';
 
 definePageMeta({
@@ -27,6 +28,7 @@ const route = useRoute();
 const router = useRouter();
 const { truncateAddress } = useFormat();
 const { selectedNetwork } = useSharedData();
+const { isMobile } = useScreenSize();
 
 const {
   blocks,
@@ -60,31 +62,12 @@ const chainOptions = computed(() => {
 // ];
 
 const subtitle = computed(() => {
-  console.log('🔍 Subtitle Debug - blocks.value:', blocks.value);
-  console.log('🔍 Subtitle Debug - blocks.value.length:', blocks.value.length);
-  console.log('🔍 Subtitle Debug - loading.value:', loading.value);
-  
   if (blocks.value.length === 0 || loading.value) {
-    console.log('🔍 Subtitle Debug - returning empty string');
     return '';
   }
-  
-  console.log('🔍 Subtitle Debug - First few blocks:', blocks.value.slice(0, 3));
-  
-  const blockNumbers = blocks.value.map((b: any) => {
-    console.log('🔍 Block object:', b);
-    console.log('🔍 Block.height:', b.height);
-    return b.height;
-  });
-  
-  console.log('🔍 Subtitle Debug - blockNumbers:', blockNumbers);
-  
+  const blockNumbers = blocks.value.map((b: any) => b.height);
   const oldestBlock = Math.min(...blockNumbers);
   const latestBlock = Math.max(...blockNumbers);
-  
-  console.log('🔍 Subtitle Debug - oldestBlock:', oldestBlock);
-  console.log('🔍 Subtitle Debug - latestBlock:', latestBlock);
-  
   return `(Showing blocks between #${oldestBlock} to #${latestBlock})`;
 });
 
@@ -210,7 +193,7 @@ watch(
       params.before = null;
       params.toLastPage = true;
     }
-    
+
     await fetchBlocks(params);
     currentPage.value = pageNumber;
     loadingPage.value = false;
@@ -265,7 +248,7 @@ function downloadData() {
           class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
         >
           <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
-          Download Page Data
+          {{ isMobile ? 'Download' : 'Download Page Data' }}
         </button>
       </template>
 

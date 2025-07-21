@@ -105,8 +105,8 @@ const closeDropdown = () => {
           absolute
           bg-[#111111]
           shadow-[0_0_15px_rgba(255,255,255,0.0625)]
-          right-0 top-[calc(100%+8px)]
-          origin-top-right
+          left-0 top-[calc(100%+8px)]
+          origin-top-left
           w-56
         "
       >

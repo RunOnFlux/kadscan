@@ -13,6 +13,7 @@ import ColumnGas from '~/components/column/Gas.vue';
 import { useTransactions } from '~/composables/useTransactions';
 import { useFormat } from '~/composables/useFormat';
 import { useSharedData } from '~/composables/useSharedData';
+import { useScreenSize } from '~/composables/useScreenSize';
 import { exportableToCsv } from '~/composables/csv';
 import { downloadCSV } from '~/composables/csv';
 import { useBlocks } from '~/composables/useBlocks';
@@ -29,6 +30,7 @@ const route = useRoute();
 const router = useRouter();
 const { truncateAddress } = useFormat();
 const { selectedNetwork } = useSharedData();
+const { isMobile } = useScreenSize();
 
 const { totalCount: lastBlockHeight } = useBlocks();
 
@@ -182,13 +184,14 @@ watch(
     const pageNumber = Number(page) || 1;
     const oldPageNumber = Number(oldPage) || 1;
 
-    const params: { networkId: string; after?: string, before?: string, toLastPage?: boolean, chainIds?: string[] } = {
+    const params: { networkId: string; after?: string, before?: string, toLastPage?: boolean, chainId?: string } = {
       networkId: network.id,
     };
 
     // Add chainIds filter if a specific chain is selected
     if (selectedChain.value.value !== null) {
-      params.chainIds = [selectedChain.value.value];
+      console.log("selectedChain.value.value", selectedChain.value.value);
+      params.chainId = selectedChain.value.value;
     }
 
     if (pageNumber > 1) {
@@ -204,7 +207,7 @@ watch(
       params.before = null;
       params.toLastPage = true;
     }
-    
+
     await fetchTransactions(params);
     currentPage.value = pageNumber;
     loadingPage.value = false;
@@ -246,17 +249,18 @@ function downloadData() {
       :has-previous-page="pageInfo?.hasPreviousPage"
     >
       <template #actions>
-        <FilterSelect
+        <!-- TODO: fix filter select -->
+        <!-- <FilterSelect
           :modelValue="selectedChain"
           @update:modelValue="selectedChain = $event"
           :items="chainOptions"
-        />
+        /> -->
         <button
           @click="downloadData"
           class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
         >
           <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
-          Download Page Data
+          {{ isMobile ? 'Download' : 'Download Page Data' }}
         </button>
       </template>
 

@@ -2,8 +2,8 @@ import { ref } from 'vue';
 import { useFormat } from './useFormat';
 
 const GQL_QUERY = `
-  query Transactions($first: Int, $last: Int, $after: String, $before: String, $chainIds: [String!]) {
-    transactions(first: $first, last: $last, after: $after, before: $before, chainIds: $chainIds) {
+  query Transactions($first: Int, $last: Int, $after: String, $before: String, $chainId: String) {
+    transactions(first: $first, last: $last, after: $after, before: $before, chainId: $chainId) {
       totalCount
       pageInfo {
         endCursor
@@ -80,18 +80,19 @@ export const useTransactions = () => {
     after,
     before,
     toLastPage = false,
-    chainIds,
+    chainId,
   }: {
     networkId: string,
     after?: string,
     before?: string,
     toLastPage?: boolean,
-    chainIds?: string[],
+    chainId?: string,
   }) => {
     if (!networkId) return;
     loading.value = transactions.value.length === 0;
     try {
       const isForward = !!after || (!after && !before);
+      console.log("chainId", chainId);
       const response: any = await $fetch('/api/graphql', {
         method: 'POST',
         body: {
@@ -101,7 +102,7 @@ export const useTransactions = () => {
             last: toLastPage ? rowsToShow.value : isForward ? null : rowsToShow.value,
             after,
             before,
-            chainIds,
+            chainId,
           },
           networkId,
         }

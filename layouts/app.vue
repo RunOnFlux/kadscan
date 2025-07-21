@@ -16,7 +16,7 @@ await useAsyncData('global-kda-fetch', () => fetchSharedKadenaData());
     <HeaderTopbar/>
 
     <div class="w-full grow relative">
-      <div class="relative h-full px-3 pt-6 pb-10 lg:px-5 lg:pt-4 lg:pb-20 max-w-[1400px] w-full mx-auto">
+      <div class="relative h-full px-3 pt-6 pb-10 md:px-5 md:pt-4 md:pb-20 max-w-[1400px] w-full mx-auto">
         <HomeAnimation
             v-if="route.name === 'index'"
             class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1400px] h-[250px] object-cover -z-10 pointer-events-none"
