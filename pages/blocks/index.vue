@@ -13,6 +13,7 @@ import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
 import { useBlocks } from '~/composables/useBlocks';
 import { useFormat } from '~/composables/useFormat';
 import { useSharedData } from '~/composables/useSharedData';
+import { useScreenSize } from '~/composables/useScreenSize';
 import { exportableToCsv, downloadCSV } from '~/composables/csv';
 
 definePageMeta({
@@ -27,6 +28,7 @@ const route = useRoute();
 const router = useRouter();
 const { truncateAddress } = useFormat();
 const { selectedNetwork } = useSharedData();
+const { isMobile } = useScreenSize();
 
 const {
   blocks,
@@ -246,7 +248,7 @@ function downloadData() {
           class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
         >
           <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
-          Download Page Data
+          {{ isMobile ? 'Download' : 'Download Page Data' }}
         </button>
       </template>
 
