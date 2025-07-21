@@ -300,7 +300,12 @@ useHead({
                 <LabelValue :row="isMobile" :label="textContent.chainId.label" :description="textContent.chainId.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-2">
-                      <span>{{ String(block.chainId) }}</span>
+                      <NuxtLink 
+                        :to="`/blocks?chain=${block.chainId}`"
+                        class="text-[#6ab5db] hover:text-[#9ccee7] cursor-pointer"
+                      >
+                        {{ String(block.chainId) }}
+                      </NuxtLink>
                       <div class="flex gap-1">
                         <Tooltip value="View previous Chain" :offset-distance="8">
                           <button
