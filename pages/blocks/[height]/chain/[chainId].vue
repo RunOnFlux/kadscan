@@ -158,7 +158,7 @@ const startPolling = () => {
       fetchBlock();
       fetchTotalCount({ networkId: networkId.value });
     }
-  }, 2000);
+  }, 4000);
 };
 
 onUnmounted(() => {
