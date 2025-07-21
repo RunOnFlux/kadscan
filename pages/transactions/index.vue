@@ -184,13 +184,14 @@ watch(
     const pageNumber = Number(page) || 1;
     const oldPageNumber = Number(oldPage) || 1;
 
-    const params: { networkId: string; after?: string, before?: string, toLastPage?: boolean, chainIds?: string[] } = {
+    const params: { networkId: string; after?: string, before?: string, toLastPage?: boolean, chainId?: string } = {
       networkId: network.id,
     };
 
     // Add chainIds filter if a specific chain is selected
     if (selectedChain.value.value !== null) {
-      params.chainIds = [selectedChain.value.value];
+      console.log("selectedChain.value.value", selectedChain.value.value);
+      params.chainId = selectedChain.value.value;
     }
 
     if (pageNumber > 1) {
@@ -206,7 +207,7 @@ watch(
       params.before = null;
       params.toLastPage = true;
     }
-    
+
     await fetchTransactions(params);
     currentPage.value = pageNumber;
     loadingPage.value = false;

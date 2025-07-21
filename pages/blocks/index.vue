@@ -193,7 +193,7 @@ watch(
       params.before = null;
       params.toLastPage = true;
     }
-    
+
     await fetchBlocks(params);
     currentPage.value = pageNumber;
     loadingPage.value = false;
