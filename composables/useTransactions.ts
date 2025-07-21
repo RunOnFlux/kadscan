@@ -92,7 +92,6 @@ export const useTransactions = () => {
     loading.value = transactions.value.length === 0;
     try {
       const isForward = !!after || (!after && !before);
-      console.log("chainId", chainId);
       const response: any = await $fetch('/api/graphql', {
         method: 'POST',
         body: {

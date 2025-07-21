@@ -73,10 +73,10 @@ const chainOptions = computed(() => {
 // ];
 
 const subtitle = computed(() => {
-  if (blocks.value.length === 0 || loading.value) {
+  if (filteredBlocks.value.length === 0 || loading.value) {
     return '';
   }
-  const blockNumbers = blocks.value.map((b: any) => b.height);
+  const blockNumbers = filteredBlocks.value.map((b: any) => b.height);
   const oldestBlock = Math.min(...blockNumbers);
   const latestBlock = Math.max(...blockNumbers);
   return `(Showing blocks between #${oldestBlock} to #${latestBlock})`;
@@ -142,6 +142,17 @@ function blockStatus(blockHeight: number, canonical: boolean) {
     description: 'Block is not part of the canonical chain and is pending to be finalized or orphaned',
   };
 };
+
+// Computed property to filter out orphaned blocks
+const filteredBlocks = computed(() => {
+  if (!blocks.value || !lastBlockHeight || !lastBlockHeight.value) return [];
+  
+  return blocks.value.filter((block: any) => {
+    // Remove orphaned blocks (same logic as blockStatus function)
+    const isOrphaned = lastBlockHeight.value - 10 >= block.height && !block.canonical;
+    return !isOrphaned;
+  });
+});
 
 watch(
   [currentPage, rowsToShow],
@@ -216,7 +227,7 @@ watch(
 );
 
 function downloadData() {
-  const csv = exportableToCsv(blocks.value, tableHeaders);
+  const csv = exportableToCsv(filteredBlocks.value, tableHeaders);
   downloadCSV(csv, `kadena-blocks-page-${currentPage.value}.csv`);
 }
 </script>
@@ -236,7 +247,7 @@ function downloadData() {
     <DataTable
       v-else
       :headers="tableHeaders"
-      :items="blocks"
+      :items="filteredBlocks"
       :totalItems="lastBlockHeight"
       itemNamePlural="blocks"
       :subtitle="subtitle"

@@ -32,7 +32,7 @@ const { truncateAddress } = useFormat();
 const { selectedNetwork } = useSharedData();
 const { isMobile } = useScreenSize();
 
-const { totalCount: lastBlockHeight } = useBlocks();
+const { totalCount: lastBlockHeight, fetchTotalCount: fetchLastBlockHeight } = useBlocks();
 
 const { 
   transactions, 
@@ -69,12 +69,12 @@ const chainOptions = computed(() => {
 });
 
 const subtitle = computed(() => {
-  if (transactions.value.length === 0 || loading.value || !totalCount.value) {
+  if (filteredTransactions.value.length === 0 || loading.value || !totalCount.value) {
     return '';
   }
 
   const newestTxIndex = totalCount.value - ((currentPage.value - 1) * rowsToShow.value);
-  const oldestTxIndex = newestTxIndex - transactions.value.length + 1;
+  const oldestTxIndex = newestTxIndex - filteredTransactions.value.length + 1;
 
   const formattedNewest = new Intl.NumberFormat().format(newestTxIndex);
   const formattedOldest = new Intl.NumberFormat().format(oldestTxIndex);
@@ -156,6 +156,17 @@ function blockStatus(blockHeight: number, canonical: boolean) {
   };
 };
 
+// Computed property to filter out transactions from orphaned blocks
+const filteredTransactions = computed(() => {
+  if (!transactions.value || !lastBlockHeight || !lastBlockHeight.value) return [];
+  
+  return transactions.value.filter((transaction: any) => {
+    // Remove transactions from orphaned blocks (same logic as blockStatus function)
+    const isFromOrphanedBlock = lastBlockHeight.value - 10 >= transaction.height && !transaction.canonical;
+    return !isFromOrphanedBlock;
+  });
+});
+
 watch(
   [currentPage, rowsToShow],
   ([newPage, newRows], [oldPage, oldRows]) => {
@@ -180,6 +191,7 @@ watch(
     
     if (networkChanged) {
       await fetchTotalCount({ networkId: network.id });
+      await fetchLastBlockHeight({ networkId: network.id }); // Fetch lastBlockHeight from useBlocks
     }
 
     if (rowsToShow.value !== oldRows && Number(page) !== 1) {
@@ -230,7 +242,7 @@ watch(
 );
 
 function downloadData() {
-  const csv = exportableToCsv(transactions.value, tableHeaders);
+  const csv = exportableToCsv(filteredTransactions.value, tableHeaders);
   downloadCSV(csv, `kadena-transactions-page-${currentPage.value}.csv`);
 }
 </script>
@@ -247,7 +259,7 @@ function downloadData() {
     <DataTable
       v-else
       :headers="tableHeaders"
-      :items="transactions"
+      :items="filteredTransactions"
       :totalItems="totalCount"
       itemNamePlural="transactions"
       :subtitle="subtitle"
