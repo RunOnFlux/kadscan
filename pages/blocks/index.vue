@@ -60,31 +60,12 @@ const chainOptions = computed(() => {
 // ];
 
 const subtitle = computed(() => {
-  console.log('🔍 Subtitle Debug - blocks.value:', blocks.value);
-  console.log('🔍 Subtitle Debug - blocks.value.length:', blocks.value.length);
-  console.log('🔍 Subtitle Debug - loading.value:', loading.value);
-  
   if (blocks.value.length === 0 || loading.value) {
-    console.log('🔍 Subtitle Debug - returning empty string');
     return '';
   }
-  
-  console.log('🔍 Subtitle Debug - First few blocks:', blocks.value.slice(0, 3));
-  
-  const blockNumbers = blocks.value.map((b: any) => {
-    console.log('🔍 Block object:', b);
-    console.log('🔍 Block.height:', b.height);
-    return b.height;
-  });
-  
-  console.log('🔍 Subtitle Debug - blockNumbers:', blockNumbers);
-  
+  const blockNumbers = blocks.value.map((b: any) => b.height);
   const oldestBlock = Math.min(...blockNumbers);
   const latestBlock = Math.max(...blockNumbers);
-  
-  console.log('🔍 Subtitle Debug - oldestBlock:', oldestBlock);
-  console.log('🔍 Subtitle Debug - latestBlock:', latestBlock);
-  
   return `(Showing blocks between #${oldestBlock} to #${latestBlock})`;
 });
 
