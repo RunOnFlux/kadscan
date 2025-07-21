@@ -249,11 +249,12 @@ function downloadData() {
       :has-previous-page="pageInfo?.hasPreviousPage"
     >
       <template #actions>
-        <FilterSelect
+        <!-- TODO: fix filter select -->
+        <!-- <FilterSelect
           :modelValue="selectedChain"
           @update:modelValue="selectedChain = $event"
           :items="chainOptions"
-        />
+        /> -->
         <button
           @click="downloadData"
           class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
