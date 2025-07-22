@@ -141,7 +141,7 @@ const toggleMoreDetails = () => {
       <img src="/favicon.ico" alt="Kadena" class="w-8 h-8 rounded-full bg-[#00EAC7] object-contain" />
       <div class="flex flex-col flex-1 min-w-0">
         <span class="text-xs text-[#f5f5f5] font-semibold tracking-wide">TRANSACTION ACTION</span>
-        <div class="flex flex-wrap items-center gap-2 text-sm text-[#fafafa]">
+        <div class="flex flex-wrap items-center gap-2 text-[15px] text-[#fafafa]">
           <span class="text-[#bbb]">Transfer</span>
           <span class="font-mono text-[#f5f5f5]">{{ transaction.value }} KDA</span>
           <span class="text-[#bbbbbb]">(${{ transaction.valueUsd }})</span>
@@ -162,7 +162,7 @@ const toggleMoreDetails = () => {
             <LabelValue :row="isMobile" :label="textContent.transactionHash.label" :description="textContent.transactionHash.description" tooltipPos="right">
               <template #value>
                 <div class="flex items-center gap-2">
-                  <span class="font-mono text-[#fafafa] break-all text-sm">{{ transaction.hash }}</span>
+                  <span class="font-mono text-[#fafafa] break-all text-[15px]">{{ transaction.hash }}</span>
                   <Copy :value="transaction.hash" />
                 </div>
               </template>
@@ -194,7 +194,7 @@ const toggleMoreDetails = () => {
               <template #value>
                 <div class="flex items-center gap-2">
                   <Clock class="w-4 h-4 text-[#bbbbbb]" />
-                  <span class="text-[#fafafa] text-sm">{{ transaction.age }} ({{ new Date(transaction.timestamp).toUTCString() }})</span>
+                  <span class="text-[#fafafa] text-[15px]">{{ transaction.age }} ({{ new Date(transaction.timestamp).toUTCString() }})</span>
                 </div>
               </template>
             </LabelValue>
@@ -434,7 +434,7 @@ const toggleMoreDetails = () => {
             <template #value>
               <button 
                 @click="toggleMoreDetails"
-                class="flex items-center gap-1 transition-colors text-sm hover:text-[#9ccee7] text-[#6AB5DB]"
+                class="flex items-center gap-1 transition-colors text-[15px] hover:text-[#9ccee7] text-[#6AB5DB]"
               >
                 <svg 
                   class="w-3 h-3 transition-transform duration-300" 
