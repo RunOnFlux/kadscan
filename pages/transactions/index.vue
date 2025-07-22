@@ -271,7 +271,7 @@ function downloadData() {
       :subtitle="subtitle"
       v-model:currentPage="currentPage"
       :totalPages="totalPages"
-      v-model:selectedRows="rowsToShow"
+      v-model:selectedRows="selectedRowOption"
       :rowOptions="rowOptions"
       v-model:loadingPage="loadingPage"
       :has-next-page="pageInfo?.hasNextPage"
