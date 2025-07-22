@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, nextTick } from 'vue'
 import { useFormat } from '~/composables/useFormat'
 import { useScreenSize } from '~/composables/useScreenSize'
-import Select from '~/components/Select.vue'
-import IconMenu from '~/components/icon/Menu.vue'
-import IconCode from '~/components/icon/IconCode.vue'
 import Information from '~/components/icon/Information.vue'
 import Tooltip from '~/components/Tooltip.vue'
 import Hourglass from '~/components/icon/Hourglass.vue'
@@ -58,20 +55,20 @@ const gamingSelected = ref(gamingOptions[0])
 
 // Transaction data
 const transaction = {
-  hash: '0x853b57d57fcad823b4fcdaf69e403a0ed549f884399ce3af730aa03c8ffcde12',
+  hash: 'xJHaykvaH0...ve6O9OI42Y',
   status: 'Success',
-  block: 22906283,
-  blockConfirmations: 297,
-  timestamp: '2025-07-12T11:09:23Z',
-  age: '1 hr ago',
+  block: 6000000,
+  blockConfirmations: 55000,
+  timestamp: '2025-07-22T11:09:23Z',
+  age: '1 day ago',
   from: {
-    name: 'titanbuilder.eth',
-    label: 'Titan Builder',
-    address: '0x060b915c...F76CaD212',
+    name: 'xJHaykvaH0...ve6O9OI42Y',
+    label: 'xJHaykvaH0...ve6O9OI42Y',
+    address: 'xJHaykvaH0...ve6O9OI42Y',
   },
   to: {
-    name: 'Lido: Execution Layer Rewards Vault',
-    address: '0x388C818C8AB89251b393131C08a736A67ccB19297',
+    name: 'xJHaykvaH0...ve6O9OI42Y',
+    address: 'xJHaykvaH0...ve6O9OI42Y',
   },
   value: '0.012',
   valueUsd: '41.26',
@@ -85,19 +82,7 @@ const transaction = {
 const tabLabels = ['Overview', 'Logs (1)', 'State']
 const activeTab = ref(tabLabels[0])
 
-// Select options
-const apiOptions = [
-  { label: 'API', value: 'api' },
-  { label: 'Option 1', value: 'option1' },
-  { label: 'Option 2', value: 'option2' },
-]
-const apiSelected = ref(apiOptions[0])
 
-const menuOptions = [
-  { label: 'Option 1', value: 'option1' },
-  { label: 'Option 2', value: 'option2' },
-]
-const menuSelected = ref(menuOptions[0])
 
 // More details functionality
 const showMoreDetails = ref(false)
@@ -148,19 +133,7 @@ const toggleMoreDetails = () => {
           {{ label }}
         </button>
       </div>
-      <div class="flex gap-2 items-center">
-        <button class="flex items-center gap-2 bg-[#151515] text-[#fafafa] px-2 py-1 rounded text-sm border border-[#333] hover:bg-[#222] transition-colors">
-          <IconCode class="w-4 h-4" />
-          API
-        </button>
-        <div class="bg-[#151515] rounded border border-[#333] px-1 flex items-center justify-center">
-          <Select v-model="menuSelected" :items="menuOptions" size="small">
-            <template #default>
-              <IconMenu class="w-4 h-4 text-[#fafafa]" />
-            </template>
-          </Select>
-        </div>
-      </div>
+
     </div>
 
     <!-- Transaction Action -->
@@ -170,7 +143,7 @@ const toggleMoreDetails = () => {
         <span class="text-xs text-[#f5f5f5] font-semibold tracking-wide">TRANSACTION ACTION</span>
         <div class="flex flex-wrap items-center gap-2 text-sm text-[#fafafa]">
           <span class="text-[#bbb]">Transfer</span>
-          <span class="font-mono text-[#f5f5f5]">{{ transaction.value }} ETH</span>
+          <span class="font-mono text-[#f5f5f5]">{{ transaction.value }} KDA</span>
           <span class="text-[#bbbbbb]">(${{ transaction.valueUsd }})</span>
           <span v-if="transaction.from.label" class="text-[#bbbbbb]">by</span>
           <ValueLink class="text-[#bb0a0a]" v-if="transaction.from.label" :label="transaction.from.label" :to="`/account/${transaction.from.address}`" />
@@ -274,7 +247,7 @@ const toggleMoreDetails = () => {
             <LabelValue :row="isMobile" :label="textContent.transactionFee.label" :description="textContent.transactionFee.description" tooltipPos="right">
               <template #value>
                 <div class="flex items-center gap-2">
-                  <span class="font-mono text-[#fafafa]">{{ transaction.txnFee }} ETH</span>
+                  <span class="font-mono text-[#fafafa]">{{ transaction.txnFee }} KDA</span>
                   <span class="text-[#bbbbbb]">(${{ transaction.txnFeeUsd }})</span>
                 </div>
               </template>
@@ -325,7 +298,7 @@ const toggleMoreDetails = () => {
                 >
                   <template #value>
                     <div class="flex items-center gap-2">
-                      <span class="font-mono text-[#fafafa]">0.000000001 ETH</span>
+                      <span class="font-mono text-[#fafafa]">0.000000001 KDA</span>
                     </div>
                   </template>
                 </LabelValue>
@@ -409,7 +382,7 @@ const toggleMoreDetails = () => {
                 >
                   <template #value>
                     <div class="flex items-center gap-2">
-                      <span class="font-mono text-[#fafafa]">0.000000001 ETH</span>
+                      <span class="font-mono text-[#fafafa]">0.000000001 KDA</span>
                     </div>
                   </template>
                 </LabelValue>
@@ -420,7 +393,7 @@ const toggleMoreDetails = () => {
                 >
                   <template #value>
                     <div class="flex items-center gap-2">
-                      <span class="font-mono text-[#fafafa]">0 ETH</span>
+                      <span class="font-mono text-[#fafafa]">0 KDA</span>
                     </div>
                   </template>
                 </LabelValue>
