@@ -321,10 +321,13 @@ function downloadData() {
       </template>
       <template #sender="{ item }">
         <div class="flex items-center">
-          <Tooltip :value="item.sender" variant="hash">
-            <NuxtLink :to="`/account/${item.sender}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.sender, 10, 10) }}</NuxtLink>
-          </Tooltip>
-          <Copy :value="item.sender" tooltipText="Copy Address" />
+          <template v-if="item.sender && item.sender !== 'N/A'">
+            <Tooltip :value="item.sender" variant="hash">
+              <NuxtLink :to="`/account/${item.sender}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.sender, 10, 10) }}</NuxtLink>
+            </Tooltip>
+            <Copy :value="item.sender" tooltipText="Copy Address" />
+          </template>
+          <span v-else class="text-[#f5f5f5]">NaN</span>
         </div>
       </template>
       <template #gas="{ item }">
