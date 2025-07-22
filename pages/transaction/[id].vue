@@ -239,7 +239,7 @@ const toggleMoreDetails = () => {
             <LabelValue :row="isMobile" :label="textContent.value.label" :description="textContent.value.description" tooltipPos="right">
               <template #value>
                 <div class="flex items-center gap-2">
-                  <span class="font-mono text-[#fafafa]">Ξ {{ transaction.value }}</span>
+                  <span class="font-mono text-[#fafafa]">{{ transaction.value }}</span>
                   <span class="text-[#bbbbbb]">(${{ transaction.valueUsd }})</span>
                 </div>
               </template>
@@ -353,16 +353,16 @@ const toggleMoreDetails = () => {
                   </template>
                 </LabelValue>
                 <LabelValue 
-                  label="Input Data:" 
+                  label="Code:" 
                   description="Additional data sent with the transaction"
                   tooltipPos="right"
                 >
                   <template #value>
                     <div class="flex items-center gap-2">
-                      <span class="font-mono text-[#fafafa] text-xs">0x</span>
+                      <span class="font-mono text-[#fafafa] text-xs">Code</span>
                       <Copy 
-                        value="0x" 
-                        tooltipText="Copy Input Data"
+                        value="Code" 
+                        tooltipText="Copy Code"
                         iconSize="h-5 w-5"
                         buttonClass="w-5 h-5"
                       />
