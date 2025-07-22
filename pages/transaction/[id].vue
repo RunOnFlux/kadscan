@@ -15,6 +15,10 @@ definePageMeta({
   layout: 'app',
 })
 
+useHead({
+  title: 'Kadscan'
+})
+
 const { isMobile } = useScreenSize()
 
 // Text content for tooltips and labels
@@ -116,9 +120,6 @@ const toggleMoreDetails = () => {
   }
 }
 
-useHead({
-  title: 'Kadscan'
-})
 </script>
 
 <template>
@@ -476,42 +477,6 @@ useHead({
           </LabelValue>
         </DivideItem>
       </Divide>
-    </div>
-
-    <!-- Private Note Section -->
-    <div class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
-      <Divide>
-        <DivideItem>
-          <LabelValue
-            :label="textContent.privateNote.label"
-            description="Add a private note to this transaction (requires login)"
-            tooltipPos="right"
-          >
-            <template #value>
-              <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-[#bbbbbb]" fill="none" viewBox="0 0 16 16">
-                  <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5" fill="none"/>
-                  <path d="M8 4.5C8.82843 4.5 9.5 5.17157 9.5 6C9.5 6.82843 8.82843 7.5 8 7.5C7.17157 7.5 6.5 6.82843 6.5 6C6.5 5.17157 7.17157 4.5 8 4.5Z" fill="currentColor"/>
-                  <path d="M8 9V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                <span class="text-[#fafafa]">To access the Private Note feature, you must be</span>
-                <span class="hover:text-[#9ccee7] text-[#6AB5DB]">Logged In</span>
-              </div>
-            </template>
-          </LabelValue>
-        </DivideItem>
-      </Divide>
-    </div>
-
-    <!-- Informational Text Block -->
-    <div class="flex items-start gap-2 text-sm text-[#bbbbbb]">
-      <svg class="w-4 h-4 text-[#fafafa] mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 16 16">
-        <path d="M8 1C4.13401 1 1 4.13401 1 8C1 11.866 4.13401 15 8 15C11.866 15 15 11.866 15 8C15 4.13401 11.866 1 8 1ZM8 11V8M8 6H8.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <span>
-        A transaction is a cryptographically signed instruction that changes the blockchain state. Block explorers track the details of all transactions in the network. Learn more about transactions in our
-        <a href="#" class="transition-colors hover:text-[#9ccee7] text-[#6AB5DB]">Knowledge Base.</a>
-      </span>
     </div>
   </div>
 </template> 
