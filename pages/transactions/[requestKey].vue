@@ -1,6 +1,15 @@
 <script setup lang="ts">
-import { gql } from 'nuxt-graphql-request/utils';
-import { TabPanel } from '@headlessui/vue'
+import { ref, nextTick, computed, watch, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { useTransaction } from '~/composables/useTransaction'
+import { useFormat } from '~/composables/useFormat'
+import { useScreenSize } from '~/composables/useScreenSize'
+import { useSharedData } from '~/composables/useSharedData'
+import Information from '~/components/icon/Information.vue'
+import Tooltip from '~/components/Tooltip.vue'
+import Hourglass from '~/components/icon/Hourglass.vue'
+import Clock from '~/components/icon/Clock.vue'
+import CheckmarkFill from '~/components/icon/CheckmarkFill.vue'
 
 definePageMeta({
   layout: 'app',
@@ -10,192 +19,608 @@ useHead({
   title: 'Transaction Details'
 })
 
-const data = reactive({
-  tabs: [
-    {
-      key: 'overview',
-      label: 'Overview',
-    },
-    {
-      key: 'meta',
-      label: 'Meta',
-    },
-    {
-      key: 'output',
-      label: 'Transaction Output',
-    },
-    {
-      key: 'events',
-      label: 'Events',
-    },
-  ],
-})
-
-const query = gql`
-  query GetTransactionById($requestKey: String!) {
-    transactionByRequestKey(
-      requestkey: $requestKey
-      transferLimit: 20
-      eventLimit: 20
-    ) {
-      transfers {
-        contract {
-          chainId
-          createdAt
-          id
-          metadata
-          network
-          module
-          precision
-          tokenId
-          updatedAt
-          type
-        }
-        transfer {
-          amount
-          chainId
-          contractId
-          createdAt
-          fromAcct
-          hasTokenId
-          modulehash
-          id
-          modulename
-          requestkey
-          tokenId
-          toAcct
-          payloadHash
-          network
-          updatedAt
-          type
-          transactionId
-        }
-      }
-      transaction {
-        blockId
-        chainId
-        code
-        continuation
-        createdAt
-        creationtime
-        data
-        gas
-        gaslimit
-        gasprice
-        hash
-        id
-        logs
-        metadata
-        numEvents
-        nonce
-        payloadHash
-        pactid
-        requestkey
-        proof
-        rollback
-        result
-        step
-        sigs
-        sender
-        updatedAt
-        ttl
-        txid
-        blockId
-        blockByBlockId {
-          height
-        }
-      }
-      events {
-        chainId
-        createdAt
-        id
-        module
-        modulehash
-        params
-        name
-        paramtext
-        payloadHash
-        qualname
-        requestkey
-        transactionId
-        updatedAt
-      }
-    }
-  }
-`
-
+const { isMobile } = useScreenSize()
+const { formatRelativeTime, truncateAddress } = useFormat()
+const { selectedNetwork } = useSharedData()
 const route = useRoute()
 
-const { $graphql } = useNuxtApp();
+// Get transaction ID from route
+const transactionId = computed(() => route.params.requestKey as string)
+const networkId = computed(() => selectedNetwork.value?.id)
 
-const { data: transaction, error } = await useAsyncData('transaction-detail', async () => {
-  const {
-      transactionByRequestKey
-    } = await $graphql.default.request(query, {
-      requestKey: route.params.requestKey,
-    });
+// Use transaction composable
+const {
+  transaction,
+  loading,
+  error,
+  fetchTransaction,
+  primaryTransfer,
+  totalValue,
+  totalValueUsd,
+  transactionFee,
+  transactionFeeUsd,
+  blockConfirmations,
+} = useTransaction(transactionId, networkId)
 
-    return transactionByRequestKey
-});
-
-if (!transaction.value && !error.value) {
-  await navigateTo('/404')
+// Text content for tooltips and labels
+const textContent = {
+  transactionHash: { label: 'Transaction Hash:', description: 'Unique hash that identifies this transaction on the blockchain.' },
+  status: { label: 'Status:', description: 'Indicates the current status of the transaction, such as pending, confirmed, or failed.' },
+  block: { label: 'Block:', description: 'Block number where this transaction was recorded.' },
+  timestamp: { label: 'Timestamp:', description: 'Date and time when the transaction was validated on the blockchain.' },
+  from: { label: 'From:', description: 'Address or account from which the transaction originated.' },
+  to: { label: 'To:', description: 'Address or account to which the transaction was sent.' },
+  value: { label: 'Value:', description: 'Amount of cryptocurrency transferred in this transaction.' },
+  transactionFee: { label: 'Transaction Fee:', description: 'Fee paid to process this transaction on the blockchain.' },
+  moreDetails: { label: 'More Details:' },
 }
+
+// Tab management
+const tabLabels = ['Overview', 'Logs (1)', 'State']
+const activeTab = ref(tabLabels[0])
+
+// More details functionality
+const showMoreDetails = ref(false)
+const contentHeight = ref(0)
+const contentRef = ref<HTMLElement | null>(null)
+
+const toggleMoreDetails = () => {
+  if (!showMoreDetails.value) {
+    showMoreDetails.value = true
+    nextTick(() => {
+      if (contentRef.value) {
+        contentHeight.value = contentRef.value.scrollHeight
+      }
+    })
+  } else {
+    contentHeight.value = 0
+    setTimeout(() => {
+      showMoreDetails.value = false
+    }, 300)
+  }
+}
+
+// Computed properties for transaction data
+const transactionStatus = computed(() => {
+  if (!transaction.value) return 'Unknown'
+  if (transaction.value.result?.badResult) return 'Failed'
+  return 'Success'
+})
+
+const displayHash = computed(() => {
+  if (!transaction.value?.hash) return ''
+  return transaction.value.hash.length > 20 
+    ? `${transaction.value.hash.slice(0, 10)}...${transaction.value.hash.slice(-10)}`
+    : transaction.value.hash
+})
+
+const age = computed(() => {
+  if (!transaction.value?.cmd?.meta?.creationTime) return ''
+  return formatRelativeTime(transaction.value.cmd.meta.creationTime)
+})
+
+const fromAddress = computed(() => {
+  return transaction.value?.cmd?.meta?.sender || ''
+})
+
+const toAddress = computed(() => {
+  if (!primaryTransfer.value) return ''
+  return primaryTransfer.value.receiverAccount || ''
+})
+
+const displayFromAddress = computed(() => {
+  return fromAddress.value ? truncateAddress(fromAddress.value) : ''
+})
+
+const displayToAddress = computed(() => {
+  return toAddress.value ? truncateAddress(toAddress.value) : ''
+})
+
+const transfersCount = computed(() => {
+  return transaction.value?.result?.transfers?.totalCount || 0
+})
+
+const eventsCount = computed(() => {
+  return transaction.value?.result?.eventCount || 0
+})
+
+const method = computed(() => {
+  // Extract method from the transaction code or use a default
+  if (transaction.value?.cmd?.payload?.code?.includes?.('close-send-receive')) {
+    return 'Close Send Receive'
+  }
+  return 'Transfer'
+})
+
+// Fetch transaction data
+watch([transactionId, networkId], () => {
+  if (transactionId.value && networkId.value) {
+    fetchTransaction()
+  }
+}, { immediate: true })
+
+onMounted(() => {
+  if (transactionId.value && networkId.value) {
+    fetchTransaction()
+  }
+})
 </script>
 
 <template>
-  <PageRoot
-    :error="error"
-  >
-    <PageTitle>
-      Transaction Details
+  <div>
+    <!-- Loading state -->
+    <div v-if="loading" class="flex items-center justify-center py-20">
+      <div class="text-[#fafafa]">Loading transaction...</div>
+    </div>
 
-      <template
-        #button
-      >
-        <ButtonExport
-          type="transaction"
-          :entry="transaction"
-          :filename="`${transaction.transaction.requestkey}.csv`"
-        />
-      </template>
-    </PageTitle>
+    <!-- Error state -->
+    <div v-else-if="error" class="flex items-center justify-center py-20">
+      <div class="text-red-400">Error loading transaction: {{ error.message }}</div>
+    </div>
 
-    <PageContainer>
-      <TransactionDetails
-        v-bind="transaction.transaction"
-      />
-    </PageContainer>
+    <!-- Transaction content -->
+    <div v-else-if="transaction">
+      <!-- Header -->
+      <div class="flex items-center pb-5 border-b border-[#222222] mb-6 gap-2">
+        <h1 class="text-[19px] font-semibold leading-[150%] text-[#fafafa]">
+          Transaction Details
+        </h1>
+      </div>
 
-    <PageContainer>
-      <Tabs
-        :tabs="data.tabs"
-      >
-        <TabPanel>
-          <TransactionOverview
-            v-bind="transaction.transaction"
-            :transfers="transaction.transfers"
-          />
-        </TabPanel>
+      <!-- Tabs -->
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex gap-2">
+          <button
+            v-for="label in tabLabels"
+            :key="label"
+            :class="[
+              'px-[10px] py-[5px] text-[13px] rounded-lg border font-medium transition-colors',
+              activeTab === label
+                ? 'bg-[#009367] border-[#222222] text-[#f5f5f5]'
+                : 'bg-transparent border-[#222222] text-[#bbbbbb] hover:bg-[#222222]'
+            ]"
+            @click="activeTab = label"
+          >
+            {{ label.replace('(1)', `(${eventsCount})`) }}
+          </button>
+        </div>
+      </div>
 
-        <TabPanel>
-          <TransactionMeta
-            v-bind="transaction.transaction"
-          />
-        </TabPanel>
+      <!-- Logs Tab Content -->
+      <div v-if="activeTab.startsWith('Logs')" class="mb-6">
+        <div class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5">
+          <div v-if="transaction?.result?.events?.edges?.length">
+            <Divide>
+              <DivideItem>
+                <div class="flex flex-col gap-6">
+                  <div 
+                    v-for="(eventEdge, index) in transaction.result.events.edges" 
+                    :key="eventEdge.node.id"
+                    class="flex flex-col gap-4"
+                  >
+                    <LabelValue
+                      :label="`Event #${index}:`"
+                      :description="`${eventEdge.node.qualifiedName} event details`"
+                      tooltipPos="right"
+                    >
+                      <template #value>
+                        <div class="flex flex-col gap-3">
+                          <div class="flex items-center gap-4 text-[15px]">
+                            <div class="flex items-center gap-2">
+                              <span class="text-[#bbbbbb]">Module:</span>
+                              <span class="text-[#fafafa] font-mono">{{ eventEdge.node.moduleName }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                              <span class="text-[#bbbbbb]">Event:</span>
+                              <span class="text-[#fafafa] font-mono">{{ eventEdge.node.name }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                              <span class="text-[#bbbbbb]">Order:</span>
+                              <span class="text-[#fafafa]">{{ eventEdge.node.orderIndex }}</span>
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <span class="text-[#bbbbbb] text-sm">Parameters:</span>
+                            <div class="mt-1 p-3 bg-[#1a1a1a] rounded border border-[#333] font-mono text-xs text-[#fafafa] break-all">
+                              {{ eventEdge.node.parameterText }}
+                            </div>
+                          </div>
+                        </div>
+                      </template>
+                    </LabelValue>
+                    
+                    <!-- Divider between events (except last one) -->
+                    <div v-if="index < transaction.result.events.edges.length - 1" class="border-b border-[#333]"></div>
+                  </div>
+                </div>
+              </DivideItem>
+            </Divide>
+          </div>
+          <div v-else class="text-center py-8 text-[#bbbbbb]">
+            No events found for this transaction
+          </div>
+        </div>
+      </div>
 
-        <TabPanel>
-          <TransactionOutput
-            v-bind="transaction.transaction"
-          />
-        </TabPanel>
+      <!-- Transaction Action -->
+      <div class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] px-5 py-5 flex items-center gap-4 min-h-[56px] mb-2">
+        <img src="/favicon.ico" alt="Kadena" class="w-8 h-8 rounded-full bg-[#00EAC7] object-contain" />
+        <div class="flex flex-col flex-1 min-w-0">
+          <span class="text-xs text-[#f5f5f5] font-semibold tracking-wide">TRANSACTION ACTION</span>
+          <div class="flex flex-wrap items-center gap-2 text-[15px] text-[#fafafa]">
+            <span class="text-[#bbb]">{{ method }}</span>
+            <span v-if="totalValue !== '0'" class="font-mono text-[#f5f5f5]">{{ totalValue }} KDA</span>
+            <span v-if="totalValueUsd !== '0'" class="text-[#bbbbbb]">(${{ totalValueUsd }})</span>
+            <span v-if="displayFromAddress" class="text-[#bbbbbb]">by</span>
+            <ValueLink v-if="displayFromAddress" class="text-[#6AB5DB]" :label="displayFromAddress" :to="`/account/${fromAddress}`" />
+            <span v-if="displayToAddress" class="text-[#bbbbbb]">to</span>
+            <ValueLink v-if="displayToAddress" :label="displayToAddress" :to="`/account/${toAddress}`" />
+            <span v-if="transfersCount > 1" class="text-[#bbbbbb]">+ {{ transfersCount - 1 }} more transfers</span>
+          </div>
+        </div>
+      </div>
 
-        <TabPanel>
-          <TransactionEvents
-            v-bind="transaction"
-          />
-        </TabPanel>
-      </Tabs>
-    </PageContainer>
-  </PageRoot>
+      <!-- Transaction Details -->
+      <div class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
+        <Divide>
+          <!-- Section 1: Basic Information -->
+          <DivideItem>
+            <div class="flex flex-col gap-4">
+              <LabelValue :row="isMobile" :label="textContent.transactionHash.label" :description="textContent.transactionHash.description" tooltipPos="right">
+                <template #value>
+                  <div class="flex items-center gap-2">
+                    <span class="font-mono text-[#fafafa] break-all text-[15px]">{{ displayHash }}</span>
+                    <Copy :value="transaction.hash" />
+                  </div>
+                </template>
+              </LabelValue>
+              <LabelValue :row="isMobile" :label="textContent.status.label" :description="textContent.status.description" tooltipPos="right">
+                <template #value>
+                  <div v-if="transactionStatus === 'Success'" class="flex items-center px-2 py-1 rounded-lg border text-xs border-[#014d3a] bg-[#01372b] text-[#00c896] w-fit gap-2">
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 16 16">
+                      <circle cx="8" cy="8" r="7" fill="#00c896" fill-opacity="0.15" stroke="#00c896" stroke-width="2"/>
+                      <path d="M5.5 8.5L7.25 10.25L10.5 7" stroke="#00c896" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Success
+                  </div>
+                  <Tag v-else :label="transactionStatus" :variant="transactionStatus === 'Success' ? 'success' : 'failed'" />
+                </template>
+              </LabelValue>
+                           <LabelValue :row="isMobile" :label="textContent.block.label" :description="textContent.block.description" tooltipPos="right">
+               <template #value>
+                 <div class="flex items-center gap-2">
+                   <Hourglass class="w-3 h-3 text-white" />
+                   <ValueLink v-if="transaction?.result?.block?.height" :label="transaction.result.block.height" :to="`/blocks/${transaction.result.block.height}/chain/${transaction.result.block.chainId}`" class="text-blue-400 hover:underline" />
+                   <span v-else class="text-[#fafafa]">-</span>
+                    <span v-if="blockConfirmations !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] text-[#fafafa] font-semibold flex items-center leading-none">
+                     {{ blockConfirmations }} Block Confirmations
+                   </span>
+                 </div>
+               </template>
+             </LabelValue>
+             <LabelValue :row="isMobile" :label="textContent.timestamp.label" :description="textContent.timestamp.description" tooltipPos="right">
+               <template #value>
+                 <div class="flex items-center gap-2">
+                   <Clock class="w-4 h-4 text-[#bbbbbb]" />
+                   <span v-if="age && transaction?.cmd?.meta?.creationTime" class="text-[#fafafa] text-[15px]">{{ age }} ({{ new Date(transaction.cmd.meta.creationTime).toUTCString() }})</span>
+                   <span v-else class="text-[#fafafa] text-[15px]">-</span>
+                 </div>
+               </template>
+             </LabelValue>
+            </div>
+          </DivideItem>
+
+          <!-- Section 2: Addresses -->
+          <DivideItem>
+            <div class="flex flex-col gap-4">
+              <LabelValue :row="isMobile" :label="textContent.from.label" :description="textContent.from.description" tooltipPos="right">
+                <template #value>
+                  <div class="flex items-center gap-2">
+                    <ValueLink :label="displayFromAddress" :to="`/account/${fromAddress}`" class="text-blue-400 hover:underline" />
+                    <Copy :value="fromAddress" />
+                  </div>
+                </template>
+              </LabelValue>
+              <LabelValue v-if="displayToAddress" :row="isMobile" :label="textContent.to.label" :description="textContent.to.description" tooltipPos="right">
+                <template #value>
+                  <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-[#bbbbbb]" fill="none" viewBox="0 0 16 16">
+                      <path d="M3 2C3 1.44772 3.44772 1 4 1H10L13 4V14C13 14.5523 12.5523 15 12 15H4C3.44772 15 3 14.5523 3 14V2Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                      <path d="M10 1V4H13" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                      <path d="M5 7H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                      <path d="M5 9H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                      <path d="M5 11H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <ValueLink :label="displayToAddress" :to="`/account/${toAddress}`" class="text-blue-400 hover:underline" />
+                    <Copy :value="toAddress" />
+                    <CheckmarkFill class="w-4 h-4 text-green-500" />
+                  </div>
+                </template>
+              </LabelValue>
+            </div>
+          </DivideItem>
+
+          <!-- Section 3: Values -->
+          <DivideItem>
+            <div class="flex flex-col gap-4">
+              <LabelValue v-if="totalValue !== '0'" :row="isMobile" :label="textContent.value.label" :description="textContent.value.description" tooltipPos="right">
+                <template #value>
+                  <div class="flex items-center gap-2">
+                    <span class="font-mono text-[#fafafa]">{{ totalValue }} KDA</span>
+                    <span v-if="totalValueUsd !== '0'" class="text-[#bbbbbb]">(${{ totalValueUsd }})</span>
+                  </div>
+                </template>
+              </LabelValue>
+              <LabelValue :row="isMobile" :label="textContent.transactionFee.label" :description="textContent.transactionFee.description" tooltipPos="right">
+                <template #value>
+                  <div class="flex items-center gap-2">
+                    <span class="font-mono text-[#fafafa]">{{ transactionFee }} KDA</span>
+                    <span v-if="transactionFeeUsd !== '0'" class="text-[#bbbbbb]">(${{ transactionFeeUsd }})</span>
+                  </div>
+                </template>
+              </LabelValue>
+            </div>
+          </DivideItem>
+        </Divide>
+      </div>
+
+      <!-- Token Transfers Section -->
+      <div v-if="transaction?.result?.transfers?.edges?.length && activeTab === 'Overview'" class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
+        <Divide>
+          <DivideItem>
+            <LabelValue
+              label="Token Transfers:"
+              description="Individual token transfers within this transaction"
+              tooltipPos="right"
+            >
+              <template #value>
+                <div class="flex flex-col gap-4">
+                  <div 
+                    v-for="(transferEdge, index) in transaction.result.transfers.edges" 
+                    :key="transferEdge.node.id"
+                    class="flex flex-col gap-2"
+                  >
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span class="text-xs bg-[#333] text-[#fafafa] px-2 py-1 rounded font-mono">
+                          {{ transferEdge.node.moduleName }}
+                        </span>
+                        <span class="text-xs text-[#bbbbbb]">#{{ index }}</span>
+                      </div>
+                      <div class="text-[#fafafa] font-mono text-[15px]">
+                        {{ transferEdge.node.amount }} {{ transferEdge.node.moduleName === 'coin' ? 'KDA' : 'CRANKK' }}
+                      </div>
+                    </div>
+                    
+                    <div class="ml-4 flex items-center gap-2 text-[15px]">
+                      <span class="text-[#bbbbbb]">From</span>
+                      <ValueLink 
+                        :label="truncateAddress(transferEdge.node.senderAccount)" 
+                        :to="`/account/${transferEdge.node.senderAccount}`" 
+                        class="text-blue-400 hover:underline"
+                      />
+                      <Copy :value="transferEdge.node.senderAccount" />
+                      <span class="text-[#bbbbbb] mx-2">to</span>
+                      <ValueLink 
+                        :label="truncateAddress(transferEdge.node.receiverAccount)" 
+                        :to="`/account/${transferEdge.node.receiverAccount}`" 
+                        class="text-blue-400 hover:underline"
+                      />
+                      <Copy :value="transferEdge.node.receiverAccount" />
+                    </div>
+                    
+                    <!-- Divider between transfers (except last one) -->
+                    <div v-if="index < transaction.result.transfers.edges.length - 1" class="border-b border-[#333] mt-2"></div>
+                  </div>
+                </div>
+              </template>
+            </LabelValue>
+          </DivideItem>
+        </Divide>
+      </div>
+
+      <!-- More Details Section -->
+      <div class="bg-[#111111] border border-[#222222] rounded-xl p-5 mb-2">
+        <div 
+          ref="contentRef"
+          class="overflow-hidden transition-all duration-300 ease-out"
+          :style="{ height: showMoreDetails ? contentHeight + 'px' : '0px' }"
+        >
+          <div class="mb-4 pb-4 border-b border-[#333]">
+            <Divide>
+              <!-- Gas Information -->
+              <DivideItem>
+                <div class="flex flex-col gap-4">
+                                     <LabelValue
+                     label="Gas Used:"
+                     description="Total gas consumed by this transaction"
+                     tooltipPos="right"
+                   >
+                     <template #value>
+                       <div class="flex items-center gap-2">
+                         <span class="font-mono text-[#fafafa]">{{ transaction?.result?.gas || '-' }}</span>
+                       </div>
+                     </template>
+                   </LabelValue>
+                   <LabelValue 
+                     label="Gas Limit:" 
+                     description="Maximum gas allowed for this transaction"
+                     tooltipPos="right"
+                   >
+                     <template #value>
+                       <div class="flex items-center gap-2">
+                         <span class="font-mono text-[#fafafa]">{{ transaction?.cmd?.meta?.gasLimit || '-' }}</span>
+                       </div>
+                     </template>
+                   </LabelValue>
+                   <LabelValue 
+                     label="Gas Price:" 
+                     description="Price per unit of gas for this transaction"
+                     tooltipPos="right"
+                   >
+                     <template #value>
+                       <div class="flex items-center gap-2">
+                         <span class="font-mono text-[#fafafa]">{{ transaction?.cmd?.meta?.gasPrice || '-' }} KDA</span>
+                       </div>
+                     </template>
+                   </LabelValue>
+                   <LabelValue 
+                     label="Nonce:" 
+                     description="Sequential number for this transaction"
+                     tooltipPos="right"
+                   >
+                     <template #value>
+                       <div class="flex items-center gap-2">
+                         <span class="font-mono text-[#fafafa]">{{ transaction?.cmd?.nonce || '-' }}</span>
+                       </div>
+                     </template>
+                   </LabelValue>
+                </div>
+              </DivideItem>
+
+              <!-- Transaction Details -->
+              <DivideItem>
+                <div class="flex flex-col gap-4">
+                  <LabelValue 
+                    label="Method:" 
+                    description="Type of transaction executed"
+                    tooltipPos="right"
+                  >
+                    <template #value>
+                      <div class="flex items-center gap-2">
+                        <span class="text-[#fafafa]">{{ method }}</span>
+                      </div>
+                    </template>
+                  </LabelValue>
+                  <LabelValue 
+                    label="Chain ID:" 
+                    description="Blockchain network identifier"
+                    tooltipPos="right"
+                  >
+                                         <template #value>
+                       <div class="flex items-center gap-2">
+                         <span class="font-mono text-[#fafafa]">{{ transaction?.cmd?.meta?.chainId || '-' }}</span>
+                       </div>
+                     </template>
+                   </LabelValue>
+                   <LabelValue 
+                     label="Network ID:" 
+                     description="Network identifier"
+                     tooltipPos="right"
+                   >
+                     <template #value>
+                       <div class="flex items-center gap-2">
+                         <span class="text-[#fafafa]">{{ transaction?.cmd?.networkId || '-' }}</span>
+                       </div>
+                     </template>
+                   </LabelValue>
+                   <LabelValue 
+                     label="Code:" 
+                     description="Smart contract code executed"
+                     tooltipPos="right"
+                   >
+                     <template #value>
+                       <div class="flex items-center gap-2">
+                         <span v-if="transaction?.cmd?.payload?.code" class="font-mono text-[#fafafa] text-xs break-all">{{ transaction.cmd.payload.code.slice(0, 50) }}...</span>
+                         <span v-else class="font-mono text-[#fafafa] text-xs">-</span>
+                         <Copy 
+                           v-if="transaction?.cmd?.payload?.code"
+                           :value="transaction.cmd.payload.code" 
+                           tooltipText="Copy Code"
+                           iconSize="h-5 w-5"
+                           buttonClass="w-5 h-5"
+                         />
+                       </div>
+                     </template>
+                   </LabelValue>
+                </div>
+              </DivideItem>
+
+              <!-- Advanced Details -->
+              <DivideItem>
+                <div class="flex flex-col gap-4">
+                  <LabelValue 
+                    label="TTL:" 
+                    description="Time to live for this transaction"
+                    tooltipPos="right"
+                  >
+                                         <template #value>
+                       <div class="flex items-center gap-2">
+                         <span class="font-mono text-[#fafafa]">{{ transaction?.cmd?.meta?.ttl || '-' }}</span>
+                       </div>
+                     </template>
+                   </LabelValue>
+                   <LabelValue 
+                     label="Transfers:" 
+                     description="Number of token transfers in this transaction"
+                     tooltipPos="right"
+                   >
+                     <template #value>
+                       <div class="flex items-center gap-2">
+                         <span class="text-[#fafafa]">{{ transfersCount }}</span>
+                       </div>
+                     </template>
+                   </LabelValue>
+                   <LabelValue 
+                     label="Events:" 
+                     description="Number of events emitted by this transaction"
+                     tooltipPos="right"
+                   >
+                     <template #value>
+                       <div class="flex items-center gap-2">
+                         <span class="text-[#fafafa]">{{ eventsCount }}</span>
+                       </div>
+                     </template>
+                   </LabelValue>
+                   <LabelValue 
+                     label="Result:" 
+                     description="Transaction execution result"
+                     tooltipPos="right"
+                   >
+                     <template #value>
+                       <div class="flex items-center gap-2">
+                         <span class="text-[#fafafa]">{{ transaction?.result?.goodResult || 'Success' }}</span>
+                       </div>
+                     </template>
+                   </LabelValue>
+                </div>
+              </DivideItem>
+            </Divide>
+          </div>
+        </div>
+        
+        <Divide>
+          <DivideItem>
+            <LabelValue
+              :label="isMobile ? '' : textContent.moreDetails.label"
+              tooltipPos="right"
+            >
+              <template #value>
+                <button 
+                  @click="toggleMoreDetails"
+                  class="flex items-center gap-1 transition-colors text-[15px] hover:text-[#9ccee7] text-[#6AB5DB]"
+                >
+                  <svg 
+                    class="w-3 h-3 transition-transform duration-300" 
+                    :class="showMoreDetails ? 'rotate-45' : ''"
+                    fill="none" 
+                    viewBox="0 0 16 16"
+                  >
+                    <path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  {{ showMoreDetails ? 'Click to hide' : 'Click to show more' }}
+                </button>
+              </template>
+            </LabelValue>
+          </DivideItem>
+        </Divide>
+      </div>
+    </div>
+
+    <!-- No transaction found -->
+    <div v-else class="flex items-center justify-center py-20">
+      <div class="text-[#bbbbbb]">Transaction not found</div>
+    </div>
+  </div>
 </template>
