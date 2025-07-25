@@ -6,10 +6,10 @@ import { useFormat } from '~/composables/useFormat'
 import { useScreenSize } from '~/composables/useScreenSize'
 import { useSharedData } from '~/composables/useSharedData'
 import Information from '~/components/icon/Information.vue'
-import Tooltip from '~/components/Tooltip.vue'
-import Hourglass from '~/components/icon/Hourglass.vue'
+import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
+import IconHourglass from '~/components/icon/Hourglass.vue';
+import IconCancel from '~/components/icon/Cancel.vue';
 import Clock from '~/components/icon/Clock.vue'
-import CheckmarkFill from '~/components/icon/CheckmarkFill.vue'
 
 definePageMeta({
   layout: 'app',
@@ -24,11 +24,11 @@ const { formatRelativeTime, truncateAddress } = useFormat()
 const { selectedNetwork } = useSharedData()
 const route = useRoute()
 
-// Get transaction ID from route
 const transactionId = computed(() => route.params.requestKey as string)
 const networkId = computed(() => selectedNetwork.value?.id)
 
-// Use transaction composable
+const { totalCount: lastBlockHeight, fetchTotalCount } = useBlocks();
+
 const {
   transaction,
   loading,
@@ -47,6 +47,7 @@ const textContent = {
   transactionHash: { label: 'Transaction Hash:', description: 'Unique hash that identifies this transaction on the blockchain.' },
   status: { label: 'Status:', description: 'Indicates the current status of the transaction, such as pending, confirmed, or failed.' },
   block: { label: 'Block:', description: 'Block number where this transaction was recorded.' },
+  chainId: { label: 'Chain ID:', description: 'The specific chain (0-19) on which this block was mined' },
   timestamp: { label: 'Timestamp:', description: 'Date and time when the transaction was validated on the blockchain.' },
   from: { label: 'From:', description: 'Address or account from which the transaction originated.' },
   to: { label: 'To:', description: 'Address or account to which the transaction was sent.' },
@@ -80,18 +81,41 @@ const toggleMoreDetails = () => {
   }
 }
 
-// Computed properties for transaction data
 const transactionStatus = computed(() => {
-  if (!transaction.value) return 'Unknown'
-  if (transaction.value.result?.badResult) return 'Failed'
-  return 'Success'
-})
+  if(lastBlockHeight.value - 10 >= transaction.value?.result?.block?.height && !transaction.value?.result?.block?.canonical) {
+    return {
+      text: 'Failed',
+      icon: IconCancel,
+      classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]',
+      description: 'Transaction failed to execute',
+    };
+  }
+
+  if(transaction.value?.result?.block?.canonical) {
+    return {
+      text: 'Success',
+      icon: IconCheckmarkFill,
+      classes: 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]',
+      description: 'Transaction executed successfully',
+    };
+  }
+
+  return {
+    text: 'Pending',
+    icon: IconHourglass,
+    classes: 'bg-[#17150d] border-[#44464980] text-[#989898]',
+    description: 'Transaction is pending to be finalized',
+  };
+});
 
 const displayHash = computed(() => {
   if (!transaction.value?.hash) return ''
-  return transaction.value.hash.length > 20 
-    ? `${transaction.value.hash.slice(0, 10)}...${transaction.value.hash.slice(-10)}`
-    : transaction.value.hash
+  return transaction.value.hash
+})
+
+const displayChainId = computed(() => {
+  console.log(transaction.value?.cmd?.meta?.chainId)
+  return transaction.value?.cmd?.meta?.chainId ?? '-'
 })
 
 const age = computed(() => {
@@ -109,11 +133,11 @@ const toAddress = computed(() => {
 })
 
 const displayFromAddress = computed(() => {
-  return fromAddress.value ? truncateAddress(fromAddress.value) : ''
+  return fromAddress.value ? fromAddress.value : ''
 })
 
 const displayToAddress = computed(() => {
-  return toAddress.value ? truncateAddress(toAddress.value) : ''
+  return toAddress.value ? toAddress.value : ''
 })
 
 const transfersCount = computed(() => {
@@ -139,6 +163,16 @@ watch([transactionId, networkId], () => {
   }
 }, { immediate: true })
 
+watch(
+  networkId,
+  (newNetworkId) => {
+    if (newNetworkId) {
+      fetchTotalCount({ networkId: newNetworkId });
+    }
+  },
+  { immediate: true }
+);
+
 onMounted(() => {
   if (transactionId.value && networkId.value) {
     fetchTransaction()
@@ -161,14 +195,14 @@ onMounted(() => {
     <!-- Transaction content -->
     <div v-else-if="transaction">
       <!-- Header -->
-      <div class="flex items-center pb-5 border-b border-[#222222] mb-6 gap-2">
+      <div class="flex items-center pb-5 border-b border-[#222222] pb-4 gap-2">
         <h1 class="text-[19px] font-semibold leading-[150%] text-[#fafafa]">
           Transaction Details
         </h1>
       </div>
 
       <!-- Tabs -->
-      <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center justify-between py-3">
         <div class="flex gap-2">
           <button
             v-for="label in tabLabels"
@@ -243,54 +277,37 @@ onMounted(() => {
         </div>
       </div>
 
-      <!-- Transaction Action -->
-      <div class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] px-5 py-5 flex items-center gap-4 min-h-[56px] mb-2">
-        <img src="/favicon.ico" alt="Kadena" class="w-8 h-8 rounded-full bg-[#00EAC7] object-contain" />
-        <div class="flex flex-col flex-1 min-w-0">
-          <span class="text-xs text-[#f5f5f5] font-semibold tracking-wide">TRANSACTION ACTION</span>
-          <div class="flex flex-wrap items-center gap-2 text-[15px] text-[#fafafa]">
-            <span class="text-[#bbb]">{{ method }}</span>
-            <span v-if="totalValue !== '0'" class="font-mono text-[#f5f5f5]">{{ totalValue }} KDA</span>
-            <span v-if="totalValueUsd !== '0'" class="text-[#bbbbbb]">(${{ totalValueUsd }})</span>
-            <span v-if="displayFromAddress" class="text-[#bbbbbb]">by</span>
-            <ValueLink v-if="displayFromAddress" class="text-[#6AB5DB]" :label="displayFromAddress" :to="`/account/${fromAddress}`" />
-            <span v-if="displayToAddress" class="text-[#bbbbbb]">to</span>
-            <ValueLink v-if="displayToAddress" :label="displayToAddress" :to="`/account/${toAddress}`" />
-            <span v-if="transfersCount > 1" class="text-[#bbbbbb]">+ {{ transfersCount - 1 }} more transfers</span>
-          </div>
-        </div>
-      </div>
-
       <!-- Transaction Details -->
       <div class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
         <Divide>
           <!-- Section 1: Basic Information -->
           <DivideItem>
             <div class="flex flex-col gap-4">
-              <LabelValue :row="isMobile" :label="textContent.transactionHash.label" :description="textContent.transactionHash.description" tooltipPos="right">
+              <LabelValue  :label="textContent.transactionHash.label" :description="textContent.transactionHash.description" tooltipPos="right">
                 <template #value>
                   <div class="flex items-center gap-2">
-                    <span class="font-mono text-[#fafafa] break-all text-[15px]">{{ displayHash }}</span>
-                    <Copy :value="transaction.hash" />
+                    <span class="text-[#fafafa] break-all text-[15px]">{{ displayHash }}</span>
+                    <Copy 
+                      :value="transaction.hash" 
+                      tooltipText="Copy Transaction Hash"
+                      iconSize="h-5 w-5"
+                      buttonClass="w-5 h-5"
+                    />
                   </div>
                 </template>
               </LabelValue>
-              <LabelValue :row="isMobile" :label="textContent.status.label" :description="textContent.status.description" tooltipPos="right">
+              <LabelValue :row="isMobile" :label="textContent.status.label" :description="transactionStatus.description" tooltipPos="right">
                 <template #value>
-                  <div v-if="transactionStatus === 'Success'" class="flex items-center px-2 py-1 rounded-lg border text-xs border-[#014d3a] bg-[#01372b] text-[#00c896] w-fit gap-2">
-                    <svg class="w-3 h-3" fill="none" viewBox="0 0 16 16">
-                      <circle cx="8" cy="8" r="7" fill="#00c896" fill-opacity="0.15" stroke="#00c896" stroke-width="2"/>
-                      <path d="M5.5 8.5L7.25 10.25L10.5 7" stroke="#00c896" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Success
+                  <div :class="['flex items-center px-2 py-1 rounded-lg border text-xs w-fit gap-2', transactionStatus.classes]">
+                    <component :is="transactionStatus.icon" class="w-3 h-3" />
+                    {{ transactionStatus.text }}
                   </div>
-                  <Tag v-else :label="transactionStatus" :variant="transactionStatus === 'Success' ? 'success' : 'failed'" />
                 </template>
               </LabelValue>
-                           <LabelValue :row="isMobile" :label="textContent.block.label" :description="textContent.block.description" tooltipPos="right">
+              <LabelValue :row="isMobile" :label="textContent.block.label" :description="textContent.block.description" tooltipPos="right">
                <template #value>
                  <div class="flex items-center gap-2">
-                   <Hourglass class="w-3 h-3 text-white" />
+                   <IconHourglass v-if="transactionStatus.text === 'Pending'" class="w-3 h-3 text-[#bbbbbb]" />
                    <ValueLink v-if="transaction?.result?.block?.height" :label="transaction.result.block.height" :to="`/blocks/${transaction.result.block.height}/chain/${transaction.result.block.chainId}`" class="text-blue-400 hover:underline" />
                    <span v-else class="text-[#fafafa]">-</span>
                     <span v-if="blockConfirmations !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] text-[#fafafa] font-semibold flex items-center leading-none">
@@ -299,6 +316,13 @@ onMounted(() => {
                  </div>
                </template>
              </LabelValue>
+            <LabelValue :row="isMobile" :label="textContent.chainId.label" :description="textContent.chainId.description" tooltipPos="right">
+              <template #value>
+                <span class="text-[#fafafa] text-[15px]">
+                  {{ displayChainId }}
+                </span>
+              </template>
+            </LabelValue>
              <LabelValue :row="isMobile" :label="textContent.timestamp.label" :description="textContent.timestamp.description" tooltipPos="right">
                <template #value>
                  <div class="flex items-center gap-2">
@@ -318,23 +342,25 @@ onMounted(() => {
                 <template #value>
                   <div class="flex items-center gap-2">
                     <ValueLink :label="displayFromAddress" :to="`/account/${fromAddress}`" class="text-blue-400 hover:underline" />
-                    <Copy :value="fromAddress" />
+                    <Copy 
+                      :value="fromAddress" 
+                      tooltipText="Copy Transaction Hash"
+                      iconSize="h-5 w-5"
+                      buttonClass="w-5 h-5"
+                    />
                   </div>
                 </template>
               </LabelValue>
               <LabelValue v-if="displayToAddress" :row="isMobile" :label="textContent.to.label" :description="textContent.to.description" tooltipPos="right">
                 <template #value>
                   <div class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-[#bbbbbb]" fill="none" viewBox="0 0 16 16">
-                      <path d="M3 2C3 1.44772 3.44772 1 4 1H10L13 4V14C13 14.5523 12.5523 15 12 15H4C3.44772 15 3 14.5523 3 14V2Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
-                      <path d="M10 1V4H13" stroke="currentColor" stroke-width="1.5" fill="none"/>
-                      <path d="M5 7H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                      <path d="M5 9H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                      <path d="M5 11H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg>
                     <ValueLink :label="displayToAddress" :to="`/account/${toAddress}`" class="text-blue-400 hover:underline" />
-                    <Copy :value="toAddress" />
-                    <CheckmarkFill class="w-4 h-4 text-green-500" />
+                    <Copy 
+                      :value="toAddress" 
+                      tooltipText="Copy Transaction Hash"
+                      iconSize="h-5 w-5"
+                      buttonClass="w-5 h-5"
+                    />
                   </div>
                 </template>
               </LabelValue>
