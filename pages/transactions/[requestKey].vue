@@ -114,7 +114,6 @@ const displayHash = computed(() => {
 })
 
 const displayChainId = computed(() => {
-  console.log(transaction.value?.cmd?.meta?.chainId)
   return transaction.value?.cmd?.meta?.chainId ?? '-'
 })
 
