@@ -366,34 +366,8 @@ onMounted(() => {
             </div>
           </DivideItem>
 
-          <!-- Section 3: Values -->
-          <DivideItem>
-            <div class="flex flex-col gap-4">
-              <LabelValue v-if="totalValue !== '0'" :row="isMobile" :label="textContent.value.label" :description="textContent.value.description" tooltipPos="right">
-                <template #value>
-                  <div class="flex items-center gap-2">
-                    <span class="font-mono text-[#fafafa]">{{ totalValue }} KDA</span>
-                    <span v-if="totalValueUsd !== '0'" class="text-[#bbbbbb]">(${{ totalValueUsd }})</span>
-                  </div>
-                </template>
-              </LabelValue>
-              <LabelValue :row="isMobile" :label="textContent.transactionFee.label" :description="textContent.transactionFee.description" tooltipPos="right">
-                <template #value>
-                  <div class="flex items-center gap-2">
-                    <span class="font-mono text-[#fafafa]">{{ transactionFee }} KDA</span>
-                    <span v-if="transactionFeeUsd !== '0'" class="text-[#bbbbbb]">(${{ transactionFeeUsd }})</span>
-                  </div>
-                </template>
-              </LabelValue>
-            </div>
-          </DivideItem>
-        </Divide>
-      </div>
-
-      <!-- Token Transfers Section -->
-      <div v-if="transaction?.result?.transfers?.edges?.length && activeTab === 'Overview'" class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
-        <Divide>
-          <DivideItem>
+          <!-- Section 3: Token Transfers -->
+          <DivideItem v-if="transaction?.result?.transfers?.edges?.length && activeTab === 'Overview'">
             <LabelValue
               label="Token Transfers:"
               description="Individual token transfers within this transaction"
@@ -441,6 +415,28 @@ onMounted(() => {
                 </div>
               </template>
             </LabelValue>
+          </DivideItem>
+
+          <!-- Section 4: Values -->
+          <DivideItem>
+            <div class="flex flex-col gap-4">
+              <LabelValue v-if="totalValue !== '0'" :row="isMobile" :label="textContent.value.label" :description="textContent.value.description" tooltipPos="right">
+                <template #value>
+                  <div class="flex items-center gap-2">
+                    <span class="font-mono text-[#fafafa]">{{ totalValue }} KDA</span>
+                    <span v-if="totalValueUsd !== '0'" class="text-[#bbbbbb]">(${{ totalValueUsd }})</span>
+                  </div>
+                </template>
+              </LabelValue>
+              <LabelValue :row="isMobile" :label="textContent.transactionFee.label" :description="textContent.transactionFee.description" tooltipPos="right">
+                <template #value>
+                  <div class="flex items-center gap-2">
+                    <span class="font-mono text-[#fafafa]">{{ transactionFee }} KDA</span>
+                    <span v-if="transactionFeeUsd !== '0'" class="text-[#bbbbbb]">(${{ transactionFeeUsd }})</span>
+                  </div>
+                </template>
+              </LabelValue>
+            </div>
           </DivideItem>
         </Divide>
       </div>
