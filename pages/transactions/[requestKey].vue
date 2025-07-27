@@ -5,6 +5,7 @@ import { useTransaction } from '~/composables/useTransaction'
 import { useFormat } from '~/composables/useFormat'
 import { useScreenSize } from '~/composables/useScreenSize'
 import { useSharedData } from '~/composables/useSharedData'
+import { staticTokens } from '~/constants/tokens'
 import Information from '~/components/icon/Information.vue'
 import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
 import IconHourglass from '~/components/icon/Hourglass.vue';
@@ -40,6 +41,7 @@ const {
   transactionFee,
   transactionFeeUsd,
   blockConfirmations,
+  kadenaPrice,
 } = useTransaction(transactionId, networkId)
 
 // Text content for tooltips and labels
@@ -154,6 +156,25 @@ const method = computed(() => {
   }
   return 'Transfer'
 })
+
+// Token metadata helper function
+const getTokenMetadata = (moduleName: string) => {
+  const tokenData = staticTokens.find(token => token.module === moduleName)
+  return tokenData || {
+    name: moduleName,
+    symbol: moduleName === 'coin' ? 'KDA' : moduleName.toUpperCase(),
+    icon: null,
+    module: moduleName
+  }
+}
+
+// Calculate USD value for KDA transfers
+const calculateKdaUsdValue = (amount: string, isKda: boolean) => {
+  if (!isKda || !kadenaPrice.value || !amount) return null
+  const numericAmount = parseFloat(amount)
+  const usdValue = numericAmount * parseFloat(kadenaPrice.value)
+  return usdValue.toFixed(2)
+}
 
 // Fetch transaction data
 watch([transactionId, networkId], () => {
@@ -375,43 +396,80 @@ onMounted(() => {
               tooltipPos="right"
             >
               <template #value>
-                <div class="flex flex-col gap-4">
+                <div class="flex flex-col gap-3">
                   <div 
                     v-for="(transferEdge, index) in transaction.result.transfers.edges" 
                     :key="transferEdge.node.id"
-                    class="flex flex-col gap-2"
+                    class="flex flex-wrap items-center gap-2 text-[15px]"
                   >
-                    <div class="flex items-center justify-between">
-                      <div class="flex items-center gap-2">
-                        <span class="text-xs bg-[#333] text-[#fafafa] px-2 py-1 rounded font-mono">
-                          {{ transferEdge.node.moduleName }}
-                        </span>
-                        <span class="text-xs text-[#bbbbbb]">#{{ index }}</span>
-                      </div>
-                      <div class="text-[#fafafa] font-mono text-[15px]">
-                        {{ transferEdge.node.amount }} {{ transferEdge.node.moduleName === 'coin' ? 'KDA' : 'CRANKK' }}
-                      </div>
-                    </div>
+                    <!-- From Address -->
+                    <span class="text-[#bbbbbb]">From</span>
+                    <ValueLink 
+                      :label="truncateAddress(transferEdge.node.senderAccount)" 
+                      :to="`/account/${transferEdge.node.senderAccount}`" 
+                      class="text-blue-400 hover:underline"
+                    />
+                    <Copy 
+                      :value="transferEdge.node.senderAccount" 
+                      tooltipText="Copy sender address"
+                      iconSize="h-5 w-5"
+                      buttonClass="w-5 h-5 opacity-70 hover:opacity-100"
+                    />
                     
-                    <div class="ml-4 flex items-center gap-2 text-[15px]">
-                      <span class="text-[#bbbbbb]">From</span>
-                      <ValueLink 
-                        :label="truncateAddress(transferEdge.node.senderAccount)" 
-                        :to="`/account/${transferEdge.node.senderAccount}`" 
-                        class="text-blue-400 hover:underline"
-                      />
-                      <Copy :value="transferEdge.node.senderAccount" />
-                      <span class="text-[#bbbbbb] mx-2">to</span>
-                      <ValueLink 
-                        :label="truncateAddress(transferEdge.node.receiverAccount)" 
-                        :to="`/account/${transferEdge.node.receiverAccount}`" 
-                        class="text-blue-400 hover:underline"
-                      />
-                      <Copy :value="transferEdge.node.receiverAccount" />
-                    </div>
+                    <!-- To Address -->
+                    <span class="text-[#bbbbbb] ml-2">To</span>
+                    <ValueLink 
+                      :label="truncateAddress(transferEdge.node.receiverAccount)" 
+                      :to="`/account/${transferEdge.node.receiverAccount}`" 
+                      class="text-blue-400 hover:underline"
+                    />
+                    <Copy 
+                      :value="transferEdge.node.receiverAccount" 
+                      tooltipText="Copy receiver address"
+                      iconSize="h-5 w-5"
+                      buttonClass="w-5 h-5 opacity-70 hover:opacity-100"
+                    />
                     
-                    <!-- Divider between transfers (except last one) -->
-                    <div v-if="index < transaction.result.transfers.edges.length - 1" class="border-b border-[#333] mt-2"></div>
+                    <!-- Amount and Token Info -->
+                    <span class="text-[#bbbbbb] ml-2">For</span>
+                    <span class="font-mono text-[#fafafa] font-medium">{{ transferEdge.node.amount }}</span>
+                    
+                    <!-- USD Value for KDA -->
+                    <span 
+                      v-if="calculateKdaUsdValue(transferEdge.node.amount, transferEdge.node.moduleName === 'coin')" 
+                      class="text-[#bbbbbb]"
+                    >
+                      (${{ calculateKdaUsdValue(transferEdge.node.amount, transferEdge.node.moduleName === 'coin') }})
+                    </span>
+                    
+                    <!-- Token Icon -->
+                    <div class="flex items-center gap-2 ml-1">
+                      <img 
+                        v-if="getTokenMetadata(transferEdge.node.moduleName).icon"
+                        :src="getTokenMetadata(transferEdge.node.moduleName).icon"
+                        :alt="getTokenMetadata(transferEdge.node.moduleName).name"
+                        class="w-5 h-5 rounded-full"
+                      />
+                      <div 
+                        v-else
+                        class="w-5 h-5 bg-gray-400 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                      >
+                        {{ getTokenMetadata(transferEdge.node.moduleName).symbol.charAt(0) }}
+                      </div>
+                      
+                      <!-- Token Name -->
+                      <span class="text-[#fafafa] font-medium">
+                        {{ getTokenMetadata(transferEdge.node.moduleName).name }}
+                      </span>
+                      
+                      <!-- Copy Token Address -->
+                      <Copy 
+                        :value="transferEdge.node.moduleName" 
+                        tooltipText="Copy token address"
+                        iconSize="h-5 w-5"
+                        buttonClass="w-5 h-5 opacity-70 hover:opacity-100"
+                      />
+                    </div>
                   </div>
                 </div>
               </template>
