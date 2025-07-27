@@ -466,7 +466,7 @@ onMounted(() => {
                     </span>
                     
                     <!-- Token Icon -->
-                    <div class="flex items-center gap-2 ml-1">
+                    <div class="flex items-center gap-2">
                       <img 
                         v-if="getTokenMetadata(transferEdge.node.moduleName).icon"
                         :src="getTokenMetadata(transferEdge.node.moduleName).icon"
