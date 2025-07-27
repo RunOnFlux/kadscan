@@ -369,6 +369,7 @@ onMounted(() => {
           <!-- Section 3: Token Transfers -->
           <DivideItem v-if="transaction?.result?.transfers?.edges?.length && activeTab === 'Overview'">
             <LabelValue
+              :topAlign="true"
               label="Token Transfers:"
               description="Individual token transfers within this transaction"
               tooltipPos="right"
