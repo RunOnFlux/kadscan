@@ -176,6 +176,21 @@ const calculateKdaUsdValue = (amount: string, isKda: boolean) => {
   return usdValue.toFixed(2)
 }
 
+// Helper function to conditionally truncate only hash-format addresses
+const smartTruncateAddress = (address: string) => {
+  if (!address) return address
+  
+  // Check if it's a long hash format address (k: followed by a long hex string)
+  const isHashFormat = address.startsWith('k:') && address.length > 20
+  
+  if (isHashFormat) {
+    return truncateAddress(address, 10, 10)
+  }
+  
+  // Return as-is for short/human-readable addresses
+  return address
+}
+
 // Fetch transaction data
 watch([transactionId, networkId], () => {
   if (transactionId.value && networkId.value) {
@@ -405,7 +420,7 @@ onMounted(() => {
                     <!-- From Address -->
                     <span class="text-[#bbbbbb]">From</span>
                     <ValueLink 
-                      :label="truncateAddress(transferEdge.node.senderAccount)" 
+                      :label="smartTruncateAddress(transferEdge.node.senderAccount)" 
                       :to="`/account/${transferEdge.node.senderAccount}`" 
                       class="text-blue-400 hover:underline"
                     />
@@ -417,9 +432,9 @@ onMounted(() => {
                     />
                     
                     <!-- To Address -->
-                    <span class="text-[#bbbbbb] ml-2">To</span>
+                    <span class="text-[#bbbbbb]">To</span>
                     <ValueLink 
-                      :label="truncateAddress(transferEdge.node.receiverAccount)" 
+                      :label="smartTruncateAddress(transferEdge.node.receiverAccount)" 
                       :to="`/account/${transferEdge.node.receiverAccount}`" 
                       class="text-blue-400 hover:underline"
                     />
@@ -431,7 +446,7 @@ onMounted(() => {
                     />
                     
                     <!-- Amount and Token Info -->
-                    <span class="text-[#bbbbbb] ml-2">For</span>
+                    <span class="text-[#bbbbbb]">For</span>
                     <span class="font-mono text-[#fafafa] font-medium">{{ transferEdge.node.amount }}</span>
                     
                     <!-- USD Value for KDA -->
