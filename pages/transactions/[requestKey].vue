@@ -171,8 +171,16 @@ const getTokenMetadata = (moduleName: string) => {
 // Calculate USD value for KDA transfers
 const calculateKdaUsdValue = (amount: string, isKda: boolean) => {
   if (!isKda || !kadenaPrice.value || !amount) return null
+  
   const numericAmount = parseFloat(amount)
-  const usdValue = numericAmount * parseFloat(kadenaPrice.value)
+  const priceValue = parseFloat(kadenaPrice.value.toString())
+  const usdValue = numericAmount * priceValue
+  
+  // For very small amounts, show "< $0.01" instead of $0.00
+  if (usdValue > 0 && usdValue < 0.01) {
+    return '< 0.01'
+  }
+  
   return usdValue.toFixed(2)
 }
 
