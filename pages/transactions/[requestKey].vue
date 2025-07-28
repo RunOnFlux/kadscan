@@ -337,7 +337,7 @@ onMounted(() => {
                   </div>
                 </template>
               </LabelValue>
-              <LabelValue :row="isMobile" :label="textContent.status.label" :description="transactionStatus.description" tooltipPos="right">
+              <LabelValue :row="isMobile" :label="textContent.status.label" :description="textContent.status.description" tooltipPos="right">
                 <template #value>
                   <div :class="['flex items-center px-2 py-1 rounded-lg border text-xs w-fit gap-2', transactionStatus.classes]">
                     <component :is="transactionStatus.icon" class="w-3 h-3" />
