@@ -25,6 +25,7 @@ const GQL_QUERY = `
           }
           result {
             ... on TransactionResult {
+              badResult
               gas
               block {
                 height
@@ -123,6 +124,7 @@ export const useTransactions = () => {
           requestKey: edge.node.hash,
           height: edge.node.result.block?.height,
           canonical: edge.node.result.block?.canonical,
+          badResult: edge.node.result.badResult,
           chainId: edge.node.cmd.meta.chainId,
           time: formatRelativeTime(edge.node.cmd.meta.creationTime),
           sender: edge.node.cmd.meta.sender,

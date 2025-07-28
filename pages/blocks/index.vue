@@ -125,7 +125,7 @@ function blockStatus(blockHeight: number, canonical: boolean) {
     return {
       text: 'Orphaned',
       icon: IconCancel,
-      classes: 'bg-[#7f1d1d66] border-[#f87171] text-[#f87171]',
+      classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]',
       description: 'Block is not part of the canonical chain and is orphaned',
     };
   }
@@ -134,7 +134,7 @@ function blockStatus(blockHeight: number, canonical: boolean) {
     return {
       text: 'Finalized',
       icon: IconCheckmarkFill,
-      classes: 'bg-[#0f1f1d] border-[#00a186] text-[#00a186]',
+      classes: 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]',
       description: 'Block is part of the canonical chain and safe to use',
     };
   }
@@ -142,7 +142,7 @@ function blockStatus(blockHeight: number, canonical: boolean) {
   return {
     text: 'Pending',
     icon: IconHourglass,
-    classes: 'bg-[#17150d] border-[#444649] text-[#989898]',
+    classes: 'bg-[#17150d] border-[#44464980] text-[#989898]',
     description: 'Block is not part of the canonical chain and is pending to be finalized or orphaned',
   };
 };
