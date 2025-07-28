@@ -7,6 +7,7 @@ import { useScreenSize } from '~/composables/useScreenSize'
 import { useSharedData } from '~/composables/useSharedData'
 import { staticTokens } from '~/constants/tokens'
 import { integer } from '~/composables/number'
+import { unescapeCodeString } from '~/composables/string'
 import Informational from '~/components/icon/Informational.vue'
 import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
 import IconHourglass from '~/components/icon/Hourglass.vue';
@@ -676,7 +677,7 @@ onUnmounted(() => {
                             class="bg-[#151515] border border-[#222222] rounded-lg overflow-y-auto resize-none"
                             :style="{ height: codeContainerHeight + 'px' }"
                           >
-                            <pre class="text-[#bbbbbb] text-sm whitespace-pre-wrap break-words px-[10px] py-[5px] h-full">{{ transaction.cmd.payload.code }}</pre>
+                            <pre class="text-[#bbbbbb] text-sm whitespace-pre-wrap break-words px-[10px] py-[5px] h-full">{{ unescapeCodeString(transaction.cmd.payload.code) }}</pre>
                           </div>
                           
                           <!-- Diagonal Triangle Resize Handle -->
