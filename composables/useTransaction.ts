@@ -177,30 +177,11 @@ export const useTransaction = (
     )?.node || transaction.value.result.transfers.edges[0]?.node
   })
 
-  const totalValue = computed(() => {
-    if (!transaction.value?.result?.transfers?.edges) return '0'
-    // Sum all non-gas transfers (excluding the small coin transfer which is likely gas)
-    return transaction.value.result.transfers.edges
-      .filter((edge: any) => edge.node.moduleName !== 'coin')
-      .reduce((sum: number, edge: any) => sum + parseFloat(edge.node.amount || '0'), 0)
-      .toString()
-  })
-
-  const totalValueUsd = computed(() => {
-    if (!kadenaPrice.value || !totalValue.value) return '0'
-    return (parseFloat(totalValue.value) * kadenaPrice.value).toFixed(2)
-  })
-
   const transactionFee = computed(() => {
     if (!transaction.value?.result?.gas || !transaction.value?.cmd?.meta?.gasPrice) return '0'
     const gasUsed = parseFloat(transaction.value.result.gas)
     const gasPrice = parseFloat(transaction.value.cmd.meta.gasPrice)
     return (gasUsed * gasPrice).toString()
-  })
-
-  const transactionFeeUsd = computed(() => {
-    if (!kadenaPrice.value || !transactionFee.value) return '0'
-    return (parseFloat(transactionFee.value) * kadenaPrice.value).toFixed(2)
   })
 
   const blockConfirmations = computed(() => {
@@ -270,10 +251,7 @@ export const useTransaction = (
     kadenaPriceLastDay,
     lastBlockHeight,
     primaryTransfer,
-    totalValue,
-    totalValueUsd,
     transactionFee,
-    transactionFeeUsd,
     blockConfirmations,
   }
 }

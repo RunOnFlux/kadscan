@@ -36,10 +36,7 @@ const {
   error,
   fetchTransaction,
   primaryTransfer,
-  totalValue,
-  totalValueUsd,
   transactionFee,
-  transactionFeeUsd,
   blockConfirmations,
   kadenaPrice,
 } = useTransaction(transactionId, networkId)
@@ -176,12 +173,7 @@ const calculateKdaUsdValue = (amount: string, isKda: boolean) => {
   const priceValue = parseFloat(kadenaPrice.value.toString())
   const usdValue = numericAmount * priceValue
   
-  // For very small amounts, show "< $0.01" instead of $0.00
-  if (usdValue > 0 && usdValue < 0.01) {
-    return '< 0.01'
-  }
-  
-  return usdValue.toFixed(2)
+  return usdValue.toFixed(6)
 }
 
 // Helper function to conditionally truncate only hash-format addresses
@@ -502,19 +494,11 @@ onMounted(() => {
           <!-- Section 4: Values -->
           <DivideItem>
             <div class="flex flex-col gap-4">
-              <LabelValue v-if="totalValue !== '0'" :row="isMobile" :label="textContent.value.label" :description="textContent.value.description" tooltipPos="right">
-                <template #value>
-                  <div class="flex items-center gap-2">
-                    <span class="font-mono text-[#fafafa]">{{ totalValue }} KDA</span>
-                    <span v-if="totalValueUsd !== '0'" class="text-[#bbbbbb]">(${{ totalValueUsd }})</span>
-                  </div>
-                </template>
-              </LabelValue>
               <LabelValue :row="isMobile" :label="textContent.transactionFee.label" :description="textContent.transactionFee.description" tooltipPos="right">
                 <template #value>
                   <div class="flex items-center gap-2">
                     <span class="font-mono text-[#fafafa]">{{ transactionFee }} KDA</span>
-                    <span v-if="transactionFeeUsd !== '0'" class="text-[#bbbbbb]">(${{ transactionFeeUsd }})</span>
+                    <span v-if="calculateKdaUsdValue(transactionFee, true)" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(transactionFee, true) }})</span>
                   </div>
                 </template>
               </LabelValue>
