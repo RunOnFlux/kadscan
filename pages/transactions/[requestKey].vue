@@ -471,7 +471,7 @@ onMounted(() => {
                         v-if="getTokenMetadata(transferEdge.node.moduleName).icon"
                         :src="getTokenMetadata(transferEdge.node.moduleName).icon"
                         :alt="getTokenMetadata(transferEdge.node.moduleName).name"
-                        class="w-5 h-5 rounded-full"
+                        class="w-5 h-5"
                       />
                       <div 
                         v-else
