@@ -572,24 +572,35 @@ onMounted(() => {
                      label="Gas Limit & Usage by Txn:"
                      description="Maximum amount of gas allocated for the transaction & the amount eventually used."
                      tooltipPos="right"
-                   >
-                     <template #value>
-                       <div class="flex items-center gap-2">
-                         <span class="text-[#fafafa]">{{ formattedGasInfo }}</span>
-                       </div>
-                     </template>
-                   </LabelValue>
-                   <LabelValue 
-                     label="Nonce:" 
-                     description="Sequential number for this transaction"
-                     tooltipPos="right"
-                   >
-                     <template #value>
-                       <div class="flex items-center gap-2">
-                         <span class="text-[#fafafa]">{{ transaction?.cmd?.nonce || '-' }}</span>
-                       </div>
-                     </template>
-                   </LabelValue>
+                  >
+                    <template #value>
+                      <div class="flex items-center gap-2">
+                        <span class="text-[#fafafa]">{{ formattedGasInfo }}</span>
+                      </div>
+                    </template>
+                  </LabelValue>
+                  <LabelValue 
+                    label="Nonce:" 
+                    description="Sequential number for this transaction"
+                    tooltipPos="right"
+                  >
+                    <template #value>
+                      <div class="flex items-center gap-2">
+                        <span class="text-[#fafafa]">{{ transaction?.cmd?.nonce || '-' }}</span>
+                      </div>
+                    </template>
+                  </LabelValue>
+                  <LabelValue 
+                    label="TTL:" 
+                    description="Time to live for this transaction"
+                    tooltipPos="right"
+                  >
+                    <template #value>
+                      <div class="flex items-center gap-2">
+                        <span class="text-[#fafafa]">{{ transaction?.cmd?.meta?.ttl || '-' }}</span>
+                      </div>
+                    </template>
+                  </LabelValue>
                 </div>
               </DivideItem>
 
@@ -654,17 +665,6 @@ onMounted(() => {
               <!-- Advanced Details -->
               <DivideItem>
                 <div class="flex flex-col gap-4">
-                  <LabelValue 
-                    label="TTL:" 
-                    description="Time to live for this transaction"
-                    tooltipPos="right"
-                  >
-                    <template #value>
-                      <div class="flex items-center gap-2">
-                        <span class="text-[#fafafa]">{{ transaction?.cmd?.meta?.ttl || '-' }}</span>
-                      </div>
-                    </template>
-                   </LabelValue>
                    <LabelValue 
                      label="Transfers:" 
                      description="Number of token transfers in this transaction"
