@@ -56,8 +56,8 @@ const textContent = {
   transactionFee: { label: 'Transaction Fee:', description: 'Amount paid to process this transaction in KDA.' },
   gasPrice: { label: 'Gas Price:', description: 'Cost per unit of gas spent for this transaction.' },
   kadenaPrice: { label: 'Kadena Price:', description: 'Price of KDA on the day this transaction was created.' },
-  moreDetails: { label: 'More Details:' },
   otherAttributes: { label: 'Other Attributes:', description: 'Other data related to this transaction.' },
+  moreDetails: { label: 'More Details:' },
 }
 
 // Tab management
@@ -106,8 +106,11 @@ const handleResize = (event: MouseEvent) => {
   if (!isResizing.value) return
   
   const deltaY = event.clientY - resizeStartY.value
-  const newHeight = Math.max(80, Math.min(600, resizeStartHeight.value + deltaY))
+  const newHeight = Math.max(30, Math.min(600, resizeStartHeight.value + deltaY))
   codeContainerHeight.value = newHeight
+  console.log(contentHeight.value)
+  console.log(codeContainerHeight.value)
+  // contentHeight.value = contentHeight.value + newHeight
 }
 
 const stopResize = () => {
@@ -673,7 +676,7 @@ onUnmounted(() => {
                             class="bg-[#151515] border border-[#222222] rounded-lg overflow-y-auto resize-none"
                             :style="{ height: codeContainerHeight + 'px' }"
                           >
-                            <pre class="text-[#bbbbbb] text-sm whitespace-pre-wrap break-words p-4 h-full">{{ transaction.cmd.payload.code }}</pre>
+                            <pre class="text-[#bbbbbb] text-sm whitespace-pre-wrap break-words px-[10px] py-[5px] h-full">{{ transaction.cmd.payload.code }}</pre>
                           </div>
                           
                           <!-- Diagonal Triangle Resize Handle -->
