@@ -52,6 +52,8 @@ const textContent = {
   paidBy: { label: 'Paid By:', description: 'The account that paid the gas fees for this transaction.' },
   value: { label: 'Value:', description: 'Amount of cryptocurrency transferred in this transaction.' },
   transactionFee: { label: 'Transaction Fee:', description: 'Fee paid to process this transaction on the blockchain.' },
+  gasPrice: { label: 'Gas Price:', description: 'Price per unit of gas for this transaction.' },
+  kadenaPrice: { label: 'Kadena Price:', description: 'Price of KDA on the day this transaction was created.' },
   moreDetails: { label: 'More Details:' },
 }
 
@@ -167,6 +169,17 @@ const calculateKdaUsdValue = (amount: string, isKda: boolean) => {
   
   return usdValue.toFixed(6)
 }
+
+// Format kadena price for display
+const formattedKadenaPrice = computed(() => {
+  if (!kadenaPrice.value) return null
+  
+  const price = typeof kadenaPrice.value === 'number' 
+    ? kadenaPrice.value 
+    : parseFloat(kadenaPrice.value.toString())
+    
+  return isNaN(price) ? null : `$${price.toFixed(4)} / KDA`
+})
 
 // Helper function to conditionally truncate only hash-format addresses
 const smartTruncateAddress = (address: string) => {
@@ -481,7 +494,7 @@ onMounted(() => {
             </LabelValue>
           </DivideItem>
 
-          <!-- Section 4: Values -->
+          <!-- Section 4: Misc -->
           <DivideItem>
             <div class="flex flex-col gap-4">
               <LabelValue :row="isMobile" :label="textContent.transactionFee.label" :description="textContent.transactionFee.description" tooltipPos="right">
@@ -489,6 +502,14 @@ onMounted(() => {
                   <div class="flex items-center gap-2">
                     <span class="font-mono text-[#fafafa]">{{ transactionFee }} KDA</span>
                     <span v-if="calculateKdaUsdValue(transactionFee, true)" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(transactionFee, true) }})</span>
+                  </div>
+                </template>
+              </LabelValue>
+              
+              <LabelValue :row="isMobile" :label="textContent.gasPrice.label" :description="textContent.gasPrice.description" tooltipPos="right">
+                <template #value>
+                  <div class="flex items-center gap-2">
+                    <span class="font-mono text-[#fafafa]">{{ transaction?.cmd?.meta?.gasPrice || '-' }}</span>
                   </div>
                 </template>
               </LabelValue>
@@ -509,7 +530,14 @@ onMounted(() => {
               <!-- Gas Information -->
               <DivideItem>
                 <div class="flex flex-col gap-4">
-                                     <LabelValue
+                  <LabelValue :row="isMobile" :label="textContent.kadenaPrice.label" :description="textContent.kadenaPrice.description" tooltipPos="right">
+                    <template #value>
+                      <div class="flex items-center gap-2">
+                        <span class="font-mono text-[#fafafa]">{{ formattedKadenaPrice || '-' }}</span>
+                      </div>
+                    </template>
+                  </LabelValue>
+                  <LabelValue
                      label="Gas Used:"
                      description="Total gas consumed by this transaction"
                      tooltipPos="right"
