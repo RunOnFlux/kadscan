@@ -83,3 +83,232 @@ export function parseJsonSafely(input: any): any {
     return input;
   }
 }
+
+/**
+ * Parses Pact smart contract code into a structured readable format
+ * @param input - Raw Pact code like "(free.radio02.close-send-receive "arg1" [...] [])"
+ * @returns Structured format showing contract, method, and numbered parameters
+ */
+export function parsePactCode(input: string | any): string {
+  if (!input || typeof input !== 'string') {
+    return String(input || '');
+  }
+
+  const code = input.trim();
+  
+  // Remove outer parentheses if present
+  const withoutParens = code.startsWith('(') && code.endsWith(')') ? 
+    code.slice(1, -1).trim() : code;
+
+  // Find the first space to separate function name from arguments
+  const firstSpaceIndex = withoutParens.indexOf(' ');
+  if (firstSpaceIndex === -1) {
+    // No arguments, just function name
+    const lastDotIndex = withoutParens.lastIndexOf('.');
+    if (lastDotIndex === -1) {
+      return `Method: ${withoutParens}\n\nNo parameters`;
+    }
+    const contract = withoutParens.substring(0, lastDotIndex);
+    const method = withoutParens.substring(lastDotIndex + 1);
+    return `Contract: ${contract}\nMethod: ${method}\n\nNo parameters`;
+  }
+
+  const functionName = withoutParens.substring(0, firstSpaceIndex);
+  const argsString = withoutParens.substring(firstSpaceIndex + 1).trim();
+
+  // Split function name into contract and method
+  const lastDotIndex = functionName.lastIndexOf('.');
+  let contract = '';
+  let method = functionName;
+  
+  if (lastDotIndex !== -1) {
+    contract = functionName.substring(0, lastDotIndex);
+    method = functionName.substring(lastDotIndex + 1);
+  }
+
+  // Parse arguments by splitting on spaces but respecting nested brackets/braces/quotes
+  const args = [];
+  let current = '';
+  let depth = 0;
+  let inString = false;
+  let escapeNext = false;
+
+  for (let i = 0; i < argsString.length; i++) {
+    const char = argsString[i];
+    
+    if (escapeNext) {
+      current += char;
+      escapeNext = false;
+      continue;
+    }
+    
+    if (char === '\\') {
+      current += char;
+      escapeNext = true;
+      continue;
+    }
+    
+    if (char === '"' && !escapeNext) {
+      inString = !inString;
+      current += char;
+      continue;
+    }
+    
+    if (!inString) {
+      if (char === '[' || char === '{' || char === '(') {
+        depth++;
+      } else if (char === ']' || char === '}' || char === ')') {
+        depth--;
+      }
+      
+      if (char === ' ' && depth === 0) {
+        if (current.trim()) {
+          args.push(current.trim());
+          current = '';
+        }
+        continue;
+      }
+    }
+    
+    current += char;
+  }
+  
+  if (current.trim()) {
+    args.push(current.trim());
+  }
+
+  // Helper function to recursively extract elements from arrays/objects
+  const extractElements = (str: string): string[] => {
+    const trimmed = str.trim();
+    
+    // Handle arrays [...]
+    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+      const content = trimmed.slice(1, -1).trim();
+      if (!content) return ['[]']; // Empty array
+      
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (Array.isArray(parsed)) {
+          const results: string[] = [];
+          parsed.forEach(item => {
+            const itemStr = typeof item === 'string' ? `"${item}"` : JSON.stringify(item);
+            // Recursively extract elements from each item
+            const subElements = extractElements(itemStr);
+            results.push(...subElements);
+          });
+          return results;
+        }
+      } catch (e) {
+        // If JSON parsing fails, return the original
+        return [trimmed];
+      }
+    }
+    
+    // Handle objects {...}
+    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+      const content = trimmed.slice(1, -1).trim();
+      if (!content) return ['{}']; // Empty object
+      
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+          const results: string[] = [];
+          Object.entries(parsed).forEach(([key, value]) => {
+            const valueStr = typeof value === 'string' ? `"${value}"` : JSON.stringify(value);
+            const keyValuePair = `"${key}":${valueStr}`;
+            // Recursively extract elements from the value if it's complex
+            if (valueStr.startsWith('[') || valueStr.startsWith('{')) {
+              const subElements = extractElements(valueStr);
+              subElements.forEach(subElement => {
+                results.push(`"${key}":${subElement}`);
+              });
+            } else {
+              results.push(keyValuePair);
+            }
+          });
+          return results;
+        }
+      } catch (e) {
+        // If JSON parsing fails, try manual parsing for simple objects
+        const pairs: string[] = [];
+        let current = '';
+        let depth = 0;
+        let inString = false;
+        let escapeNext = false;
+        
+        for (let i = 0; i < content.length; i++) {
+          const char = content[i];
+          
+          if (escapeNext) {
+            current += char;
+            escapeNext = false;
+            continue;
+          }
+          
+          if (char === '\\') {
+            current += char;
+            escapeNext = true;
+            continue;
+          }
+          
+          if (char === '"') {
+            inString = !inString;
+            current += char;
+            continue;
+          }
+          
+          if (!inString) {
+            if (char === '{' || char === '[') depth++;
+            if (char === '}' || char === ']') depth--;
+            
+            if (char === ',' && depth === 0) {
+              if (current.trim()) {
+                pairs.push(current.trim());
+                current = '';
+              }
+              continue;
+            }
+          }
+          
+          current += char;
+        }
+        
+        if (current.trim()) {
+          pairs.push(current.trim());
+        }
+        
+        // Recursively process each pair
+        const results: string[] = [];
+        pairs.forEach(pair => {
+          const subElements = extractElements(pair);
+          results.push(...subElements);
+        });
+        
+        return results.length > 0 ? results : [trimmed];
+      }
+    }
+    
+    // Not an array or object, return as-is
+    return [trimmed];
+  };
+
+  // Build the structured output
+  let result = '';
+  if (contract) {
+    result += `Contract: ${contract}\n\n`;
+  }
+  result += `Function: ${method}\n`;
+  
+  if (args.length === 0) {
+    result += 'No parameters';
+  } else {
+    args.forEach((arg, index) => {
+      const elements = extractElements(arg);
+      elements.forEach(element => {
+        result += `[${index}]:  ${element}\n`;
+      });
+    });
+  }
+  
+  return result.trim();
+}

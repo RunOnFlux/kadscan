@@ -25,7 +25,7 @@ defineProps<{
     <div
       class="flex gap-2"
       :class="[
-        !row && 'w-full h-fullmin-w-[300px] max-w-[300px] mr-3',
+        !row && 'w-full h-fullmin-w-[300px] max-w-[300px]',
       ]"
     >
       <div class="flex items-center gap-2">

@@ -7,7 +7,7 @@ import { useScreenSize } from '~/composables/useScreenSize'
 import { useSharedData } from '~/composables/useSharedData'
 import { staticTokens } from '~/constants/tokens'
 import { integer } from '~/composables/number'
-import { unescapeCodeString } from '~/composables/string'
+import { unescapeCodeString, parsePactCode } from '~/composables/string'
 import Informational from '~/components/icon/Informational.vue'
 import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
 import IconHourglass from '~/components/icon/Hourglass.vue';
@@ -78,6 +78,9 @@ const resizeStartY = ref(0)
 const resizeStartHeight = ref(0)
 const contentHeightCodeVariation = ref(0)
 
+// Code view functionality
+const codeView = ref('default') // 'default' or 'raw'
+
 const toggleMoreDetails = () => {
   if (!showMoreDetails.value) {
     showMoreDetails.value = true
@@ -119,6 +122,18 @@ const stopResize = () => {
   document.removeEventListener('mousemove', handleResize)
   document.removeEventListener('mouseup', stopResize)
 }
+
+// Computed property for code display
+const displayedCode = computed(() => {
+  const rawCode = transaction.value?.cmd?.payload?.code
+  if (!rawCode) return 'No code available'
+  
+  if (codeView.value === 'raw') {
+    return unescapeCodeString(rawCode)
+  } else {
+    return parsePactCode(unescapeCodeString(rawCode))
+  }
+})
 
 const transactionStatus = computed(() => {
   if((lastBlockHeight.value - 10 >= transaction.value?.result?.block?.height && !transaction.value?.result?.block?.canonical) || transaction.value?.result?.badResult !== null) {
@@ -653,7 +668,7 @@ onUnmounted(() => {
                   <!-- Custom Code Section with Full Width -->
                   <div class="flex flex-col md:flex-row items-start">
                     <!-- Label Section (matching LabelValue styling) -->
-                    <div class="flex gap-2 w-full min-w-[300px] max-w-[300px] mr-3">
+                    <div class="flex gap-2 w-full min-w-[300px] max-w-[300px]">
                       <div class="flex items-center gap-2">
                         <Tooltip
                           value="Smart contract code executed"
@@ -663,13 +678,13 @@ onUnmounted(() => {
                           <Informational class="w-4 h-4" />
                         </Tooltip>
                         <span class="text-[#bbbbbb] text-[15px] font-normal">
-                          Code:
+                          Input Data:
                         </span>
                       </div>
                     </div>
                     
                     <!-- Code Container with proper boundaries -->
-                    <div class="text-[#f5f5f5] text-[15px] fix flex gap-2 break-words flex-1 overflow-hidden">
+                    <div class="text-[#f5f5f5] text-[15px] fix flex gap-2 flex-1 overflow-hidden">
                       <div v-if="transaction?.cmd?.payload?.code" class="w-full">
                         <!-- Resizable Code Container -->
                         <div class="relative">
@@ -677,7 +692,7 @@ onUnmounted(() => {
                             class="bg-[#151515] border border-[#222222] rounded-lg overflow-y-auto resize-none"
                             :style="{ height: codeContainerHeight + 'px' }"
                           >
-                            <pre class="text-[#bbbbbb] text-sm whitespace-pre-wrap break-words px-[10px] py-[5px] h-full">{{ unescapeCodeString(transaction.cmd.payload.code) }}</pre>
+                            <pre class="text-[#bbbbbb] text-sm break-all px-[10px] py-[5px] h-full">{{ displayedCode }}</pre>
                           </div>
                           
                           <!-- Diagonal Triangle Resize Handle -->
@@ -691,6 +706,32 @@ onUnmounted(() => {
                               <div class="absolute bottom-0 right-0 w-[1px] h-1.5 bg-[#bbbbbb] transform rotate-45 origin-bottom-right translate-y-[-1px] translate-x-[-4px]"></div>
                               <div class="absolute bottom-0 right-0 w-[1px] h-2.5 bg-[#bbbbbb] transform rotate-45 origin-bottom-right translate-y-[-1px] translate-x-[-7px]"></div>
                             </div>
+                          </div>
+                          
+                          <!-- Toggle buttons for code view -->
+                          <div class="flex gap-2 mt-3">
+                            <button 
+                              @click="codeView = 'default'"
+                              :class="[
+                                'px-3 py-1.5 text-xs rounded-md border transition-colors',
+                                codeView === 'default' 
+                                  ? 'bg-[#444648] border-[#555] text-[#fafafa]' 
+                                  : 'bg-[#212122] border-[#444648] text-[#bbbbbb] hover:bg-[#2a2a2b]'
+                              ]"
+                            >
+                              Default View
+                            </button>
+                            <button 
+                              @click="codeView = 'raw'"
+                              :class="[
+                                'px-3 py-1.5 text-xs rounded-md border transition-colors',
+                                codeView === 'raw' 
+                                  ? 'bg-[#444648] border-[#555] text-[#fafafa]' 
+                                  : 'bg-[#212122] border-[#444648] text-[#bbbbbb] hover:bg-[#2a2a2b]'
+                              ]"
+                            >
+                              Raw Code
+                            </button>
                           </div>
                         </div>
                       </div>
