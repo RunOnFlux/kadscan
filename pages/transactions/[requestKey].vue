@@ -70,17 +70,19 @@ const contentHeight = ref(0)
 const contentRef = ref<HTMLElement | null>(null)
 
 // Code resize functionality
-const codeContainerHeight = ref(120) // Initial height
+const initialCodeContainerHeight = 120
+const codeContainerHeight = ref(initialCodeContainerHeight) // Initial height
 const isResizing = ref(false)
 const resizeStartY = ref(0)
 const resizeStartHeight = ref(0)
+const contentHeightCodeVariation = ref(0)
 
 const toggleMoreDetails = () => {
   if (!showMoreDetails.value) {
     showMoreDetails.value = true
     nextTick(() => {
       if (contentRef.value) {
-        contentHeight.value = contentRef.value.scrollHeight
+        contentHeight.value = contentRef.value.scrollHeight - contentHeightCodeVariation.value
       }
     })
   } else {
@@ -108,9 +110,7 @@ const handleResize = (event: MouseEvent) => {
   const deltaY = event.clientY - resizeStartY.value
   const newHeight = Math.max(30, Math.min(600, resizeStartHeight.value + deltaY))
   codeContainerHeight.value = newHeight
-  console.log(contentHeight.value)
-  console.log(codeContainerHeight.value)
-  // contentHeight.value = contentHeight.value + newHeight
+  contentHeightCodeVariation.value = newHeight - initialCodeContainerHeight
 }
 
 const stopResize = () => {
@@ -359,7 +359,7 @@ onUnmounted(() => {
                           
                           <div>
                             <span class="text-[#bbbbbb] text-sm">Parameters:</span>
-                            <div class="mt-1 p-3 bg-[#1a1a1a] rounded border border-[#333] text-xs text-[#fafafa] break-all">
+                            <div class="mt-1 p-3 bg-[#1a1a1a] rounded border border-[#bbbbbb] text-xs text-[#fafafa] break-all">
                               {{ eventEdge.node.parameterText }}
                             </div>
                           </div>
@@ -368,7 +368,7 @@ onUnmounted(() => {
                     </LabelValue>
                     
                     <!-- Divider between events (except last one) -->
-                    <div v-if="index < transaction.result.events.edges.length - 1" class="border-b border-[#333]"></div>
+                    <div v-if="index < transaction.result.events.edges.length - 1" class="border-b border-[#bbbbbb]"></div>
                   </div>
                 </div>
               </DivideItem>
@@ -595,9 +595,9 @@ onUnmounted(() => {
         <div 
           ref="contentRef"
           class="overflow-hidden transition-all duration-300 ease-out"
-          :style="{ height: showMoreDetails ? contentHeight + 'px' : '0px' }"
+          :style="{ height: showMoreDetails ? contentHeight + contentHeightCodeVariation + 'px' : '0px' }"
         >
-          <div class="mb-4 pb-4 border-b border-[#333]">
+          <div class="mb-4 pb-4 border-b border-[#222222]">
             <Divide>
               <!-- More Details -->
               <DivideItem>
