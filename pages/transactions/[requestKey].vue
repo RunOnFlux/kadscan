@@ -84,7 +84,7 @@ const toggleMoreDetails = () => {
 }
 
 const transactionStatus = computed(() => {
-  if(lastBlockHeight.value - 10 >= transaction.value?.result?.block?.height && !transaction.value?.result?.block?.canonical) {
+  if((lastBlockHeight.value - 10 >= transaction.value?.result?.block?.height && !transaction.value?.result?.block?.canonical) || transaction.value?.result?.badResult !== null) {
     return {
       text: 'Failed',
       icon: IconCancel,
