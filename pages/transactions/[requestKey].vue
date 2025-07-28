@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, nextTick, computed, watch, onMounted } from 'vue'
+import { ref, nextTick, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useTransaction } from '~/composables/useTransaction'
 import { useFormat } from '~/composables/useFormat'
@@ -7,7 +7,7 @@ import { useScreenSize } from '~/composables/useScreenSize'
 import { useSharedData } from '~/composables/useSharedData'
 import { staticTokens } from '~/constants/tokens'
 import { integer } from '~/composables/number'
-import Information from '~/components/icon/Information.vue'
+import Informational from '~/components/icon/Informational.vue'
 import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
 import IconHourglass from '~/components/icon/Hourglass.vue';
 import IconCancel from '~/components/icon/Cancel.vue';
@@ -69,6 +69,12 @@ const showMoreDetails = ref(false)
 const contentHeight = ref(0)
 const contentRef = ref<HTMLElement | null>(null)
 
+// Code resize functionality
+const codeContainerHeight = ref(120) // Initial height
+const isResizing = ref(false)
+const resizeStartY = ref(0)
+const resizeStartHeight = ref(0)
+
 const toggleMoreDetails = () => {
   if (!showMoreDetails.value) {
     showMoreDetails.value = true
@@ -78,11 +84,36 @@ const toggleMoreDetails = () => {
       }
     })
   } else {
-    contentHeight.value = 0
+    showMoreDetails.value = false
     setTimeout(() => {
-      showMoreDetails.value = false
+      contentHeight.value = 0
     }, 300)
   }
+}
+
+// Draggable resize functionality
+const startResize = (event: MouseEvent) => {
+  isResizing.value = true
+  resizeStartY.value = event.clientY
+  resizeStartHeight.value = codeContainerHeight.value
+  
+  document.addEventListener('mousemove', handleResize)
+  document.addEventListener('mouseup', stopResize)
+  event.preventDefault()
+}
+
+const handleResize = (event: MouseEvent) => {
+  if (!isResizing.value) return
+  
+  const deltaY = event.clientY - resizeStartY.value
+  const newHeight = Math.max(80, Math.min(600, resizeStartHeight.value + deltaY))
+  codeContainerHeight.value = newHeight
+}
+
+const stopResize = () => {
+  isResizing.value = false
+  document.removeEventListener('mousemove', handleResize)
+  document.removeEventListener('mouseup', stopResize)
 }
 
 const transactionStatus = computed(() => {
@@ -240,6 +271,12 @@ onMounted(() => {
   if (transactionId.value && networkId.value) {
     fetchTransaction()
   }
+})
+
+onUnmounted(() => {
+  // Clean up event listeners
+  document.removeEventListener('mousemove', handleResize)
+  document.removeEventListener('mouseup', stopResize)
 })
 </script>
 
@@ -609,25 +646,53 @@ onMounted(() => {
                       </div>
                     </template>
                   </LabelValue>
-                  <LabelValue 
-                    label="Code:" 
-                    description="Smart contract code executed"
-                    tooltipPos="right"
-                  >
-                    <template #value>
+                  <!-- Custom Code Section with Full Width -->
+                  <div class="flex flex-col md:flex-row items-start">
+                    <!-- Label Section (matching LabelValue styling) -->
+                    <div class="flex gap-2 w-full min-w-[300px] max-w-[300px] mr-3">
                       <div class="flex items-center gap-2">
-                        <span v-if="transaction?.cmd?.payload?.code" class="text-[#fafafa] text-xs break-all">{{ transaction.cmd.payload.code.slice(0, 50) }}...</span>
-                        <span v-else class="text-[#fafafa] text-xs">-</span>
-                        <Copy 
-                          v-if="transaction?.cmd?.payload?.code"
-                          :value="transaction.cmd.payload.code" 
-                          tooltipText="Copy Code"
-                          iconSize="h-5 w-5"
-                          buttonClass="w-5 h-5"
-                        />
+                        <Tooltip
+                          value="Smart contract code executed"
+                          placement="right"
+                          :offset-distance="16"
+                        >
+                          <Informational class="w-4 h-4" />
+                        </Tooltip>
+                        <span class="text-[#bbbbbb] text-[15px] font-normal">
+                          Code:
+                        </span>
                       </div>
-                    </template>
-                  </LabelValue>
+                    </div>
+                    
+                    <!-- Code Container with proper boundaries -->
+                    <div class="text-[#f5f5f5] text-[15px] fix flex gap-2 break-words flex-1 overflow-hidden">
+                      <div v-if="transaction?.cmd?.payload?.code" class="w-full">
+                        <!-- Resizable Code Container -->
+                        <div class="relative">
+                          <div 
+                            class="bg-[#151515] border border-[#222222] rounded-lg overflow-y-auto resize-none"
+                            :style="{ height: codeContainerHeight + 'px' }"
+                          >
+                            <pre class="text-[#bbbbbb] text-sm whitespace-pre-wrap break-words p-4 h-full">{{ transaction.cmd.payload.code }}</pre>
+                          </div>
+                          
+                          <!-- Diagonal Triangle Resize Handle -->
+                          <div 
+                            @mousedown="startResize"
+                            class="absolute bottom-0 right-0 w-4 h-4 cursor-nw-resize group"
+                            :class="{ 'opacity-80': isResizing }"
+                          >
+                            <!-- Simple diagonal grip lines -->
+                            <div class="absolute bottom-1 right-1 w-3 h-3">
+                              <div class="absolute bottom-0 right-0 w-[1px] h-1.5 bg-[#bbbbbb] transform rotate-45 origin-bottom-right translate-y-[-1px] translate-x-[-4px]"></div>
+                              <div class="absolute bottom-0 right-0 w-[1px] h-2.5 bg-[#bbbbbb] transform rotate-45 origin-bottom-right translate-y-[-1px] translate-x-[-7px]"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <span v-else class="text-[#fafafa] text-xs">No code available</span>
+                    </div>
+                  </div>
                 </div>
               </DivideItem>
             </Divide>
