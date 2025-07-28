@@ -593,7 +593,7 @@ onMounted(() => {
                     tooltipPos="right"
                   >
                     <template #value>
-                      <div class="flex flex-wrap gap-3">
+                      <div class="flex flex-wrap gap-2">
                         <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                           <span class="text-[#bbbbbb]">TTL:</span>
                           <span class="text-[#fafafa] ml-1">{{ transaction?.cmd?.meta?.ttl || '-' }}</span>
@@ -602,101 +602,32 @@ onMounted(() => {
                           <span class="text-[#bbbbbb]">Nonce:</span>
                           <span class="text-[#fafafa] ml-1">{{ transaction?.cmd?.nonce || '0' }}</span>
                         </span>
-                      </div>
-                    </template>
-                  </LabelValue>
-                  
-                  <LabelValue 
-                    label="Method:" 
-                    description="Type of transaction executed"
-                    tooltipPos="right"
-                  >
-                    <template #value>
-                      <div class="flex items-center gap-2">
-                        <span class="text-[#fafafa]">{{ method }}</span>
+                        <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+                          <span class="text-[#bbbbbb]">TXID:</span>
+                          <span class="text-[#fafafa] ml-1">{{ transaction?.result?.transactionId || '0' }}</span>
+                        </span>
                       </div>
                     </template>
                   </LabelValue>
                   <LabelValue 
-                    label="Chain ID:" 
-                    description="Blockchain network identifier"
+                    label="Code:" 
+                    description="Smart contract code executed"
                     tooltipPos="right"
                   >
                     <template #value>
                       <div class="flex items-center gap-2">
-                        <span class="text-[#fafafa]">{{ transaction?.cmd?.meta?.chainId || '-' }}</span>
+                        <span v-if="transaction?.cmd?.payload?.code" class="text-[#fafafa] text-xs break-all">{{ transaction.cmd.payload.code.slice(0, 50) }}...</span>
+                        <span v-else class="text-[#fafafa] text-xs">-</span>
+                        <Copy 
+                          v-if="transaction?.cmd?.payload?.code"
+                          :value="transaction.cmd.payload.code" 
+                          tooltipText="Copy Code"
+                          iconSize="h-5 w-5"
+                          buttonClass="w-5 h-5"
+                        />
                       </div>
                     </template>
-                   </LabelValue>
-                   <LabelValue 
-                     label="Network ID:" 
-                     description="Network identifier"
-                     tooltipPos="right"
-                   >
-                     <template #value>
-                       <div class="flex items-center gap-2">
-                         <span class="text-[#fafafa]">{{ transaction?.cmd?.networkId || '-' }}</span>
-                       </div>
-                     </template>
-                   </LabelValue>
-                   <LabelValue 
-                     label="Code:" 
-                     description="Smart contract code executed"
-                     tooltipPos="right"
-                   >
-                     <template #value>
-                       <div class="flex items-center gap-2">
-                         <span v-if="transaction?.cmd?.payload?.code" class="text-[#fafafa] text-xs break-all">{{ transaction.cmd.payload.code.slice(0, 50) }}...</span>
-                         <span v-else class="text-[#fafafa] text-xs">-</span>
-                         <Copy 
-                           v-if="transaction?.cmd?.payload?.code"
-                           :value="transaction.cmd.payload.code" 
-                           tooltipText="Copy Code"
-                           iconSize="h-5 w-5"
-                           buttonClass="w-5 h-5"
-                         />
-                       </div>
-                     </template>
-                   </LabelValue>
-                </div>
-              </DivideItem>
-
-              <!-- Advanced Details -->
-              <DivideItem>
-                <div class="flex flex-col gap-4">
-                   <LabelValue 
-                     label="Transfers:" 
-                     description="Number of token transfers in this transaction"
-                     tooltipPos="right"
-                   >
-                     <template #value>
-                       <div class="flex items-center gap-2">
-                         <span class="text-[#fafafa]">{{ transfersCount }}</span>
-                       </div>
-                     </template>
-                   </LabelValue>
-                   <LabelValue 
-                     label="Events:" 
-                     description="Number of events emitted by this transaction"
-                     tooltipPos="right"
-                   >
-                     <template #value>
-                       <div class="flex items-center gap-2">
-                         <span class="text-[#fafafa]">{{ eventsCount }}</span>
-                       </div>
-                     </template>
-                   </LabelValue>
-                   <LabelValue 
-                     label="Result:" 
-                     description="Transaction execution result"
-                     tooltipPos="right"
-                   >
-                     <template #value>
-                       <div class="flex items-center gap-2">
-                         <span class="text-[#fafafa]">{{ transaction?.result?.goodResult || 'Success' }}</span>
-                       </div>
-                     </template>
-                   </LabelValue>
+                  </LabelValue>
                 </div>
               </DivideItem>
             </Divide>
