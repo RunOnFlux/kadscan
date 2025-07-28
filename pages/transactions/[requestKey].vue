@@ -57,6 +57,7 @@ const textContent = {
   gasPrice: { label: 'Gas Price:', description: 'Cost per unit of gas spent for this transaction.' },
   kadenaPrice: { label: 'Kadena Price:', description: 'Price of KDA on the day this transaction was created.' },
   moreDetails: { label: 'More Details:' },
+  otherAttributes: { label: 'Other Attributes:', description: 'Other data related to this transaction.' },
 }
 
 // Tab management
@@ -579,34 +580,32 @@ onMounted(() => {
                       </div>
                     </template>
                   </LabelValue>
-                  <LabelValue 
-                    label="Nonce:" 
-                    description="Sequential number for this transaction"
-                    tooltipPos="right"
-                  >
-                    <template #value>
-                      <div class="flex items-center gap-2">
-                        <span class="text-[#fafafa]">{{ transaction?.cmd?.nonce || '-' }}</span>
-                      </div>
-                    </template>
-                  </LabelValue>
-                  <LabelValue 
-                    label="TTL:" 
-                    description="Time to live for this transaction"
-                    tooltipPos="right"
-                  >
-                    <template #value>
-                      <div class="flex items-center gap-2">
-                        <span class="text-[#fafafa]">{{ transaction?.cmd?.meta?.ttl || '-' }}</span>
-                      </div>
-                    </template>
-                  </LabelValue>
                 </div>
               </DivideItem>
 
               <!-- Transaction Details -->
               <DivideItem>
                 <div class="flex flex-col gap-4">
+                  <LabelValue 
+                    :row="isMobile"
+                    :label="textContent.otherAttributes.label" 
+                    :description="textContent.otherAttributes.description"
+                    tooltipPos="right"
+                  >
+                    <template #value>
+                      <div class="flex flex-wrap gap-3">
+                        <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+                          <span class="text-[#bbbbbb]">TTL:</span>
+                          <span class="text-[#fafafa] ml-1">{{ transaction?.cmd?.meta?.ttl || '-' }}</span>
+                        </span>
+                        <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+                          <span class="text-[#bbbbbb]">Nonce:</span>
+                          <span class="text-[#fafafa] ml-1">{{ transaction?.cmd?.nonce || '0' }}</span>
+                        </span>
+                      </div>
+                    </template>
+                  </LabelValue>
+                  
                   <LabelValue 
                     label="Method:" 
                     description="Type of transaction executed"
