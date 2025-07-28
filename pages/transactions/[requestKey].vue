@@ -6,6 +6,7 @@ import { useFormat } from '~/composables/useFormat'
 import { useScreenSize } from '~/composables/useScreenSize'
 import { useSharedData } from '~/composables/useSharedData'
 import { staticTokens } from '~/constants/tokens'
+import { integer } from '~/composables/number'
 import Information from '~/components/icon/Information.vue'
 import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
 import IconHourglass from '~/components/icon/Hourglass.vue';
@@ -182,6 +183,26 @@ const formattedKadenaPrice = computed(() => {
   return isNaN(price) ? null : `$${price.toFixed(4)} / KDA`
 })
 
+// Format gas limit and usage information
+const formattedGasInfo = computed(() => {
+  const gasUsed = transaction.value?.result?.gas
+  const gasLimit = transaction.value?.cmd?.meta?.gasLimit
+  
+  if (!gasUsed || !gasLimit) return '-'
+  
+  const usedNum = parseInt(gasUsed)
+  const limitNum = parseInt(gasLimit)
+  
+  // Calculate percentage
+  const percentage = ((usedNum / limitNum) * 100).toFixed(2)
+  
+  // Format numbers with commas
+  const formattedUsed = integer.format(usedNum)
+  const formattedLimit = integer.format(limitNum)
+  
+  return `${formattedLimit} | ${formattedUsed} (${percentage}%)`
+})
+
 // Helper function to conditionally truncate only hash-format addresses
 const smartTruncateAddress = (address: string) => {
   if (!address) return address
@@ -236,14 +257,14 @@ onMounted(() => {
     <!-- Transaction content -->
     <div v-else-if="transaction">
       <!-- Header -->
-      <div class="flex items-center pb-5 border-b border-[#222222] pb-4 gap-2">
+      <div class="flex items-center pb-5 border-b border-[#222222] mb-6 gap-2">
         <h1 class="text-[19px] font-semibold leading-[150%] text-[#fafafa]">
           Transaction Details
         </h1>
       </div>
 
       <!-- Tabs -->
-      <div class="flex items-center justify-between py-3">
+      <div class="flex items-center justify-between pb-3">
         <div class="flex gap-2">
           <button
             v-for="label in tabLabels"
@@ -283,11 +304,11 @@ onMounted(() => {
                           <div class="flex items-center gap-4 text-[15px]">
                             <div class="flex items-center gap-2">
                               <span class="text-[#bbbbbb]">Module:</span>
-                              <span class="text-[#fafafa] font-mono">{{ eventEdge.node.moduleName }}</span>
+                              <span class="text-[#fafafa]">{{ eventEdge.node.moduleName }}</span>
                             </div>
                             <div class="flex items-center gap-2">
                               <span class="text-[#bbbbbb]">Event:</span>
-                              <span class="text-[#fafafa] font-mono">{{ eventEdge.node.name }}</span>
+                              <span class="text-[#fafafa]">{{ eventEdge.node.name }}</span>
                             </div>
                             <div class="flex items-center gap-2">
                               <span class="text-[#bbbbbb]">Order:</span>
@@ -297,7 +318,7 @@ onMounted(() => {
                           
                           <div>
                             <span class="text-[#bbbbbb] text-sm">Parameters:</span>
-                            <div class="mt-1 p-3 bg-[#1a1a1a] rounded border border-[#333] font-mono text-xs text-[#fafafa] break-all">
+                            <div class="mt-1 p-3 bg-[#1a1a1a] rounded border border-[#333] text-xs text-[#fafafa] break-all">
                               {{ eventEdge.node.parameterText }}
                             </div>
                           </div>
@@ -421,10 +442,10 @@ onMounted(() => {
                   <div 
                     v-for="(transferEdge, index) in transaction.result.transfers.edges" 
                     :key="transferEdge.node.id"
-                    class="flex flex-wrap items-center gap-2 text-[15px]"
+                    class="flex flex-wrap items-center gap-1.5 text-[15px]"
                   >
                     <!-- From Address -->
-                    <span class="text-[#bbbbbb]">From</span>
+                    <span class="text-[#fafafa] font-medium">From</span>
                     <NuxtLink 
                       :to="`/account/${transferEdge.node.senderAccount}`" 
                       class="text-[#6ab5db] hover:text-[#9ccee7]"
@@ -433,11 +454,11 @@ onMounted(() => {
                       :value="transferEdge.node.senderAccount" 
                       tooltipText="Copy sender address"
                       iconSize="h-5 w-5"
-                      buttonClass="w-5 h-5 opacity-70 hover:opacity-100"
+                      buttonClass="w-5 h-5 hover:opacity-100"
                     />
                     
                     <!-- To Address -->
-                    <span class="text-[#bbbbbb]">To</span>
+                    <span class="text-[#fafafa] font-medium">To</span>
                     <NuxtLink 
                       :to="`/account/${transferEdge.node.receiverAccount}`" 
                       class="text-[#6ab5db] hover:text-[#9ccee7]"
@@ -446,12 +467,12 @@ onMounted(() => {
                       :value="transferEdge.node.receiverAccount" 
                       tooltipText="Copy receiver address"
                       iconSize="h-5 w-5"
-                      buttonClass="w-5 h-5 opacity-70 hover:opacity-100"
+                      buttonClass="w-5 h-5 hover:opacity-100"
                     />
                     
                     <!-- Amount and Token Info -->
-                    <span class="text-[#bbbbbb]">For</span>
-                    <span class="font-mono text-[#fafafa] font-medium">{{ transferEdge.node.amount }}</span>
+                    <span class="text-[#fafafa] font-medium">For</span>
+                    <span class="text-[#fafafa]">{{ transferEdge.node.amount }}</span>
                     
                     <!-- USD Value for KDA -->
                     <span 
@@ -501,7 +522,7 @@ onMounted(() => {
               <LabelValue :row="isMobile" :label="textContent.value.label" :description="textContent.value.description" tooltipPos="right">
                 <template #value>
                   <div class="flex items-center gap-2">
-                    <span class="font-mono text-[#fafafa]">{{ signerTransferValue }} KDA</span>
+                    <span class="text-[#fafafa]">{{ signerTransferValue }} KDA</span>
                     <span v-if="calculateKdaUsdValue(signerTransferValue, true)" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(signerTransferValue, true) }})</span>
                   </div>
                 </template>
@@ -510,7 +531,7 @@ onMounted(() => {
               <LabelValue :row="isMobile" :label="textContent.transactionFee.label" :description="textContent.transactionFee.description" tooltipPos="right">
                 <template #value>
                   <div class="flex items-center gap-2">
-                    <span class="font-mono text-[#fafafa]">{{ transactionFee }} KDA</span>
+                    <span class="text-[#fafafa]">{{ transactionFee }} KDA</span>
                     <span v-if="calculateKdaUsdValue(transactionFee, true)" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(transactionFee, true) }})</span>
                   </div>
                 </template>
@@ -519,7 +540,7 @@ onMounted(() => {
               <LabelValue :row="isMobile" :label="textContent.gasPrice.label" :description="textContent.gasPrice.description" tooltipPos="right">
                 <template #value>
                   <div class="flex items-center gap-2">
-                    <span class="font-mono text-[#fafafa]">{{ transaction?.cmd?.meta?.gasPrice || '-' }}</span>
+                    <span class="text-[#fafafa]">{{ transaction?.cmd?.meta?.gasPrice || '-' }}</span>
                   </div>
                 </template>
               </LabelValue>
@@ -537,46 +558,24 @@ onMounted(() => {
         >
           <div class="mb-4 pb-4 border-b border-[#333]">
             <Divide>
-              <!-- Gas Information -->
+              <!-- More Details -->
               <DivideItem>
                 <div class="flex flex-col gap-4">
                   <LabelValue :row="isMobile" :label="textContent.kadenaPrice.label" :description="textContent.kadenaPrice.description" tooltipPos="right">
                     <template #value>
                       <div class="flex items-center gap-2">
-                        <span class="font-mono text-[#fafafa]">{{ formattedKadenaPrice || '-' }}</span>
+                        <span class="text-[#fafafa]">{{ formattedKadenaPrice || '-' }}</span>
                       </div>
                     </template>
                   </LabelValue>
                   <LabelValue
-                     label="Gas Used:"
-                     description="Total gas consumed by this transaction"
+                     label="Gas Limit & Usage by Txn:"
+                     description="Maximum amount of gas allocated for the transaction & the amount eventually used."
                      tooltipPos="right"
                    >
                      <template #value>
                        <div class="flex items-center gap-2">
-                         <span class="font-mono text-[#fafafa]">{{ transaction?.result?.gas || '-' }}</span>
-                       </div>
-                     </template>
-                   </LabelValue>
-                   <LabelValue 
-                     label="Gas Limit:" 
-                     description="Maximum gas allowed for this transaction"
-                     tooltipPos="right"
-                   >
-                     <template #value>
-                       <div class="flex items-center gap-2">
-                         <span class="font-mono text-[#fafafa]">{{ transaction?.cmd?.meta?.gasLimit || '-' }}</span>
-                       </div>
-                     </template>
-                   </LabelValue>
-                   <LabelValue 
-                     label="Gas Price:" 
-                     description="Price per unit of gas for this transaction"
-                     tooltipPos="right"
-                   >
-                     <template #value>
-                       <div class="flex items-center gap-2">
-                         <span class="font-mono text-[#fafafa]">{{ transaction?.cmd?.meta?.gasPrice || '-' }} KDA</span>
+                         <span class="text-[#fafafa]">{{ formattedGasInfo }}</span>
                        </div>
                      </template>
                    </LabelValue>
@@ -587,7 +586,7 @@ onMounted(() => {
                    >
                      <template #value>
                        <div class="flex items-center gap-2">
-                         <span class="font-mono text-[#fafafa]">{{ transaction?.cmd?.nonce || '-' }}</span>
+                         <span class="text-[#fafafa]">{{ transaction?.cmd?.nonce || '-' }}</span>
                        </div>
                      </template>
                    </LabelValue>
@@ -613,11 +612,11 @@ onMounted(() => {
                     description="Blockchain network identifier"
                     tooltipPos="right"
                   >
-                                         <template #value>
-                       <div class="flex items-center gap-2">
-                         <span class="font-mono text-[#fafafa]">{{ transaction?.cmd?.meta?.chainId || '-' }}</span>
-                       </div>
-                     </template>
+                    <template #value>
+                      <div class="flex items-center gap-2">
+                        <span class="text-[#fafafa]">{{ transaction?.cmd?.meta?.chainId || '-' }}</span>
+                      </div>
+                    </template>
                    </LabelValue>
                    <LabelValue 
                      label="Network ID:" 
@@ -637,8 +636,8 @@ onMounted(() => {
                    >
                      <template #value>
                        <div class="flex items-center gap-2">
-                         <span v-if="transaction?.cmd?.payload?.code" class="font-mono text-[#fafafa] text-xs break-all">{{ transaction.cmd.payload.code.slice(0, 50) }}...</span>
-                         <span v-else class="font-mono text-[#fafafa] text-xs">-</span>
+                         <span v-if="transaction?.cmd?.payload?.code" class="text-[#fafafa] text-xs break-all">{{ transaction.cmd.payload.code.slice(0, 50) }}...</span>
+                         <span v-else class="text-[#fafafa] text-xs">-</span>
                          <Copy 
                            v-if="transaction?.cmd?.payload?.code"
                            :value="transaction.cmd.payload.code" 
@@ -660,11 +659,11 @@ onMounted(() => {
                     description="Time to live for this transaction"
                     tooltipPos="right"
                   >
-                                         <template #value>
-                       <div class="flex items-center gap-2">
-                         <span class="font-mono text-[#fafafa]">{{ transaction?.cmd?.meta?.ttl || '-' }}</span>
-                       </div>
-                     </template>
+                    <template #value>
+                      <div class="flex items-center gap-2">
+                        <span class="text-[#fafafa]">{{ transaction?.cmd?.meta?.ttl || '-' }}</span>
+                      </div>
+                    </template>
                    </LabelValue>
                    <LabelValue 
                      label="Transfers:" 
