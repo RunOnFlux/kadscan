@@ -48,8 +48,8 @@ const textContent = {
   block: { label: 'Block:', description: 'Block number where this transaction was recorded.' },
   chainId: { label: 'Chain ID:', description: 'The specific chain (0-19) on which this block was mined' },
   timestamp: { label: 'Timestamp:', description: 'Date and time when the transaction was validated on the blockchain.' },
-  from: { label: 'From:', description: 'Address or account from which the transaction originated.' },
-  to: { label: 'To:', description: 'Address or account to which the transaction was sent.' },
+  from: { label: 'From:', description: 'The signer who owns and authorized this transaction.' },
+  paidBy: { label: 'Paid By:', description: 'The account that paid the gas fees for this transaction.' },
   value: { label: 'Value:', description: 'Amount of cryptocurrency transferred in this transaction.' },
   transactionFee: { label: 'Transaction Fee:', description: 'Fee paid to process this transaction on the blockchain.' },
   moreDetails: { label: 'More Details:' },
@@ -121,21 +121,13 @@ const age = computed(() => {
   return formatRelativeTime(transaction.value.cmd.meta.creationTime)
 })
 
-const fromAddress = computed(() => {
+const from = computed(() => {
+  const pubkey = transaction.value?.cmd?.signers?.[0]?.pubkey
+  return pubkey ? `k:${pubkey}` : ''
+})
+
+const feePayer = computed(() => {
   return transaction.value?.cmd?.meta?.sender || ''
-})
-
-const toAddress = computed(() => {
-  if (!primaryTransfer.value) return ''
-  return primaryTransfer.value.receiverAccount || ''
-})
-
-const displayFromAddress = computed(() => {
-  return fromAddress.value ? fromAddress.value : ''
-})
-
-const displayToAddress = computed(() => {
-  return toAddress.value ? toAddress.value : ''
 })
 
 const transfersCount = computed(() => {
@@ -343,7 +335,7 @@ onMounted(() => {
                <template #value>
                  <div class="flex items-center gap-2">
                    <IconHourglass v-if="transactionStatus.text === 'Pending'" class="w-3 h-3 text-[#bbbbbb]" />
-                   <ValueLink v-if="transaction?.result?.block?.height" :label="transaction.result.block.height" :to="`/blocks/${transaction.result.block.height}/chain/${transaction.result.block.chainId}`" class="text-blue-400 hover:underline" />
+                   <NuxtLink v-if="transaction?.result?.block?.height" :to="`/blocks/${transaction.result.block.height}/chain/${transaction.result.block.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ transaction.result.block.height }}</NuxtLink>
                    <span v-else class="text-[#fafafa]">-</span>
                     <span v-if="blockConfirmations !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] text-[#fafafa] font-semibold flex items-center leading-none">
                      {{ blockConfirmations }} Block Confirmations
@@ -373,26 +365,26 @@ onMounted(() => {
           <!-- Section 2: Addresses -->
           <DivideItem>
             <div class="flex flex-col gap-4">
-              <LabelValue :row="isMobile" :label="textContent.from.label" :description="textContent.from.description" tooltipPos="right">
+              <LabelValue v-if="from" :row="isMobile" :label="textContent.from.label" :description="textContent.from.description" tooltipPos="right">
                 <template #value>
                   <div class="flex items-center gap-2">
-                    <ValueLink :label="displayFromAddress" :to="`/account/${fromAddress}`" class="text-blue-400 hover:underline" />
+                    <NuxtLink :to="`/account/${from}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ from }}</NuxtLink>
                     <Copy 
-                      :value="fromAddress" 
-                      tooltipText="Copy Transaction Hash"
+                      :value="from" 
+                      tooltipText="Copy Signer Address"
                       iconSize="h-5 w-5"
                       buttonClass="w-5 h-5"
                     />
                   </div>
                 </template>
               </LabelValue>
-              <LabelValue v-if="displayToAddress" :row="isMobile" :label="textContent.to.label" :description="textContent.to.description" tooltipPos="right">
+              <LabelValue v-if="feePayer" :row="isMobile" :label="textContent.paidBy.label" :description="textContent.paidBy.description" tooltipPos="right">
                 <template #value>
                   <div class="flex items-center gap-2">
-                    <ValueLink :label="displayToAddress" :to="`/account/${toAddress}`" class="text-blue-400 hover:underline" />
+                    <NuxtLink :to="`/account/${feePayer}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ feePayer }}</NuxtLink>
                     <Copy 
-                      :value="toAddress" 
-                      tooltipText="Copy Transaction Hash"
+                      :value="feePayer" 
+                      tooltipText="Copy Fee Payer Address"
                       iconSize="h-5 w-5"
                       buttonClass="w-5 h-5"
                     />
@@ -419,11 +411,10 @@ onMounted(() => {
                   >
                     <!-- From Address -->
                     <span class="text-[#bbbbbb]">From</span>
-                    <ValueLink 
-                      :label="smartTruncateAddress(transferEdge.node.senderAccount)" 
+                    <NuxtLink 
                       :to="`/account/${transferEdge.node.senderAccount}`" 
-                      class="text-blue-400 hover:underline"
-                    />
+                      class="text-[#6ab5db] hover:text-[#9ccee7]"
+                    >{{ smartTruncateAddress(transferEdge.node.senderAccount) }}</NuxtLink>
                     <Copy 
                       :value="transferEdge.node.senderAccount" 
                       tooltipText="Copy sender address"
@@ -433,11 +424,10 @@ onMounted(() => {
                     
                     <!-- To Address -->
                     <span class="text-[#bbbbbb]">To</span>
-                    <ValueLink 
-                      :label="smartTruncateAddress(transferEdge.node.receiverAccount)" 
+                    <NuxtLink 
                       :to="`/account/${transferEdge.node.receiverAccount}`" 
-                      class="text-blue-400 hover:underline"
-                    />
+                      class="text-[#6ab5db] hover:text-[#9ccee7]"
+                    >{{ smartTruncateAddress(transferEdge.node.receiverAccount) }}</NuxtLink>
                     <Copy 
                       :value="transferEdge.node.receiverAccount" 
                       tooltipText="Copy receiver address"
