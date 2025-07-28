@@ -236,7 +236,7 @@ useHead({
     </div>
 
     <div v-else>
-      <div class="flex items-center gap-2 mb-2">
+      <div class="flex items-center gap-2 pb-3">
         <button
           class="px-[10px] py-[5px] text-[13px] rounded-lg border font-medium transition-colors bg-[#009367] border-[#222222] text-[#f5f5f5]"
           :class="{
