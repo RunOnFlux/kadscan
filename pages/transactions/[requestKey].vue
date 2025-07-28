@@ -44,16 +44,16 @@ const {
 
 // Text content for tooltips and labels
 const textContent = {
-  transactionHash: { label: 'Transaction Hash:', description: 'Unique hash that identifies this transaction on the blockchain.' },
-  status: { label: 'Status:', description: 'Indicates the current status of the transaction, such as pending, confirmed, or failed.' },
-  block: { label: 'Block:', description: 'Block number where this transaction was recorded.' },
+  transactionHash: { label: 'Transaction Hash:', description: 'Transaction hash is a unique 43-character or 58-character(coinbase) identifier that is generated whenever a transaction is executed.' },
+  status: { label: 'Status:', description: 'The status of the transaction.' },
+  block: { label: 'Block:', description: 'Number of the block height in which the transaction is recorded. Block confirmations indicate how many blocks have been added since the transaction was produced.' },
   chainId: { label: 'Chain ID:', description: 'The specific chain (0-19) on which this block was mined' },
-  timestamp: { label: 'Timestamp:', description: 'Date and time when the transaction was validated on the blockchain.' },
+  timestamp: { label: 'Timestamp:', description: 'Date and time at which a transaction is produced.' },
   from: { label: 'From:', description: 'The signer who owns and authorized this transaction.' },
-  paidBy: { label: 'Paid By:', description: 'The account that paid the gas fees for this transaction.' },
+  paidBy: { label: 'Paid By:', description: 'The account that submitted and paid the gas fees for this transaction.' },
   value: { label: 'Value:', description: 'Total KDA transferred out of the signer account due to this transaction.' },
-  transactionFee: { label: 'Transaction Fee:', description: 'Fee paid to process this transaction on the blockchain.' },
-  gasPrice: { label: 'Gas Price:', description: 'Price per unit of gas for this transaction.' },
+  transactionFee: { label: 'Transaction Fee:', description: 'Amount paid to process this transaction in KDA.' },
+  gasPrice: { label: 'Gas Price:', description: 'Cost per unit of gas spent for this transaction.' },
   kadenaPrice: { label: 'Kadena Price:', description: 'Price of KDA on the day this transaction was created.' },
   moreDetails: { label: 'More Details:' },
 }
