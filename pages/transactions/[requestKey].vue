@@ -39,6 +39,7 @@ const {
   transactionFee,
   blockConfirmations,
   kadenaPrice,
+  signerTransferValue,
 } = useTransaction(transactionId, networkId)
 
 // Text content for tooltips and labels
@@ -50,7 +51,7 @@ const textContent = {
   timestamp: { label: 'Timestamp:', description: 'Date and time when the transaction was validated on the blockchain.' },
   from: { label: 'From:', description: 'The signer who owns and authorized this transaction.' },
   paidBy: { label: 'Paid By:', description: 'The account that paid the gas fees for this transaction.' },
-  value: { label: 'Value:', description: 'Amount of cryptocurrency transferred in this transaction.' },
+  value: { label: 'Value:', description: 'Total KDA transferred out of the signer account due to this transaction.' },
   transactionFee: { label: 'Transaction Fee:', description: 'Fee paid to process this transaction on the blockchain.' },
   gasPrice: { label: 'Gas Price:', description: 'Price per unit of gas for this transaction.' },
   kadenaPrice: { label: 'Kadena Price:', description: 'Price of KDA on the day this transaction was created.' },
@@ -497,6 +498,15 @@ onMounted(() => {
           <!-- Section 4: Misc -->
           <DivideItem>
             <div class="flex flex-col gap-4">
+              <LabelValue :row="isMobile" :label="textContent.value.label" :description="textContent.value.description" tooltipPos="right">
+                <template #value>
+                  <div class="flex items-center gap-2">
+                    <span class="font-mono text-[#fafafa]">{{ signerTransferValue }} KDA</span>
+                    <span v-if="calculateKdaUsdValue(signerTransferValue, true)" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(signerTransferValue, true) }})</span>
+                  </div>
+                </template>
+              </LabelValue>
+              
               <LabelValue :row="isMobile" :label="textContent.transactionFee.label" :description="textContent.transactionFee.description" tooltipPos="right">
                 <template #value>
                   <div class="flex items-center gap-2">

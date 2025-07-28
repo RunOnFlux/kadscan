@@ -198,6 +198,27 @@ export const useTransaction = (
     return confirmations > 0 ? confirmations : null
   })
 
+  const signerTransferValue = computed(() => {
+    if (!transaction.value?.cmd?.signers?.length || !transaction.value?.result?.transfers?.edges?.length) {
+      return '0'
+    }
+    
+    // Use pubkey with k: prefix just like the "From" field does
+    const pubkey = transaction.value.cmd.signers[0].pubkey
+    const signerAddress = pubkey ? `k:${pubkey}` : ''
+    let totalValue = 0
+    
+    // Loop through all transfers and sum KDA transfers from the signer
+    transaction.value.result.transfers.edges.forEach((edge: any) => {
+      const transfer = edge.node
+      if (transfer.senderAccount === signerAddress && transfer.moduleName === 'coin') {
+        totalValue += parseFloat(transfer.amount || '0')
+      }
+    })
+    
+    return totalValue.toString()
+  })
+
   const fetchTransaction = async () => {
     if (!transactionId.value || !networkId.value) {
       return
@@ -253,5 +274,6 @@ export const useTransaction = (
     primaryTransfer,
     transactionFee,
     blockConfirmations,
+    signerTransferValue,
   }
 }
