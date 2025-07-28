@@ -462,7 +462,7 @@ onMounted(() => {
                     </span>
                     
                     <!-- Token Icon -->
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1">
                       <img 
                         v-if="getTokenMetadata(transferEdge.node.moduleName).icon"
                         :src="getTokenMetadata(transferEdge.node.moduleName).icon"
@@ -478,7 +478,7 @@ onMounted(() => {
                       
                       <!-- Token Name -->
                       <span class="text-[#fafafa] font-medium">
-                        {{ getTokenMetadata(transferEdge.node.moduleName).name }}
+                        {{ getTokenMetadata(transferEdge.node.moduleName).symbol }}
                       </span>
                       
                       <!-- Copy Token Address -->
