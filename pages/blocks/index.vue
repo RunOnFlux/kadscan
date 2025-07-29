@@ -162,6 +162,9 @@ const filteredBlocks = computed(() => {
 watch(
   [currentPage, rowsToShow],
   ([newPage, newRows], [oldPage, oldRows]) => {
+    // Don't update URL if there's an error (prevents race condition with error redirect)
+    if (error.value) return;
+    
     const query = { ...route.query, page: newPage };
     if (newRows !== oldRows) {
       query.page = 1;
@@ -177,6 +180,9 @@ watch(
     if (!network) {
       return;
     }
+
+    // Don't run pagination logic if there's an error (prevents race condition with error redirect)
+    if (error.value) return;
 
     const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
     const chainChanged = oldChain && selectedChain.value.value !== oldChain.value;

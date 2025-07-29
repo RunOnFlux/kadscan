@@ -49,7 +49,7 @@ const {
 
 // Text content for tooltips and labels
 const textContent = {
-  transactionHash: { label: 'Transaction Hash:', description: 'Transaction hash is a unique 43-character or 58-character(coinbase) identifier that is generated whenever a transaction is executed.' },
+  transactionHash: { label: 'Request Key:', description: 'Request Key is a unique identifier that is generated whenever a transaction is executed.' },
   status: { label: 'Status:', description: 'The status of the transaction.' },
   block: { label: 'Block:', description: 'Number of the block height in which the transaction is recorded. Block confirmations indicate how many blocks have been added since the transaction was produced.' },
   chainId: { label: 'Chain ID:', description: 'The specific chain (0-19) on which this block was mined' },
