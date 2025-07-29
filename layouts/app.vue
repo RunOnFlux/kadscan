@@ -25,9 +25,7 @@ await useAsyncData('global-kda-fetch', () => fetchSharedKadenaData());
       </div>
     </div>
 
-    <Footer
-      v-if="route.name !== 'all'"
-    />
+    <Footer/>
   </div>
 </template>
 
