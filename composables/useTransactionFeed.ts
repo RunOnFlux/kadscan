@@ -22,8 +22,8 @@ export const useTransactionFeed = () => {
   const { startSubscription, newTransactions } = useTransactionWss();
 
   const homeTransactionsQuery = `
-    query HomeTxListInit($last: Int) {
-      transactions(last: $last) {
+    query HomeTxListInit($first: Int) {
+      transactions(first: $first) {
         totalCount
         edges {
           node {
@@ -59,7 +59,7 @@ export const useTransactionFeed = () => {
           query: homeTransactionsQuery,
           networkId: network.id,
           variables: {
-            last: 12,
+            first: 12,
           },
         },
       });
