@@ -51,12 +51,12 @@ export const routes: Route[] = [
   //   label: 'Tokens',
   //   tag: 'route:tokens',
   // },
-  {
-    type: 'link',
-    path: '/tokens/trending',
-    label: 'Top Statistics',
-    tag: 'route:top-statistics',
-  },
+  // {
+  //   type: 'link',
+  //   path: '/tokens/trending',
+  //   label: 'Top Statistics',
+  //   tag: 'route:top-statistics',
+  // },
 ]
 
 export default routes
