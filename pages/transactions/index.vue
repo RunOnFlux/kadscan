@@ -309,7 +309,8 @@ function downloadData() {
         </div>
       </template>
       <template #height="{ item }">
-        <NuxtLink :to="`/blocks/${item.height}/chain/${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.height }}</NuxtLink>
+        <span v-if="item.time === 0 || item.height === 0" class="text-[#f5f5f5]">Genesis</span>
+        <NuxtLink v-else :to="`/blocks/${item.height}/chain/${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.height }}</NuxtLink>
       </template>
       <template #status="{ item }">
         <Tooltip :value="blockStatus(item.height, item.canonical, item.badResult).description" :offset-distance="8">
