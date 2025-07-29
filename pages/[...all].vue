@@ -24,7 +24,7 @@ useHead({
         </p>
 
         <p class="text-[#bbbbbb] text-[14px]">
-          Please check back later
+          Please check again later.
         </p>
 
       </div>
