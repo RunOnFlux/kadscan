@@ -266,7 +266,7 @@ const smartTruncateAddress = (address: string) => {
   if (!address) return address
   
   // Check if it's a long hash format address (k: followed by a long hex string)
-  const isHashFormat = address.startsWith('k:') && address.length > 20
+  const isHashFormat = address.startsWith('k:') || address.length > 20
   
   if (isHashFormat) {
     return truncateAddress(address, 10, 10)
