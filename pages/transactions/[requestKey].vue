@@ -703,23 +703,25 @@ onUnmounted(() => {
                       <div v-if="transaction?.cmd?.payload?.code" class="w-full">
                         <!-- Resizable Code Container -->
                         <div class="relative">
-                          <textarea
-                            readonly
-                            :value="displayedCode"
-                            class="w-full bg-[#151515] border border-[#222222] rounded-lg text-[#bbbbbb] text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto"
-                            :style="{ height: codeContainerHeight + 'px' }"
-                          ></textarea>
-                          
-                          <!-- Diagonal Triangle Resize Handle -->
-                          <div 
-                            @mousedown="startResize"
-                            class="absolute bottom-0 right-0 w-4 h-4 cursor-nw-resize group"
-                            :class="{ 'opacity-80': isResizing }"
-                          >
-                            <!-- Simple diagonal grip lines -->
-                            <div class="absolute bottom-1 right-1 w-3 h-3">
-                              <div class="absolute bottom-0 right-0 w-[1px] h-1.5 bg-[#bbbbbb] transform rotate-45 origin-bottom-right translate-y-[-1px] translate-x-[-4px]"></div>
-                              <div class="absolute bottom-0 right-0 w-[1px] h-2.5 bg-[#bbbbbb] transform rotate-45 origin-bottom-right translate-y-[-1px] translate-x-[-7px]"></div>
+                          <div class="relative">
+                            <textarea
+                              readonly
+                              :value="displayedCode"
+                              class="w-full bg-[#151515] border border-[#222222] rounded-lg text-[#bbbbbb] text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto"
+                              :style="{ height: codeContainerHeight + 'px' }"
+                            ></textarea>
+                            
+                            <!-- Diagonal Triangle Resize Handle -->
+                            <div 
+                              @mousedown="startResize"
+                              class="absolute bottom-0 right-0 w-4 h-4 cursor-nw-resize group"
+                              :class="{ 'opacity-80': isResizing }"
+                            >
+                              <!-- Simple diagonal grip lines -->
+                              <div class="absolute bottom-1 right-1 w-3 h-3">
+                                <div class="absolute bottom-0 right-0 w-[1px] h-1.5 bg-[#bbbbbb] transform rotate-45 origin-bottom-right translate-y-[-5px] translate-x-[-4px]"></div>
+                                <div class="absolute bottom-0 right-0 w-[1px] h-2.5 bg-[#bbbbbb] transform rotate-45 origin-bottom-right translate-y-[-5px] translate-x-[-7px]"></div>
+                              </div>
                             </div>
                           </div>
                           
