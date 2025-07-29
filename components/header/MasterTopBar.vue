@@ -49,7 +49,8 @@ const variationColor = computed(() => {
 const medGasPrice = computed(() => {
   if (gasPriceStats.value.txCount === 0) return null;
   const avg = gasPriceStats.value.totalGasPrice / gasPriceStats.value.txCount;
-  return formatNumber(avg, 10);
+  // Format with up to 10 decimals and remove trailing zeros using regex
+  return avg.toFixed(10).replace(/\.?0+$/, '');
 });
 
 </script>
