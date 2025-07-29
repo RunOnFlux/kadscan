@@ -158,7 +158,7 @@ const startPolling = () => {
       fetchBlock();
       fetchTotalCount({ networkId: networkId.value });
     }
-  }, 4000);
+  }, 6000);
 };
 
 onUnmounted(() => {
@@ -179,7 +179,7 @@ watch(
   [() => block.value, lastBlockHeight],
   ([currentBlock, newLastBlockHeight]) => {
     const isCanonical = currentBlock?.canonical;
-    const isOldEnough = newLastBlockHeight - height.value >= 6;
+    const isOldEnough = newLastBlockHeight - height.value >= 10;
 
     if (isCanonical || isOldEnough) {
       stopPolling();
@@ -210,6 +210,13 @@ watch(
   { immediate: true }
 );
 
+// Redirect to error page when block is not found
+watch(error, (newError) => {
+  if (newError) {
+    navigateTo('/error', { replace: true })
+  }
+})
+
 useHead({
   title: `Block #${height.value} - Details`,
 });
@@ -228,14 +235,7 @@ useHead({
 
     <SkeletonBlockDetails v-if="loading && !pollingInterval" />
 
-    <div
-      v-else-if="error || !block"
-      class="bg-[#111111] border items-center justify-center border-[#222222] rounded-xl p-8 text-white"
-    >
-      Block not found. It may not exist or has not been indexed yet. I own you a cool screen displaying the estimated time to index this block.
-    </div>
-
-    <div v-else>
+    <div v-else-if="block && !error">
       <div class="flex items-center gap-2 pb-3">
         <button
           class="px-[10px] py-[5px] text-[13px] rounded-lg border font-medium transition-colors bg-[#009367] border-[#222222] text-[#f5f5f5]"

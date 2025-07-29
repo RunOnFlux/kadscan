@@ -54,12 +54,14 @@ const { formatRelativeTime, formatGasPrice } = useFormat();
 const pageInfo = ref<any>(null);
 const totalCount = ref(0);
 const rowsToShow = ref(25);
+const error = ref<any>(null);
 
 export const useTransactions = () => {
   const clearState = () => {
     transactions.value = [];
     loading.value = true;
     pageInfo.value = null;
+    error.value = null;
   };
 
   const updateRowsToShow = (rows: any) => {
@@ -77,8 +79,9 @@ export const useTransactions = () => {
         },
       });
       totalCount.value = response?.data?.networkInfo?.transactionCount || 0;
-    } catch (error) {
-      console.error('Error fetching total block count:', error);
+    } catch (e) {
+      console.error('Error fetching total block count:', e);
+      error.value = e;
     }
   };
 
@@ -118,6 +121,12 @@ export const useTransactions = () => {
       pageInfo.value = result?.pageInfo || null;
       totalCount.value = result?.totalCount || 0;
 
+      // If transaction is null, it means the transaction doesn't exist
+      if (result.edges.length === 0) {
+        error.value = true;
+        return;
+      }
+
       const rawTxs = result?.edges || [];
       transactions.value = rawTxs.map((edge: any) => {
         return {
@@ -136,8 +145,9 @@ export const useTransactions = () => {
           cursor: edge.cursor,
         };
       });
-    } catch (error) {
-      console.error('Error fetching or processing transactions:', error);
+    } catch (e) {
+      console.error('Error fetching or processing transactions:', e);
+      error.value = e;
       transactions.value = [];
     } finally {
       loading.value = false;
@@ -145,6 +155,7 @@ export const useTransactions = () => {
   };
 
   return {
+    error,
     transactions,
     loading,
     fetchTransactions,

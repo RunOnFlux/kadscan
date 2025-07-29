@@ -198,6 +198,26 @@ export const useTransaction = (
     return confirmations > 0 ? confirmations : null
   })
 
+  const transactionSigners = computed(() => {
+    if (!transaction.value?.cmd?.signers?.length) return []
+    
+    return transaction.value.cmd.signers
+      .filter((signer: any) => {
+        // Keep signers that DON'T have coin.GAS capability
+        if (!signer.clist || signer.clist.length === 0) {
+          return true // Unrestricted signer (not gas payer)
+        }
+        
+        // Check if this signer has coin.GAS capability
+        const hasGasCapability = signer.clist.some((cap: any) => cap.name === 'coin.GAS')
+        return !hasGasCapability // Keep only non-gas signers
+      })
+      .map((signer: any) => ({
+        address: signer.pubkey ? `k:${signer.pubkey}` : '',
+        pubkey: signer.pubkey
+      }))
+  })
+
   const signerTransferValue = computed(() => {
     if (!transaction.value?.cmd?.signers?.length || !transaction.value?.result?.transfers?.edges?.length) {
       return '0'
@@ -251,6 +271,12 @@ export const useTransaction = (
 
       transaction.value = transactionResponse?.data?.transaction;
       
+      // If transaction is null, it means the transaction doesn't exist
+      if (transaction.value === null) {
+        error.value = true;
+        return;
+      }
+      
       if (transaction.value && transaction.value.cmd?.meta?.creationTime) {
         await fetchKadenaPrice(transaction.value.cmd.meta.creationTime)
       }
@@ -275,5 +301,6 @@ export const useTransaction = (
     transactionFee,
     blockConfirmations,
     signerTransferValue,
+    transactionSigners,
   }
 }

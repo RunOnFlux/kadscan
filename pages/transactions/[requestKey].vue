@@ -5,14 +5,16 @@ import { useTransaction } from '~/composables/useTransaction'
 import { useFormat } from '~/composables/useFormat'
 import { useScreenSize } from '~/composables/useScreenSize'
 import { useSharedData } from '~/composables/useSharedData'
+import { useBlocks } from '~/composables/useBlocks'
 import { staticTokens } from '~/constants/tokens'
 import { integer } from '~/composables/number'
-import { unescapeCodeString, parsePactCode } from '~/composables/string'
-import Informational from '~/components/icon/Informational.vue'
+import { unescapeCodeString, parsePactCode, formatJsonPretty, formatSignatures } from '~/composables/string'
+import TransactionLogs from '~/components/transaction/Logs.vue'
 import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
 import IconHourglass from '~/components/icon/Hourglass.vue';
 import IconCancel from '~/components/icon/Cancel.vue';
 import Clock from '~/components/icon/Clock.vue'
+import SkeletonTransactionDetails from '~/components/skeleton/TransactionDetails.vue'
 
 definePageMeta({
   layout: 'app',
@@ -42,6 +44,7 @@ const {
   blockConfirmations,
   kadenaPrice,
   signerTransferValue,
+  transactionSigners,
 } = useTransaction(transactionId, networkId)
 
 // Text content for tooltips and labels
@@ -51,9 +54,9 @@ const textContent = {
   block: { label: 'Block:', description: 'Number of the block height in which the transaction is recorded. Block confirmations indicate how many blocks have been added since the transaction was produced.' },
   chainId: { label: 'Chain ID:', description: 'The specific chain (0-19) on which this block was mined' },
   timestamp: { label: 'Timestamp:', description: 'Date and time at which a transaction is produced.' },
-  from: { label: 'From:', description: 'The signer who owns and authorized this transaction.' },
+  signers: { label: 'Signers:', description: 'Accounts that authorized this transaction.' },
   paidBy: { label: 'Paid By:', description: 'The account that submitted and paid the gas fees for this transaction.' },
-  value: { label: 'Value:', description: 'Total KDA transferred out of the signer account due to this transaction.' },
+  value: { label: 'Value:', description: 'Total KDA transferred out of the signer(s) account(s) due to this transaction.' },
   transactionFee: { label: 'Transaction Fee:', description: 'Amount paid to process this transaction in KDA.' },
   gasPrice: { label: 'Gas Price:', description: 'Cost per unit of gas spent for this transaction.' },
   kadenaPrice: { label: 'Kadena Price:', description: 'Price of KDA on the day this transaction was created.' },
@@ -61,8 +64,28 @@ const textContent = {
   moreDetails: { label: 'More Details:' },
 }
 
+// Polling variables and functions
+let pollingInterval: ReturnType<typeof setInterval> | null = null;
+
+const stopPolling = () => {
+  if (pollingInterval) {
+    clearInterval(pollingInterval);
+    pollingInterval = null;
+  }
+};
+
+const startPolling = () => {
+  stopPolling();
+  pollingInterval = setInterval(() => {
+    if (networkId.value && transactionId.value) {
+      fetchTransaction();
+      fetchTotalCount({ networkId: networkId.value });
+    }
+  }, 6000);
+};
+
 // Tab management
-const tabLabels = ['Overview', 'Logs (1)', 'State']
+const tabLabels = ['Overview', 'Logs (1)']
 const activeTab = ref(tabLabels[0])
 
 // More details functionality
@@ -71,7 +94,7 @@ const contentHeight = ref(0)
 const contentRef = ref<HTMLElement | null>(null)
 
 // Code resize functionality
-const initialCodeContainerHeight = 120
+const initialCodeContainerHeight = 125
 const codeContainerHeight = ref(initialCodeContainerHeight) // Initial height
 const isResizing = ref(false)
 const resizeStartY = ref(0)
@@ -130,8 +153,12 @@ const displayedCode = computed(() => {
   
   if (codeView.value === 'raw') {
     return unescapeCodeString(rawCode)
-  } else {
+  } else if (codeView.value === 'default') {
     return parsePactCode(unescapeCodeString(rawCode))
+  } else if (codeView.value === 'data') {
+    return formatJsonPretty(transaction.value?.cmd?.payload?.data)
+  } else if (codeView.value === 'signatures') {
+    return formatSignatures(transaction.value?.sigs)
   }
 })
 
@@ -176,10 +203,7 @@ const age = computed(() => {
   return formatRelativeTime(transaction.value.cmd.meta.creationTime)
 })
 
-const from = computed(() => {
-  const pubkey = transaction.value?.cmd?.signers?.[0]?.pubkey
-  return pubkey ? `k:${pubkey}` : ''
-})
+// Removed: from computed - now using transactionSigners from composable
 
 const feePayer = computed(() => {
   return transaction.value?.cmd?.meta?.sender || ''
@@ -243,6 +267,11 @@ const formattedGasInfo = computed(() => {
   
   const usedNum = parseInt(gasUsed)
   const limitNum = parseInt(gasLimit)
+
+  // Don't show percentage if both are 0 or if calculation would result in NaN
+  if (usedNum === 0 && limitNum === 0) {
+    return "0 | 0"
+  }
   
   // Calculate percentage
   const percentage = ((usedNum / limitNum) * 100).toFixed(2)
@@ -259,7 +288,7 @@ const smartTruncateAddress = (address: string) => {
   if (!address) return address
   
   // Check if it's a long hash format address (k: followed by a long hex string)
-  const isHashFormat = address.startsWith('k:') && address.length > 20
+  const isHashFormat = address.startsWith('k:') || address.length > 20
   
   if (isHashFormat) {
     return truncateAddress(address, 10, 10)
@@ -286,6 +315,33 @@ watch(
   { immediate: true }
 );
 
+// Polling control watcher
+watch(
+  [() => transaction.value, lastBlockHeight],
+  ([currentTransaction, newLastBlockHeight]) => {
+    if (!currentTransaction) return;
+
+    const isFinalized = currentTransaction?.result?.block?.canonical;
+    const hasFailed = currentTransaction?.result?.badResult !== null;
+    const isOldEnough = currentTransaction?.result?.block?.height && 
+    newLastBlockHeight - currentTransaction.result.block.height >= 10;
+
+    if (isFinalized || hasFailed || isOldEnough) {
+      stopPolling();
+    } else {
+      startPolling();
+    }
+  },
+  { deep: true }
+);
+
+// Redirect to error page when transaction is not found
+watch(error, (newError) => {
+  if (newError) {
+    navigateTo('/error', { replace: true })
+  }
+})
+
 onMounted(() => {
   if (transactionId.value && networkId.value) {
     fetchTransaction()
@@ -293,6 +349,8 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  // Clean up polling interval
+  stopPolling();
   // Clean up event listeners
   document.removeEventListener('mousemove', handleResize)
   document.removeEventListener('mouseup', stopResize)
@@ -301,25 +359,18 @@ onUnmounted(() => {
 
 <template>
   <div>
-    <!-- Loading state -->
-    <div v-if="loading" class="flex items-center justify-center py-20">
-      <div class="text-[#fafafa]">Loading transaction...</div>
+    <!-- Header -->
+    <div class="flex items-center pb-5 border-b border-[#222222] mb-6 gap-2">
+      <h1 class="text-[19px] font-semibold leading-[150%] text-[#fafafa]">
+        Transaction Details
+      </h1>
     </div>
 
-    <!-- Error state -->
-    <div v-else-if="error" class="flex items-center justify-center py-20">
-      <div class="text-red-400">Error loading transaction: {{ error.message }}</div>
-    </div>
+    <!-- Loading state -->
+    <SkeletonTransactionDetails v-if="loading && !pollingInterval" />
 
     <!-- Transaction content -->
     <div v-else-if="transaction">
-      <!-- Header -->
-      <div class="flex items-center pb-5 border-b border-[#222222] mb-6 gap-2">
-        <h1 class="text-[19px] font-semibold leading-[150%] text-[#fafafa]">
-          Transaction Details
-        </h1>
-      </div>
-
       <!-- Tabs -->
       <div class="flex items-center justify-between pb-3">
         <div class="flex gap-2">
@@ -340,64 +391,10 @@ onUnmounted(() => {
       </div>
 
       <!-- Logs Tab Content -->
-      <div v-if="activeTab.startsWith('Logs')" class="mb-6">
-        <div class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5">
-          <div v-if="transaction?.result?.events?.edges?.length">
-            <Divide>
-              <DivideItem>
-                <div class="flex flex-col gap-6">
-                  <div 
-                    v-for="(eventEdge, index) in transaction.result.events.edges" 
-                    :key="eventEdge.node.id"
-                    class="flex flex-col gap-4"
-                  >
-                    <LabelValue
-                      :label="`Event #${index}:`"
-                      :description="`${eventEdge.node.qualifiedName} event details`"
-                      tooltipPos="right"
-                    >
-                      <template #value>
-                        <div class="flex flex-col gap-3">
-                          <div class="flex items-center gap-4 text-[15px]">
-                            <div class="flex items-center gap-2">
-                              <span class="text-[#bbbbbb]">Module:</span>
-                              <span class="text-[#fafafa]">{{ eventEdge.node.moduleName }}</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                              <span class="text-[#bbbbbb]">Event:</span>
-                              <span class="text-[#fafafa]">{{ eventEdge.node.name }}</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                              <span class="text-[#bbbbbb]">Order:</span>
-                              <span class="text-[#fafafa]">{{ eventEdge.node.orderIndex }}</span>
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <span class="text-[#bbbbbb] text-sm">Parameters:</span>
-                            <div class="mt-1 p-3 bg-[#1a1a1a] rounded border border-[#bbbbbb] text-xs text-[#fafafa] break-all">
-                              {{ eventEdge.node.parameterText }}
-                            </div>
-                          </div>
-                        </div>
-                      </template>
-                    </LabelValue>
-                    
-                    <!-- Divider between events (except last one) -->
-                    <div v-if="index < transaction.result.events.edges.length - 1" class="border-b border-[#bbbbbb]"></div>
-                  </div>
-                </div>
-              </DivideItem>
-            </Divide>
-          </div>
-          <div v-else class="text-center py-8 text-[#bbbbbb]">
-            No events found for this transaction
-          </div>
-        </div>
-      </div>
+      <TransactionLogs v-if="activeTab.startsWith('Logs')" :transaction="transaction" />
 
       <!-- Transaction Details -->
-      <div class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
+      <div v-if="activeTab.startsWith('Overview')" class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
         <Divide>
           <!-- Section 1: Basic Information -->
           <DivideItem>
@@ -428,9 +425,10 @@ onUnmounted(() => {
                  <div class="flex items-center gap-2">
                    <IconHourglass v-if="transactionStatus.text === 'Pending'" class="w-3 h-3 text-[#bbbbbb]" />
                    <NuxtLink v-if="transaction?.result?.block?.height" :to="`/blocks/${transaction.result.block.height}/chain/${transaction.result.block.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ transaction.result.block.height }}</NuxtLink>
+                   <span v-else-if="!transaction?.result?.block?.height && transaction?.cmd?.meta?.chainId && (transaction?.cmd?.meta?.creationTime === 0 || new Date(transaction?.cmd?.meta?.creationTime).getTime() < new Date('1970-01-02').getTime())" class="text-[#fafafa]">Genesis</span>
                    <span v-else class="text-[#fafafa]">-</span>
-                    <span v-if="blockConfirmations !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] text-[#fafafa] font-semibold flex items-center leading-none">
-                     {{ blockConfirmations }} Block Confirmations
+                   <span v-if="blockConfirmations !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] text-[#fafafa] font-semibold flex items-center leading-none">
+                    {{ blockConfirmations }} Block Confirmations
                    </span>
                  </div>
                </template>
@@ -445,9 +443,16 @@ onUnmounted(() => {
              <LabelValue :row="isMobile" :label="textContent.timestamp.label" :description="textContent.timestamp.description" tooltipPos="right">
                <template #value>
                  <div class="flex items-center gap-2">
-                   <Clock class="w-4 h-4 text-[#bbbbbb]" />
-                   <span v-if="age && transaction?.cmd?.meta?.creationTime" class="text-[#fafafa] text-[15px]">{{ age }} ({{ new Date(transaction.cmd.meta.creationTime).toUTCString() }})</span>
-                   <span v-else class="text-[#fafafa] text-[15px]">-</span>
+                   <!-- Show just "Genesis" for Genesis transactions without clock icon -->
+                   <template v-if="!transaction?.result?.block?.height && transaction?.cmd?.meta?.chainId && (transaction?.cmd?.meta?.creationTime === 0 || new Date(transaction?.cmd?.meta?.creationTime).getTime() < new Date('1970-01-02').getTime())">
+                     <span class="text-[#fafafa] text-[15px]">Genesis</span>
+                   </template>
+                   <!-- Normal timestamp display with clock icon -->
+                   <template v-else>
+                     <Clock class="w-4 h-4 text-[#bbbbbb]" />
+                     <span v-if="age && transaction?.cmd?.meta?.creationTime" class="text-[#fafafa] text-[15px]">{{ age }} ({{ new Date(transaction.cmd.meta.creationTime).toUTCString() }})</span>
+                     <span v-else class="text-[#fafafa] text-[15px]">-</span>
+                   </template>
                  </div>
                </template>
              </LabelValue>
@@ -455,18 +460,31 @@ onUnmounted(() => {
           </DivideItem>
 
           <!-- Section 2: Addresses -->
-          <DivideItem>
+          <DivideItem v-if="transactionSigners.length > 0 || feePayer">
             <div class="flex flex-col gap-4">
-              <LabelValue v-if="from" :row="isMobile" :label="textContent.from.label" :description="textContent.from.description" tooltipPos="right">
+              <LabelValue 
+                v-if="transactionSigners.length > 0" 
+                :topAlign="true"
+                :row="isMobile" 
+                :label="transactionSigners.length === 1 ? 'Signer:' : textContent.signers.label" 
+                :description="transactionSigners.length === 1 ? 'Account that authorized this transaction.' : textContent.signers.description" 
+                tooltipPos="right"
+              >
                 <template #value>
-                  <div class="flex items-center gap-2">
-                    <NuxtLink :to="`/account/${from}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ from }}</NuxtLink>
-                    <Copy 
-                      :value="from" 
-                      tooltipText="Copy Signer Address"
-                      iconSize="h-5 w-5"
-                      buttonClass="w-5 h-5"
-                    />
+                  <div class="flex flex-col gap-2">
+                    <div 
+                      v-for="signer in transactionSigners" 
+                      :key="signer.pubkey"
+                      class="flex items-center gap-2"
+                    >
+                      <NuxtLink :to="`/account/${signer.address}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ signer.address }}</NuxtLink>
+                      <Copy 
+                        :value="signer.address" 
+                        tooltipText="Copy Signer Address"
+                        iconSize="h-5 w-5"
+                        buttonClass="w-5 h-5"
+                      />
+                    </div>
                   </div>
                 </template>
               </LabelValue>
@@ -580,7 +598,7 @@ onUnmounted(() => {
                 <template #value>
                   <div class="flex items-center gap-2">
                     <span class="text-[#fafafa]">{{ signerTransferValue }} KDA</span>
-                    <span v-if="calculateKdaUsdValue(signerTransferValue, true)" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(signerTransferValue, true) }})</span>
+                    <span v-if="signerTransferValue > 0" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(signerTransferValue, true) }})</span>
                   </div>
                 </template>
               </LabelValue>
@@ -589,7 +607,7 @@ onUnmounted(() => {
                 <template #value>
                   <div class="flex items-center gap-2">
                     <span class="text-[#fafafa]">{{ transactionFee }} KDA</span>
-                    <span v-if="calculateKdaUsdValue(transactionFee, true)" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(transactionFee, true) }})</span>
+                    <span v-if="transactionFee > 0" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(transactionFee, true) }})</span>
                   </div>
                 </template>
               </LabelValue>
@@ -607,7 +625,7 @@ onUnmounted(() => {
       </div>
 
       <!-- More Details Section -->
-      <div class="bg-[#111111] border border-[#222222] rounded-xl p-5 mb-2">
+      <div v-if="activeTab.startsWith('Overview')" class="bg-[#111111] border border-[#222222] rounded-xl p-5 mb-2">
         <div 
           ref="contentRef"
           class="overflow-hidden transition-all duration-300 ease-out"
@@ -688,23 +706,25 @@ onUnmounted(() => {
                       <div v-if="transaction?.cmd?.payload?.code" class="w-full">
                         <!-- Resizable Code Container -->
                         <div class="relative">
-                          <div 
-                            class="bg-[#151515] border border-[#222222] rounded-lg overflow-y-auto resize-none"
-                            :style="{ height: codeContainerHeight + 'px' }"
-                          >
-                            <pre class="text-[#bbbbbb] text-sm break-all px-[10px] py-[5px] h-full">{{ displayedCode }}</pre>
-                          </div>
-                          
-                          <!-- Diagonal Triangle Resize Handle -->
-                          <div 
-                            @mousedown="startResize"
-                            class="absolute bottom-0 right-0 w-4 h-4 cursor-nw-resize group"
-                            :class="{ 'opacity-80': isResizing }"
-                          >
-                            <!-- Simple diagonal grip lines -->
-                            <div class="absolute bottom-1 right-1 w-3 h-3">
-                              <div class="absolute bottom-0 right-0 w-[1px] h-1.5 bg-[#bbbbbb] transform rotate-45 origin-bottom-right translate-y-[-1px] translate-x-[-4px]"></div>
-                              <div class="absolute bottom-0 right-0 w-[1px] h-2.5 bg-[#bbbbbb] transform rotate-45 origin-bottom-right translate-y-[-1px] translate-x-[-7px]"></div>
+                          <div class="relative">
+                            <textarea
+                              readonly
+                              :value="displayedCode"
+                              class="break-all w-full bg-[#151515] border border-[#222222] rounded-lg text-[#bbbbbb] text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto"
+                              :style="{ height: codeContainerHeight + 'px' }"
+                            ></textarea>
+                            
+                            <!-- Diagonal Triangle Resize Handle -->
+                            <div 
+                              @mousedown="startResize"
+                              class="absolute bottom-0 right-0 w-4 h-4 cursor-nw-resize group"
+                              :class="{ 'opacity-80': isResizing }"
+                            >
+                              <!-- Simple diagonal grip lines -->
+                              <div class="absolute bottom-1 right-1 w-3 h-3">
+                                <div class="absolute bottom-0 right-0 w-[1px] h-1.5 bg-[#bbbbbb] transform rotate-45 origin-bottom-right translate-y-[-5px] translate-x-[-4px]"></div>
+                                <div class="absolute bottom-0 right-0 w-[1px] h-2.5 bg-[#bbbbbb] transform rotate-45 origin-bottom-right translate-y-[-5px] translate-x-[-7px]"></div>
+                              </div>
                             </div>
                           </div>
                           
@@ -713,10 +733,10 @@ onUnmounted(() => {
                             <button 
                               @click="codeView = 'default'"
                               :class="[
-                                'px-3 py-1.5 text-xs rounded-md border transition-colors',
+                                'px-3 py-1.5 text-xs rounded-md transition-colors bg-[#222222]',
                                 codeView === 'default' 
-                                  ? 'bg-[#444648] border-[#555] text-[#fafafa]' 
-                                  : 'bg-[#212122] border-[#444648] text-[#bbbbbb] hover:bg-[#2a2a2b]'
+                                  ? 'text-[#fafafa] cursor-default' 
+                                  : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dee2e6] hover:text-[#000000]'
                               ]"
                             >
                               Default View
@@ -724,13 +744,35 @@ onUnmounted(() => {
                             <button 
                               @click="codeView = 'raw'"
                               :class="[
-                                'px-3 py-1.5 text-xs rounded-md border transition-colors',
+                                'px-3 py-1.5 text-xs rounded-md transition-colors bg-[#222222]',
                                 codeView === 'raw' 
-                                  ? 'bg-[#444648] border-[#555] text-[#fafafa]' 
-                                  : 'bg-[#212122] border-[#444648] text-[#bbbbbb] hover:bg-[#2a2a2b]'
+                                  ? 'text-[#fafafa] cursor-default' 
+                                  : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dee2e6] hover:text-[#000000]'
                               ]"
                             >
-                              Raw Code
+                              Original
+                            </button>
+                            <button 
+                              @click="codeView = 'data'"
+                              :class="[
+                                'px-3 py-1.5 text-xs rounded-md transition-colors bg-[#222222]',
+                                codeView === 'data' 
+                                  ? 'text-[#fafafa] cursor-default' 
+                                  : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dee2e6] hover:text-[#000000]'
+                              ]"
+                            >
+                              Data
+                            </button>
+                            <button 
+                              @click="codeView = 'signatures'"
+                              :class="[
+                                'px-3 py-1.5 text-xs rounded-md transition-colors bg-[#222222]',
+                                codeView === 'signatures' 
+                                  ? 'text-[#fafafa] cursor-default' 
+                                  : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dee2e6] hover:text-[#000000]'
+                              ]"
+                            >
+                              Signatures
                             </button>
                           </div>
                         </div>
@@ -770,11 +812,6 @@ onUnmounted(() => {
           </DivideItem>
         </Divide>
       </div>
-    </div>
-
-    <!-- No transaction found -->
-    <div v-else class="flex items-center justify-center py-20">
-      <div class="text-[#bbbbbb]">Transaction not found</div>
     </div>
   </div>
 </template>

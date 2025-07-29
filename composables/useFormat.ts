@@ -14,6 +14,12 @@ export const useFormat = () => {
 
   const formatRelativeTime = (dateString: string): string => {
     const date = new Date(dateString);
+    
+    // Check if this is a genesis transaction (unix timestamp 0)
+    if (date.getTime() === 0) {
+      return 'Genesis';
+    }
+    
     const now = new Date();
     const seconds = Math.round((now.getTime() - date.getTime()) / 1000);
 

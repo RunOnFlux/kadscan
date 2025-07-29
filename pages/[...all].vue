@@ -4,60 +4,42 @@ definePageMeta({
 })
 
 useHead({
-  title: '404'
+  title: 'Page Not Found | Kadscan'
 })
-
 </script>
 
 <template>
-  <div
-    class="flex flex-col h-[calc(100vh-120px)] flex items-center justify-center"
-  >
-    <div
-      class="flex flex-col items-center justify-center bg-gray-800 p-8 rounded-2xl max-w-[414px]"
-    >
-      <Icon404 />
+  <div class="relative min-h-[calc(50vh-200px)]">
+    <!-- Content positioned like Etherscan - higher on page, not centered -->
+    <div class="pt-20 pb-16">
 
-      <div
-        class="pt-4 flex flex-col gap-2 text-center"
-      >
-        <h1
-          class="text-font-400 text-2xl font-semibold"
-        >
-          Oops! Page not found
+      <div class="mb-4">
+
+        <h1 class="text-2xl md:text-3xl lg:text-4xl text-[#bbbbbb] mb-2">
+          Sorry! We encountered an unexpected error.
         </h1>
+      
+        <p class="text-[#bbbbbb] text-[14px]">
+          An unexpected error occurred or the page you are looking for does not exist.
+        </p>
 
-        <span
-          class="text-font-400"
-        >
-          Sorry, we couldn't find the page you where looking for
-        </span>
+        <p class="text-[#bbbbbb] text-[14px]">
+          Please check again later.
+        </p>
+
       </div>
-
-      <div
-        class="pt-6"
-      >
-        <NuxtLink
-          to="/"
-        >
-          <Button
-            size="large"
-            type="filled"
-            label="Back home"
-          />
+      
+      <div class="py-5">
+        <NuxtLink to="/">
+          <button class="bg-[#0584c3] hover:bg-[#0584c3]/80 text-[#f5f5f5] px-3 py-1.5 rounded-lg transition-colors duration-200 text-[15px]">
+            Back Home
+          </button>
         </NuxtLink>
       </div>
     </div>
-
-    <div
-      class="fixed bottom-0 blockskull shrink-0 w-full z-[-1]"
-    />
   </div>
 </template>
 
-<style >
-  .blockskull {
-    height: 420px;
-    background: linear-gradient(to bottom, #000000 25%, #004d00 100%);
-  }
+<style scoped>
+/* Additional styling for the 404 page */
 </style>

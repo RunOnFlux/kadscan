@@ -133,6 +133,7 @@ const rowsToShow = ref<number>(25);
 // State for blocks by height
 const blocksByHeight = ref<any[]>([]);
 const loadingByHeight = ref(true);
+const error = ref<any>(null);
 
 export const useBlocks = () => {
   const clearState = () => {
@@ -140,6 +141,7 @@ export const useBlocks = () => {
     blocksByHeight.value = [];
     loading.value = true;
     loadingByHeight.value = true;
+    error.value = null;
     pageInfo.value = null;
   };
 
@@ -230,6 +232,7 @@ export const useBlocks = () => {
   }) => {
     if (!networkId || !height) return;
     loadingByHeight.value = blocksByHeight.value.length === 0;
+    error.value = null;
     try {
       const response: any = await $fetch('/api/graphql', {
         method: 'POST',
@@ -246,6 +249,13 @@ export const useBlocks = () => {
       const result = response?.data?.blocksFromHeight;
       const rawBlocks = result?.edges || [];
       
+      // Check if no blocks found for this height
+      if (rawBlocks.length === 0) {
+        error.value = new Error('No blocks found for this height');
+        blocksByHeight.value = [];
+        return;
+      }
+      
       const blocksMap = rawBlocks.map((edge: any) => {
         const details = processBlockDetails(edge.node);
         return {
@@ -260,8 +270,8 @@ export const useBlocks = () => {
       
       // Sort by chainId in ascending order (0-19)
       blocksByHeight.value = blocksMap.sort((a: any, b: any) => a.chainId - b.chainId);
-    } catch (error) {
-      console.error('Error fetching or processing blocks by height:', error);
+    } catch (e) {
+      console.error('Error fetching or processing blocks by height:', e);
       blocksByHeight.value = [];
     } finally {
       loadingByHeight.value = false;
@@ -279,6 +289,7 @@ export const useBlocks = () => {
     fetchTotalCount,
     blocksByHeight,
     loadingByHeight,
+    error,
     fetchBlocksByHeight,
     clearState,
   };

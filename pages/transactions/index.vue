@@ -32,9 +32,10 @@ const { truncateAddress } = useFormat();
 const { selectedNetwork } = useSharedData();
 const { isMobile } = useScreenSize();
 
-const { totalCount: lastBlockHeight, fetchTotalCount: fetchLastBlockHeight } = useBlocks();
+const { totalCount: lastBlockHeight, fetchTotalCount: fetchLastBlockHeight, error: blocksError } = useBlocks();
 
 const { 
+  error: transactionsError,
   transactions, 
   loading, 
   fetchTransactions,
@@ -90,9 +91,15 @@ const subtitle = computed(() => {
 
 const getFeeInKda = (item: any) => {
   if (!item.gas || !item.rawGasPrice) {
-    return '0 KDA';
+    return '0.0 KDA';
   }
   const feeInKda = item.gas * item.rawGasPrice;
+  
+  // If fee is 0, show simplified format
+  if (feeInKda === 0) {
+    return '0.0 KDA';
+  }
+  
   const formattedFee = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 4,
     maximumFractionDigits: 12,
@@ -176,6 +183,9 @@ const filteredTransactions = computed(() => {
 watch(
   [currentPage, rowsToShow],
   ([newPage, newRows], [oldPage, oldRows]) => {
+    // Don't update URL if there's an error (prevents race condition with error redirect)
+    if (transactionsError.value || blocksError.value) return;
+    
     const query = { ...route.query, page: newPage };
     if (newRows !== oldRows) {
       query.page = 1;
@@ -191,6 +201,9 @@ watch(
     if (!network) {
       return;
     }
+
+    // Don't run pagination logic if there's an error (prevents race condition with error redirect)
+    if (transactionsError.value || blocksError.value) return;
 
     const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
     const chainChanged = oldChain && selectedChain.value.value !== oldChain.value;
@@ -246,6 +259,13 @@ watch(
     deep: true,
   }
 );
+
+// Redirect to error page when transaction is not found
+watch([transactionsError, blocksError], ([transactionsError, blocksError]) => {
+  if (transactionsError || blocksError) {
+    navigateTo('/error', { replace: true })
+  }
+})
 
 function downloadData() {
   const csv = exportableToCsv(filteredTransactions.value, tableHeaders);
@@ -303,7 +323,8 @@ function downloadData() {
         </div>
       </template>
       <template #height="{ item }">
-        <NuxtLink :to="`/blocks/${item.height}/chain/${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.height }}</NuxtLink>
+        <span v-if="item.time === 0 || item.height === 0" class="text-[#f5f5f5]">Genesis</span>
+        <NuxtLink v-else :to="`/blocks/${item.height}/chain/${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.height }}</NuxtLink>
       </template>
       <template #status="{ item }">
         <Tooltip :value="blockStatus(item.height, item.canonical, item.badResult).description" :offset-distance="8">
@@ -327,6 +348,7 @@ function downloadData() {
             </Tooltip>
             <Copy :value="item.sender" tooltipText="Copy Address" />
           </template>
+          <span v-else-if="item.time === 0 || (item.sender === 'NaN' || !item.sender || item.sender === 'N/A')" class="text-[#f5f5f5]">Genesis</span>
           <span v-else class="text-[#f5f5f5]">NaN</span>
         </div>
       </template>
