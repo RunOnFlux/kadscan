@@ -690,12 +690,12 @@ onUnmounted(() => {
                       <div v-if="transaction?.cmd?.payload?.code" class="w-full">
                         <!-- Resizable Code Container -->
                         <div class="relative">
-                          <div 
-                            class="bg-[#151515] border border-[#222222] rounded-lg overflow-y-auto overflow-x-hidden resize-none"
+                          <textarea
+                            readonly
+                            :value="displayedCode"
+                            class="w-full bg-[#151515] border border-[#222222] rounded-lg text-[#bbbbbb] text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto"
                             :style="{ height: codeContainerHeight + 'px' }"
-                          >
-                            <pre class="text-[#bbbbbb] text-sm break-all whitespace-pre-wrap px-[10px] py-[5px] h-full">{{ displayedCode }}</pre>
-                          </div>
+                          ></textarea>
                           
                           <!-- Diagonal Triangle Resize Handle -->
                           <div 
