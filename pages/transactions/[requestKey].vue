@@ -7,7 +7,7 @@ import { useScreenSize } from '~/composables/useScreenSize'
 import { useSharedData } from '~/composables/useSharedData'
 import { staticTokens } from '~/constants/tokens'
 import { integer } from '~/composables/number'
-import { unescapeCodeString, parsePactCode, formatJsonPretty } from '~/composables/string'
+import { unescapeCodeString, parsePactCode, formatJsonPretty, formatSignatures } from '~/composables/string'
 import Informational from '~/components/icon/Informational.vue'
 import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
 import IconHourglass from '~/components/icon/Hourglass.vue';
@@ -134,6 +134,8 @@ const displayedCode = computed(() => {
     return parsePactCode(unescapeCodeString(rawCode))
   } else if (codeView.value === 'data') {
     return formatJsonPretty(transaction.value?.cmd?.payload?.data)
+  } else if (codeView.value === 'signatures') {
+    return formatSignatures(transaction.value?.sigs)
   }
 })
 
@@ -707,7 +709,7 @@ onUnmounted(() => {
                             <textarea
                               readonly
                               :value="displayedCode"
-                              class="w-full bg-[#151515] border border-[#222222] rounded-lg text-[#bbbbbb] text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto"
+                              class="break-all w-full bg-[#151515] border border-[#222222] rounded-lg text-[#bbbbbb] text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto"
                               :style="{ height: codeContainerHeight + 'px' }"
                             ></textarea>
                             
@@ -759,6 +761,17 @@ onUnmounted(() => {
                               ]"
                             >
                               Data
+                            </button>
+                            <button 
+                              @click="codeView = 'signatures'"
+                              :class="[
+                                'px-3 py-1.5 text-xs rounded-md transition-colors bg-[#222222]',
+                                codeView === 'signatures' 
+                                  ? 'text-[#fafafa] cursor-default' 
+                                  : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dee2e6] hover:text-[#000000]'
+                              ]"
+                            >
+                              Signatures
                             </button>
                           </div>
                         </div>

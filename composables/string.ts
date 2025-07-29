@@ -344,3 +344,23 @@ export function formatJsonPretty(data: any, indentSize: number = 2): string {
     return typeof data === 'string' ? data : String(data);
   }
 }
+
+/**
+ * Formats transaction signatures with numbered indices
+ * @param sigs - Array of signature objects containing sig property
+ * @returns Formatted string with indexed signatures
+ */
+export function formatSignatures(sigs: Array<{sig: string}> | null | undefined): string {
+  if (!sigs || !Array.isArray(sigs) || sigs.length === 0) {
+    return 'No signatures available';
+  }
+
+  let result = '';
+  sigs.forEach((sigObj, index) => {
+    if (sigObj && sigObj.sig) {
+      result += `[${index}]:  ${sigObj.sig}\n`;
+    }
+  });
+
+  return result.trim();
+}
