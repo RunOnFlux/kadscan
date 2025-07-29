@@ -19,11 +19,11 @@ useHead({
           Sorry! We encountered an unexpected error.
         </h1>
       
-        <p class="text-[#bbbbbb] text-[15px]">
-          An unexpected error occurred.
+        <p class="text-[#bbbbbb] text-[14px]">
+          An unexpected error occurred or the page you are looking for does not exist.
         </p>
 
-        <p class="text-[#bbbbbb] text-[15px]">
+        <p class="text-[#bbbbbb] text-[14px]">
           Please check back later
         </p>
 
@@ -31,7 +31,7 @@ useHead({
       
       <div class="py-5">
         <NuxtLink to="/">
-          <button class="bg-kadscan-500 hover:bg-kadscan-600 text-white font-medium px-6 py-2.5 rounded-lg transition-colors duration-200 text-sm">
+          <button class="bg-[#0584c3] hover:bg-[#0584c3]/80 text-[#f5f5f5] px-3 py-1.5 rounded-lg transition-colors duration-200 text-[15px]">
             Back Home
           </button>
         </NuxtLink>
