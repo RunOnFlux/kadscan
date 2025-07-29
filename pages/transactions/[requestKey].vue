@@ -13,6 +13,7 @@ import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
 import IconHourglass from '~/components/icon/Hourglass.vue';
 import IconCancel from '~/components/icon/Cancel.vue';
 import Clock from '~/components/icon/Clock.vue'
+import SkeletonTransactionDetails from '~/components/skeleton/TransactionDetails.vue'
 
 definePageMeta({
   layout: 'app',
@@ -308,10 +309,14 @@ onUnmounted(() => {
 
 <template>
   <div>
-    <!-- Loading state -->
-    <div v-if="loading" class="flex items-center justify-center py-20">
-      <div class="text-[#fafafa]">Loading transaction...</div>
+    <!-- Header -->
+    <div class="flex items-center pb-5 border-b border-[#222222] mb-6 gap-2">
+      <h1 class="text-[19px] font-semibold leading-[150%] text-[#fafafa]">
+        Transaction Details
+      </h1>
     </div>
+    <!-- Loading state -->
+    <SkeletonTransactionDetails v-if="loading" />
 
     <!-- Error state -->
     <div v-else-if="error" class="flex items-center justify-center py-20">
@@ -320,13 +325,6 @@ onUnmounted(() => {
 
     <!-- Transaction content -->
     <div v-else-if="transaction">
-      <!-- Header -->
-      <div class="flex items-center pb-5 border-b border-[#222222] mb-6 gap-2">
-        <h1 class="text-[19px] font-semibold leading-[150%] text-[#fafafa]">
-          Transaction Details
-        </h1>
-      </div>
-
       <!-- Tabs -->
       <div class="flex items-center justify-between pb-3">
         <div class="flex gap-2">
