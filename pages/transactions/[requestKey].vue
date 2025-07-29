@@ -338,7 +338,7 @@ watch(
 // Redirect to error page when transaction is not found
 watch(error, (newError) => {
   if (newError) {
-    navigateTo('/error')
+    navigateTo('/error', { replace: true })
   }
 })
 
