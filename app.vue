@@ -9,7 +9,7 @@ useHead({
     {
       hid: 'description',
       name: 'description',
-      content: 'Kadscan is a Block Explorer and Analytics Platform for Kadena.'
+      content: 'Kadscan is a Block Explorer and Analytics Platform for the Kadena Blockchain.'
     },
     {
       hid: 'robots',
