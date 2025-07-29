@@ -32,9 +32,10 @@ const { truncateAddress } = useFormat();
 const { selectedNetwork } = useSharedData();
 const { isMobile } = useScreenSize();
 
-const { totalCount: lastBlockHeight, fetchTotalCount: fetchLastBlockHeight } = useBlocks();
+const { totalCount: lastBlockHeight, fetchTotalCount: fetchLastBlockHeight, error: blocksError } = useBlocks();
 
 const { 
+  error: transactionsError,
   transactions, 
   loading, 
   fetchTransactions,
@@ -182,6 +183,9 @@ const filteredTransactions = computed(() => {
 watch(
   [currentPage, rowsToShow],
   ([newPage, newRows], [oldPage, oldRows]) => {
+    // Don't update URL if there's an error (prevents race condition with error redirect)
+    if (transactionsError.value || blocksError.value) return;
+    
     const query = { ...route.query, page: newPage };
     if (newRows !== oldRows) {
       query.page = 1;
@@ -197,6 +201,9 @@ watch(
     if (!network) {
       return;
     }
+
+    // Don't run pagination logic if there's an error (prevents race condition with error redirect)
+    if (transactionsError.value || blocksError.value) return;
 
     const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
     const chainChanged = oldChain && selectedChain.value.value !== oldChain.value;
@@ -252,6 +259,13 @@ watch(
     deep: true,
   }
 );
+
+// Redirect to error page when transaction is not found
+watch([transactionsError, blocksError], ([transactionsError, blocksError]) => {
+  if (transactionsError || blocksError) {
+    navigateTo('/error', { replace: true })
+  }
+})
 
 function downloadData() {
   const csv = exportableToCsv(filteredTransactions.value, tableHeaders);

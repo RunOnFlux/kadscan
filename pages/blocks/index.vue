@@ -31,6 +31,7 @@ const { selectedNetwork } = useSharedData();
 const { isMobile } = useScreenSize();
 
 const {
+  error,
   blocks,
   loading,
   fetchBlocks,
@@ -229,6 +230,13 @@ watch(
     deep: true,
   }
 );
+
+// Redirect to error page when blocks are not found
+watch(error, (newError) => {
+  if (newError) {
+    navigateTo('/error', { replace: true })
+  }
+})
 
 function downloadData() {
   const csv = exportableToCsv(filteredBlocks.value, tableHeaders);

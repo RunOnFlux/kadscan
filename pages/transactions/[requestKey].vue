@@ -56,7 +56,7 @@ const textContent = {
   timestamp: { label: 'Timestamp:', description: 'Date and time at which a transaction is produced.' },
   signers: { label: 'Signers:', description: 'Accounts that authorized this transaction.' },
   paidBy: { label: 'Paid By:', description: 'The account that submitted and paid the gas fees for this transaction.' },
-  value: { label: 'Value:', description: 'Total KDA transferred out of the signer account due to this transaction.' },
+  value: { label: 'Value:', description: 'Total KDA transferred out of the signer(s) account(s) due to this transaction.' },
   transactionFee: { label: 'Transaction Fee:', description: 'Amount paid to process this transaction in KDA.' },
   gasPrice: { label: 'Gas Price:', description: 'Cost per unit of gas spent for this transaction.' },
   kadenaPrice: { label: 'Kadena Price:', description: 'Price of KDA on the day this transaction was created.' },
