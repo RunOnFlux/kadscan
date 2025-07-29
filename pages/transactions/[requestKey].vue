@@ -9,7 +9,7 @@ import { useBlocks } from '~/composables/useBlocks'
 import { staticTokens } from '~/constants/tokens'
 import { integer } from '~/composables/number'
 import { unescapeCodeString, parsePactCode, formatJsonPretty, formatSignatures } from '~/composables/string'
-import Informational from '~/components/icon/Informational.vue'
+import TransactionLogs from '~/components/transaction/Logs.vue'
 import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
 import IconHourglass from '~/components/icon/Hourglass.vue';
 import IconCancel from '~/components/icon/Cancel.vue';
@@ -391,61 +391,7 @@ onUnmounted(() => {
       </div>
 
       <!-- Logs Tab Content -->
-      <div v-if="activeTab.startsWith('Logs')" class="mb-6">
-        <div class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5">
-          <div v-if="transaction?.result?.events?.edges?.length">
-            <Divide>
-              <DivideItem>
-                <div class="flex flex-col gap-6">
-                  <div 
-                    v-for="(eventEdge, index) in transaction.result.events.edges" 
-                    :key="eventEdge.node.id"
-                    class="flex flex-col gap-4"
-                  >
-                    <LabelValue
-                      :label="`Event #${index}:`"
-                      :description="`${eventEdge.node.qualifiedName} event details`"
-                      tooltipPos="right"
-                    >
-                      <template #value>
-                        <div class="flex flex-col gap-3">
-                          <div class="flex items-center gap-4 text-[15px]">
-                            <div class="flex items-center gap-2">
-                              <span class="text-[#bbbbbb]">Module:</span>
-                              <span class="text-[#fafafa]">{{ eventEdge.node.moduleName }}</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                              <span class="text-[#bbbbbb]">Event:</span>
-                              <span class="text-[#fafafa]">{{ eventEdge.node.name }}</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                              <span class="text-[#bbbbbb]">Order:</span>
-                              <span class="text-[#fafafa]">{{ eventEdge.node.orderIndex }}</span>
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <span class="text-[#bbbbbb] text-sm">Parameters:</span>
-                            <div class="mt-1 p-3 bg-[#1a1a1a] rounded border border-[#bbbbbb] text-xs text-[#fafafa] break-all">
-                              {{ eventEdge.node.parameterText }}
-                            </div>
-                          </div>
-                        </div>
-                      </template>
-                    </LabelValue>
-                    
-                    <!-- Divider between events (except last one) -->
-                    <div v-if="index < transaction.result.events.edges.length - 1" class="border-b border-[#bbbbbb]"></div>
-                  </div>
-                </div>
-              </DivideItem>
-            </Divide>
-          </div>
-          <div v-else class="text-center py-8 text-[#bbbbbb]">
-            No events found for this transaction
-          </div>
-        </div>
-      </div>
+      <TransactionLogs v-if="activeTab.startsWith('Logs')" :transaction="transaction" />
 
       <!-- Transaction Details -->
       <div v-if="activeTab.startsWith('Overview')" class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
