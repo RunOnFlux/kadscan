@@ -34,7 +34,7 @@ const scrollToTop = () => {
 
 <template>
   <div class="w-full bg-[#111111] border-t border-[#222222]">
-    <div class="w-full px-5 pt-8 pb-4 flex flex-col">
+    <div class="w-full max-w-[1400px] mx-auto px-5 pt-8 pb-4 flex flex-col">
       <div class="flex justify-between items-center gap-8 flex-wrap">
         <div class="flex flex-col gap-3">
           <div class="flex items-end gap-3">
