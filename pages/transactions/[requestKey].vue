@@ -448,7 +448,7 @@ onUnmounted(() => {
       </div>
 
       <!-- Transaction Details -->
-      <div class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
+      <div v-if="activeTab.startsWith('Overview')" class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
         <Divide>
           <!-- Section 1: Basic Information -->
           <DivideItem>
@@ -679,7 +679,7 @@ onUnmounted(() => {
       </div>
 
       <!-- More Details Section -->
-      <div class="bg-[#111111] border border-[#222222] rounded-xl p-5 mb-2">
+      <div v-if="activeTab.startsWith('Overview')" class="bg-[#111111] border border-[#222222] rounded-xl p-5 mb-2">
         <div 
           ref="contentRef"
           class="overflow-hidden transition-all duration-300 ease-out"
@@ -866,11 +866,6 @@ onUnmounted(() => {
           </DivideItem>
         </Divide>
       </div>
-    </div>
-
-    <!-- No transaction found -->
-    <div v-else class="flex items-center justify-center py-20">
-      <div class="text-[#bbbbbb]">Transaction not found</div>
     </div>
   </div>
 </template>
