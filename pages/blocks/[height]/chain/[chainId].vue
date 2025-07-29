@@ -179,7 +179,7 @@ watch(
   [() => block.value, lastBlockHeight],
   ([currentBlock, newLastBlockHeight]) => {
     const isCanonical = currentBlock?.canonical;
-    const isOldEnough = newLastBlockHeight - height.value >= 6;
+    const isOldEnough = newLastBlockHeight - height.value >= 10;
 
     if (isCanonical || isOldEnough) {
       stopPolling();
