@@ -245,6 +245,11 @@ const formattedGasInfo = computed(() => {
   
   const usedNum = parseInt(gasUsed)
   const limitNum = parseInt(gasLimit)
+
+  // Don't show percentage if both are 0 or if calculation would result in NaN
+  if (usedNum === 0 && limitNum === 0) {
+    return "0 | 0"
+  }
   
   // Calculate percentage
   const percentage = ((usedNum / limitNum) * 100).toFixed(2)
@@ -430,9 +435,10 @@ onUnmounted(() => {
                  <div class="flex items-center gap-2">
                    <IconHourglass v-if="transactionStatus.text === 'Pending'" class="w-3 h-3 text-[#bbbbbb]" />
                    <NuxtLink v-if="transaction?.result?.block?.height" :to="`/blocks/${transaction.result.block.height}/chain/${transaction.result.block.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ transaction.result.block.height }}</NuxtLink>
+                   <span v-else-if="!transaction?.result?.block?.height && transaction?.cmd?.meta?.chainId && (transaction?.cmd?.meta?.creationTime === 0 || new Date(transaction?.cmd?.meta?.creationTime).getTime() < new Date('1970-01-02').getTime())" class="text-[#fafafa]">Genesis</span>
                    <span v-else class="text-[#fafafa]">-</span>
-                    <span v-if="blockConfirmations !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] text-[#fafafa] font-semibold flex items-center leading-none">
-                     {{ blockConfirmations }} Block Confirmations
+                   <span v-if="blockConfirmations !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] text-[#fafafa] font-semibold flex items-center leading-none">
+                    {{ blockConfirmations }} Block Confirmations
                    </span>
                  </div>
                </template>
@@ -447,9 +453,16 @@ onUnmounted(() => {
              <LabelValue :row="isMobile" :label="textContent.timestamp.label" :description="textContent.timestamp.description" tooltipPos="right">
                <template #value>
                  <div class="flex items-center gap-2">
-                   <Clock class="w-4 h-4 text-[#bbbbbb]" />
-                   <span v-if="age && transaction?.cmd?.meta?.creationTime" class="text-[#fafafa] text-[15px]">{{ age }} ({{ new Date(transaction.cmd.meta.creationTime).toUTCString() }})</span>
-                   <span v-else class="text-[#fafafa] text-[15px]">-</span>
+                   <!-- Show just "Genesis" for Genesis transactions without clock icon -->
+                   <template v-if="!transaction?.result?.block?.height && transaction?.cmd?.meta?.chainId && (transaction?.cmd?.meta?.creationTime === 0 || new Date(transaction?.cmd?.meta?.creationTime).getTime() < new Date('1970-01-02').getTime())">
+                     <span class="text-[#fafafa] text-[15px]">Genesis</span>
+                   </template>
+                   <!-- Normal timestamp display with clock icon -->
+                   <template v-else>
+                     <Clock class="w-4 h-4 text-[#bbbbbb]" />
+                     <span v-if="age && transaction?.cmd?.meta?.creationTime" class="text-[#fafafa] text-[15px]">{{ age }} ({{ new Date(transaction.cmd.meta.creationTime).toUTCString() }})</span>
+                     <span v-else class="text-[#fafafa] text-[15px]">-</span>
+                   </template>
                  </div>
                </template>
              </LabelValue>
@@ -457,7 +470,7 @@ onUnmounted(() => {
           </DivideItem>
 
           <!-- Section 2: Addresses -->
-          <DivideItem>
+          <DivideItem v-if="from || feePayer">
             <div class="flex flex-col gap-4">
               <LabelValue v-if="from" :row="isMobile" :label="textContent.from.label" :description="textContent.from.description" tooltipPos="right">
                 <template #value>
@@ -582,7 +595,7 @@ onUnmounted(() => {
                 <template #value>
                   <div class="flex items-center gap-2">
                     <span class="text-[#fafafa]">{{ signerTransferValue }} KDA</span>
-                    <span v-if="calculateKdaUsdValue(signerTransferValue, true)" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(signerTransferValue, true) }})</span>
+                    <span v-if="signerTransferValue > 0" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(signerTransferValue, true) }})</span>
                   </div>
                 </template>
               </LabelValue>
@@ -591,7 +604,7 @@ onUnmounted(() => {
                 <template #value>
                   <div class="flex items-center gap-2">
                     <span class="text-[#fafafa]">{{ transactionFee }} KDA</span>
-                    <span v-if="calculateKdaUsdValue(transactionFee, true)" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(transactionFee, true) }})</span>
+                    <span v-if="transactionFee > 0" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(transactionFee, true) }})</span>
                   </div>
                 </template>
               </LabelValue>
