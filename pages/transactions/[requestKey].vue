@@ -71,7 +71,7 @@ const contentHeight = ref(0)
 const contentRef = ref<HTMLElement | null>(null)
 
 // Code resize functionality
-const initialCodeContainerHeight = 120
+const initialCodeContainerHeight = 125
 const codeContainerHeight = ref(initialCodeContainerHeight) // Initial height
 const isResizing = ref(false)
 const resizeStartY = ref(0)
@@ -130,8 +130,10 @@ const displayedCode = computed(() => {
   
   if (codeView.value === 'raw') {
     return unescapeCodeString(rawCode)
-  } else {
+  } else if (codeView.value === 'default') {
     return parsePactCode(unescapeCodeString(rawCode))
+  } else if (codeView.value === 'data') {
+    return transaction.value?.cmd?.payload?.data
   }
 })
 
@@ -713,10 +715,10 @@ onUnmounted(() => {
                             <button 
                               @click="codeView = 'default'"
                               :class="[
-                                'px-3 py-1.5 text-xs rounded-md border transition-colors',
+                                'px-3 py-1.5 text-xs rounded-md transition-colors bg-[#222222]',
                                 codeView === 'default' 
-                                  ? 'bg-[#444648] border-[#555] text-[#fafafa]' 
-                                  : 'bg-[#212122] border-[#444648] text-[#bbbbbb] hover:bg-[#2a2a2b]'
+                                  ? 'text-[#fafafa] cursor-default' 
+                                  : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dee2e6] hover:text-[#000000]'
                               ]"
                             >
                               Default View
@@ -724,13 +726,24 @@ onUnmounted(() => {
                             <button 
                               @click="codeView = 'raw'"
                               :class="[
-                                'px-3 py-1.5 text-xs rounded-md border transition-colors',
+                                'px-3 py-1.5 text-xs rounded-md transition-colors bg-[#222222]',
                                 codeView === 'raw' 
-                                  ? 'bg-[#444648] border-[#555] text-[#fafafa]' 
-                                  : 'bg-[#212122] border-[#444648] text-[#bbbbbb] hover:bg-[#2a2a2b]'
+                                  ? 'text-[#fafafa] cursor-default' 
+                                  : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dee2e6] hover:text-[#000000]'
                               ]"
                             >
-                              Raw Code
+                              Original
+                            </button>
+                            <button 
+                              @click="codeView = 'data'"
+                              :class="[
+                                'px-3 py-1.5 text-xs rounded-md transition-colors bg-[#222222]',
+                                codeView === 'data' 
+                                  ? 'text-[#fafafa] cursor-default' 
+                                  : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dee2e6] hover:text-[#000000]'
+                              ]"
+                            >
+                              Data
                             </button>
                           </div>
                         </div>
