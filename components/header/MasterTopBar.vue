@@ -71,7 +71,7 @@ const medGasPrice = computed(() => {
 
         <Menu as="div" class="relative inline-block text-left">
           <div>
-            <MenuButton class="h-8 w-8 rounded-lg flex items-center justify-center border border-[#222222]">
+            <MenuButton class="h-8 w-8 rounded-lg flex items-center justify-center border border-[#222222] hover:bg-[#222222]">
               <IconKadena class="h-4 w-4" />
             </MenuButton>
           </div>
