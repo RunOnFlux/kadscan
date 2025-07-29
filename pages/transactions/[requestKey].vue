@@ -5,6 +5,7 @@ import { useTransaction } from '~/composables/useTransaction'
 import { useFormat } from '~/composables/useFormat'
 import { useScreenSize } from '~/composables/useScreenSize'
 import { useSharedData } from '~/composables/useSharedData'
+import { useBlocks } from '~/composables/useBlocks'
 import { staticTokens } from '~/constants/tokens'
 import { integer } from '~/composables/number'
 import { unescapeCodeString, parsePactCode, formatJsonPretty, formatSignatures } from '~/composables/string'
@@ -62,6 +63,26 @@ const textContent = {
   otherAttributes: { label: 'Other Attributes:', description: 'Other data related to this transaction.' },
   moreDetails: { label: 'More Details:' },
 }
+
+// Polling variables and functions
+let pollingInterval: ReturnType<typeof setInterval> | null = null;
+
+const stopPolling = () => {
+  if (pollingInterval) {
+    clearInterval(pollingInterval);
+    pollingInterval = null;
+  }
+};
+
+const startPolling = () => {
+  stopPolling();
+  pollingInterval = setInterval(() => {
+    if (networkId.value && transactionId.value) {
+      fetchTransaction();
+      fetchTotalCount({ networkId: networkId.value });
+    }
+  }, 6000);
+};
 
 // Tab management
 const tabLabels = ['Overview', 'Logs (1)']
@@ -294,6 +315,26 @@ watch(
   { immediate: true }
 );
 
+// Polling control watcher
+watch(
+  [() => transaction.value, lastBlockHeight],
+  ([currentTransaction, newLastBlockHeight]) => {
+    if (!currentTransaction) return;
+
+    const isFinalized = currentTransaction?.result?.block?.canonical;
+    const hasFailed = currentTransaction?.result?.badResult !== null;
+    const isOldEnough = currentTransaction?.result?.block?.height && 
+                        newLastBlockHeight - currentTransaction.result.block.height >= 10;
+
+    if (isFinalized || hasFailed || isOldEnough) {
+      stopPolling();
+    } else {
+      startPolling();
+    }
+  },
+  { deep: true }
+);
+
 onMounted(() => {
   if (transactionId.value && networkId.value) {
     fetchTransaction()
@@ -301,6 +342,8 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  // Clean up polling interval
+  stopPolling();
   // Clean up event listeners
   document.removeEventListener('mousemove', handleResize)
   document.removeEventListener('mouseup', stopResize)
@@ -316,7 +359,7 @@ onUnmounted(() => {
       </h1>
     </div>
     <!-- Loading state -->
-    <SkeletonTransactionDetails v-if="loading" />
+    <SkeletonTransactionDetails v-if="loading && !pollingInterval" />
 
     <!-- Error state -->
     <div v-else-if="error" class="flex items-center justify-center py-20">
