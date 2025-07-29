@@ -62,7 +62,7 @@ const textContent = {
 }
 
 // Tab management
-const tabLabels = ['Overview', 'Logs (1)', 'State']
+const tabLabels = ['Overview', 'Logs (1)']
 const activeTab = ref(tabLabels[0])
 
 // More details functionality
