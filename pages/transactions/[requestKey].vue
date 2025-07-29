@@ -689,10 +689,10 @@ onUnmounted(() => {
                         <!-- Resizable Code Container -->
                         <div class="relative">
                           <div 
-                            class="bg-[#151515] border border-[#222222] rounded-lg overflow-y-auto resize-none"
+                            class="bg-[#151515] border border-[#222222] rounded-lg overflow-y-auto overflow-x-hidden resize-none"
                             :style="{ height: codeContainerHeight + 'px' }"
                           >
-                            <pre class="text-[#bbbbbb] text-sm break-all px-[10px] py-[5px] h-full">{{ displayedCode }}</pre>
+                            <pre class="text-[#bbbbbb] text-sm break-all whitespace-pre-wrap px-[10px] py-[5px] h-full">{{ displayedCode }}</pre>
                           </div>
                           
                           <!-- Diagonal Triangle Resize Handle -->
