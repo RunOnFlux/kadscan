@@ -46,42 +46,6 @@ const sortedEvents = computed(() => {
           :key="eventEdge.node.id"
         >
           <div class="flex flex-col gap-4">
-            <LabelValue
-              :label="`Event #${index}:`"
-              :description="`${eventEdge.node.qualifiedName} event details`"
-              tooltipPos="right"
-            >
-              <template #value>
-                <div class="flex items-center gap-1 text-[15px]">
-                  <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
-                    <span class="text-[#bbbbbb]">Order:</span>
-                    <span class="text-[#fafafa] ml-1">{{ eventEdge.node.orderIndex }}</span>
-                  </span>
-                </div>
-              </template>
-            </LabelValue>
-
-            <LabelValue
-              :row="isMobile"
-              label="Module:"
-              description="The smart contract module that emitted this event"
-              tooltipPos="right"
-            >
-              <template #value>
-                <span class="text-[#fafafa] text-[15px]">{{ eventEdge.node.moduleName }}</span>
-              </template>
-            </LabelValue>
-
-            <LabelValue
-              :row="isMobile"
-              label="Event Name:"
-              description="The name of the event that was emitted"
-              tooltipPos="right"
-            >
-              <template #value>
-                <span class="text-[#fafafa] text-[15px]">{{ eventEdge.node.name }}</span>
-              </template>
-            </LabelValue>
 
             <LabelValue
               :row="isMobile"
@@ -98,6 +62,29 @@ const sortedEvents = computed(() => {
                     iconSize="h-5 w-5"
                     buttonClass="w-5 h-5"
                   />
+                </div>
+              </template>
+            </LabelValue>
+
+            <LabelValue
+              :label="`Event #${index}:`"
+              :description="`${eventEdge.node.qualifiedName} event details`"
+              tooltipPos="right"
+            >
+              <template #value>
+                <div class="flex items-center gap-2">
+                  <span v-if="eventEdge.node.orderIndex !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+                    <span class="text-[#bbbbbb]">Order Indexer:</span>
+                    <span class="text-[#fafafa] ml-1">{{ eventEdge.node.orderIndex }}</span>
+                  </span>
+                  <span v-if="eventEdge.node.moduleName !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+                    <span class="text-[#bbbbbb]">Module:</span>
+                    <span class="text-[#fafafa] ml-1">{{ eventEdge.node.moduleName }}</span>
+                  </span>
+                  <span v-if="eventEdge.node.name !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+                    <span class="text-[#bbbbbb]">Event:</span>
+                    <span class="text-[#fafafa] ml-1">{{ eventEdge.node.name }}</span>
+                  </span>
                 </div>
               </template>
             </LabelValue>

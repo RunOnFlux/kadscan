@@ -668,17 +668,17 @@ onUnmounted(() => {
                   >
                     <template #value>
                       <div class="flex flex-wrap gap-2">
-                        <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+                        <span v-if="transaction?.cmd?.meta?.ttl !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                           <span class="text-[#bbbbbb]">TTL:</span>
-                          <span class="text-[#fafafa] ml-1">{{ transaction?.cmd?.meta?.ttl || '-' }}</span>
+                          <span class="text-[#fafafa] ml-1">{{ transaction?.cmd?.meta?.ttl }}</span>
                         </span>
-                        <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+                        <span v-if="transaction?.cmd?.nonce !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                           <span class="text-[#bbbbbb]">Nonce:</span>
-                          <span class="text-[#fafafa] ml-1">{{ transaction?.cmd?.nonce || '0' }}</span>
+                          <span class="text-[#fafafa] ml-1">{{ transaction?.cmd?.nonce }}</span>
                         </span>
-                        <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+                        <span v-if="transaction?.result?.transactionId !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                           <span class="text-[#bbbbbb]">TXID:</span>
-                          <span class="text-[#fafafa] ml-1">{{ transaction?.result?.transactionId || '0' }}</span>
+                          <span class="text-[#fafafa] ml-1">{{ transaction?.result?.transactionId }}</span>
                         </span>
                       </div>
                     </template>
