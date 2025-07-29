@@ -7,7 +7,7 @@ import { useScreenSize } from '~/composables/useScreenSize'
 import { useSharedData } from '~/composables/useSharedData'
 import { staticTokens } from '~/constants/tokens'
 import { integer } from '~/composables/number'
-import { unescapeCodeString, parsePactCode } from '~/composables/string'
+import { unescapeCodeString, parsePactCode, formatJsonPretty } from '~/composables/string'
 import Informational from '~/components/icon/Informational.vue'
 import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
 import IconHourglass from '~/components/icon/Hourglass.vue';
@@ -133,7 +133,7 @@ const displayedCode = computed(() => {
   } else if (codeView.value === 'default') {
     return parsePactCode(unescapeCodeString(rawCode))
   } else if (codeView.value === 'data') {
-    return transaction.value?.cmd?.payload?.data
+    return formatJsonPretty(transaction.value?.cmd?.payload?.data)
   }
 })
 

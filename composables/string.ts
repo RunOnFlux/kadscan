@@ -312,3 +312,35 @@ export function parsePactCode(input: string | any): string {
   
   return result.trim();
 }
+
+/**
+ * Formats JSON data with proper indentation for display
+ * @param data - JSON data (object, array, or string)
+ * @param indentSize - Number of spaces for indentation (default: 2)
+ * @returns Formatted JSON string with proper indentation
+ */
+export function formatJsonPretty(data: any, indentSize: number = 2): string {
+  if (!data) {
+    return '';
+  }
+
+  try {
+    // If it's already a string, try to parse it first
+    let jsonData = data;
+    if (typeof data === 'string') {
+      try {
+        jsonData = JSON.parse(data);
+      } catch (e) {
+        // If parsing fails, return the original string
+        return data;
+      }
+    }
+
+    // Format with proper indentation
+    return JSON.stringify(jsonData, null, indentSize);
+  } catch (error) {
+    console.warn('Could not format JSON:', error);
+    // If formatting fails, try to return a stringified version
+    return typeof data === 'string' ? data : String(data);
+  }
+}
