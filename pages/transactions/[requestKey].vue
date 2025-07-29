@@ -42,6 +42,7 @@ const {
   blockConfirmations,
   kadenaPrice,
   signerTransferValue,
+  transactionSigners,
 } = useTransaction(transactionId, networkId)
 
 // Text content for tooltips and labels
@@ -51,7 +52,7 @@ const textContent = {
   block: { label: 'Block:', description: 'Number of the block height in which the transaction is recorded. Block confirmations indicate how many blocks have been added since the transaction was produced.' },
   chainId: { label: 'Chain ID:', description: 'The specific chain (0-19) on which this block was mined' },
   timestamp: { label: 'Timestamp:', description: 'Date and time at which a transaction is produced.' },
-  from: { label: 'From:', description: 'The signer who owns and authorized this transaction.' },
+  signers: { label: 'Signers:', description: 'Accounts that authorized this transaction.' },
   paidBy: { label: 'Paid By:', description: 'The account that submitted and paid the gas fees for this transaction.' },
   value: { label: 'Value:', description: 'Total KDA transferred out of the signer account due to this transaction.' },
   transactionFee: { label: 'Transaction Fee:', description: 'Amount paid to process this transaction in KDA.' },
@@ -180,10 +181,7 @@ const age = computed(() => {
   return formatRelativeTime(transaction.value.cmd.meta.creationTime)
 })
 
-const from = computed(() => {
-  const pubkey = transaction.value?.cmd?.signers?.[0]?.pubkey
-  return pubkey ? `k:${pubkey}` : ''
-})
+// Removed: from computed - now using transactionSigners from composable
 
 const feePayer = computed(() => {
   return transaction.value?.cmd?.meta?.sender || ''
@@ -472,18 +470,31 @@ onUnmounted(() => {
           </DivideItem>
 
           <!-- Section 2: Addresses -->
-          <DivideItem v-if="from || feePayer">
+          <DivideItem v-if="transactionSigners.length > 0 || feePayer">
             <div class="flex flex-col gap-4">
-              <LabelValue v-if="from" :row="isMobile" :label="textContent.from.label" :description="textContent.from.description" tooltipPos="right">
+              <LabelValue 
+                v-if="transactionSigners.length > 0" 
+                :topAlign="true"
+                :row="isMobile" 
+                :label="transactionSigners.length === 1 ? 'Signer:' : textContent.signers.label" 
+                :description="transactionSigners.length === 1 ? 'Account that authorized this transaction.' : textContent.signers.description" 
+                tooltipPos="right"
+              >
                 <template #value>
-                  <div class="flex items-center gap-2">
-                    <NuxtLink :to="`/account/${from}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ from }}</NuxtLink>
-                    <Copy 
-                      :value="from" 
-                      tooltipText="Copy Signer Address"
-                      iconSize="h-5 w-5"
-                      buttonClass="w-5 h-5"
-                    />
+                  <div class="flex flex-col gap-2">
+                    <div 
+                      v-for="signer in transactionSigners" 
+                      :key="signer.pubkey"
+                      class="flex items-center gap-2"
+                    >
+                      <NuxtLink :to="`/account/${signer.address}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ signer.address }}</NuxtLink>
+                      <Copy 
+                        :value="signer.address" 
+                        tooltipText="Copy Signer Address"
+                        iconSize="h-5 w-5"
+                        buttonClass="w-5 h-5"
+                      />
+                    </div>
                   </div>
                 </template>
               </LabelValue>
