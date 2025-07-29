@@ -335,6 +335,13 @@ watch(
   { deep: true }
 );
 
+// Redirect to error page when transaction is not found
+watch(error, (newError) => {
+  if (newError) {
+    navigateTo('/error')
+  }
+})
+
 onMounted(() => {
   if (transactionId.value && networkId.value) {
     fetchTransaction()
@@ -361,10 +368,6 @@ onUnmounted(() => {
     <!-- Loading state -->
     <SkeletonTransactionDetails v-if="loading && !pollingInterval" />
 
-    <!-- Error state -->
-    <div v-else-if="error" class="flex items-center justify-center py-20">
-      <div class="text-red-400">Error loading transaction: {{ error.message }}</div>
-    </div>
 
     <!-- Transaction content -->
     <div v-else-if="transaction">

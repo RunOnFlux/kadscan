@@ -271,6 +271,12 @@ export const useTransaction = (
 
       transaction.value = transactionResponse?.data?.transaction;
       
+      // If transaction is null, it means the transaction doesn't exist
+      if (transaction.value === null) {
+        error.value = true;
+        return;
+      }
+      
       if (transaction.value && transaction.value.cmd?.meta?.creationTime) {
         await fetchKadenaPrice(transaction.value.cmd.meta.creationTime)
       }
