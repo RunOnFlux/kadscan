@@ -365,9 +365,9 @@ onUnmounted(() => {
         Transaction Details
       </h1>
     </div>
+
     <!-- Loading state -->
     <SkeletonTransactionDetails v-if="loading && !pollingInterval" />
-
 
     <!-- Transaction content -->
     <div v-else-if="transaction">
