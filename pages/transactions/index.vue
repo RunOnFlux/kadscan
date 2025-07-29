@@ -90,9 +90,15 @@ const subtitle = computed(() => {
 
 const getFeeInKda = (item: any) => {
   if (!item.gas || !item.rawGasPrice) {
-    return '0 KDA';
+    return '0.0 KDA';
   }
   const feeInKda = item.gas * item.rawGasPrice;
+  
+  // If fee is 0, show simplified format
+  if (feeInKda === 0) {
+    return '0.0 KDA';
+  }
+  
   const formattedFee = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 4,
     maximumFractionDigits: 12,
@@ -327,6 +333,7 @@ function downloadData() {
             </Tooltip>
             <Copy :value="item.sender" tooltipText="Copy Address" />
           </template>
+          <span v-else-if="item.time === 0 || (item.sender === 'NaN' || !item.sender || item.sender === 'N/A')" class="text-[#f5f5f5]">Genesis</span>
           <span v-else class="text-[#f5f5f5]">NaN</span>
         </div>
       </template>
