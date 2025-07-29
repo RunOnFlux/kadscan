@@ -324,7 +324,7 @@ watch(
     const isFinalized = currentTransaction?.result?.block?.canonical;
     const hasFailed = currentTransaction?.result?.badResult !== null;
     const isOldEnough = currentTransaction?.result?.block?.height && 
-                        newLastBlockHeight - currentTransaction.result.block.height >= 10;
+    newLastBlockHeight - currentTransaction.result.block.height >= 10;
 
     if (isFinalized || hasFailed || isOldEnough) {
       stopPolling();
