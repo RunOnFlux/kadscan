@@ -23,10 +23,10 @@ export default defineEventHandler(async (event) => {
       },
       body: { query, variables },
     });
-    console.log("--------------------------------");
-    console.log("query", query);
-    console.log("variables", variables);
-    console.log("response", response);
+    // console.log("--------------------------------");
+    // console.log("query", query);
+    // console.log("variables", variables);
+    // console.log("response", response);
     return response;
   } catch (error: any) {
     // Forward the error from the GraphQL server
