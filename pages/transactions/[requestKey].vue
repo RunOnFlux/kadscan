@@ -149,12 +149,11 @@ const stopResize = () => {
 // Computed property for code display
 const displayedCode = computed(() => {
   const rawCode = transaction.value?.cmd?.payload?.code
-  if (!rawCode) return 'No code available'
   
   if (codeView.value === 'raw') {
-    return unescapeCodeString(rawCode)
+    return rawCode ? unescapeCodeString(rawCode) : 'No code available'
   } else if (codeView.value === 'default') {
-    return parsePactCode(unescapeCodeString(rawCode))
+    return rawCode ? parsePactCode(unescapeCodeString(rawCode)) : 'No code available'
   } else if (codeView.value === 'data') {
     return formatJsonPretty(transaction.value?.cmd?.payload?.data)
   } else if (codeView.value === 'signatures') {
@@ -703,7 +702,7 @@ onUnmounted(() => {
                     
                     <!-- Code Container with proper boundaries -->
                     <div class="text-[#f5f5f5] text-[15px] fix flex gap-2 flex-1 overflow-hidden">
-                      <div v-if="transaction?.cmd?.payload?.code" class="w-full">
+                      <div class="w-full">
                         <!-- Resizable Code Container -->
                         <div class="relative">
                           <div class="relative">
@@ -777,7 +776,6 @@ onUnmounted(() => {
                           </div>
                         </div>
                       </div>
-                      <span v-else class="text-[#fafafa] text-xs">No code available</span>
                     </div>
                   </div>
                 </div>
