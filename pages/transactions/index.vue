@@ -32,7 +32,7 @@ const { truncateAddress } = useFormat();
 const { selectedNetwork } = useSharedData();
 const { isMobile } = useScreenSize();
 
-const { totalCount: lastBlockHeight, fetchTotalCount: fetchLastBlockHeight, error: blocksError } = useBlocks();
+const { totalCount: lastBlockHeight, fetchTotalCount: fetchLastBlockHeight, error: blocksError, clearState: clearBlocksState } = useBlocks();
 
 const { 
   error: transactionsError,
@@ -44,7 +44,7 @@ const {
   fetchTotalCount, 
   rowsToShow, 
   updateRowsToShow,
-  clearState,
+  clearState: clearTransactionsState,
 } = useTransactions();
 
 // Chain filter state - initialize from URL parameters (commented due to query glitch)
@@ -52,7 +52,8 @@ const selectedChain = ref({ label: 'All', value: null });
 
 // Clear global state on mount to show skeleton on page navigation
 onMounted(() => {
-  clearState();
+  clearTransactionsState();
+  clearBlocksState();
 });
 
 // Initialize chain filter from URL parameter on component mount (commented due to query glitch)
@@ -282,6 +283,7 @@ function downloadData() {
     </div>
 
     <SkeletonTable v-if="loading" />
+
     <DataTable
       v-else
       :headers="tableHeaders"

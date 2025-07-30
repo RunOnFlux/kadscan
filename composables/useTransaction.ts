@@ -2,7 +2,7 @@ import { ref, computed } from 'vue'
 import { useBinance } from '~/composables/useBinance'
 
 const TRANSACTION_QUERY = `
-query Transaction($requestKey: String!, $first: Int, $transfersFirst2: Int) {
+query Step0($requestKey: String!, $first: Int, $transfersFirst2: Int) {
   transaction(requestKey: $requestKey) {
     hash
     cmd {
@@ -66,14 +66,10 @@ query Transaction($requestKey: String!, $first: Int, $transfersFirst2: Int) {
           totalCount
           edges {
             node {
-              id
-              height
-              chainId
               moduleName
               name
               orderIndex
               parameterText
-              parameters
               qualifiedName
               requestKey
             }
@@ -88,22 +84,24 @@ query Transaction($requestKey: String!, $first: Int, $transfersFirst2: Int) {
           edges {
             node {
               amount
-              creationTime
-              id
               crossChainTransfer {
-                amount
                 creationTime
-                id
-                moduleHash
-                moduleName
-                orderIndex
                 receiverAccount
                 requestKey
                 senderAccount
+                block {
+                  canonical
+                  chainId
+                }
+                transaction {
+                  result {
+                    ... on TransactionResult {
+                      badResult
+                    }
+                  }
+                }
               }
-              moduleHash
               moduleName
-              orderIndex
               receiverAccount
               requestKey
               senderAccount

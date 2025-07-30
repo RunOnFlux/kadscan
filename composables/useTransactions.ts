@@ -70,6 +70,10 @@ export const useTransactions = () => {
 
   const fetchTotalCount = async ({ networkId }: { networkId: string }) => {
     if (!networkId) return;
+    
+    // Reset error state at the beginning of each fetch
+    error.value = null;
+    
     try {
       const response: any = await $fetch('/api/graphql', {
         method: 'POST',
@@ -78,10 +82,16 @@ export const useTransactions = () => {
           networkId,
         },
       });
-      totalCount.value = response?.data?.networkInfo?.transactionCount || 0;
+
+      if (response?.data?.networkInfo?.transactionCount) {
+        totalCount.value = response?.data?.networkInfo?.transactionCount;
+      } else {
+        error.value = true;
+      }
+
     } catch (e) {
       console.error('Error fetching total block count:', e);
-      error.value = e;
+      error.value = true;
     }
   };
 
@@ -100,6 +110,10 @@ export const useTransactions = () => {
   }) => {
     if (!networkId) return;
     loading.value = transactions.value.length === 0;
+    
+    // Reset error state at the beginning of each fetch
+    error.value = null;
+    
     try {
       const isForward = !!after || (!after && !before);
       const response: any = await $fetch('/api/graphql', {
@@ -122,7 +136,7 @@ export const useTransactions = () => {
       totalCount.value = result?.totalCount || 0;
 
       // If transaction is null, it means the transaction doesn't exist
-      if (result.edges.length === 0) {
+      if (result === undefined || result.edges.length === 0) {
         error.value = true;
         return;
       }

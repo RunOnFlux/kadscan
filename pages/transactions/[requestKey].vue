@@ -49,7 +49,7 @@ const {
 
 // Text content for tooltips and labels
 const textContent = {
-  transactionHash: { label: 'Transaction Hash:', description: 'Transaction hash is a unique 43-character or 58-character(coinbase) identifier that is generated whenever a transaction is executed.' },
+  transactionHash: { label: 'Request Key:', description: 'Request Key is a unique identifier that is generated whenever a transaction is executed.' },
   status: { label: 'Status:', description: 'The status of the transaction.' },
   block: { label: 'Block:', description: 'Number of the block height in which the transaction is recorded. Block confirmations indicate how many blocks have been added since the transaction was produced.' },
   chainId: { label: 'Chain ID:', description: 'The specific chain (0-19) on which this block was mined' },
@@ -149,12 +149,11 @@ const stopResize = () => {
 // Computed property for code display
 const displayedCode = computed(() => {
   const rawCode = transaction.value?.cmd?.payload?.code
-  if (!rawCode) return 'No code available'
   
   if (codeView.value === 'raw') {
-    return unescapeCodeString(rawCode)
+    return rawCode ? unescapeCodeString(rawCode) : 'No code available'
   } else if (codeView.value === 'default') {
-    return parsePactCode(unescapeCodeString(rawCode))
+    return rawCode ? parsePactCode(unescapeCodeString(rawCode)) : 'No code available'
   } else if (codeView.value === 'data') {
     return formatJsonPretty(transaction.value?.cmd?.payload?.data)
   } else if (codeView.value === 'signatures') {
@@ -668,17 +667,17 @@ onUnmounted(() => {
                   >
                     <template #value>
                       <div class="flex flex-wrap gap-2">
-                        <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+                        <span v-if="transaction?.cmd?.meta?.ttl !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                           <span class="text-[#bbbbbb]">TTL:</span>
-                          <span class="text-[#fafafa] ml-1">{{ transaction?.cmd?.meta?.ttl || '-' }}</span>
+                          <span class="text-[#fafafa] ml-1">{{ transaction?.cmd?.meta?.ttl }}</span>
                         </span>
-                        <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+                        <span v-if="transaction?.cmd?.nonce !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                           <span class="text-[#bbbbbb]">Nonce:</span>
-                          <span class="text-[#fafafa] ml-1">{{ transaction?.cmd?.nonce || '0' }}</span>
+                          <span class="text-[#fafafa] ml-1">{{ transaction?.cmd?.nonce }}</span>
                         </span>
-                        <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+                        <span v-if="transaction?.result?.transactionId !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                           <span class="text-[#bbbbbb]">TXID:</span>
-                          <span class="text-[#fafafa] ml-1">{{ transaction?.result?.transactionId || '0' }}</span>
+                          <span class="text-[#fafafa] ml-1">{{ transaction?.result?.transactionId }}</span>
                         </span>
                       </div>
                     </template>
@@ -703,7 +702,7 @@ onUnmounted(() => {
                     
                     <!-- Code Container with proper boundaries -->
                     <div class="text-[#f5f5f5] text-[15px] fix flex gap-2 flex-1 overflow-hidden">
-                      <div v-if="transaction?.cmd?.payload?.code" class="w-full">
+                      <div class="w-full">
                         <!-- Resizable Code Container -->
                         <div class="relative">
                           <div class="relative">
@@ -777,7 +776,6 @@ onUnmounted(() => {
                           </div>
                         </div>
                       </div>
-                      <span v-else class="text-[#fafafa] text-xs">No code available</span>
                     </div>
                   </div>
                 </div>
