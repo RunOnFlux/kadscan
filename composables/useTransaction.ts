@@ -141,6 +141,8 @@ export const useTransaction = (
     
     if (kadenaPrice.value === null || kadenaPriceLastDay.value?.getTime() !== creationTimeDayOnly.getTime()) {
       const priceData: any = await fetchKadenaPriceAtDate(creationTimeDayOnly)
+      console.log("PRICE DATA", priceData)
+      console.log("PRICE DATA PRICE", priceData.price)
       kadenaPriceLastDay.value = creationTimeDayOnly
       if (priceData && priceData.price) {
         kadenaPrice.value = priceData.price

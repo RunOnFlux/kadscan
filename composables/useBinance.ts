@@ -10,6 +10,7 @@ export const useBinance = () => {
           },
         },
       });
+      console.log("RESPONSE: fetchKadenaPrice", response)
 
       return response;
     } catch (error) {
@@ -29,6 +30,7 @@ export const useBinance = () => {
           },
         },
       });
+      console.log("RESPONSE: fetchKadenaTickerData", response)
 
       return response;
     } catch (error) {
@@ -53,6 +55,7 @@ export const useBinance = () => {
           },
         },
       });
+      console.log("RESPONSE: fetchKadenaCandlestickData", response)
 
       return response;
     } catch (error) {
@@ -75,10 +78,12 @@ export const useBinance = () => {
           },
         },
       });
+      console.log("RESPONSE: fetchKadenaPriceAtDate", response)
 
       // The response for a single kline is an array within an array, e.g., [[timestamp, open, high, low, close, ...]]
       // We return the close price.
       if (response.data && response.data.length > 0 && response.data[0].length > 4) {
+        console.log("RESPONSE: fetchKadenaPriceAtDate: price", response.data[0][4])
         return { price: response.data[0][4] };
       }
 
