@@ -86,8 +86,8 @@ export function parseJsonSafely(input: any): any {
 
 /**
  * Parses Pact smart contract code into a structured readable format
- * @param input - Raw Pact code like "(free.radio02.close-send-receive "arg1" [...] [])"
- * @returns Structured format showing contract, method, and numbered parameters
+ * @param input - Raw Pact code like "(free.radio02.close-send-receive "arg1" [...] [])" or multiple calls like "(func1 ...)(func2 ...)"
+ * @returns Structured format showing contract, method, and numbered parameters for each function call
  */
 export function parsePactCode(input: string | any): string {
   if (!input || typeof input !== 'string') {
@@ -96,221 +96,326 @@ export function parsePactCode(input: string | any): string {
 
   const code = input.trim();
   
-  // Remove outer parentheses if present
-  const withoutParens = code.startsWith('(') && code.endsWith(')') ? 
-    code.slice(1, -1).trim() : code;
-
-  // Find the first space to separate function name from arguments
-  const firstSpaceIndex = withoutParens.indexOf(' ');
-  if (firstSpaceIndex === -1) {
-    // No arguments, just function name
-    const lastDotIndex = withoutParens.lastIndexOf('.');
-    if (lastDotIndex === -1) {
-      return `Method: ${withoutParens}\n\nNo parameters`;
-    }
-    const contract = withoutParens.substring(0, lastDotIndex);
-    const method = withoutParens.substring(lastDotIndex + 1);
-    return `Contract: ${contract}\nMethod: ${method}\n\nNo parameters`;
-  }
-
-  const functionName = withoutParens.substring(0, firstSpaceIndex);
-  const argsString = withoutParens.substring(firstSpaceIndex + 1).trim();
-
-  // Split function name into contract and method
-  const lastDotIndex = functionName.lastIndexOf('.');
-  let contract = '';
-  let method = functionName;
-  
-  if (lastDotIndex !== -1) {
-    contract = functionName.substring(0, lastDotIndex);
-    method = functionName.substring(lastDotIndex + 1);
-  }
-
-  // Parse arguments by splitting on spaces but respecting nested brackets/braces/quotes
-  const args = [];
-  let current = '';
-  let depth = 0;
-  let inString = false;
-  let escapeNext = false;
-
-  for (let i = 0; i < argsString.length; i++) {
-    const char = argsString[i];
+  // Helper function to split multiple top-level function calls
+  const splitFunctionCalls = (code: string): string[] => {
+    const functionCalls: string[] = [];
+    let current = '';
+    let depth = 0;
+    let i = 0;
     
-    if (escapeNext) {
-      current += char;
-      escapeNext = false;
-      continue;
-    }
-    
-    if (char === '\\') {
-      current += char;
-      escapeNext = true;
-      continue;
-    }
-    
-    if (char === '"' && !escapeNext) {
-      inString = !inString;
-      current += char;
-      continue;
-    }
-    
-    if (!inString) {
-      if (char === '[' || char === '{' || char === '(') {
-        depth++;
-      } else if (char === ']' || char === '}' || char === ')') {
-        depth--;
-      }
+    while (i < code.length) {
+      const char = code[i];
       
-      if (char === ' ' && depth === 0) {
-        if (current.trim()) {
-          args.push(current.trim());
+      if (char === '(') {
+        depth++;
+        current += char;
+      } else if (char === ')') {
+        depth--;
+        current += char;
+        
+        // When we close a top-level function call (depth becomes 0), save it
+        if (depth === 0 && current.trim()) {
+          functionCalls.push(current.trim());
           current = '';
         }
-        continue;
+      } else if (depth > 0) {
+        // Only add characters when we're inside a function call
+        current += char;
       }
+      // Skip whitespace between function calls (when depth === 0)
+      
+      i++;
     }
     
-    current += char;
-  }
+    // Handle case where code doesn't start with parentheses
+    if (functionCalls.length === 0 && code.trim()) {
+      functionCalls.push(code.trim());
+    }
+    
+    return functionCalls;
+  };
   
-  if (current.trim()) {
-    args.push(current.trim());
-  }
-
-  // Helper function to recursively extract elements from arrays/objects
-  const extractElements = (str: string): string[] => {
-    const trimmed = str.trim();
-    
-    // Handle arrays [...]
-    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
-      const content = trimmed.slice(1, -1).trim();
-      if (!content) return ['[]']; // Empty array
+  // Helper function to parse a single function call
+  const parseSingleFunction = (singleCode: string): string => {
+    // Helper function to recursively extract elements from arrays/objects
+    const extractElements = (str: string): string[] => {
+      const trimmed = str.trim();
       
-      try {
-        const parsed = JSON.parse(trimmed);
-        if (Array.isArray(parsed)) {
-          const results: string[] = [];
-          parsed.forEach(item => {
-            const itemStr = typeof item === 'string' ? `"${item}"` : JSON.stringify(item);
-            // Recursively extract elements from each item
-            const subElements = extractElements(itemStr);
-            results.push(...subElements);
-          });
-          return results;
-        }
-      } catch (e) {
-        // If JSON parsing fails, return the original
-        return [trimmed];
-      }
-    }
-    
-    // Handle objects {...}
-    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
-      const content = trimmed.slice(1, -1).trim();
-      if (!content) return ['{}']; // Empty object
-      
-      try {
-        const parsed = JSON.parse(trimmed);
-        if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
-          const results: string[] = [];
-          Object.entries(parsed).forEach(([key, value]) => {
-            const valueStr = typeof value === 'string' ? `"${value}"` : JSON.stringify(value);
-            const keyValuePair = `"${key}":${valueStr}`;
-            // Recursively extract elements from the value if it's complex
-            if (valueStr.startsWith('[') || valueStr.startsWith('{')) {
-              const subElements = extractElements(valueStr);
-              subElements.forEach(subElement => {
-                results.push(`"${key}":${subElement}`);
-              });
-            } else {
-              results.push(keyValuePair);
-            }
-          });
-          return results;
-        }
-      } catch (e) {
-        // If JSON parsing fails, try manual parsing for simple objects
-        const pairs: string[] = [];
-        let current = '';
-        let depth = 0;
-        let inString = false;
-        let escapeNext = false;
+      // Handle arrays [...]
+      if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+        const content = trimmed.slice(1, -1).trim();
+        if (!content) return ['[]']; // Empty array
         
-        for (let i = 0; i < content.length; i++) {
-          const char = content[i];
-          
-          if (escapeNext) {
-            current += char;
-            escapeNext = false;
-            continue;
+        // First try JSON parsing for standard arrays
+        try {
+          const parsed = JSON.parse(trimmed);
+          if (Array.isArray(parsed)) {
+            const results: string[] = [];
+            parsed.forEach(item => {
+              const itemStr = typeof item === 'string' ? `"${item}"` : JSON.stringify(item);
+              // Recursively extract elements from each item
+              const subElements = extractElements(itemStr);
+              results.push(...subElements);
+            });
+            return results;
           }
+        } catch (e) {
+          // JSON parsing failed, try manual parsing for Pact syntax
+          const elements: string[] = [];
+          let current = '';
+          let depth = 0;
+          let inString = false;
+          let escapeNext = false;
           
-          if (char === '\\') {
-            current += char;
-            escapeNext = true;
-            continue;
-          }
-          
-          if (char === '"') {
-            inString = !inString;
-            current += char;
-            continue;
-          }
-          
-          if (!inString) {
-            if (char === '{' || char === '[') depth++;
-            if (char === '}' || char === ']') depth--;
+          for (let i = 0; i < content.length; i++) {
+            const char = content[i];
             
-            if (char === ',' && depth === 0) {
-              if (current.trim()) {
-                pairs.push(current.trim());
-                current = '';
-              }
+            if (escapeNext) {
+              current += char;
+              escapeNext = false;
               continue;
             }
+            
+            if (char === '\\') {
+              current += char;
+              escapeNext = true;
+              continue;
+            }
+            
+            if (char === '"') {
+              inString = !inString;
+              current += char;
+              continue;
+            }
+            
+            if (!inString) {
+              if (char === '(' || char === '[' || char === '{') {
+                depth++;
+              } else if (char === ')' || char === ']' || char === '}') {
+                depth--;
+              }
+              
+              // Split on comma when at depth 0 (top level of the array)
+              if (char === ',' && depth === 0) {
+                if (current.trim()) {
+                  elements.push(current.trim());
+                  current = '';
+                }
+                continue;
+              }
+            }
+            
+            current += char;
           }
           
-          current += char;
+          if (current.trim()) {
+            elements.push(current.trim());
+          }
+          
+          // If we found elements, return them; otherwise return original
+          return elements.length > 0 ? elements : [trimmed];
         }
-        
-        if (current.trim()) {
-          pairs.push(current.trim());
-        }
-        
-        // Recursively process each pair
-        const results: string[] = [];
-        pairs.forEach(pair => {
-          const subElements = extractElements(pair);
-          results.push(...subElements);
-        });
-        
-        return results.length > 0 ? results : [trimmed];
       }
+      
+      // Handle objects {...}
+      if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+        const content = trimmed.slice(1, -1).trim();
+        if (!content) return ['{}']; // Empty object
+        
+        try {
+          const parsed = JSON.parse(trimmed);
+          if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+            const results: string[] = [];
+            Object.entries(parsed).forEach(([key, value]) => {
+              const valueStr = typeof value === 'string' ? `"${value}"` : JSON.stringify(value);
+              const keyValuePair = `"${key}":${valueStr}`;
+              // Recursively extract elements from the value if it's complex
+              if (valueStr.startsWith('[') || valueStr.startsWith('{')) {
+                const subElements = extractElements(valueStr);
+                subElements.forEach(subElement => {
+                  results.push(`"${key}":${subElement}`);
+                });
+              } else {
+                results.push(keyValuePair);
+              }
+            });
+            return results;
+          }
+        } catch (e) {
+          // If JSON parsing fails, try manual parsing for simple objects
+          const pairs: string[] = [];
+          let current = '';
+          let depth = 0;
+          let inString = false;
+          let escapeNext = false;
+          
+          for (let i = 0; i < content.length; i++) {
+            const char = content[i];
+            
+            if (escapeNext) {
+              current += char;
+              escapeNext = false;
+              continue;
+            }
+            
+            if (char === '\\') {
+              current += char;
+              escapeNext = true;
+              continue;
+            }
+            
+            if (char === '"') {
+              inString = !inString;
+              current += char;
+              continue;
+            }
+            
+            if (!inString) {
+              if (char === '{' || char === '[') depth++;
+              if (char === '}' || char === ']') depth--;
+              
+              if (char === ',' && depth === 0) {
+                if (current.trim()) {
+                  pairs.push(current.trim());
+                  current = '';
+                }
+                continue;
+              }
+            }
+            
+            current += char;
+          }
+          
+          if (current.trim()) {
+            pairs.push(current.trim());
+          }
+          
+          // Recursively process each pair
+          const results: string[] = [];
+          pairs.forEach(pair => {
+            const subElements = extractElements(pair);
+            results.push(...subElements);
+          });
+          
+          return results.length > 0 ? results : [trimmed];
+        }
+      }
+      
+      // Not an array or object, return as-is
+      return [trimmed];
+    };
+
+    // Remove outer parentheses if present
+    const withoutParens = singleCode.startsWith('(') && singleCode.endsWith(')') ? 
+      singleCode.slice(1, -1).trim() : singleCode;
+
+    // Find the first space to separate function name from arguments
+    const firstSpaceIndex = withoutParens.indexOf(' ');
+    if (firstSpaceIndex === -1) {
+      // No arguments, just function name
+      const lastDotIndex = withoutParens.lastIndexOf('.');
+      if (lastDotIndex === -1) {
+        return `Function: ${withoutParens}\n\nNo parameters`;
+      }
+      const contract = withoutParens.substring(0, lastDotIndex);
+      const method = withoutParens.substring(lastDotIndex + 1);
+      return `Module: ${contract}\nFunction: ${method}\n\nNo parameters`;
+    }
+
+    const functionName = withoutParens.substring(0, firstSpaceIndex);
+    const argsString = withoutParens.substring(firstSpaceIndex + 1).trim();
+
+    // Split function name into contract and method
+    const lastDotIndex = functionName.lastIndexOf('.');
+    let contract = '';
+    let method = functionName;
+    
+    if (lastDotIndex !== -1) {
+      contract = functionName.substring(0, lastDotIndex);
+      method = functionName.substring(lastDotIndex + 1);
+    }
+
+    // Parse arguments by splitting on spaces but respecting nested brackets/braces/quotes
+    const args = [];
+    let current = '';
+    let depth = 0;
+    let inString = false;
+    let escapeNext = false;
+
+    for (let i = 0; i < argsString.length; i++) {
+      const char = argsString[i];
+      
+      if (escapeNext) {
+        current += char;
+        escapeNext = false;
+        continue;
+      }
+      
+      if (char === '\\') {
+        current += char;
+        escapeNext = true;
+        continue;
+      }
+      
+      if (char === '"' && !escapeNext) {
+        inString = !inString;
+        current += char;
+        continue;
+      }
+      
+      if (!inString) {
+        if (char === '[' || char === '{' || char === '(') {
+          depth++;
+        } else if (char === ']' || char === '}' || char === ')') {
+          depth--;
+        }
+        
+        if (char === ' ' && depth === 0) {
+          if (current.trim()) {
+            args.push(current.trim());
+            current = '';
+          }
+          continue;
+        }
+      }
+      
+      current += char;
     }
     
-    // Not an array or object, return as-is
-    return [trimmed];
+    if (current.trim()) {
+      args.push(current.trim());
+    }
+
+    // Build the result for this single function
+    let result = '';
+    if (contract) {
+      result += `Module: ${contract}\n`;
+    }
+    result += `Function: ${method}\n`;
+    
+    if (args.length === 0) {
+      result += 'No parameters';
+    } else {
+      args.forEach((arg, index) => {
+        const elements = extractElements(arg);
+        // Each element from the same argument should use the same index
+        // but appear on separate lines
+        elements.forEach(element => {
+          result += `[${index}]:  ${element}\n`;
+        });
+      });
+    }
+    
+    return result.trim();
   };
 
-  // Build the structured output
-  let result = '';
-  if (contract) {
-    result += `Contract: ${contract}\n\n`;
-  }
-  result += `Function: ${method}\n`;
+  // Split the code into individual function calls
+  const functionCalls = splitFunctionCalls(code);
   
-  if (args.length === 0) {
-    result += 'No parameters';
-  } else {
-    args.forEach((arg, index) => {
-      const elements = extractElements(arg);
-      elements.forEach(element => {
-        result += `[${index}]:  ${element}\n`;
-      });
-    });
-  }
+  // Parse each function call separately and combine results
+  const results = functionCalls.map(call => parseSingleFunction(call));
   
-  return result.trim();
+  return results.join('\n\n');
 }
 
 /**
