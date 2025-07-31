@@ -201,19 +201,75 @@ export const useTransaction = (
     
     return transaction.value.cmd.signers
       .filter((signer: any) => {
-        // Keep signers that DON'T have coin.GAS capability
+        // Only filter out signers that have ONLY coin.GAS capability and no other capabilities
         if (!signer.clist || signer.clist.length === 0) {
-          return true // Unrestricted signer (not gas payer)
+          return true // Unrestricted signer
         }
         
-        // Check if this signer has coin.GAS capability
+        // If signer has capabilities, check if it's ONLY coin.GAS
         const hasGasCapability = signer.clist.some((cap: any) => cap.name === 'coin.GAS')
-        return !hasGasCapability // Keep only non-gas signers
+        const hasOtherCapabilities = signer.clist.some((cap: any) => cap.name !== 'coin.GAS')
+        
+        // Keep signers that either don't have gas capability OR have other capabilities besides gas
+        return !hasGasCapability || hasOtherCapabilities
       })
       .map((signer: any) => ({
         address: signer.pubkey ? `k:${signer.pubkey}` : '',
         pubkey: signer.pubkey
       }))
+  })
+
+  // Cross-chain transaction status detection
+  const crossChainTransactionStatus = computed(() => {
+    if (!transaction.value?.result?.transfers?.edges?.length) return null
+
+    const transfers = transaction.value.result.transfers.edges.map((edge: any) => edge.node)
+    
+    // Check for source cross-chain (receiverAccount is empty)
+    const sourceTransfer = transfers.find((transfer: any) => 
+      !transfer.receiverAccount || transfer.receiverAccount === ''
+    )
+    
+    // Check for destination cross-chain (senderAccount is empty)  
+    const destinationTransfer = transfers.find((transfer: any) => 
+      !transfer.senderAccount || transfer.senderAccount === ''
+    )
+    
+    // If neither source nor destination cross-chain detected, return null
+    if (!sourceTransfer && !destinationTransfer) return null
+    
+    // Find transfers that have crossChainTransfer data (not null)
+    const transfersWithCrossChain = transfers.filter((transfer: any) => 
+      transfer.crossChainTransfer !== null
+    )
+    
+    // Check if any crossChainTransfer has badResult different than null (FAILED)
+    for (const transfer of transfersWithCrossChain) {
+      if (transfer.crossChainTransfer?.transaction?.result?.badResult !== null) {
+        return 'failed'
+      }
+    }
+    
+    // If we have transfers with crossChainTransfer data, check for SUCCESS
+    if (transfersWithCrossChain.length > 0) {
+      // Check if we have complete pair across both levels (transfer + crossChainTransfer)
+      const hasCompletePair = transfersWithCrossChain.some((transfer: any) => {
+        const crossChain = transfer.crossChainTransfer
+        
+        // Check if we have complementary sender/receiver across both levels
+        const hasSender = transfer.senderAccount || crossChain.senderAccount
+        const hasReceiver = transfer.receiverAccount || crossChain.receiverAccount
+        
+        return hasSender && hasReceiver
+      })
+      
+      if (hasCompletePair) {
+        return 'success'
+      }
+    }
+    
+    // If we detected cross-chain activity but crossChainTransfer is null OR incomplete, it's PENDING
+    return 'pending'
   })
 
   const signerTransferValue = computed(() => {
@@ -300,5 +356,6 @@ export const useTransaction = (
     blockConfirmations,
     signerTransferValue,
     transactionSigners,
+    crossChainTransactionStatus,
   }
 }
