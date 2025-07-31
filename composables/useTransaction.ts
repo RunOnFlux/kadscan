@@ -216,6 +216,59 @@ export const useTransaction = (
       }))
   })
 
+  // Cross-chain transaction status detection
+  const crossChainTransactionStatus = computed(() => {
+    if (!transaction.value?.result?.transfers?.edges?.length) return null
+
+    const transfers = transaction.value.result.transfers.edges.map((edge: any) => edge.node)
+    
+    // Check for source cross-chain (receiverAccount is empty)
+    const sourceTransfer = transfers.find((transfer: any) => 
+      !transfer.receiverAccount || transfer.receiverAccount === ''
+    )
+    
+    // Check for destination cross-chain (senderAccount is empty)  
+    const destinationTransfer = transfers.find((transfer: any) => 
+      !transfer.senderAccount || transfer.senderAccount === ''
+    )
+    
+    // If neither source nor destination cross-chain detected, return null
+    if (!sourceTransfer && !destinationTransfer) return null
+    
+    // Find transfers that have crossChainTransfer data (not null)
+    const transfersWithCrossChain = transfers.filter((transfer: any) => 
+      transfer.crossChainTransfer !== null
+    )
+    
+    // Check if any crossChainTransfer has badResult different than null (FAILED)
+    for (const transfer of transfersWithCrossChain) {
+      if (transfer.crossChainTransfer?.transaction?.result?.badResult !== null) {
+        return 'failed'
+      }
+    }
+    
+    // If we have transfers with crossChainTransfer data, check for SUCCESS
+    if (transfersWithCrossChain.length > 0) {
+      // Check if we have complete pair across both levels (transfer + crossChainTransfer)
+      const hasCompletePair = transfersWithCrossChain.some((transfer: any) => {
+        const crossChain = transfer.crossChainTransfer
+        
+        // Check if we have complementary sender/receiver across both levels
+        const hasSender = transfer.senderAccount || crossChain.senderAccount
+        const hasReceiver = transfer.receiverAccount || crossChain.receiverAccount
+        
+        return hasSender && hasReceiver
+      })
+      
+      if (hasCompletePair) {
+        return 'success'
+      }
+    }
+    
+    // If we detected cross-chain activity but crossChainTransfer is null OR incomplete, it's PENDING
+    return 'pending'
+  })
+
   const signerTransferValue = computed(() => {
     if (!transaction.value?.cmd?.signers?.length || !transaction.value?.result?.transfers?.edges?.length) {
       return '0'
@@ -300,5 +353,6 @@ export const useTransaction = (
     blockConfirmations,
     signerTransferValue,
     transactionSigners,
+    crossChainTransactionStatus,
   }
 }

@@ -46,6 +46,7 @@ const {
   kadenaPrice,
   signerTransferValue,
   transactionSigners,
+  crossChainTransactionStatus,
 } = useTransaction(transactionId, networkId)
 
 // Text content for tooltips and labels
@@ -161,32 +162,63 @@ const displayedCode = computed(() => {
   }
 })
 
-const transactionStatus = computed(() => {
-  if((lastBlockHeight.value - 10 >= transaction.value?.result?.block?.height && !transaction.value?.result?.block?.canonical) || transaction.value?.result?.badResult !== null) {
-    return {
-      text: 'Failed',
-      icon: IconCancel,
-      classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]',
-      description: 'Transaction failed to execute',
-    };
-  }
+  const transactionStatus = computed(() => {
+    if((lastBlockHeight.value - 10 >= transaction.value?.result?.block?.height && !transaction.value?.result?.block?.canonical) || transaction.value?.result?.badResult !== null) {
+      return {
+        text: 'Failed',
+        icon: IconCancel,
+        classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]',
+        description: 'Transaction failed to execute',
+      };
+    }
 
-  if(transaction.value?.result?.block?.canonical) {
-    return {
-      text: 'Success',
-      icon: IconCheckmarkFill,
-      classes: 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]',
-      description: 'Transaction executed successfully',
-    };
-  }
+    if(transaction.value?.result?.block?.canonical) {
+      return {
+        text: 'Success',
+        icon: IconCheckmarkFill,
+        classes: 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]',
+        description: 'Transaction executed successfully',
+      };
+    }
 
-  return {
-    text: 'Pending',
-    icon: IconHourglass,
-    classes: 'bg-[#17150d] border-[#44464980] text-[#989898]',
-    description: 'Transaction is pending to be finalized',
-  };
-});
+    return {
+      text: 'Pending',
+      icon: IconHourglass,
+      classes: 'bg-[#17150d] border-[#44464980] text-[#989898]',
+      description: 'Transaction is pending to be finalized',
+    };
+  });
+
+  // Cross-chain transaction status (duplicated from transactionStatus pattern)
+  const crossChainStatus = computed(() => {
+    // Return null if no cross-chain transaction detected
+    if (!crossChainTransactionStatus.value) return null
+
+    if (crossChainTransactionStatus.value === 'failed') {
+      return {
+        text: 'Failed',
+        icon: IconCancel,
+        classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]',
+        description: 'Cross-chain transaction failed to execute',
+      };
+    }
+
+    if (crossChainTransactionStatus.value === 'success') {
+      return {
+        text: 'Success',
+        icon: IconCheckmarkFill,
+        classes: 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]',
+        description: 'Cross-chain transaction executed successfully',
+      };
+    }
+
+    return {
+      text: 'Pending',
+      icon: IconHourglass,
+      classes: 'bg-[#17150d] border-[#44464980] text-[#989898]',
+      description: 'Cross-chain transaction is pending to be finalized',
+    };
+  });
 
 const displayHash = computed(() => {
   if (!transaction.value?.hash) return ''
@@ -217,15 +249,17 @@ const eventsCount = computed(() => {
 })
 
 // Tab management - defined after eventsCount to avoid initialization order issues
+// Cross-chain transfer detection
+const hasCrossChainTransfers = computed(() => {
+  return transaction.value?.result?.transfers?.edges?.some(
+    (edge: any) => edge.node.crossChainTransfer !== null
+  ) || false
+})
+
 const tabLabels = computed(() => {
   const labels = ['Overview', `Logs (${eventsCount.value})`]
   
-  // Add Cross Chain tab if there are cross-chain transfers
-  const hasCrossChainTransfers = transaction.value?.result?.transfers?.edges?.some(
-    (edge: any) => edge.node.crossChainTransfer !== null
-  )
-  
-  if (hasCrossChainTransfers) {
+  if (hasCrossChainTransfers.value) {
     labels.push('Cross Chain')
   }
   
@@ -439,9 +473,16 @@ onUnmounted(() => {
               </LabelValue>
               <LabelValue :row="isMobile" :label="textContent.status.label" :description="textContent.status.description" tooltipPos="right">
                 <template #value>
-                  <div :class="['flex items-center px-2 py-1 rounded-lg border text-xs w-fit gap-2', transactionStatus.classes]">
-                    <component :is="transactionStatus.icon" class="w-3 h-3" />
-                    {{ transactionStatus.text }}
+                  <div class="flex items-center gap-2">
+                    <div :class="['flex items-center px-2 py-1 rounded-lg border text-[11px] w-fit gap-2', transactionStatus.classes]">
+                      <component :is="transactionStatus.icon" class="w-3 h-3" />
+                      {{ transactionStatus.text }}
+                    </div>
+                    <!-- Cross Chain Transfer Badge with Status -->
+                    <div v-if="crossChainStatus" :class="['flex items-center px-2 py-1 rounded-lg border text-[11px] w-fit gap-2', crossChainStatus.classes]">
+                      <component :is="crossChainStatus.icon" class="w-3 h-3" />
+                      <span>Cross Chain Transfer</span>
+                    </div>
                   </div>
                 </template>
               </LabelValue>

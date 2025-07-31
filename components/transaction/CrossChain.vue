@@ -247,21 +247,6 @@ const formatContinuationData = (continuation: string) => {
           <div class="flex flex-col gap-4">
             <LabelValue
               :row="isMobile"
-              label="Transfer Type:"
-              description="This transaction is part of a cross-chain transfer process"
-              tooltipPos="right"
-            >
-              <template #value>
-                <div class="flex items-center gap-2">
-                  <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
-                    <span class="text-[#00a186]">Cross Chain Transfer</span>
-                  </span>
-                </div>
-              </template>
-            </LabelValue>
-
-            <LabelValue
-              :row="isMobile"
               label="Cross Chain Status:"
               description="Overall status of the cross-chain transfer process"
               tooltipPos="right"
