@@ -354,6 +354,17 @@ const smartTruncateAddress = (address: string) => {
   return address
 }
 
+// Helper functions to get actual sender/receiver addresses for cross-chain transfers
+const getActualSender = (transfer: any) => {
+  // Try regular senderAccount first, then crossChainTransfer.senderAccount
+  return transfer.senderAccount || transfer.crossChainTransfer?.senderAccount || ''
+}
+
+const getActualReceiver = (transfer: any) => {
+  // Try regular receiverAccount first, then crossChainTransfer.receiverAccount
+  return transfer.receiverAccount || transfer.crossChainTransfer?.receiverAccount || ''
+}
+
 // Fetch transaction data
 watch([transactionId, networkId], () => {
   if (transactionId.value && networkId.value) {
@@ -590,11 +601,11 @@ onUnmounted(() => {
                       <!-- From Address -->
                       <span class="text-[#fafafa] font-medium">From</span>
                       <NuxtLink 
-                        :to="`/account/${transferEdge.node.senderAccount}`" 
+                        :to="`/account/${getActualSender(transferEdge.node)}`" 
                         class="text-[#6ab5db] hover:text-[#9ccee7]"
-                      >{{ smartTruncateAddress(transferEdge.node.senderAccount) }}</NuxtLink>
+                      >{{ smartTruncateAddress(getActualSender(transferEdge.node)) }}</NuxtLink>
                       <Copy 
-                        :value="transferEdge.node.senderAccount" 
+                        :value="getActualSender(transferEdge.node)" 
                         tooltipText="Copy sender address"
                         iconSize="h-5 w-5"
                         buttonClass="w-5 h-5 hover:opacity-100"
@@ -603,11 +614,11 @@ onUnmounted(() => {
                       <!-- To Address -->
                       <span class="text-[#fafafa] font-medium">To</span>
                       <NuxtLink 
-                        :to="`/account/${transferEdge.node.receiverAccount}`" 
+                        :to="`/account/${getActualReceiver(transferEdge.node)}`" 
                         class="text-[#6ab5db] hover:text-[#9ccee7]"
-                      >{{ smartTruncateAddress(transferEdge.node.receiverAccount) }}</NuxtLink>
+                      >{{ smartTruncateAddress(getActualReceiver(transferEdge.node)) }}</NuxtLink>
                       <Copy 
-                        :value="transferEdge.node.receiverAccount" 
+                        :value="getActualReceiver(transferEdge.node)" 
                         tooltipText="Copy receiver address"
                         iconSize="h-5 w-5"
                         buttonClass="w-5 h-5 hover:opacity-100"
