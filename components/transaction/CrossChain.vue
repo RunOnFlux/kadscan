@@ -21,14 +21,26 @@ const crossChainTransfers = computed(() => {
   
   return props.transaction.result.transfers.edges
     .filter((edge: any) => edge.node.crossChainTransfer !== null)
-    .map((edge: any) => ({
-      ...edge.node,
-      currentChainId: props.transaction.cmd.meta.chainId,
-      destinationChainId: edge.node.crossChainTransfer.block.chainId,
-      destinationRequestKey: edge.node.crossChainTransfer.requestKey,
-      destinationCreationTime: edge.node.crossChainTransfer.creationTime,
-      isDestinationSuccessful: edge.node.crossChainTransfer.transaction?.result?.badResult === null
-    }))
+    .map((edge: any) => {
+      // Determine if current transaction is source or destination
+      const isSource = props.transaction.cmd.payload?.step === undefined
+      
+      return {
+        ...edge.node,
+        // Always show correct source → destination flow regardless of which transaction we're viewing
+        sourceChainId: isSource 
+          ? props.transaction.cmd.meta.chainId 
+          : edge.node.crossChainTransfer.block.chainId,
+        destinationChainId: isSource 
+          ? edge.node.crossChainTransfer.block.chainId 
+          : props.transaction.cmd.meta.chainId,
+        // Keep for backward compatibility but mark as deprecated
+        currentChainId: props.transaction.cmd.meta.chainId,
+        destinationRequestKey: edge.node.crossChainTransfer.requestKey,
+        destinationCreationTime: edge.node.crossChainTransfer.creationTime,
+        isDestinationSuccessful: edge.node.crossChainTransfer.transaction?.result?.badResult === null
+      }
+    })
 })
 
 // Related transaction data (destination transaction)
@@ -283,7 +295,7 @@ const formatContinuationData = (continuation: string) => {
                     <div class="flex flex-col items-center gap-2 flex-1">
                       <div class="text-sm text-[#bbbbbb]">Source Chain</div>
                       <div class="px-3 py-2 bg-[#009367] rounded-lg text-white font-medium">
-                        Chain {{ crossChainTransfers[0].currentChainId }}
+                        Chain {{ crossChainTransfers[0].sourceChainId }}
                       </div>
                       <div class="text-xs text-[#bbbbbb] break-all">
                         {{ actualSender }}
