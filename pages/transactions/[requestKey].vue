@@ -10,6 +10,7 @@ import { staticTokens } from '~/constants/tokens'
 import { integer } from '~/composables/number'
 import { unescapeCodeString, parsePactCode, formatJsonPretty, formatSignatures } from '~/composables/string'
 import TransactionLogs from '~/components/transaction/Logs.vue'
+import TransactionCrossChain from '~/components/transaction/CrossChain.vue'
 import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
 import IconHourglass from '~/components/icon/Hourglass.vue';
 import IconCancel from '~/components/icon/Cancel.vue';
@@ -84,9 +85,8 @@ const startPolling = () => {
   }, 6000);
 };
 
-// Tab management
-const tabLabels = ['Overview', 'Logs (1)']
-const activeTab = ref(tabLabels[0])
+// Tab management - simplified for now
+const activeTab = ref('Overview')
 
 // More details functionality
 const showMoreDetails = ref(false)
@@ -215,6 +215,29 @@ const transfersCount = computed(() => {
 const eventsCount = computed(() => {
   return transaction.value?.result?.eventCount || 0
 })
+
+// Tab management - defined after eventsCount to avoid initialization order issues
+const tabLabels = computed(() => {
+  const labels = ['Overview', `Logs (${eventsCount.value})`]
+  
+  // Add Cross Chain tab if there are cross-chain transfers
+  const hasCrossChainTransfers = transaction.value?.result?.transfers?.edges?.some(
+    (edge: any) => edge.node.crossChainTransfer !== null
+  )
+  
+  if (hasCrossChainTransfers) {
+    labels.push('Cross Chain')
+  }
+  
+  return labels
+})
+
+// Update activeTab when tabLabels change to ensure we're on a valid tab
+watch(tabLabels, (newLabels) => {
+  if (newLabels.length > 0 && !newLabels.includes(activeTab.value)) {
+    activeTab.value = newLabels[0]
+  }
+}, { immediate: true })
 
 const method = computed(() => {
   // Extract method from the transaction code or use a default
@@ -384,13 +407,16 @@ onUnmounted(() => {
             ]"
             @click="activeTab = label"
           >
-            {{ label.replace('(1)', `(${eventsCount})`) }}
+            {{ label }}
           </button>
         </div>
       </div>
 
       <!-- Logs Tab Content -->
       <TransactionLogs v-if="activeTab.startsWith('Logs')" :transaction="transaction" />
+
+      <!-- Cross Chain Tab Content -->
+      <TransactionCrossChain v-if="activeTab.startsWith('Cross Chain')" :transaction="transaction" />
 
       <!-- Transaction Details -->
       <div v-if="activeTab.startsWith('Overview')" class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
