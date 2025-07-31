@@ -237,6 +237,24 @@ export const useTransaction = (
     return totalValue.toString()
   })
 
+  // Enhanced transfers with cross-chain sender logic
+  const enhancedTransfers = computed(() => {
+    if (!transaction.value?.result?.transfers?.edges) return []
+    
+    return transaction.value.result.transfers.edges.map((edge: any) => {
+      const node = { ...edge.node }
+      
+      // If sender account is empty and cross-chain transfer exists, use crossChainTransfer.senderAccount
+      if (!node.senderAccount && node.crossChainTransfer?.senderAccount) {
+        node.actualSenderAccount = node.crossChainTransfer.senderAccount
+      } else {
+        node.actualSenderAccount = node.senderAccount
+      }
+      
+      return { ...edge, node }
+    })
+  })
+
   const fetchTransaction = async () => {
     if (!transactionId.value || !networkId.value) {
       return
@@ -300,5 +318,6 @@ export const useTransaction = (
     blockConfirmations,
     signerTransferValue,
     transactionSigners,
+    enhancedTransfers,
   }
 }

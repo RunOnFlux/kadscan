@@ -45,6 +45,7 @@ const {
   kadenaPrice,
   signerTransferValue,
   transactionSigners,
+  enhancedTransfers,
 } = useTransaction(transactionId, networkId)
 
 // Text content for tooltips and labels
@@ -459,18 +460,23 @@ onUnmounted(() => {
           </DivideItem>
 
           <!-- Section 2: Addresses -->
-          <DivideItem v-if="transactionSigners.length > 0 || feePayer">
+          <DivideItem>
             <div class="flex flex-col gap-4">
+              <!-- Signers Section - shows Cross-Chain Transaction when empty -->
               <LabelValue 
-                v-if="transactionSigners.length > 0" 
                 :topAlign="true"
                 :row="isMobile" 
-                :label="transactionSigners.length === 1 ? 'Signer:' : textContent.signers.label" 
-                :description="transactionSigners.length === 1 ? 'Account that authorized this transaction.' : textContent.signers.description" 
+                :label="transactionSigners.length === 0 ? 'From:' : transactionSigners.length === 1 ? 'Signer:' : textContent.signers.label" 
+                :description="transactionSigners.length === 1 ? 'Account that authorized this transaction.' : transactionSigners.length === 0 ? 'Cross-chain transaction initiated by the blockchain.' : textContent.signers.description" 
                 tooltipPos="right"
               >
                 <template #value>
-                  <div class="flex flex-col gap-2">
+                  <!-- Cross-Chain Transaction case -->
+                  <div v-if="transactionSigners.length === 0" class="flex items-center gap-2">
+                    <span class="text-[#fafafa] font-medium">Cross-Chain Transaction</span>
+                  </div>
+                  <!-- Regular signers case -->
+                  <div v-else class="flex flex-col gap-2">
                     <div 
                       v-for="signer in transactionSigners" 
                       :key="signer.pubkey"
@@ -504,7 +510,7 @@ onUnmounted(() => {
           </DivideItem>
 
           <!-- Section 3: Token Transfers -->
-          <DivideItem v-if="transaction?.result?.transfers?.edges?.length && activeTab === 'Overview'">
+          <DivideItem v-if="enhancedTransfers?.length && activeTab === 'Overview'">
             <LabelValue
               :topAlign="true"
               label="Token Transfers:"
@@ -514,18 +520,18 @@ onUnmounted(() => {
               <template #value>
                 <div class="flex flex-col gap-3">
                   <div 
-                    v-for="(transferEdge, index) in transaction.result.transfers.edges" 
+                    v-for="(transferEdge, index) in enhancedTransfers" 
                     :key="transferEdge.node.id"
                     class="flex flex-wrap items-center gap-1.5 text-[15px]"
                   >
                     <!-- From Address -->
                     <span class="text-[#fafafa] font-medium">From</span>
                     <NuxtLink 
-                      :to="`/account/${transferEdge.node.senderAccount}`" 
+                      :to="`/account/${transferEdge.node.actualSenderAccount}`" 
                       class="text-[#6ab5db] hover:text-[#9ccee7]"
-                    >{{ smartTruncateAddress(transferEdge.node.senderAccount) }}</NuxtLink>
+                    >{{ smartTruncateAddress(transferEdge.node.actualSenderAccount) }}</NuxtLink>
                     <Copy 
-                      :value="transferEdge.node.senderAccount" 
+                      :value="transferEdge.node.actualSenderAccount" 
                       tooltipText="Copy sender address"
                       iconSize="h-5 w-5"
                       buttonClass="w-5 h-5 hover:opacity-100"
