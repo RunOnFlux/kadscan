@@ -248,6 +248,23 @@ const formatContinuationData = (continuation: string) => {
     return continuation
   }
 }
+
+// Status-based indicator colors
+const sourceIndicatorColor = computed(() => {
+  const status = crossChainStatus.value.text
+  if (status === 'Success') return '#00a186'  // Green for success
+  if (status === 'Failed') return '#f87171'   // Red for failed  
+  return '#fbbf24' // Yellow/amber for pending
+})
+
+const destinationIndicatorColor = computed(() => {
+  const status = crossChainStatus.value.text
+  if (status === 'Success') return '#00a186'  // Green for success
+  if (status === 'Failed') return '#f87171'   // Red for failed
+  return '#bbbbbb' // Gray for pending (destination not reached yet)
+})
+
+
 </script>
 
 <template>
@@ -256,7 +273,7 @@ const formatContinuationData = (continuation: string) => {
       <Divide>
         <!-- Cross Chain Transfer Overview -->
         <DivideItem>
-          <div class="flex flex-col gap-4">
+          <div class="flex flex-col md:gap-4">
             <LabelValue
               :row="isMobile"
               label="Cross Chain Status:"
@@ -273,51 +290,126 @@ const formatContinuationData = (continuation: string) => {
 
             <!-- Transfer Flow Visualization -->
             <div class="flex flex-col md:flex-row items-start">
-              <div class="flex gap-2 w-full min-w-[300px] max-w-[300px]">
+              <div class="md:block hidden flex gap-2 w-full min-w-[300px] max-w-[300px]">
                 <div class="flex items-center gap-2">
                   <Tooltip
                     value="Visual representation of the cross-chain transfer process"
                     placement="right"
                     :offset-distance="16"
                   >
-                    <Informational class="w-4 h-4" />
+                    <Informational class="w-4 h-4 text-[#6366f1]" />
                   </Tooltip>
-                  <span class="text-[#bbbbbb] text-[15px] font-normal">
+                  <span class="text-[#bbbbbb] text-[15px]">
                     Transfer Flow:
                   </span>
                 </div>
               </div>
               
-              <div class="text-[#f5f5f5] text-[15px] flex gap-2 flex-1 overflow-hidden">
+              <div class="lg:block hidden text-[#f5f5f5] text-[15px] flex gap-2 flex-1 overflow-hidden">
                 <div class="w-full">
-                  <div class="flex items-center gap-4 p-4 bg-[#151515] border border-[#222222] rounded-lg">
-                    <!-- Source Chain -->
-                    <div class="flex flex-col items-center gap-2 flex-1">
-                      <div class="text-sm text-[#bbbbbb]">Source Chain</div>
-                      <div class="px-3 py-2 bg-[#009367] rounded-lg text-white font-medium">
-                        Chain {{ crossChainTransfers[0].sourceChainId }}
-                      </div>
-                      <div class="text-xs text-[#bbbbbb] break-all">
-                        {{ actualSender }}
-                      </div>
-                    </div>
+                  <!-- Modern Cross-Chain Flow Container -->
+                  <div class="relative p-6 bg-gradient-to-br from-[#111111] via-[#1a1a1a] to-[#111111] border border-[#333333] rounded-2xl shadow-2xl backdrop-blur-sm">
+                    <!-- Animated Background Elements -->
+                    <div class="absolute inset-0 bg-gradient-to-r from-[#00a186]/5 via-transparent to-[#00a186]/5 rounded-2xl"></div>
                     
-                    <!-- Arrow -->
-                    <div class="flex flex-col items-center gap-1">
-                      <svg class="w-8 h-8 text-[#00a186]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                      </svg>
-                      <div class="text-xs text-[#bbbbbb]">{{ crossChainTransfers[0].amount }} KDA</div>
-                    </div>
-                    
-                    <!-- Destination Chain -->
-                    <div class="flex flex-col items-center gap-2 flex-1">
-                      <div class="text-sm text-[#bbbbbb]">Destination Chain</div>
-                      <div class="px-3 py-2 bg-[#6ab5db] rounded-lg text-white font-medium">
-                        Chain {{ crossChainTransfers[0].destinationChainId }}
+                    <div class="relative flex items-center justify-between gap-8">
+                      <!-- Source Chain Card -->
+                      <div class="flex-1 group">
+                        <div class="relative">
+                          <!-- Glow Effect -->
+                          <div class="absolute -inset-1 bg-gradient-to-r from-[#00a186]/20 to-[#00a186]/10 rounded-xl blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
+                          
+                          <!-- Main Card -->
+                          <div class="relative bg-gradient-to-br from-[#1a1a1a] to-[#111111] border border-[#333333] rounded-xl p-4 backdrop-blur-sm transform group-hover:scale-[1.02] transition-all duration-300">
+                            <!-- Chain Badge -->
+                            <div class="flex items-center justify-center mb-3">
+                              <div class="px-4 py-2 bg-gradient-to-r from-[#2a2a2a] to-[#1f1f1f] border border-[#444444] rounded-lg shadow-lg">
+                                <div class="flex items-center gap-2">
+                                  <div class="w-2 h-2 rounded-full animate-pulse" :style="{ backgroundColor: sourceIndicatorColor }"></div>
+                                  <span class="text-[#e5e5e5] text-sm font-bold tracking-wide">Chain {{ crossChainTransfers[0].sourceChainId }}</span>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <!-- Source Label -->
+                            <div class="text-center mb-2">
+                              <span class="text-[#888888] text-xs font-medium uppercase tracking-wider">Source Chain</span>
+                            </div>
+                            
+                            <!-- Address -->
+                            <div class="flex items-center justify-center gap-2 p-3 bg-[#0a0a0a]/50 rounded-lg border border-[#2a2a2a]">
+                              <div class="flex items-center justify-center min-w-0">
+                                <span class="text-[#cccccc] text-xs font-mono">
+                                  {{ actualSender.length > 14 ? actualSender.substring(0, 8) + '...' + actualSender.substring(actualSender.length - 6) : actualSender }}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div class="text-xs text-[#bbbbbb] break-all">
-                        {{ actualReceiver }}
+                      
+                      <!-- Enhanced Flow Arrow -->
+                      <div class="flex flex-col items-center gap-2 px-4">
+                        <!-- Animated Flow Arrow -->
+                        <div class="relative flex flex-col items-center">
+                          <!-- Flow dots animation -->
+                          <div class="flex items-center justify-center gap-1 mb-1">
+                            <div class="w-1 h-1 rounded-full animate-ping" :style="{ backgroundColor: sourceIndicatorColor }" style="animation-delay: 0ms"></div>
+                            <div class="w-1 h-1 rounded-full animate-ping" :style="{ backgroundColor: sourceIndicatorColor }" style="animation-delay: 200ms"></div>
+                            <div class="w-1 h-1 rounded-full animate-ping" :style="{ backgroundColor: sourceIndicatorColor }" style="animation-delay: 400ms"></div>
+                          </div>
+                        </div>
+                        
+                        <!-- Glassmorphism Amount -->
+                        <div class="relative group">
+                          <!-- Glow Effect (same as chain cards) -->
+                          <div class="absolute -inset-1 bg-gradient-to-r from-[#00a186]/20 to-[#00a186]/10 rounded-xl blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
+                          
+                          <!-- Subtle glass container matching site theme -->
+                          <div class="relative px-4 py-2 bg-gradient-to-br from-[#1a1a1a]/80 via-[#111111]/60 to-[#0a0a0a]/80 backdrop-blur-sm border border-[#333333]/50 rounded-xl shadow-lg transform group-hover:scale-[1.05] transition-all duration-300">
+                            <div class="flex items-center gap-2">
+                                <!-- Amount text -->
+                                <span class="text-white text-sm font-bold tracking-wide">
+                                  {{ crossChainTransfers[0].amount }} KDA
+                                </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <!-- Destination Chain Card -->
+                      <div class="flex-1 group">
+                        <div class="relative">
+                          <!-- Glow Effect -->
+                          <div class="absolute -inset-1 bg-gradient-to-r from-[#555555]/20 to-[#444444]/10 rounded-xl blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
+                          
+                          <!-- Main Card -->
+                          <div class="relative bg-gradient-to-br from-[#1a1a1a] to-[#111111] border border-[#333333] rounded-xl p-4 backdrop-blur-sm transform group-hover:scale-[1.02] transition-all duration-300">
+                            <!-- Chain Badge -->
+                            <div class="flex items-center justify-center mb-3">
+                              <div class="px-4 py-2 bg-gradient-to-r from-[#2a2a2a] to-[#1f1f1f] border border-[#444444] rounded-lg shadow-lg">
+                                <div class="flex items-center gap-2">
+                                  <div class="w-2 h-2 rounded-full animate-pulse" :style="{ backgroundColor: destinationIndicatorColor }"></div>
+                                  <span class="text-[#e5e5e5] text-sm font-bold tracking-wide">Chain {{ crossChainTransfers[0].destinationChainId }}</span>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <!-- Destination Label -->
+                            <div class="text-center mb-2">
+                              <span class="text-[#888888] text-xs font-medium uppercase tracking-wider">Destination Chain</span>
+                            </div>
+                            
+                            <!-- Address -->
+                            <div class="flex items-center justify-center gap-2 p-3 bg-[#0a0a0a]/50 rounded-lg border border-[#2a2a2a]">
+                              <div class="flex items-center justify-center min-w-0">
+                                <span class="text-[#cccccc] text-xs font-mono">
+                                  {{ actualReceiver.length > 14 ? actualReceiver.substring(0, 8) + '...' + actualReceiver.substring(actualReceiver.length - 6) : actualReceiver }}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
