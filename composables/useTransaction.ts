@@ -201,14 +201,17 @@ export const useTransaction = (
     
     return transaction.value.cmd.signers
       .filter((signer: any) => {
-        // Keep signers that DON'T have coin.GAS capability
+        // Only filter out signers that have ONLY coin.GAS capability and no other capabilities
         if (!signer.clist || signer.clist.length === 0) {
-          return true // Unrestricted signer (not gas payer)
+          return true // Unrestricted signer
         }
         
-        // Check if this signer has coin.GAS capability
+        // If signer has capabilities, check if it's ONLY coin.GAS
         const hasGasCapability = signer.clist.some((cap: any) => cap.name === 'coin.GAS')
-        return !hasGasCapability // Keep only non-gas signers
+        const hasOtherCapabilities = signer.clist.some((cap: any) => cap.name !== 'coin.GAS')
+        
+        // Keep signers that either don't have gas capability OR have other capabilities besides gas
+        return !hasGasCapability || hasOtherCapabilities
       })
       .map((signer: any) => ({
         address: signer.pubkey ? `k:${signer.pubkey}` : '',
