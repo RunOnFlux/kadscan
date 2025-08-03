@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { formatJsonPretty } from '~/composables/string'
 import { useScreenSize } from '~/composables/useScreenSize'
 import { useFormat } from '~/composables/useFormat'
@@ -10,137 +10,24 @@ import IconHourglass from '~/components/icon/Hourglass.vue'
 
 const props = defineProps<{
   transaction: any
+  crossChainTransaction: any
+  crossChainTransfers: any[]
+  isSourceTransaction: boolean
+  loadingCrossChain: boolean
 }>()
 
 const { isMobile } = useScreenSize()
 const { formatRelativeTime } = useFormat()
 
-// Find cross-chain transfers from the current transaction
-const crossChainTransfers = computed(() => {
-  if (!props.transaction?.result?.transfers?.edges) return []
-  
-  return props.transaction.result.transfers.edges
-    .filter((edge: any) => edge.node.crossChainTransfer !== null)
-    .map((edge: any) => {
-      // Determine if current transaction is source or destination
-      const isSource = props.transaction.cmd.payload?.step === undefined
-      
-      return {
-        ...edge.node,
-        // Always show correct source → destination flow regardless of which transaction we're viewing
-        sourceChainId: isSource 
-          ? props.transaction.cmd.meta.chainId 
-          : edge.node.crossChainTransfer.block.chainId,
-        destinationChainId: isSource 
-          ? edge.node.crossChainTransfer.block.chainId 
-          : props.transaction.cmd.meta.chainId,
-        // Keep for backward compatibility but mark as deprecated
-        currentChainId: props.transaction.cmd.meta.chainId,
-        destinationRequestKey: edge.node.crossChainTransfer.requestKey,
-        destinationCreationTime: edge.node.crossChainTransfer.creationTime,
-        isDestinationSuccessful: edge.node.crossChainTransfer.transaction?.result?.badResult === null
-      }
-    })
-})
-
-// Related transaction data (destination transaction)
-const relatedTransaction = ref<any>(null)
-const loadingRelated = ref(false)
-
-// Function to fetch related transaction
-const fetchRelatedTransaction = async (requestKey: string, networkId: string) => {
-  if (!requestKey || !networkId) return
-  
-  loadingRelated.value = true
-  try {
-    const response: any = await $fetch('/api/graphql', {
-      method: 'POST',
-      body: {
-        query: `
-          query GetRelatedTransaction($requestKey: String!) {
-            transaction(requestKey: $requestKey) {
-              hash
-              cmd {
-                meta {
-                  chainId
-                  creationTime
-                  gasLimit
-                  gasPrice
-                  sender
-                  ttl
-                }
-                networkId
-                nonce
-                payload {
-                  ... on ContinuationPayload {
-                    data
-                    pactId
-                    proof
-                    rollback
-                    step
-                  }
-                  ... on ExecutionPayload {
-                    code
-                    data
-                  }
-                }
-              }
-              result {
-                ... on TransactionResult {
-                  badResult
-                  block {
-                    chainId
-                    canonical
-                    height
-                  }
-                  continuation
-                  gas
-                  goodResult
-                  transactionId
-                }
-              }
-            }
-          }
-        `,
-        variables: {
-          requestKey: requestKey
-        },
-        networkId: networkId
-      }
-    })
-    
-    relatedTransaction.value = response?.data?.transaction
-  } catch (error) {
-    console.error('Error fetching related transaction:', error)
-    relatedTransaction.value = null
-  } finally {
-    loadingRelated.value = false
-  }
-}
-
-// Watch for cross-chain transfers and fetch related transaction
-watch(crossChainTransfers, async (transfers) => {
-  if (transfers.length > 0 && transfers[0].destinationRequestKey) {
-    const networkId = props.transaction.cmd.networkId
-    await fetchRelatedTransaction(transfers[0].destinationRequestKey, networkId)
-  }
-}, { immediate: true })
-
-// Determine if current transaction is source or destination
-const isSourceTransaction = computed(() => {
-  // If we have a continuation payload, this is likely the destination
-  return props.transaction.cmd.payload?.step === undefined
-})
-
 // Add computed properties to correctly extract sender and receiver accounts
 const actualSender = computed(() => {
-  if (crossChainTransfers.value.length === 0) return ''
+  if (props.crossChainTransfers.length === 0) return ''
   
-  const transfer = crossChainTransfers.value[0]
+  const transfer = props.crossChainTransfers[0]
   
   // For source transaction (step0): sender is in transfer.senderAccount
   // For destination transaction (step1): sender is in transfer.crossChainTransfer.senderAccount
-  if (isSourceTransaction.value) {
+  if (props.isSourceTransaction) {
     // This is the source transaction, sender is in senderAccount
     return transfer.senderAccount || transfer.crossChainTransfer?.senderAccount || ''
   } else {
@@ -150,13 +37,13 @@ const actualSender = computed(() => {
 })
 
 const actualReceiver = computed(() => {
-  if (crossChainTransfers.value.length === 0) return ''
+  if (props.crossChainTransfers.length === 0) return ''
   
-  const transfer = crossChainTransfers.value[0]
+  const transfer = props.crossChainTransfers[0]
   
   // For source transaction (step0): receiver is in transfer.crossChainTransfer.receiverAccount
   // For destination transaction (step1): receiver is in transfer.receiverAccount
-  if (isSourceTransaction.value) {
+  if (props.isSourceTransaction) {
     // This is the source transaction, receiver is in crossChainTransfer.receiverAccount
     return transfer.crossChainTransfer?.receiverAccount || transfer.receiverAccount || ''
   } else {
@@ -197,8 +84,8 @@ const getTransactionStatus = (transaction: any) => {
   }
 }
 
-const sourceTransaction = computed(() => isSourceTransaction.value ? props.transaction : relatedTransaction.value)
-const destinationTransaction = computed(() => isSourceTransaction.value ? relatedTransaction.value : props.transaction)
+const sourceTransaction = computed(() => props.isSourceTransaction ? props.transaction : props.crossChainTransaction)
+const destinationTransaction = computed(() => props.isSourceTransaction ? props.crossChainTransaction : props.transaction)
 
 // Unified cross-chain status with priority logic: Failed > Pending > Success
 const crossChainStatus = computed(() => {
@@ -269,7 +156,7 @@ const destinationIndicatorColor = computed(() => {
 
 <template>
   <div class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
-    <div v-if="crossChainTransfers.length > 0">
+    <div v-if="props.crossChainTransfers.length > 0">
       <Divide>
         <!-- Cross Chain Transfer Overview -->
         <DivideItem>
@@ -326,7 +213,7 @@ const destinationIndicatorColor = computed(() => {
                               <div class="px-4 py-2 bg-gradient-to-r from-[#2a2a2a] to-[#1f1f1f] border border-[#444444] rounded-lg shadow-lg">
                                 <div class="flex items-center gap-2">
                                   <div class="w-2 h-2 rounded-full animate-pulse" :style="{ backgroundColor: sourceIndicatorColor }"></div>
-                                  <span class="text-[#e5e5e5] text-sm font-bold tracking-wide">Chain {{ crossChainTransfers[0].sourceChainId }}</span>
+                                  <span class="text-[#e5e5e5] text-sm font-bold tracking-wide">Chain {{ props.crossChainTransfers[0].sourceChainId }}</span>
                                 </div>
                               </div>
                             </div>
@@ -370,7 +257,7 @@ const destinationIndicatorColor = computed(() => {
                             <div class="flex items-center gap-2">
                                 <!-- Amount text -->
                                 <span class="text-white text-sm font-bold tracking-wide">
-                                  {{ crossChainTransfers[0].amount }} KDA
+                                  {{ props.crossChainTransfers[0].amount }} KDA
                                 </span>
                             </div>
                           </div>
@@ -390,7 +277,7 @@ const destinationIndicatorColor = computed(() => {
                               <div class="px-4 py-2 bg-gradient-to-r from-[#2a2a2a] to-[#1f1f1f] border border-[#444444] rounded-lg shadow-lg">
                                 <div class="flex items-center gap-2">
                                   <div class="w-2 h-2 rounded-full animate-pulse" :style="{ backgroundColor: destinationIndicatorColor }"></div>
-                                  <span class="text-[#e5e5e5] text-sm font-bold tracking-wide">Chain {{ crossChainTransfers[0].destinationChainId }}</span>
+                                  <span class="text-[#e5e5e5] text-sm font-bold tracking-wide">Chain {{ props.crossChainTransfers[0].destinationChainId }}</span>
                                 </div>
                               </div>
                             </div>
@@ -675,7 +562,7 @@ const destinationIndicatorColor = computed(() => {
       </Divide>
     </div>
     
-    <div v-else-if="loadingRelated" class="text-center py-8 text-[#bbbbbb]">
+    <div v-else-if="props.loadingCrossChain" class="text-center py-8 text-[#bbbbbb]">
       Loading related transaction data...
     </div>
     

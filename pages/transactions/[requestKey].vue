@@ -47,6 +47,12 @@ const {
   signerTransferValue,
   transactionSigners,
   crossChainTransactionStatus,
+  // Cross-chain properties
+  crossChainTransaction,
+  loadingCrossChain,
+  crossChainTransfers,
+  isSourceTransaction,
+  hasCrossChainData,
 } = useTransaction(transactionId, networkId)
 
 // Text content for tooltips and labels
@@ -249,17 +255,10 @@ const eventsCount = computed(() => {
 })
 
 // Tab management - defined after eventsCount to avoid initialization order issues
-// Cross-chain transfer detection
-const hasCrossChainTransfers = computed(() => {
-  return transaction.value?.result?.transfers?.edges?.some(
-    (edge: any) => edge.node.crossChainTransfer !== null
-  ) || false
-})
-
 const tabLabels = computed(() => {
   const labels = ['Overview', `Logs (${eventsCount.value})`]
   
-  if (hasCrossChainTransfers.value) {
+  if (hasCrossChainData.value) {
     labels.push('Cross Chain')
   }
   
@@ -463,7 +462,15 @@ onUnmounted(() => {
         <TransactionLogs v-if="activeTab.startsWith('Logs')" :key="'logs'" :transaction="transaction" />
 
         <!-- Cross Chain Tab Content -->
-        <TransactionCrossChain v-else-if="activeTab.startsWith('Cross Chain')" :key="'cross-chain'" :transaction="transaction" />
+        <TransactionCrossChain 
+          v-else-if="activeTab.startsWith('Cross Chain')" 
+          :key="'cross-chain'" 
+          :transaction="transaction" 
+          :cross-chain-transaction="crossChainTransaction"
+          :cross-chain-transfers="crossChainTransfers"
+          :is-source-transaction="isSourceTransaction"
+          :loading-cross-chain="loadingCrossChain"
+        />
 
         <!-- Transaction Details -->
         <div v-else-if="activeTab.startsWith('Overview')" :key="'overview'" class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
