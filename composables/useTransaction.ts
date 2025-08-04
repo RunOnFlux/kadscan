@@ -120,11 +120,63 @@ const LAST_BLOCK_HEIGHT_QUERY = `
   }
 `;
 
+// Query for fetching cross-chain related transaction
+const CROSS_CHAIN_RELATED_TRANSACTION_QUERY = `
+  query GetRelatedTransaction($requestKey: String!) {
+    transaction(requestKey: $requestKey) {
+      hash
+      cmd {
+        meta {
+          chainId
+          creationTime
+          gasLimit
+          gasPrice
+          sender
+          ttl
+        }
+        networkId
+        nonce
+        payload {
+          ... on ContinuationPayload {
+            data
+            pactId
+            proof
+            rollback
+            step
+          }
+          ... on ExecutionPayload {
+            code
+            data
+          }
+        }
+      }
+      result {
+        ... on TransactionResult {
+          badResult
+          block {
+            chainId
+            canonical
+            height
+          }
+          continuation
+          gas
+          goodResult
+          transactionId
+        }
+      }
+    }
+  }
+`;
+
 const transaction = ref<any>(null)
 const loading = ref(true)
 const error = ref<any>(null)
 const kadenaPrice = ref<number | null>(null)
 const kadenaPriceLastDay = ref<Date | null>(null)
+
+// Cross-chain related transaction state
+const crossChainTransaction = ref<any>(null)
+const loadingCrossChain = ref(false)
 const lastBlockHeight = ref<number | null>(null)
 
 export const useTransaction = (
@@ -145,6 +197,32 @@ export const useTransaction = (
       if (priceData && priceData.price) {
         kadenaPrice.value = priceData.price
       }
+    }
+  }
+
+  // Function to fetch cross-chain related transaction
+  const fetchCrossChainTransaction = async (requestKey: string, networkId: string) => {
+    if (!requestKey || !networkId) return
+    
+    loadingCrossChain.value = true
+    try {
+      const response: any = await $fetch('/api/graphql', {
+        method: 'POST',
+        body: {
+          query: CROSS_CHAIN_RELATED_TRANSACTION_QUERY,
+          variables: {
+            requestKey: requestKey
+          },
+          networkId: networkId
+        }
+      })
+      
+      crossChainTransaction.value = response?.data?.transaction
+    } catch (error) {
+      console.error('Error fetching cross-chain related transaction:', error)
+      crossChainTransaction.value = null
+    } finally {
+      loadingCrossChain.value = false
     }
   }
 
@@ -293,6 +371,45 @@ export const useTransaction = (
     return totalValue.toString()
   })
 
+  // Cross-chain computed properties
+  const crossChainTransfers = computed(() => {
+    if (!transaction.value?.result?.transfers?.edges) return []
+    
+    return transaction.value.result.transfers.edges
+      .filter((edge: any) => edge.node.crossChainTransfer !== null)
+      .map((edge: any) => {
+        // Determine if current transaction is source or destination
+        const isSource = transaction.value.cmd.payload?.step === undefined
+        
+        return {
+          ...edge.node,
+          // Always show correct source → destination flow regardless of which transaction we're viewing
+          sourceChainId: isSource 
+            ? transaction.value.cmd.meta.chainId 
+            : edge.node.crossChainTransfer.block.chainId,
+          destinationChainId: isSource 
+            ? edge.node.crossChainTransfer.block.chainId 
+            : transaction.value.cmd.meta.chainId,
+          // Keep for backward compatibility but mark as deprecated
+          currentChainId: transaction.value.cmd.meta.chainId,
+          destinationRequestKey: edge.node.crossChainTransfer.requestKey,
+          destinationCreationTime: edge.node.crossChainTransfer.creationTime,
+          isDestinationSuccessful: edge.node.crossChainTransfer.transaction?.result?.badResult === null
+        }
+      })
+  })
+
+  // Determine if current transaction is source or destination
+  const isSourceTransaction = computed(() => {
+    // If we have a continuation payload, this is likely the destination
+    return transaction.value?.cmd?.payload?.step === undefined
+  })
+
+  // Cross-chain data availability check
+  const hasCrossChainData = computed(() => {
+    return crossChainTransfers.value.length > 0
+  })
+
   const fetchTransaction = async () => {
     if (!transactionId.value || !networkId.value) {
       return
@@ -334,6 +451,19 @@ export const useTransaction = (
       if (transaction.value && transaction.value.cmd?.meta?.creationTime) {
         await fetchKadenaPrice(transaction.value.cmd.meta.creationTime)
       }
+
+      // Check for cross-chain transfers and fetch related transaction
+      if (transaction.value?.result?.transfers?.edges) {
+        const crossChainTransfer = transaction.value.result.transfers.edges
+          .find((edge: any) => edge.node.crossChainTransfer !== null)
+        
+        if (crossChainTransfer?.node?.crossChainTransfer?.requestKey) {
+          await fetchCrossChainTransaction(
+            crossChainTransfer.node.crossChainTransfer.requestKey,
+            networkId.value
+          )
+        }
+      }
     } catch (e) {
       error.value = e
       transaction.value = null
@@ -357,5 +487,12 @@ export const useTransaction = (
     signerTransferValue,
     transactionSigners,
     crossChainTransactionStatus,
+    // Cross-chain properties
+    crossChainTransaction,
+    loadingCrossChain,
+    crossChainTransfers,
+    isSourceTransaction,
+    hasCrossChainData,
+    fetchCrossChainTransaction,
   }
 }
