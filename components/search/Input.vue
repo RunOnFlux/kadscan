@@ -77,6 +77,14 @@ onUnmounted(() => {
         >
           <IconSearchClose class="w-5 h-5 text-[#bbbbbb] hover:text-[#f5f5f5]" />
         </div>
+
+    <SearchModal
+      :cleanup="cleanup"
+      :open="data.open && !!data.query && !!data.searched"
+      :error="data.error"
+      :loading="data.loading"
+      :items="data.searched"
+    />
       </div>
 
       <div
@@ -86,15 +94,9 @@ onUnmounted(() => {
         <IconSearch
           class="w-5 h-5 text-[#fafafa]"
         />
+        
       </div>
     </div>
 
-    <SearchModal
-      :cleanup="cleanup"
-      :open="data.open && !!data.query && !!data.searched"
-      :error="data.error"
-      :loading="data.loading"
-      :items="data.searched"
-    />
   </div>
 </template>
