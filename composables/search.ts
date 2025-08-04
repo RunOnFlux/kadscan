@@ -1,81 +1,57 @@
 import debounce from 'lodash/debounce'
 import { gql } from 'nuxt-graphql-request/utils';
+import { staticTokens } from '~/constants/tokens';
 
-const allQuery = gql`
-  query SearchAll($searchTerm: String!, $limit: Int!, $heightFilter: Int) {
-    searchAll(searchTerm: $searchTerm, limit: $limit, heightFilter: $heightFilter) {
-      blocks {
-        chainId
-        hash
-        height
-        parent
-        transactionsCount
-      }
-      tokens {
-        type
-        module
-        chainId
-      }
-      transactions {
-        sender
-        requestkey
-        result
-        metadata
-        chainId
-      }
-      addresses {
-        account
-      }
-    }
-  }
-`
-
-const searchBlocksQuery = gql`
-  query SearchBlocks($searchTerm: String!, $limit: Int!, $heightFilter: Int) {
-    searchAll(searchTerm: $searchTerm, limit: $limit, heightFilter: $heightFilter) {
-      blocks {
-        chainId
-        hash
-        height
-        parent
-        transactionsCount
+// New individual queries for the updated indexer
+const blocksQuery = gql`
+  query BlocksFromHeight($startHeight: Int!, $endHeight: Int) {
+    blocksFromHeight(startHeight: $startHeight, endHeight: $endHeight) {
+      edges {
+        node {
+          hash
+          height
+          chainId
+          creationTime
+          transactions {
+            totalCount
+          }
+        }
       }
     }
   }
 `;
 
-const searchTransactionsQuery = gql`
-  query SearchTransactions($searchTerm: String!, $limit: Int!) {
-    searchAll(searchTerm: $searchTerm, limit: $limit) {
-      transactions {
-        sender
-        requestkey
-        result
-        metadata
-        chainId
-      }
+const addressQuery = gql`
+  query FungibleAccount($accountName: String!) {
+    fungibleAccount(accountName: $accountName) {
+      id
+      fungibleName
+      totalBalance
+      accountName
     }
   }
 `;
 
-const searchAddressQuery = gql`
-  query SearchUniqueAddresses($searchTerm: String!, $limit: Int!) {
-    searchAll(searchTerm: $searchTerm, limit: $limit) {
-      addresses {
-        account
-      }
+const transactionQuery = gql`
+  query Transaction($requestKey: String!) {
+    transaction(requestKey: $requestKey) {
+      hash
+      requestKey
+      sender
+      result
+      chainId
+      creationTime
     }
   }
 `;
 
-const searchFungibleTokensQuery = gql`
-  query SearchFungibleTokens($searchTerm: String!, $limit: Int!) {
-    searchAll(searchTerm: $searchTerm, limit: $limit) {
-      tokens {
-        type
-        module
-        chainId
-      }
+const tokenQuery = gql`
+  query TokenPrice($tokenAddress: String!) {
+    tokenPrice(tokenAddress: $tokenAddress) {
+      id
+      name
+      symbol
+      module
     }
   }
 `;
@@ -84,27 +60,22 @@ const filters = [
   {
     value: 'all',
     label: 'All Filters',
-    query: allQuery,
   },
   {
     value: 'blocks',
     label: 'Blocks',
-    query: searchBlocksQuery,
   },
   {
     value: 'transactions',
     label: 'Transactions',
-    query: searchTransactionsQuery,
   },
   {
     value: 'address',
     label: 'Addresses',
-    query: searchAddressQuery,
   },
   {
     value: 'tokens',
     label: 'Tokens',
-    query: searchFungibleTokensQuery,
   },
 ];
 
@@ -120,8 +91,12 @@ export function useSearch () {
   });
 
   const router = useRouter();
+  const { $graphql } = useNuxtApp() as any;
 
-  const { $graphql } = useNuxtApp();
+  // Updated regex patterns - more flexible
+  const strictKadenaAddressRegex = /^k:[a-fA-F0-9]{64}$/;
+  const likelyRequestKeyRegex = /^[A-Za-z0-9\-_]{20,}$/; // More flexible length
+  const numericRegex = /^\d+$/;
 
   const searchImpl = async (value: string) => {
     if (!value) {
@@ -129,75 +104,189 @@ export function useSearch () {
       return;
     }
 
+    console.log('🔍 Searching for:', value);
     data.loading = true;
     data.error = null;
 
     try {
-      const variables = {
-        searchTerm: value,
-        limit: 5,
-      } as any;
+      const results = {
+        blocks: [] as any[],
+        addresses: [] as any[],
+        transactions: [] as any[],
+        tokens: [] as any[]
+      };
 
-      const heightFilter = parseInt(value);
-
-      if (!isNaN(heightFilter) && Number.isSafeInteger(heightFilter)) {
-        variables.heightFilter = heightFilter;
+      // Search based on filter or search all types
+      const shouldSearchAll = data.filter.value === 'all';
+      
+      // Block search - if numeric input
+      if ((shouldSearchAll || data.filter.value === 'blocks') && numericRegex.test(value)) {
+        try {
+          const height = parseInt(value);
+          if (height >= 0 && height <= 20000000) { // Height range validation
+            const blockResponse = await $graphql.default.request(blocksQuery, {
+              startHeight: height,
+              endHeight: height
+            });
+            
+            if (blockResponse.blocksFromHeight?.edges) {
+              results.blocks = blockResponse.blocksFromHeight.edges.map((edge: any) => ({
+                chainId: edge.node.chainId,
+                hash: edge.node.hash,
+                height: edge.node.height,
+                transactionsCount: edge.node.transactions?.totalCount || 0,
+                creationTime: edge.node.creationTime
+              }));
+            }
+          }
+        } catch (error) {
+          console.warn('Block search failed:', error);
+        }
       }
 
-      const { searchAll } = await $graphql.default.request(data.filter.query, variables);
+      // Transaction search - if looks like request key
+      if ((shouldSearchAll || data.filter.value === 'transactions') && likelyRequestKeyRegex.test(value)) {
+        try {
+          const txResponse = await $graphql.default.request(transactionQuery, {
+            requestKey: value
+          });
+          
+          if (txResponse.transaction) {
+            results.transactions = [{
+              requestkey: txResponse.transaction.requestKey || value,
+              sender: txResponse.transaction.sender,
+              result: txResponse.transaction.result,
+              chainId: txResponse.transaction.chainId,
+              hash: txResponse.transaction.hash,
+              creationTime: txResponse.transaction.creationTime
+            }];
+          }
+        } catch (error) {
+          console.warn('Transaction search failed:', error);
+        }
+      }
 
+      // Token search
+      if (shouldSearchAll || data.filter.value === 'tokens') {
+        try {
+          // Try to find token in static tokens first
+          const staticToken = staticTokens.find(token => 
+            token.module.toLowerCase().includes(value.toLowerCase()) ||
+            token.name.toLowerCase().includes(value.toLowerCase()) ||
+            token.symbol.toLowerCase().includes(value.toLowerCase())
+          );
+
+          if (staticToken) {
+            const tokenResponse = await $graphql.default.request(tokenQuery, {
+              tokenAddress: staticToken.module
+            });
+            
+            if (tokenResponse.tokenPrice) {
+              results.tokens = [{
+                type: 'fungible',
+                module: staticToken.module,
+                name: staticToken.name,
+                symbol: staticToken.symbol,
+                chainId: 'all' // Tokens are cross-chain
+              }];
+            }
+          }
+        } catch (error) {
+          console.warn('Token search failed:', error);
+        }
+      }
+
+      // Address search - always try this as fallback, or if specifically searching addresses
+      if (shouldSearchAll || data.filter.value === 'address') {
+        try {
+          const addressResponse = await $graphql.default.request(addressQuery, {
+            accountName: value
+          });
+          
+          if (addressResponse.fungibleAccount) {
+            results.addresses = [{
+              account: addressResponse.fungibleAccount.accountName || value,
+              id: addressResponse.fungibleAccount.id,
+              totalBalance: addressResponse.fungibleAccount.totalBalance
+            }];
+          }
+        } catch (error) {
+          console.warn('Address search failed:', error);
+        }
+      }
+
+      // Only update results if this search is still current
       if (value === data.query) {
-        data.searched = searchAll;
+        data.searched = results;
       }
+
     } catch (error) {
       console.error('Search error:', error);
-      data.error = 'An error occurred while searching. Please try again.' as any;
+      data.error = 'An error occurred while searching. Please try again.';
     } finally {
       data.loading = false;
     }
   };
 
-  const search = debounce(searchImpl, 250);
+  const search = debounce(searchImpl, 1500);
 
-  const requestKeyRegex = /^[A-Za-z0-9\-_]{43}$/;
-  const kadenaAddressRegex = /^k:[a-fA-F0-9]{64}$/;
-
-  function shouldRedirectBeforeSearch(search: any) {
-    if (kadenaAddressRegex.test(search)) {
+  function shouldRedirectBeforeSearch(searchTerm: string) {
+    // Strict Kadena address - direct redirect
+    if (strictKadenaAddressRegex.test(searchTerm)) {
       return "account";
     }
 
-    if (requestKeyRegex.test(search)) {
+    // Very likely request key (longer, alphanumeric with dashes/underscores)
+    if (likelyRequestKeyRegex.test(searchTerm) && searchTerm.length >= 40) {
       return "transactions";
     }
+
+    // Block height - numeric only
+    if (numericRegex.test(searchTerm)) {
+      const height = parseInt(searchTerm);
+      if (height >= 0 && height <= 20000000) {
+        return "blocks";
+      }
+    }
+
+    return null;
   }
 
   function shouldRedirect() {
-    if (data?.searched?.addresses && data?.searched?.addresses?.length > 0) {
+    // Check for single results and redirect
+    if (data?.searched?.addresses && data?.searched?.addresses?.length === 1) {
       const address = data?.searched?.addresses[0];
-
       router.push(`/account/${address.account}`);
+      return true;
     }
 
-    if (data?.searched?.transactions && data?.searched?.transactions?.length > 0) {
+    if (data?.searched?.transactions && data?.searched?.transactions?.length === 1) {
       const transaction = data?.searched?.transactions[0];
-
       router.push(`/transactions/${transaction.requestkey}`);
+      return true;
     }
 
-    if (data?.searched?.tokens && data?.searched?.tokens?.length > 0) {
+    if (data?.searched?.tokens && data?.searched?.tokens?.length === 1) {
       const token = data?.searched?.tokens[0];
-
       const staticMetadata = staticTokens.find(({ module }) => module === token.module);
-
       router.push(`/tokens/${staticMetadata?.id || token.module}`);
+      return true;
     }
 
-    if (data?.searched?.blocks && data?.searched?.blocks?.length > 0) {
+    if (data?.searched?.blocks && data?.searched?.blocks?.length === 1) {
       const block = data?.searched?.blocks[0];
-
-      router.push(`/blocks/chain/${block.chainId}/height/${block.height}`);
+      router.push(`/blocks/${block.height}/chain/${block.chainId}`);
+      return true;
     }
+
+    // If multiple blocks, redirect to first canonical or first available
+    if (data?.searched?.blocks && data?.searched?.blocks?.length > 1) {
+      const block = data?.searched?.blocks[0];
+      router.push(`/blocks/${block.height}/chain/${block.chainId}`);
+      return true;
+    }
+
+    return false;
   }
 
   const handleInput = (event: Event) => {
@@ -212,32 +301,33 @@ export function useSearch () {
     }
 
     event.preventDefault();
-
     search.cancel();
 
-    const redirectPath = shouldRedirectBeforeSearch(data.query);
+    const redirectType = shouldRedirectBeforeSearch(data.query);
 
-    if (redirectPath) {
-      router.push(`/${redirectPath}/${data.query}`);
-
+    if (redirectType) {
+      if (redirectType === "blocks") {
+        // For blocks, we need to search first to get chainId, default to chain 0
+        router.push(`/blocks/${data.query}/chain/0`);
+      } else {
+        router.push(`/${redirectType}/${data.query}`);
+      }
       cleanup();
-
       return;
     }
 
     if (!data.loading && data.searched) {
-      shouldRedirect();
-
-      cleanup();
-
-      return;
+      if (shouldRedirect()) {
+        cleanup();
+        return;
+      }
     }
 
     await searchImpl(data.query);
 
-    shouldRedirect();
-
-    cleanup();
+    if (shouldRedirect()) {
+      cleanup();
+    }
   };
 
   const close = () => {

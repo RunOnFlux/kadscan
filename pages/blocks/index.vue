@@ -31,6 +31,7 @@ const { selectedNetwork } = useSharedData();
 const { isMobile } = useScreenSize();
 
 const {
+  error,
   blocks,
   loading,
   fetchBlocks,
@@ -125,7 +126,7 @@ function blockStatus(blockHeight: number, canonical: boolean) {
     return {
       text: 'Orphaned',
       icon: IconCancel,
-      classes: 'bg-[#7f1d1d66] border-[#f87171] text-[#f87171]',
+      classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]',
       description: 'Block is not part of the canonical chain and is orphaned',
     };
   }
@@ -134,7 +135,7 @@ function blockStatus(blockHeight: number, canonical: boolean) {
     return {
       text: 'Finalized',
       icon: IconCheckmarkFill,
-      classes: 'bg-[#0f1f1d] border-[#00a186] text-[#00a186]',
+      classes: 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]',
       description: 'Block is part of the canonical chain and safe to use',
     };
   }
@@ -142,7 +143,7 @@ function blockStatus(blockHeight: number, canonical: boolean) {
   return {
     text: 'Pending',
     icon: IconHourglass,
-    classes: 'bg-[#17150d] border-[#444649] text-[#989898]',
+    classes: 'bg-[#17150d] border-[#44464980] text-[#989898]',
     description: 'Block is not part of the canonical chain and is pending to be finalized or orphaned',
   };
 };
@@ -161,6 +162,9 @@ const filteredBlocks = computed(() => {
 watch(
   [currentPage, rowsToShow],
   ([newPage, newRows], [oldPage, oldRows]) => {
+    // Don't update URL if there's an error (prevents race condition with error redirect)
+    if (error.value) return;
+    
     const query = { ...route.query, page: newPage };
     if (newRows !== oldRows) {
       query.page = 1;
@@ -176,6 +180,9 @@ watch(
     if (!network) {
       return;
     }
+
+    // Don't run pagination logic if there's an error (prevents race condition with error redirect)
+    if (error.value) return;
 
     const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
     const chainChanged = oldChain && selectedChain.value.value !== oldChain.value;
@@ -229,6 +236,13 @@ watch(
     deep: true,
   }
 );
+
+// Redirect to error page when blocks are not found
+watch(error, (newError) => {
+  if (newError) {
+    navigateTo('/error', { replace: true })
+  }
+})
 
 function downloadData() {
   const csv = exportableToCsv(filteredBlocks.value, tableHeaders);

@@ -34,14 +34,14 @@ const scrollToTop = () => {
 
 <template>
   <div class="w-full bg-[#111111] border-t border-[#222222]">
-    <div class="w-full px-5 pt-8 pb-4 flex flex-col">
+    <div class="w-full max-w-[1400px] mx-auto px-5 pt-8 pb-4 flex flex-col">
       <div class="flex justify-between items-center gap-8 flex-wrap">
         <div class="flex flex-col gap-3">
           <div class="flex items-end gap-3">
             <IconLogoColor class="h-[38px] md:h-[42px] w-max" />
           </div>
           <span class="hidden md:block text-sm text-[#f5f5f5] leading-[19.6px]">
-            Kadscan is a Block Explorer and Analytics Platform for Kadena.
+            Kadscan is a Block Explorer and Analytics Platform for the Kadena Blockchain.
           </span>
         </div>
 

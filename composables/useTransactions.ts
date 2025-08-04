@@ -25,6 +25,7 @@ const GQL_QUERY = `
           }
           result {
             ... on TransactionResult {
+              badResult
               gas
               block {
                 height
@@ -53,12 +54,14 @@ const { formatRelativeTime, formatGasPrice } = useFormat();
 const pageInfo = ref<any>(null);
 const totalCount = ref(0);
 const rowsToShow = ref(25);
+const error = ref<any>(null);
 
 export const useTransactions = () => {
   const clearState = () => {
     transactions.value = [];
     loading.value = true;
     pageInfo.value = null;
+    error.value = null;
   };
 
   const updateRowsToShow = (rows: any) => {
@@ -67,6 +70,10 @@ export const useTransactions = () => {
 
   const fetchTotalCount = async ({ networkId }: { networkId: string }) => {
     if (!networkId) return;
+    
+    // Reset error state at the beginning of each fetch
+    error.value = null;
+    
     try {
       const response: any = await $fetch('/api/graphql', {
         method: 'POST',
@@ -75,9 +82,16 @@ export const useTransactions = () => {
           networkId,
         },
       });
-      totalCount.value = response?.data?.networkInfo?.transactionCount || 0;
-    } catch (error) {
-      console.error('Error fetching total block count:', error);
+
+      if (response?.data?.networkInfo?.transactionCount) {
+        totalCount.value = response?.data?.networkInfo?.transactionCount;
+      } else {
+        error.value = true;
+      }
+
+    } catch (e) {
+      console.error('Error fetching total block count:', e);
+      error.value = true;
     }
   };
 
@@ -96,6 +110,10 @@ export const useTransactions = () => {
   }) => {
     if (!networkId) return;
     loading.value = transactions.value.length === 0;
+    
+    // Reset error state at the beginning of each fetch
+    error.value = null;
+    
     try {
       const isForward = !!after || (!after && !before);
       const response: any = await $fetch('/api/graphql', {
@@ -117,12 +135,19 @@ export const useTransactions = () => {
       pageInfo.value = result?.pageInfo || null;
       totalCount.value = result?.totalCount || 0;
 
+      // If transaction is null, it means the transaction doesn't exist
+      if (result === undefined || result.edges.length === 0) {
+        error.value = true;
+        return;
+      }
+
       const rawTxs = result?.edges || [];
       transactions.value = rawTxs.map((edge: any) => {
         return {
           requestKey: edge.node.hash,
           height: edge.node.result.block?.height,
           canonical: edge.node.result.block?.canonical,
+          badResult: edge.node.result.badResult,
           chainId: edge.node.cmd.meta.chainId,
           time: formatRelativeTime(edge.node.cmd.meta.creationTime),
           sender: edge.node.cmd.meta.sender,
@@ -134,8 +159,9 @@ export const useTransactions = () => {
           cursor: edge.cursor,
         };
       });
-    } catch (error) {
-      console.error('Error fetching or processing transactions:', error);
+    } catch (e) {
+      console.error('Error fetching or processing transactions:', e);
+      error.value = e;
       transactions.value = [];
     } finally {
       loading.value = false;
@@ -143,6 +169,7 @@ export const useTransactions = () => {
   };
 
   return {
+    error,
     transactions,
     loading,
     fetchTransactions,

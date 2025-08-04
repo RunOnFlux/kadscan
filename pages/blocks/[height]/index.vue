@@ -29,6 +29,7 @@ const height = computed(() => Number(route.params.height));
 const {
   blocksByHeight: blocks,
   loadingByHeight: loading,
+  error,
   fetchBlocksByHeight,
   totalCount: lastBlockHeight,
   fetchTotalCount,
@@ -107,6 +108,13 @@ watch(
   }
 );
 
+// Redirect to error page when transaction is not found
+watch(error, (newError) => {
+  if (newError) {
+    navigateTo('/error', { replace: true })
+  }
+})
+
 function downloadData() {
   const csv = exportableToCsv(blocks.value, tableHeaders);
   downloadCSV(csv, `kadena-blocks-height-${height.value}.csv`);
@@ -122,6 +130,7 @@ function downloadData() {
     </div>
 
     <SkeletonTable v-if="loading" />
+    
     <DataTable
       v-else
       :headers="tableHeaders"

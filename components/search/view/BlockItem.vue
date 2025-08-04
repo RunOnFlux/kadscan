@@ -2,7 +2,6 @@
 import { format } from 'date-fns'
 
 const props = defineProps<{
-  parent: string,
   chainId: number,
   height: number,
   hash: string,
@@ -11,16 +10,14 @@ const props = defineProps<{
   // transactionsByBlockId: any,
 }>()
 
-const status = computed((): 'success' | 'error' => {
-  return props.parent ? 'success' : 'error'
-})
+const status = 'success' // All blocks are valid
 
 // const miner = useBlockMiner(props.minerData)
 </script>
 
 <template>
   <NuxtLink
-    :to="`/blocks/chain/${chainId}/height/${height}`"
+    :to="`/blocks/${height}/chain/${chainId}`"
     class="py-3 flex gap-2 hover:opacity-[0.8]"
   >
     <IconStatus

@@ -9,6 +9,7 @@ defineProps<{
   description?: string;
   copyTooltip?: string;
   tooltipPos?: 'top' | 'right' | 'bottom' | 'left';
+  topAlign?: boolean;
 }>()
 </script>
 
@@ -18,7 +19,7 @@ defineProps<{
     :class="[
       col && '!flex-col !items-start',
       row && '!flex-row !gap-6',
-      value && 'md:items-center'
+      topAlign ? 'md:items-start' : (value && 'md:items-center')
     ]"
   >
     <div

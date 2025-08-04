@@ -39,24 +39,24 @@ export const routes: Route[] = [
     label: 'Transactions',
     tag: 'route:transactions',
   },
-  {
-    type: 'link',
-    path: '/nfts',
-    label: 'NFTs',
-    tag: 'route:nfts',
-  },
-  {
-    type: 'link',
-    path: '/tokens',
-    label: 'Tokens',
-    tag: 'route:tokens',
-  },
-  {
-    type: 'link',
-    path: '/tokens/trending',
-    label: 'Top Statistics',
-    tag: 'route:top-statistics',
-  },
+  // {
+  //   type: 'link',
+  //   path: '/nfts',
+  //   label: 'NFTs',
+  //   tag: 'route:nfts',
+  // },
+  // {
+  //   type: 'link',
+  //   path: '/tokens',
+  //   label: 'Tokens',
+  //   tag: 'route:tokens',
+  // },
+  // {
+  //   type: 'link',
+  //   path: '/tokens/trending',
+  //   label: 'Top Statistics',
+  //   tag: 'route:top-statistics',
+  // },
 ]
 
 export default routes

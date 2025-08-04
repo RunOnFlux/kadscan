@@ -17,23 +17,23 @@ export const resetGasPriceStats = () => {
 };
 
 const homeTransactionsQuery = `
-    query HomeTxListInit($last: Int) {
-      transactions(last: $last) {
-        totalCount
-        edges {
-          node {
-            hash
-            cmd {
-              meta {
-                creationTime
-                gasPrice
-              }
-            }
+query HomeTxListInit($first: Int) {
+  transactions(first: $first) {
+    totalCount
+    edges {
+      node {
+        hash
+        cmd {
+          meta {
+            creationTime
+            gasPrice
           }
         }
       }
     }
-  `;
+  }
+}
+`;
 
 const fetchInitialGasPriceStats = async (networkId: string) => {
   const stats = useGasPriceStats();
@@ -51,7 +51,7 @@ const fetchInitialGasPriceStats = async (networkId: string) => {
         query: homeTransactionsQuery,
         networkId: networkId,
         variables: {
-          last: 100,
+          first: 20,
         },
       },
     });

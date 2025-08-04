@@ -32,9 +32,10 @@ const { truncateAddress } = useFormat();
 const { selectedNetwork } = useSharedData();
 const { isMobile } = useScreenSize();
 
-const { totalCount: lastBlockHeight, fetchTotalCount: fetchLastBlockHeight } = useBlocks();
+const { totalCount: lastBlockHeight, fetchTotalCount: fetchLastBlockHeight, error: blocksError, clearState: clearBlocksState } = useBlocks();
 
 const { 
+  error: transactionsError,
   transactions, 
   loading, 
   fetchTransactions,
@@ -43,7 +44,7 @@ const {
   fetchTotalCount, 
   rowsToShow, 
   updateRowsToShow,
-  clearState,
+  clearState: clearTransactionsState,
 } = useTransactions();
 
 // Chain filter state - initialize from URL parameters (commented due to query glitch)
@@ -51,7 +52,8 @@ const selectedChain = ref({ label: 'All', value: null });
 
 // Clear global state on mount to show skeleton on page navigation
 onMounted(() => {
-  clearState();
+  clearTransactionsState();
+  clearBlocksState();
 });
 
 // Initialize chain filter from URL parameter on component mount (commented due to query glitch)
@@ -90,9 +92,15 @@ const subtitle = computed(() => {
 
 const getFeeInKda = (item: any) => {
   if (!item.gas || !item.rawGasPrice) {
-    return '0 KDA';
+    return '0.0 KDA';
   }
   const feeInKda = item.gas * item.rawGasPrice;
+  
+  // If fee is 0, show simplified format
+  if (feeInKda === 0) {
+    return '0.0 KDA';
+  }
+  
   const formattedFee = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 4,
     maximumFractionDigits: 12,
@@ -135,30 +143,30 @@ const totalPages = computed(() => {
   return Math.ceil(totalCount.value / rowsToShow.value);
 });
 
-function blockStatus(blockHeight: number, canonical: boolean) {
-  if(lastBlockHeight.value - 10 >= blockHeight && !canonical) {
+function blockStatus(blockHeight: number, canonical: boolean, badResult: any) {
+  if((lastBlockHeight.value - 10 >= blockHeight && !canonical) || badResult !== null) {
     return {
-      text: 'Orphaned',
+      text: 'Failed',
       icon: IconCancel,
-      classes: 'bg-[#7f1d1d66] border-[#f87171] text-[#f87171]',
-      description: 'Block is not part of the canonical chain and is orphaned',
+      classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]',
+      description: 'Transaction failed to execute',
     };
   }
 
   if(canonical) {
     return {
-      text: 'Finalized',
+      text: 'Success',
       icon: IconCheckmarkFill,
-      classes: 'bg-[#0f1f1d] border-[#00a186] text-[#00a186]',
-      description: 'Block is part of the canonical chain and safe to use',
+      classes: 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]',
+      description: 'Transaction executed successfully',
     };
   }
 
   return {
     text: 'Pending',
     icon: IconHourglass,
-    classes: 'bg-[#17150d] border-[#444649] text-[#989898]',
-    description: 'Block is not part of the canonical chain and is pending to be finalized or orphaned',
+    classes: 'bg-[#17150d] border-[#44464980] text-[#989898]',
+    description: 'Transaction is pending to be finalized',
   };
 };
 
@@ -176,6 +184,9 @@ const filteredTransactions = computed(() => {
 watch(
   [currentPage, rowsToShow],
   ([newPage, newRows], [oldPage, oldRows]) => {
+    // Don't update URL if there's an error (prevents race condition with error redirect)
+    if (transactionsError.value || blocksError.value) return;
+    
     const query = { ...route.query, page: newPage };
     if (newRows !== oldRows) {
       query.page = 1;
@@ -191,6 +202,9 @@ watch(
     if (!network) {
       return;
     }
+
+    // Don't run pagination logic if there's an error (prevents race condition with error redirect)
+    if (transactionsError.value || blocksError.value) return;
 
     const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
     const chainChanged = oldChain && selectedChain.value.value !== oldChain.value;
@@ -247,6 +261,13 @@ watch(
   }
 );
 
+// Redirect to error page when transaction is not found
+watch([transactionsError, blocksError], ([transactionsError, blocksError]) => {
+  if (transactionsError || blocksError) {
+    navigateTo('/error', { replace: true })
+  }
+})
+
 function downloadData() {
   const csv = exportableToCsv(filteredTransactions.value, tableHeaders);
   downloadCSV(csv, `kadena-transactions-page-${currentPage.value}.csv`);
@@ -262,6 +283,7 @@ function downloadData() {
     </div>
 
     <SkeletonTable v-if="loading" />
+
     <DataTable
       v-else
       :headers="tableHeaders"
@@ -271,7 +293,7 @@ function downloadData() {
       :subtitle="subtitle"
       v-model:currentPage="currentPage"
       :totalPages="totalPages"
-      v-model:selectedRows="rowsToShow"
+      v-model:selectedRows="selectedRowOption"
       :rowOptions="rowOptions"
       v-model:loadingPage="loadingPage"
       :has-next-page="pageInfo?.hasNextPage"
@@ -303,28 +325,33 @@ function downloadData() {
         </div>
       </template>
       <template #height="{ item }">
-        <NuxtLink :to="`/blocks/${item.height}/chain/${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.height }}</NuxtLink>
+        <span v-if="item.time === 0 || item.height === 0" class="text-[#f5f5f5]">Genesis</span>
+        <NuxtLink v-else :to="`/blocks/${item.height}/chain/${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.height }}</NuxtLink>
       </template>
       <template #status="{ item }">
-        <Tooltip :value="blockStatus(item.height, item.canonical).description" :offset-distance="8">
+        <Tooltip :value="blockStatus(item.height, item.canonical, item.badResult).description" :offset-distance="8">
           <div
             v-if="blockStatus"
             class="px-2 py-1.5 text-[11px] rounded-md border flex items-center gap-1 leading-none"
-            :class="blockStatus(item.height, item.canonical).classes"
+            :class="blockStatus(item.height, item.canonical, item.badResult).classes"
           >
-            <component :is="blockStatus(item.height, item.canonical).icon" class="w-2.5 h-2.5" />
+            <component :is="blockStatus(item.height, item.canonical, item.badResult).icon" class="w-2.5 h-2.5" />
             <span>
-              {{ blockStatus(item.height, item.canonical).text }}
+              {{ blockStatus(item.height, item.canonical, item.badResult).text }}
             </span>
           </div>
         </Tooltip>
       </template>
       <template #sender="{ item }">
         <div class="flex items-center">
-          <Tooltip :value="item.sender" variant="hash">
-            <NuxtLink :to="`/account/${item.sender}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.sender, 10, 10) }}</NuxtLink>
-          </Tooltip>
-          <Copy :value="item.sender" tooltipText="Copy Address" />
+          <template v-if="item.sender && item.sender !== 'N/A'">
+            <Tooltip :value="item.sender" variant="hash">
+              <NuxtLink :to="`/account/${item.sender}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.sender, 10, 10) }}</NuxtLink>
+            </Tooltip>
+            <Copy :value="item.sender" tooltipText="Copy Address" />
+          </template>
+          <span v-else-if="item.time === 0 || (item.sender === 'NaN' || !item.sender || item.sender === 'N/A')" class="text-[#f5f5f5]">Genesis</span>
+          <span v-else class="text-[#f5f5f5]">NaN</span>
         </div>
       </template>
       <template #gas="{ item }">

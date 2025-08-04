@@ -129,6 +129,7 @@ const { formatRelativeTime } = useFormat();
 const pageInfo = ref<any>(null);
 const totalCount = ref(0);
 const rowsToShow = ref<number>(25);
+const error = ref<any>(null);
 
 // State for blocks by height
 const blocksByHeight = ref<any[]>([]);
@@ -140,6 +141,7 @@ export const useBlocks = () => {
     blocksByHeight.value = [];
     loading.value = true;
     loadingByHeight.value = true;
+    error.value = null;
     pageInfo.value = null;
   };
 
@@ -149,6 +151,10 @@ export const useBlocks = () => {
 
   const fetchTotalCount = async ({ networkId }: { networkId: string }) => {
     if (!networkId) return;
+    
+    // Reset error state at the beginning of each fetch
+    error.value = null;
+    
     try {
       const response: any = await $fetch('/api/graphql', {
         method: 'POST',
@@ -157,9 +163,16 @@ export const useBlocks = () => {
           networkId,
         },
       });
-      totalCount.value = response?.data?.lastBlockHeight || 0;
-    } catch (error) {
-      console.error('Error fetching total block count:', error);
+
+      if (response?.data?.lastBlockHeight) {
+        totalCount.value = response?.data?.lastBlockHeight;
+      } else {
+        error.value = true;
+      }
+
+    } catch (e) {
+      console.error('Error fetching total block count:', e);
+      error.value = true;
     }
   };
 
@@ -178,6 +191,9 @@ export const useBlocks = () => {
   }) => {
     if (!networkId) return;
     loading.value = blocks.value.length === 0;
+    
+    // Reset error state at the beginning of each fetch
+    error.value = null;
     try {
       const isForward = !!after || (!after && !before);
       const response: any = await $fetch('/api/graphql', {
@@ -200,6 +216,15 @@ export const useBlocks = () => {
       pageInfo.value = result?.pageInfo || null;
 
       const rawBlocks = result?.edges || [];
+      
+      // Check if no blocks found - this should trigger error state
+      if (rawBlocks.length === 0) {
+        console.log("NO BLOCKS FOUND")
+        error.value = true;
+        blocks.value = [];
+        return;
+      }
+      
       const blocksMap = rawBlocks.map((edge: any) => {
         const details = processBlockDetails(edge.node);
         return {
@@ -213,8 +238,9 @@ export const useBlocks = () => {
         };
       });
       blocks.value = blocksMap;
-    } catch (error) {
-      console.error('Error fetching or processing blocks:', error);
+    } catch (e) {
+      console.error('Error fetching or processing blocks:', e);
+      error.value = true;
       blocks.value = [];
     } finally {
       loading.value = false;
@@ -230,6 +256,10 @@ export const useBlocks = () => {
   }) => {
     if (!networkId || !height) return;
     loadingByHeight.value = blocksByHeight.value.length === 0;
+    
+    // Reset error state at the beginning of each fetch
+    error.value = null;
+
     try {
       const response: any = await $fetch('/api/graphql', {
         method: 'POST',
@@ -246,6 +276,13 @@ export const useBlocks = () => {
       const result = response?.data?.blocksFromHeight;
       const rawBlocks = result?.edges || [];
       
+      // Check if no blocks found for this height
+      if (rawBlocks.length === 0) {
+        error.value = true;
+        blocksByHeight.value = [];
+        return;
+      }
+      
       const blocksMap = rawBlocks.map((edge: any) => {
         const details = processBlockDetails(edge.node);
         return {
@@ -260,8 +297,8 @@ export const useBlocks = () => {
       
       // Sort by chainId in ascending order (0-19)
       blocksByHeight.value = blocksMap.sort((a: any, b: any) => a.chainId - b.chainId);
-    } catch (error) {
-      console.error('Error fetching or processing blocks by height:', error);
+    } catch (e) {
+      console.error('Error fetching or processing blocks by height:', e);
       blocksByHeight.value = [];
     } finally {
       loadingByHeight.value = false;
@@ -279,6 +316,7 @@ export const useBlocks = () => {
     fetchTotalCount,
     blocksByHeight,
     loadingByHeight,
+    error,
     fetchBlocksByHeight,
     clearState,
   };

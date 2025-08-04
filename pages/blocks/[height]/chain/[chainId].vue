@@ -17,29 +17,29 @@ definePageMeta({
 });
 
 const textContent = {
-  blockHeight: { label: 'Block Height:', description: 'The unique numerical position of the block in the blockchain' },
+  blockHeight: { label: 'Block Height:', description: 'Also known as Block Number. The block height, which indicates the length of the blockchain, increases after the addition of the new block.' },
   chainId: { label: 'Chain ID:', description: 'The specific chain (0-19) on which this block was mined' },
-  status: { label: 'Status:', description: 'Indicates if the block is confirmed and part of the canonical chain' },
-  creationTime: { label: 'Creation Time:', description: 'Timestamp when the block was created' },
-  transactions: { label: 'Transactions:', description: 'Transactions included in this block' },
+  status: { label: 'Status:', description: 'The finality status of the block.' },
+  creationTime: { label: 'Creation Time:', description: 'The date and time at which a block is produced.' },
+  transactions: { label: 'Transactions:', description: 'The number of transactions in the block.' },
   events: { label: 'Events:', description: 'Number of events emitted by the block’s transactions' },
-  minerAccount: { label: 'Miner Account:', description: 'Address of the miner who produced this block' },
-  blockReward: { label: 'Block Reward:', description: 'Amount of KDA awarded for mining this block' },
-  difficulty: { label: 'Difficulty:', description: 'A measure of how difficult it was to find a hash below the target for this block' },
-  gasUsed: { label: 'Gas Used:', description: 'Total gas consumed by transactions in this block' },
-  gasLimit: { label: 'Gas Limit:', description: 'Maximum gas allowed in the block' },
-  gasPrice: { label: 'Gas Price:', description: 'Average gas price of transactions in this block' },
-  kadenaPrice: { label: 'Kadena Price:', description: 'Closing price of Kadena on date of transaction' },
-  nonce: { label: 'Nonce:', description: 'A random value used by miners to create a valid proof-of-work hash' },
-  epoch: { label: 'Epoch:', description: 'Start time of the current epoch' },
-  flags: { label: 'Flags:', description: 'Hex-encoded bits used for configuration' },
-  target: { label: 'Target:', description: 'Hash must be below this value to be valid' },
-  weight: { label: 'Weight:', description: 'Cumulative difficulty up to this block' },
-  hash: { label: 'Hash:', description: 'Unique hash of this block (header hash)' },
-  parentHash: { label: 'Parent Hash:', description: 'Hash of the previous block in this chain' },
-  powHash: { label: 'POW Hash:', description: 'Hash result of the proof-of-work computation' },
-  payloadHash: { label: 'Payload Hash:', description: 'Hash of the block’s transaction payload' },
-  neighbor: { label: 'Neighbor at Chain #', description: 'Block at same height on another chain' },
+  minerAccount: { label: 'Miner Account:', description: 'Address receiving fees from transactions in this block.' },
+  blockReward: { label: 'Block Reward:', description: 'For each block, the block producer is rewarded with a finite amount of KDA on top of the fees paid for all transactions in the block.' },
+  difficulty: { label: 'Difficulty:', description: 'Total dificulty of the chain until this block.' },
+  nonce: { label: 'Nonce:', description: 'A random value used by miners to create a valid proof-of-work hash.' },
+  gasUsed: { label: 'Gas Used:', description: 'The total gas used in the block and its percentage of gas filled in the block.' },
+  gasLimit: { label: 'Gas Limit:', description: 'Maximum gas allowed in the block.' },
+  gasPrice: { label: 'Gas Price:', description: 'Average gas price of transactions in this block.' },
+  kadenaPrice: { label: 'Kadena Price:', description: 'Closing price of Kadena on date of transaction.' },
+  epoch: { label: 'Epoch:', description: 'Start time of the current epoch.' },
+  flags: { label: 'Flags:', description: 'Hex-encoded bits used for configuration.' },
+  target: { label: 'Target:', description: 'Hash must be below this value to be valid.' },
+  weight: { label: 'Weight:', description: 'Cumulative difficulty up to this block.' },
+  hash: { label: 'Hash:', description: 'Unique hash of this block (header hash).' },
+  parentHash: { label: 'Parent Hash:', description: 'Hash of the previous block in this chain.' },
+  powHash: { label: 'POW Hash:', description: 'Hash result of the proof-of-work computation.' },
+  payloadHash: { label: 'Payload Hash:', description: 'Hash of the block’s transaction payload.' },
+  neighbor: { label: 'Neighbor at Chain #', description: 'Block at same height on another chain.' },
   moreDetails: { label: 'More Details' },
 };
 
@@ -158,7 +158,7 @@ const startPolling = () => {
       fetchBlock();
       fetchTotalCount({ networkId: networkId.value });
     }
-  }, 4000);
+  }, 6000);
 };
 
 onUnmounted(() => {
@@ -179,7 +179,7 @@ watch(
   [() => block.value, lastBlockHeight],
   ([currentBlock, newLastBlockHeight]) => {
     const isCanonical = currentBlock?.canonical;
-    const isOldEnough = newLastBlockHeight - height.value >= 6;
+    const isOldEnough = newLastBlockHeight - height.value >= 10;
 
     if (isCanonical || isOldEnough) {
       stopPolling();
@@ -210,6 +210,13 @@ watch(
   { immediate: true }
 );
 
+// Redirect to error page when block is not found
+watch(error, (newError) => {
+  if (newError) {
+    navigateTo('/error', { replace: true })
+  }
+})
+
 useHead({
   title: `Block #${height.value} - Details`,
 });
@@ -228,15 +235,8 @@ useHead({
 
     <SkeletonBlockDetails v-if="loading && !pollingInterval" />
 
-    <div
-      v-else-if="error || !block"
-      class="bg-[#111111] border items-center justify-center border-[#222222] rounded-xl p-8 text-white"
-    >
-      Block not found. It may not exist or has not been indexed yet. I own you a cool screen displaying the estimated time to index this block.
-    </div>
-
-    <div v-else>
-      <div class="flex items-center gap-2 mb-2">
+    <div v-else-if="block && !error">
+      <div class="flex items-center gap-2 pb-3">
         <button
           class="px-[10px] py-[5px] text-[13px] rounded-lg border font-medium transition-colors bg-[#009367] border-[#222222] text-[#f5f5f5]"
           :class="{
