@@ -21,13 +21,22 @@ const blocksQuery = gql`
   }
 `;
 
+// Block hash search query
+const blockHashQuery = gql`
+  query Block($hash: String!) {
+    block(hash: $hash) {
+      hash
+      chainId
+      height
+      canonical
+    }
+  }
+`;
+
 const addressQuery = gql`
-  query FungibleAccount($accountName: String!) {
-    fungibleAccount(accountName: $accountName) {
-      id
-      fungibleName
-      totalBalance
-      accountName
+  query Transactions($accountName: String) {
+    transactions(accountName: $accountName) {
+      totalCount
     }
   }
 `;
@@ -97,6 +106,8 @@ export function useSearch () {
   const strictKadenaAddressRegex = /^k:[a-fA-F0-9]{64}$/;
   const likelyRequestKeyRegex = /^[A-Za-z0-9\-_]{20,}$/; // More flexible length
   const numericRegex = /^\d+$/;
+  // Block hash pattern - starts with 0X and followed by base64url characters
+  const blockHashRegex = /^0[Xx][A-Za-z0-9\-_]{20,}$/;
 
   const searchImpl = async (value: string) => {
     if (!value) {
@@ -119,28 +130,56 @@ export function useSearch () {
       // Search based on filter or search all types
       const shouldSearchAll = data.filter.value === 'all';
       
-      // Block search - if numeric input
-      if ((shouldSearchAll || data.filter.value === 'blocks') && numericRegex.test(value)) {
-        try {
-          const height = parseInt(value);
-          if (height >= 0 && height <= 20000000) { // Height range validation
-            const blockResponse = await $graphql.default.request(blocksQuery, {
-              startHeight: height,
-              endHeight: height
+      // Block search - if numeric input (height) or block hash
+      if (shouldSearchAll || data.filter.value === 'blocks') {
+        // Search by block height (numeric input)
+        if (numericRegex.test(value)) {
+          try {
+            const height = parseInt(value);
+            if (height >= 0 && height <= 20000000) { // Height range validation
+              const blockResponse = await $graphql.default.request(blocksQuery, {
+                startHeight: height,
+                endHeight: height
+              });
+              
+              if (blockResponse.blocksFromHeight?.edges) {
+                results.blocks = blockResponse.blocksFromHeight.edges.map((edge: any) => ({
+                  chainId: edge.node.chainId,
+                  hash: edge.node.hash,
+                  height: edge.node.height,
+                  transactionsCount: edge.node.transactions?.totalCount || 0,
+                  creationTime: edge.node.creationTime,
+                  canonical: edge.node.canonical
+                }));
+              }
+            }
+          } catch (error) {
+            console.warn('Block height search failed:', error);
+          }
+        }
+        
+        // Search by block hash
+        if (blockHashRegex.test(value)) {
+          try {
+            const blockHashResponse = await $graphql.default.request(blockHashQuery, {
+              hash: value
             });
             
-            if (blockResponse.blocksFromHeight?.edges) {
-              results.blocks = blockResponse.blocksFromHeight.edges.map((edge: any) => ({
-                chainId: edge.node.chainId,
-                hash: edge.node.hash,
-                height: edge.node.height,
-                transactionsCount: edge.node.transactions?.totalCount || 0,
-                creationTime: edge.node.creationTime
-              }));
+            if (blockHashResponse.block) {
+              const block = blockHashResponse.block;
+              // Add the block hash result to existing blocks array
+              results.blocks = [...(results.blocks || []), {
+                chainId: block.chainId,
+                hash: block.hash,
+                height: block.height,
+                transactionsCount: 0, // Hash search doesn't return transaction count
+                creationTime: null, // Hash search doesn't return creation time
+                canonical: block.canonical
+              }];
             }
+          } catch (error) {
+            console.warn('Block hash search failed:', error);
           }
-        } catch (error) {
-          console.warn('Block search failed:', error);
         }
       }
 
@@ -203,11 +242,11 @@ export function useSearch () {
             accountName: value
           });
           
-          if (addressResponse.fungibleAccount) {
+          if (addressResponse.transactions && addressResponse.transactions.totalCount > 0) {
             results.addresses = [{
-              account: addressResponse.fungibleAccount.accountName || value,
-              id: addressResponse.fungibleAccount.id,
-              totalBalance: addressResponse.fungibleAccount.totalBalance
+              account: value,
+              id: value, // Use the account name as ID
+              totalBalance: addressResponse.transactions.totalCount // Store transaction count instead of balance
             }];
           }
         } catch (error) {
@@ -249,6 +288,11 @@ export function useSearch () {
       }
     }
 
+    // Block hash - starts with 0X
+    if (blockHashRegex.test(searchTerm)) {
+      return "block-hash";
+    }
+
     return null;
   }
 
@@ -275,14 +319,20 @@ export function useSearch () {
 
     if (data?.searched?.blocks && data?.searched?.blocks?.length === 1) {
       const block = data?.searched?.blocks[0];
-      router.push(`/blocks/${block.height}/chain/${block.chainId}`);
+      const blockUrl = `/blocks/${block.height}/chain/${block.chainId}`;
+      // Add canonical parameter if block is not canonical
+      const url = block.canonical === false ? `${blockUrl}?canonical=false` : blockUrl;
+      router.push(url);
       return true;
     }
 
     // If multiple blocks, redirect to first canonical or first available
     if (data?.searched?.blocks && data?.searched?.blocks?.length > 1) {
       const block = data?.searched?.blocks[0];
-      router.push(`/blocks/${block.height}/chain/${block.chainId}`);
+      const blockUrl = `/blocks/${block.height}/chain/${block.chainId}`;
+      // Add canonical parameter if block is not canonical
+      const url = block.canonical === false ? `${blockUrl}?canonical=false` : blockUrl;
+      router.push(url);
       return true;
     }
 
@@ -309,11 +359,16 @@ export function useSearch () {
       if (redirectType === "blocks") {
         // For blocks, we need to search first to get chainId, default to chain 0
         router.push(`/blocks/${data.query}/chain/0`);
+        cleanup();
+        return;
+      } else if (redirectType === "block-hash") {
+        // For block hashes, we need to search first to get the block data
+        // Don't redirect immediately, let the search complete first
       } else {
         router.push(`/${redirectType}/${data.query}`);
+        cleanup();
+        return;
       }
-      cleanup();
-      return;
     }
 
     if (!data.loading && data.searched) {

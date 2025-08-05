@@ -62,7 +62,7 @@ const scrollToView = (viewId: string) => {
   <div
     v-if="open"
     ref="modalRef"
-    class="absolute top-full mt-3 left-0 right-[52px] bg-[#111111] border-l border-r border-b border-[#222222] rounded-b-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] max-h-[344px] overflow-auto z-[99] w-full"
+    class="absolute top-full left-0 right-[52px] bg-[#111111] border border-[#222222] rounded-b-md max-h-[344px] overflow-auto z-[99] w-full"
   >
     <div class="sticky top-0 z-10 px-4 pt-4 border-b border-b-[#222222] bg-[#111111]">
       <div
