@@ -9,21 +9,22 @@ defineProps<{
     class="flex flex-col"
   >
     <div
-      class="pb-2"
+      class="pb-1 px-2 pt-3"
     >
       <span
-        class="text-xs text-[#bbbbbb] mb-[1px]"
+        class="text-[11px] font-medium text-[#bbbbbb] mb-[1px]"
       >
         ADDRESSES
       </span>
     </div>
 
-    <SearchViewAddressItem
-      v-bind="address"
-      class="py-3"
-      :key="'address:'+i+address.id"
-      v-for="(address, i) in addresses"
-      :class="[!((i + 1) === addresses.length) && '!border-b border-b-[#222222]']"
-    />
+    <div class="flex flex-col gap-2">
+      <SearchViewAddressItem
+        v-bind="address"
+        class="py-2"
+        :key="'address:'+i+address.id"
+        v-for="(address, i) in addresses"
+      />
+    </div>
   </div>
 </template>

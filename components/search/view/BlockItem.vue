@@ -1,35 +1,51 @@
 <script setup lang="ts">
-import { format } from 'date-fns'
+import { formatDistanceToNowStrict } from 'date-fns'
+import { computed } from 'vue'
 
 const props = defineProps<{
   chainId: number,
   height: number,
   hash: string,
-  // createdAt: any,
-  // minerData: string,
-  // transactionsByBlockId: any,
+  creationTime?: string | null,
+  canonical?: boolean,
 }>()
 
-const status = 'success' // All blocks are valid
+// Compute status based on canonical property
+const status = computed(() => {
+  // If canonical is false, block is orphaned/invalid
+  return props.canonical === false ? 'error' : 'success'
+})
 
-// const miner = useBlockMiner(props.minerData)
+// Compute URL with canonical parameter when needed
+const blockUrl = computed(() => {
+  const baseUrl = `/blocks/${props.height}/chain/${props.chainId}`
+  // Add canonical parameter if block is not canonical
+  return props.canonical === false ? `${baseUrl}?canonical=false` : baseUrl
+})
+
+const timeAgo = computed(() => {
+  if (!props.creationTime) return null
+  const time = new Date()
+  const distance = formatDistanceToNowStrict(new Date(props.creationTime), { addSuffix: true })
+  return distance.replace(' seconds', ' secs').replace(' second', ' sec')
+})
 </script>
 
 <template>
   <NuxtLink
-    :to="`/blocks/${height}/chain/${chainId}`"
-    class="py-3 flex gap-2 hover:opacity-[0.8]"
+    :to="blockUrl"
+    class="py-2 px-2 flex gap-2 hover:bg-[#1d1d1d] hover:rounded-md"
   >
     <IconStatus
       :status="status"
-      class="mb-auto xl:mb-0  w-[28px] h-[28px]"
+      class="mb-auto w-[28px] h-[28px]"
     />
 
     <div
       class="flex flex-col truncate"
     >
       <span
-        class="text-font-400 text-sm truncate block"
+        class="text-[#fafafa] text-sm truncate block"
       >
         {{ hash }}
       </span>
@@ -38,7 +54,7 @@ const status = 'success' // All blocks are valid
         <span
           class="text-font-500 text-xs"
         >
-          Block Height: {{ height }}
+          Block: {{ height }}
         </span>
 
         -
@@ -46,7 +62,15 @@ const status = 'success' // All blocks are valid
         <span
           class="text-font-500 text-xs"
         >
-          Chain Id: {{ chainId }}
+          Chain: {{ chainId }}
+        </span>
+
+        -
+
+        <span
+          class="text-font-500 text-xs"
+        >
+          Time: {{ timeAgo }} 
         </span>
       </div>
     </div>

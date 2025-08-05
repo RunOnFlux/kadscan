@@ -7,8 +7,8 @@ defineProps<{
 
 <template>
   <div
-    class="cursor-pointer px-3 py-1 rounded-lg  font-medium transition-colors whitespace-nowrap relative"
-    :class="isActive ? 'bg-[#0784c3] text-white' : 'bg-[#222222] text-[#fafafa] hover:bg-[#333333]  '"
+    class="cursor-pointer px-2 py-1 rounded-full text-[11px] font-medium transition-colors whitespace-nowrap relative"
+    :class="isActive ? 'bg-[#009367] text-[#fafafa]' : 'bg-[#222222] text-[#fafafa] hover:bg-[#333333]'"
   >
     <span>
       {{ label }}

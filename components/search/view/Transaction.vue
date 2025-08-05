@@ -9,21 +9,22 @@ defineProps<{
     class="flex flex-col gap-2"
   >
     <div
-      class="pb-2"
+      class="pb-1 px-2 pt-3"
     >
       <span
-        class="text-xs text-[#bbbbbb] mb-[1px]"
+        class="text-[11px] font-medium text-[#bbbbbb] mb-[1px]"
       >
         TRANSACTIONS
       </span>
     </div>
 
-    <SearchViewTransactionItem
-      v-bind="transaction"
-      class="py-3"
-      :key="'transaction:'+transaction.id"
-      v-for="(transaction, i) in transactions"
-      :class="[!((i + 1) === transactions.length) && '!border-b border-b-[#222222]']"
-    />
+    <div class="flex flex-col gap-2">
+      <SearchViewTransactionItem
+        v-bind="transaction"
+        class="py-2"
+        :key="'transaction:'+transaction.id"
+        v-for="(transaction, i) in transactions"
+      />
+    </div>
   </div>
 </template>

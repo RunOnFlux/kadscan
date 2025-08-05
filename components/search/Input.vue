@@ -10,13 +10,14 @@ const {
   handleKeyDown,
 } = useSearch();
 
-const placeholder = ref('Search by Transaction / Address / Token / Block')
+const placeholder = ref('Search by Transaction / Address / Block / Token / Code')
+const focused = ref(false)
 
 const updatePlaceholder = () => {
   if (window.innerWidth < 640) {
-    placeholder.value = 'Transaction / Address / Token / Block'
+    placeholder.value = 'Transaction / Address / Block / Token'
   } else {
-    placeholder.value = 'Search by Transaction / Address / Token / Block'
+    placeholder.value = 'Search by Transaction / Address / Block / Token / Code'
   }
 }
 
@@ -50,21 +51,25 @@ onUnmounted(() => {
         />
       </div>
 
-      <div class="relative w-full flex items-center">
+      <div class="relative w-full flex items-start">
         <input
           class="
-            px-1
+            pl-3
+            pr-8
             bazk:px-2
             py-[0.3rem]
-            text-[15px]
+            text-[16px]
             bg-transparent
-            outline-none
             h-full w-full
             text-[#f5f5f5]
             placeholder:text-[#bbbbbb]
-            pr-8
+            border rounded-lg
+            outline-none
           "
+
           @click.prevent="data.open = true"
+          @focus="focused = true"
+          @blur="focused = false"
           :value="data.query"
           @input="handleInput"
           @keydown="handleKeyDown"
@@ -80,10 +85,12 @@ onUnmounted(() => {
 
     <SearchModal
       :cleanup="cleanup"
+      :close="close"
       :open="data.open && !!data.query && !!data.searched"
       :error="data.error"
       :loading="data.loading"
       :items="data.searched"
+      :selectedFilter="data.filter.value"
     />
       </div>
 
@@ -100,3 +107,15 @@ onUnmounted(() => {
 
   </div>
 </template>
+
+<style scoped>
+input {
+  border-color: transparent !important;
+  border-width: 2px !important;
+}
+input:focus {
+  border-color: #292929 !important;
+  border-width: 2px !important;
+  outline: none !important;
+}
+</style>
