@@ -7,11 +7,13 @@ const props = withDefaults(
     items: any,
     cleanup: any,
     close: any,
+    selectedFilter?: string,
   }>(),
   {
     error: null,
     open: false,
     loading: false,
+    selectedFilter: 'all',
   }
 )
 const isEmpty = computed(() => {
@@ -37,7 +39,44 @@ const hasTokens = computed(() => {
   return props.items?.tokens?.length > 0
 });
 
-const activeFilter = ref('');
+// Computed to detect single result type
+const singleResultType = computed(() => {
+  if (!props.items) return null
+  
+  const resultTypes = []
+  if (hasBlocks.value) resultTypes.push('blocks')
+  if (hasTransactions.value) resultTypes.push('transactions') 
+  if (hasAddresses.value) resultTypes.push('address')
+  if (hasTokens.value) resultTypes.push('tokens')
+  
+  return resultTypes.length === 1 ? resultTypes[0] : null
+})
+
+// Map filter values to activeFilter values
+const getInitialActiveFilter = () => {
+  // If "All Filters" is selected but only one result type exists, activate that filter
+  if (props.selectedFilter === 'all' && singleResultType.value) {
+    return singleResultType.value
+  }
+  
+  if (props.selectedFilter === 'all') return ''
+  if (props.selectedFilter === 'address') return 'address'
+  return props.selectedFilter // 'blocks', 'transactions', 'tokens' stay the same
+}
+
+const activeFilter = ref(getInitialActiveFilter());
+
+// Watch for selectedFilter changes to update activeFilter
+watch(() => props.selectedFilter, () => {
+  activeFilter.value = getInitialActiveFilter()
+})
+
+// Watch for items changes to update activeFilter when results change
+watch(() => props.items, () => {
+  if (props.selectedFilter === 'all') {
+    activeFilter.value = getInitialActiveFilter()
+  }
+}, { deep: true })
 
 const modalRef = ref<any>(null);
 
@@ -65,7 +104,7 @@ const scrollToView = (viewId: string) => {
     ref="modalRef"
     class="absolute top-full left-0 right-[52px] bg-[#111111] border border-[#222222] rounded-b-md max-h-[344px] overflow-auto z-[99] w-full"
   >
-    <div class="sticky top-0 z-10 px-4 pt-4 border-b border-b-[#222222] bg-[#111111]">
+    <div class="sticky top-0 z-10 px-4 pt-3 border-b border-b-[#222222] bg-[#111111]">
       <div
         v-if="loading"
         class="pb-4"
@@ -90,7 +129,7 @@ const scrollToView = (viewId: string) => {
 
       <div
         v-else
-        class="flex gap-2 pb-4 overflow-auto"
+        class="flex gap-2 pb-3 overflow-auto"
       >
         <SearchViewFilter
           label="Addresses"
@@ -125,7 +164,7 @@ const scrollToView = (viewId: string) => {
     <div
       @click="props.close"
       v-if="!loading && !isEmpty"
-      class="flex flex-col p-4 overflow-auto scrollbar-custom min-h-full gap-4 max-w-full overflow-hidden"
+      class="flex flex-col px-2 pb-2 overflow-auto scrollbar-custom min-h-full gap-4 max-w-full overflow-hidden"
     >
       <SearchViewVisible
         v-if="hasAddresses"

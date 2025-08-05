@@ -90,6 +90,7 @@ onUnmounted(() => {
       :error="data.error"
       :loading="data.loading"
       :items="data.searched"
+      :selectedFilter="data.filter.value"
     />
       </div>
 

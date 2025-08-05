@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { formatDistanceToNowStrict } from 'date-fns'
-import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { computed } from 'vue'
 
 const props = defineProps<{
   result: string,
@@ -12,22 +12,9 @@ const props = defineProps<{
 
 const status = useTransactionStatus(props.result)
 
-const now = ref(new Date())
-let interval: any
-
-onMounted(() => {
-  interval = setInterval(() => {
-    now.value = new Date()
-  }, 1000)
-})
-
-onUnmounted(() => {
-  clearInterval(interval)
-})
-
 const timeAgo = computed(() => {
   if (!props.creationTime) return null
-  const time = now.value
+  const time = new Date()
   const distance = formatDistanceToNowStrict(new Date(props.creationTime), { addSuffix: true })
   return distance.replace(' seconds', ' secs').replace(' second', ' sec')
 })
@@ -36,7 +23,7 @@ const timeAgo = computed(() => {
 <template>
   <NuxtLink
     :to="`/transactions/${requestkey}`"
-    class="py-3 px-2 flex gap-2 hover:bg-[#1d1d1d] hover:rounded-md w-full"
+    class="py-2 px-2 flex gap-2 hover:bg-[#1d1d1d] hover:rounded-md w-full"
   >
     <IconStatus
       :status="status"
@@ -52,11 +39,27 @@ const timeAgo = computed(() => {
         {{ requestkey }}
       </span>
 
-      <div class="flex justify-between items-center w-full">
+      <div>
         <span
           class="text-font-500 text-xs"
         >
-          Chain Id: {{ chainId }} • Block: {{ height }} • Time: {{ timeAgo }}
+          Block: {{ height }}
+        </span>
+
+        -
+
+        <span
+          class="text-font-500 text-xs"
+        >
+          Chain: {{ chainId }}
+        </span>
+
+        -
+
+        <span
+          class="text-font-500 text-xs"
+        >
+          Time: {{ timeAgo }}
         </span>
       </div>
     </div>

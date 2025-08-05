@@ -35,14 +35,14 @@ const metadata = computed(() => {
         class="flex gap-2 items-end w-full truncate"
       >
         <span
-          class="text-sm text-font-400 truncate block"
+          class="text-sm text-[#fafafa] truncate block"
         >
           {{ metadata.name }}
         </span>
 
         <span
           v-if="metadata.symbol"
-          class="text-font-400 text-sm font-medium uppercase"
+          class="text-[#fafafa] text-sm font-medium uppercase"
         >
           ({{ metadata.symbol }})
         </span>
@@ -51,7 +51,7 @@ const metadata = computed(() => {
 
     <div>
       <span
-        class="text-font-400 text-sm font-medium"
+        class="text-[#fafafa] text-sm font-medium"
       >
         {{ module }}
       </span>

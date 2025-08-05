@@ -10,10 +10,8 @@ const blocksQuery = `
           hash
           height
           chainId
+          canonical
           creationTime
-          transactions {
-            totalCount
-          }
         }
       }
     }
@@ -28,6 +26,7 @@ const blockHashQuery = `
       chainId
       height
       canonical
+      creationTime
     }
   }
 `;
@@ -115,8 +114,7 @@ export function useSearch () {
   const strictKadenaAddressRegex = /^k:[a-fA-F0-9]{64}$/;
   const likelyRequestKeyRegex = /^[A-Za-z0-9\-_]{20,}$/; // More flexible length
   const numericRegex = /^\d+$/;
-  // Block hash pattern - starts with 0X and followed by base64url characters
-  const blockHashRegex = /^0[Xx][A-Za-z0-9\-_]{20,}$/;
+  // Removed 0x block hash pattern - Kadena doesn't use 0x prefixes
 
   const searchImpl = async (value: string) => {
     if (!value) {
@@ -145,27 +143,29 @@ export function useSearch () {
           try {
             const height = parseInt(value);
             if (height >= 0 && height <= 20000000) { // Height range validation
-                          const blockResponse: any = await $fetch('/api/graphql', {
-              method: 'POST',
-              body: {
-                query: blocksQuery,
-                variables: {
-                  startHeight: height,
-                  endHeight: height
+              const blockResponse: any = await $fetch('/api/graphql', {
+                method: 'POST',
+                body: {
+                  query: blocksQuery,
+                  variables: {
+                    startHeight: height,
+                    endHeight: height
+                  },
+                  networkId: selectedNetwork.value?.id,
                 },
-                networkId: selectedNetwork.value?.id,
-              },
-            });
+              });
               
               if (blockResponse.data?.blocksFromHeight?.edges) {
-                results.blocks = blockResponse.data.blocksFromHeight.edges.map((edge: any) => ({
-                  chainId: edge.node.chainId,
-                  hash: edge.node.hash,
-                  height: edge.node.height,
-                  transactionsCount: edge.node.transactions?.totalCount || 0,
-                  creationTime: edge.node.creationTime,
-                  canonical: edge.node.canonical
-                }));
+                results.blocks = blockResponse.data.blocksFromHeight.edges.map((edge: any) => {
+                  return {
+                    chainId: edge.node.chainId,
+                    hash: edge.node.hash,
+                    height: edge.node.height,
+                    transactionsCount: edge.node.transactions?.totalCount || 0,
+                    creationTime: edge.node.creationTime,
+                    canonical: edge.node.canonical
+                  }
+                });
               }
             }
           } catch (error) {
@@ -173,8 +173,8 @@ export function useSearch () {
           }
         }
         
-        // Search by block hash
-        if (blockHashRegex.test(value)) {
+        // Search by block hash (for any non-numeric string >= 40 chars)
+        if (value.length >= 40 && !numericRegex.test(value)) {
           try {
             const blockHashResponse: any = await $fetch('/api/graphql', {
               method: 'POST',
@@ -195,7 +195,7 @@ export function useSearch () {
                 hash: block.hash,
                 height: block.height,
                 transactionsCount: 0, // Hash search doesn't return transaction count
-                creationTime: null, // Hash search doesn't return creation time
+                creationTime: block.creationTime,
                 canonical: block.canonical
               }];
             }
@@ -323,20 +323,10 @@ export function useSearch () {
     }
   };
 
-  const search = debounce(searchImpl, 1500);
+  const search = debounce(searchImpl, 1000);
 
-  function shouldRedirectBeforeSearch(searchTerm: string) {
-    // Strict Kadena address - direct redirect
-    if (strictKadenaAddressRegex.test(searchTerm)) {
-      return "account";
-    }
-
-    // Very likely request key (longer, alphanumeric with dashes/underscores)
-    if (likelyRequestKeyRegex.test(searchTerm) && searchTerm.length >= 40) {
-      return "transactions";
-    }
-
-    // Block height - numeric only
+  async function shouldRedirectBeforeSearch(searchTerm: string) {
+    // 1. Block Height - Highest Priority (numeric only)
     if (numericRegex.test(searchTerm)) {
       const height = parseInt(searchTerm);
       if (height >= 0 && height <= 20000000) {
@@ -344,11 +334,55 @@ export function useSearch () {
       }
     }
 
-    // Block hash - starts with 0X
-    if (blockHashRegex.test(searchTerm)) {
-      return "block-hash";
+    // 2. Skip hash searches if string is too short (< 40 characters)
+    if (searchTerm.length < 40) {
+      // Default to account for short strings
+      return "account";
     }
 
+    // 3. Transaction Hash - Second Priority (query to verify it exists)
+    if (likelyRequestKeyRegex.test(searchTerm)) {
+      try {
+        const txResponse: any = await $fetch('/api/graphql', {
+          method: 'POST',
+          body: {
+            query: transactionQuery,
+            variables: {
+              requestKey: searchTerm
+            },
+            networkId: selectedNetwork.value?.id,
+          },
+        });
+        
+        if (txResponse.data?.transaction) {
+          return "transactions";
+        }
+      } catch (error) {
+        console.warn('Transaction verification failed:', error);
+      }
+    }
+
+    // 4. Block Hash - Third Priority (query to verify it exists)
+    try {
+      const blockHashResponse: any = await $fetch('/api/graphql', {
+        method: 'POST',
+        body: {
+          query: blockHashQuery,
+          variables: {
+            hash: searchTerm
+          },
+          networkId: selectedNetwork.value?.id,
+        },
+      });
+      
+      if (blockHashResponse.data?.block) {
+        return "block-hash";
+      }
+    } catch (error) {
+      console.warn('Block hash verification failed:', error);
+    }
+
+    // 5. Default to account (catch-all for everything else)
     return null;
   }
 
@@ -409,7 +443,7 @@ export function useSearch () {
     event.preventDefault();
     search.cancel();
 
-    const redirectType = shouldRedirectBeforeSearch(data.query);
+    const redirectType = await shouldRedirectBeforeSearch(data.query);
 
     if (redirectType) {
       if (redirectType === "blocks") {
