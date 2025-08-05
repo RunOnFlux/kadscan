@@ -12,9 +12,9 @@ defineProps<{
       class="pb-2"
     >
       <span
-        class="text-white text-sm"
+        class="text-xs text-[#bbbbbb] mb-[1px]"
       >
-        Addresses
+        ADDRESSES
       </span>
     </div>
 
@@ -23,7 +23,7 @@ defineProps<{
       class="py-3"
       :key="'address:'+i+address.id"
       v-for="(address, i) in addresses"
-      :class="[!((i + 1) === addresses.length) && '!border-b border-b-gray-300']"
+      :class="[!((i + 1) === addresses.length) && '!border-b border-b-[#222222]']"
     />
   </div>
 </template>
