@@ -66,7 +66,7 @@ onUnmounted(() => {
             border rounded-lg
             outline-none
           "
-
+          spellcheck="false"
           @click.prevent="data.open = true"
           @focus="focused = true"
           @blur="focused = false"

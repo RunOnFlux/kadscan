@@ -5,6 +5,8 @@ import { fetchInitialGasPriceStats } from '~/composables/useAverageGasPrice';
 import { Listbox, ListboxButton } from '@headlessui/vue'
 import SelectOptions from '~/components/SelectOptions.vue';
 
+const route = useRoute();
+
 const {
   kdaPrice,
   kdaVariation,
@@ -58,21 +60,29 @@ const medGasPrice = computed(() => {
 <template>
   <div>
     <div
-      class="w-full h-[47px] z-50 bg-[#111111] border-b border-[#222222] fixed top-0 left-0 hidden md:flex"
+      :class="[
+        'w-full z-50 bg-[#111111] border-b border-[#222222] fixed top-0 left-0 flex',
+        route.path !== '/' ? 'h-[55px]' : 'h-[47px]'
+      ]"
     >
-      <div class="w-full max-w-[1400px] mx-auto flex items-center justify-between h-full px-5">
-        <div class="flex items-center text-[12.5px] text-[#bbbbbb]">
+        <div :class="[
+          'w-full max-w-[1400px] mx-auto flex items-center justify-between h-full px-3 md:px-5',
+          route.path !== '/' ? 'py-2' : 'py-4'
+        ]">
+        <div class="flex items-center text-[12.5px] text-[#bbbbbb] hidden md:flex">
           <span class="mr-1">KDA Price:</span>
           <span class="text-[#6ab5db] hover:text-[#9ccee7]">{{ formattedKdaPrice }}</span>
           <span :class="variationColor" class="ml-1">{{ formattedVariation ? `(${formattedVariation})` : '' }}</span>
 
-          <span class="ml-4 mr-1">Med Gas Price:</span>
-          <span class="text-[#6ab5db] hover:text-[#9ccee7]">{{ medGasPrice ? medGasPrice + ' KDA' : '-' }}</span>
+          <span class="ml-4 mr-1 hidden lg:inline">Med Gas Price:</span>
+          <span class="text-[#6ab5db] hover:text-[#9ccee7] hidden lg:inline">{{ medGasPrice ? medGasPrice + ' KDA' : '-' }}</span>
         </div>
 
-        <Menu as="div" class="relative inline-block text-left">
+        <div class="flex items-center gap-2 w-full md:w-auto justify-center md:justify-end">
+          <SearchInputHeader v-if="route.path !== '/'" />
+          <Menu as="div" class="relative inline-block text-left hidden md:block">
           <div>
-            <MenuButton class="h-8 w-8 rounded-lg flex items-center justify-center border border-[#222222] hover:bg-[#222222]">
+            <MenuButton class="h-[36.5px] w-[36.5px] rounded-lg flex items-center justify-center border border-[#222222] bg-[#151515] hover:bg-[#222222]">
               <IconKadena class="h-4 w-4" />
             </MenuButton>
           </div>
@@ -103,8 +113,12 @@ const medGasPrice = computed(() => {
             </MenuItems>
           </transition>
         </Menu>
+        </div>
       </div>
     </div>
-    <div class="h-[47px] hidden md:block"></div>
+    <div :class="[
+      'block',
+      route.path !== '/' ? 'h-[55px]' : 'h-[47px]'
+    ]"></div>
   </div>
 </template> 
