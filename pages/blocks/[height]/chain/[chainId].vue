@@ -345,7 +345,12 @@ useHead({
                     </Tooltip>
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.creationTime.label" :description="textContent.creationTime.description" tooltipPos="right">
+                <LabelValue 
+                  :label="textContent.creationTime.label" 
+                  :description="textContent.creationTime.description" 
+                  tooltipPos="right"
+                  topAlign="true"
+                >
                   <template #value>
                     <div class="flex items-center gap-1 text-white">
                       <IconClock class="w-4 h-4" />
@@ -358,6 +363,7 @@ useHead({
                   :value="block.transactions.totalCount"
                   :description="textContent.transactions.description"
                   tooltipPos="right"
+                  topAlign="true"
                 >
                   <template #value>
                     <Tooltip value="Click to view Transactions">
@@ -375,6 +381,7 @@ useHead({
                   :description="textContent.events.description"
                   :value="`${block.events.totalCount} events in this block`"
                   tooltipPos="right"
+                  :row="isMobile"
                 />
               </div>
             </DivideItem>
@@ -382,7 +389,12 @@ useHead({
             <!-- Section 2: Miner and Difficulty -->
             <DivideItem>
               <div class="flex flex-col gap-4">
-                <LabelValue :label="textContent.minerAccount.label" :description="textContent.minerAccount.description" tooltipPos="right">
+                <LabelValue 
+                  :label="textContent.minerAccount.label" 
+                  :description="textContent.minerAccount.description" 
+                  tooltipPos="right"
+                  topAlign="true"
+                >
                   <template #value>
                     <div class="flex items-center gap-2">
                       <Tooltip :value="minerAccount" variant="hash">
@@ -403,20 +415,42 @@ useHead({
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.blockReward.label" :description="textContent.blockReward.description" tooltipPos="right">
+                <LabelValue 
+                  :label="textContent.blockReward.label" 
+                  :description="textContent.blockReward.description" 
+                  tooltipPos="right"
+                  :row="isMobile"
+                >
                   <template #value v-if="blockReward != null">
                     {{ blockReward }} KDA
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.difficulty.label" :description="textContent.difficulty.description" :value="block.difficulty" tooltipPos="right" />
-                <LabelValue :label="textContent.nonce.label" :description="textContent.nonce.description" :value="block.nonce" tooltipPos="right" />
+                <LabelValue 
+                  :label="textContent.difficulty.label" 
+                  :description="textContent.difficulty.description" 
+                  :value="block.difficulty" 
+                  tooltipPos="right"
+                  :row="isMobile"
+                />
+                <LabelValue 
+                  :label="textContent.nonce.label" 
+                  :description="textContent.nonce.description" 
+                  :value="block.nonce" 
+                  tooltipPos="right"
+                  :row="isMobile"
+                />
               </div>
             </DivideItem>
 
             <!-- Section 3: Gas -->
             <DivideItem>
               <div class="flex flex-col gap-4">
-                <LabelValue :label="textContent.gasUsed.label" :description="textContent.gasUsed.description" tooltipPos="right">
+                <LabelValue 
+                  :label="textContent.gasUsed.label" 
+                  :description="textContent.gasUsed.description" 
+                  tooltipPos="right"
+                  :row="isMobile"
+                >
                   <template #value>
                     <GasUsage
                       :gas="totalGasUsed"
@@ -424,9 +458,27 @@ useHead({
                     />
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.gasLimit.label" :description="textContent.gasLimit.description" value="150,000" tooltipPos="right" />
-                <LabelValue :label="textContent.gasPrice.label" :description="textContent.gasPrice.description" :value="formattedGasPrice" tooltipPos="right" />
-                <LabelValue :label="textContent.kadenaPrice.label" :description="textContent.kadenaPrice.description" :value="formattedKadenaPrice" tooltipPos="right" />
+                <LabelValue 
+                  :label="textContent.gasLimit.label" 
+                  :description="textContent.gasLimit.description" 
+                  value="150,000" 
+                  tooltipPos="right"
+                  :row="isMobile"
+                />
+                <LabelValue 
+                  :label="textContent.gasPrice.label" 
+                  :description="textContent.gasPrice.description" 
+                  :value="formattedGasPrice" 
+                  tooltipPos="right" 
+                  :row="isMobile"
+                />
+                <LabelValue 
+                  :label="textContent.kadenaPrice.label" 
+                  :description="textContent.kadenaPrice.description" 
+                  :value="formattedKadenaPrice" 
+                  tooltipPos="right" 
+                  :row="isMobile"
+                />
               </div>
             </DivideItem>
           </Divide>
@@ -445,6 +497,7 @@ useHead({
                   :label="textContent.epoch.label"
                   :description="textContent.epoch.description"
                   tooltipPos="right"
+                  topAlign="true"
                 >
                   <template #value>
                     <div class="flex items-center gap-2">
@@ -452,23 +505,38 @@ useHead({
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.flags.label" :description="textContent.flags.description" tooltipPos="right">
+                <LabelValue 
+                  :label="textContent.flags.label" 
+                  :description="textContent.flags.description" 
+                  tooltipPos="right"
+                  :row="isMobile"
+                >
                   <template #value>
                     <div class="flex items-center gap-2">
                       <span>{{ block.flags }}</span>
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.weight.label" :description="textContent.weight.description" tooltipPos="right">
+                <LabelValue 
+                  :label="textContent.weight.label" 
+                  :description="textContent.weight.description" 
+                  tooltipPos="right"
+                  topAlign="true"
+                >
                   <template #value>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 break-all">
                       <span>{{ block.weight }}</span>
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.target.label" :description="textContent.target.description" tooltipPos="right">
+                <LabelValue 
+                  :label="textContent.target.label" 
+                  :description="textContent.target.description" 
+                  tooltipPos="right"
+                  topAlign="true"
+                >
                   <template #value>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 break-all">
                       <span>{{ block.target }}</span>
                     </div>
                   </template>
@@ -479,16 +547,26 @@ useHead({
             <!-- Hash -->
             <DivideItem v-if="showMore">
               <div class="flex flex-col gap-4">
-                <LabelValue :label="textContent.hash.label" :description="textContent.hash.description" tooltipPos="right">
+                <LabelValue 
+                  :label="textContent.hash.label" 
+                  :description="textContent.hash.description" 
+                  tooltipPos="right"
+                  topAlign="true"
+                >
                   <template #value>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 break-all">
                       <span>{{ block.hash }}</span>
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.parentHash.label" :description="textContent.parentHash.description" tooltipPos="right">
+                <LabelValue 
+                  :label="textContent.parentHash.label" 
+                  :description="textContent.parentHash.description" 
+                  tooltipPos="right"
+                  topAlign="true"
+                >
                   <template #value>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center md:gap-2 gap-0 break-all">
                       <NuxtLink
                           :to="`/blocks/${block.parent.height}/chain/${block.parent.chainId}`"
                           class="text-[#6ab5db] hover:text-[#9ccee7]"
@@ -499,21 +577,31 @@ useHead({
                         :value="block.parent.hash"
                         tooltipText="Copy Parent Hash"
                         iconSize="h-5 w-5"
-                        buttonClass="w-5 h-5"
+                        buttonClass="w-5 h-5 md:block hidden"
                       />
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.powHash.label" :description="textContent.powHash.description" tooltipPos="right">
+                <LabelValue 
+                  :label="textContent.powHash.label" 
+                  :description="textContent.powHash.description" 
+                  tooltipPos="right"
+                  topAlign="true"
+                >
                    <template #value>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 break-all">
                       <span>{{ block.powHash }}</span>
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.payloadHash.label" :description="textContent.payloadHash.description" tooltipPos="right">
+                <LabelValue 
+                  :label="textContent.payloadHash.label" 
+                  :description="textContent.payloadHash.description" 
+                  tooltipPos="right"
+                  topAlign="true"
+                >
                   <template #value>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 break-all">
                       <span>{{ block.payloadHash }}</span>
 
                     </div>
@@ -534,9 +622,10 @@ useHead({
                   :label="`${textContent.neighbor.label}${neighbor.chainId}`"
                   :description="textContent.neighbor.description"
                   tooltipPos="right"
+                  topAlign="true"
                 >
                   <template #value>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center md:gap-2 gap-0 break-all">
                       <NuxtLink
                         :to="`/blocks/${block.height}/chain/${neighbor.chainId}`"
                         class="text-[15px] text-[#6ab5db] hover:text-[#9ccee7]"
@@ -546,7 +635,7 @@ useHead({
                         :value="neighbor.hash"
                         tooltipText="Copy Block Hash"
                         iconSize="h-5 w-5"
-                        buttonClass="w-5 h-5"
+                        buttonClass="w-5 h-5 md:block hidden"
                       />
                     </div>
                   </template>

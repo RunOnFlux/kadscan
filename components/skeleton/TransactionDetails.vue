@@ -14,7 +14,7 @@
         <!-- Section 1: Basic Information -->
         <div class="flex flex-col gap-4">
           <!-- Transaction Hash -->
-          <div class="flex flex-col md:flex-row animate-pulse">
+          <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
             <div class="w-[300px] flex-shrink-0">
               <div class="h-4 w-32 bg-gray-700 rounded"></div>
             </div>
@@ -24,7 +24,7 @@
           </div>
           
           <!-- Status -->
-          <div class="flex flex-col md:flex-row animate-pulse">
+          <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
             <div class="w-[300px] flex-shrink-0">
               <div class="h-4 w-16 bg-gray-700 rounded"></div>
             </div>
@@ -34,7 +34,7 @@
           </div>
           
           <!-- Block -->
-          <div class="flex flex-col md:flex-row animate-pulse">
+          <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
             <div class="w-[300px] flex-shrink-0">
               <div class="h-4 w-12 bg-gray-700 rounded"></div>
             </div>
@@ -44,7 +44,7 @@
           </div>
           
           <!-- Chain ID -->
-          <div class="flex flex-col md:flex-row animate-pulse">
+          <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
             <div class="w-[300px] flex-shrink-0">
               <div class="h-4 w-20 bg-gray-700 rounded"></div>
             </div>
@@ -54,7 +54,7 @@
           </div>
           
           <!-- Timestamp -->
-          <div class="flex flex-col md:flex-row animate-pulse">
+          <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
             <div class="w-[300px] flex-shrink-0">
               <div class="h-4 w-20 bg-gray-700 rounded"></div>
             </div>
@@ -70,7 +70,7 @@
         <!-- Section 2: Addresses -->
         <div class="flex flex-col gap-4">
           <!-- Signers -->
-          <div class="flex flex-col md:flex-row animate-pulse">
+          <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
             <div class="w-[300px] flex-shrink-0">
               <div class="h-4 w-16 bg-gray-700 rounded"></div>
             </div>
@@ -82,7 +82,7 @@
           </div>
           
           <!-- Paid By -->
-          <div class="flex flex-col md:flex-row animate-pulse">
+          <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
             <div class="w-[300px] flex-shrink-0">
               <div class="h-4 w-16 bg-gray-700 rounded"></div>
             </div>
@@ -96,7 +96,7 @@
         <div class="h-px bg-gray-700"></div>
         
         <!-- Section 3: Token Transfers -->
-        <div class="flex flex-col md:flex-row animate-pulse">
+        <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
           <div class="w-[300px] flex-shrink-0">
             <div class="h-4 w-28 bg-gray-700 rounded"></div>
           </div>
@@ -115,7 +115,7 @@
         <!-- Section 4: Misc Values -->
         <div class="flex flex-col gap-4">
           <!-- Value -->
-          <div class="flex flex-col md:flex-row animate-pulse">
+          <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
             <div class="w-[300px] flex-shrink-0">
               <div class="h-4 w-12 bg-gray-700 rounded"></div>
             </div>
@@ -125,7 +125,7 @@
           </div>
           
           <!-- Transaction Fee -->
-          <div class="flex flex-col md:flex-row animate-pulse">
+          <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
             <div class="w-[300px] flex-shrink-0">
               <div class="h-4 w-28 bg-gray-700 rounded"></div>
             </div>
@@ -135,7 +135,7 @@
           </div>
           
           <!-- Gas Price -->
-          <div class="flex flex-col md:flex-row animate-pulse">
+          <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
             <div class="w-[300px] flex-shrink-0">
               <div class="h-4 w-20 bg-gray-700 rounded"></div>
             </div>
@@ -149,7 +149,7 @@
 
     <!-- More Details Card Skeleton -->
     <div class="bg-[#111111] border border-[#222222] rounded-xl p-5 mb-2">
-      <div class="flex flex-col md:flex-row animate-pulse">
+      <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
         <div class="w-[300px] flex-shrink-0">
           <div class="h-4 w-24 bg-gray-700 rounded"></div>
         </div>

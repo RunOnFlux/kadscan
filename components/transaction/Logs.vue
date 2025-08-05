@@ -66,7 +66,6 @@ const sortedEvents = computed(() => {
                 <div class="flex items-center gap-2">
                   <span class="text-[#fafafa] text-[15px] break-all">{{ eventEdge.node.qualifiedName }}</span>
                   <Copy 
-                    v-if="!isMobile"
                     :value="eventEdge.node.qualifiedName" 
                     tooltipText="Copy Qualified Name"
                     iconSize="h-5 w-5"
@@ -101,7 +100,7 @@ const sortedEvents = computed(() => {
             </LabelValue>
 
             <!-- Event Parameters Section (matching Input Data style) -->
-            <div class="flex flex-col md:flex-row items-start gap-3 md:gap-0">
+            <div class="flex flex-col md:flex-row items-start gap-1 md:gap-0">
               <!-- Label Section (matching LabelValue styling) -->
               <div class="flex gap-2 w-full md:min-w-[300px] md:max-w-[300px]">
                 <div class="flex items-center gap-2">
