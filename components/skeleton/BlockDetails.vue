@@ -11,7 +11,7 @@
         <!-- Section 1: Core Information -->
         <div class="flex flex-col gap-4">
           <!-- Block Height -->
-          <div class="flex flex-col md:flex-row animate-pulse">
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
             <div class="w-[300px] flex-shrink-0">
               <div class="h-4 w-24 bg-gray-700 rounded"></div>
             </div>
@@ -21,7 +21,7 @@
           </div>
           
           <!-- Chain ID -->
-          <div class="flex flex-col md:flex-row animate-pulse">
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
             <div class="w-[300px] flex-shrink-0">
               <div class="h-4 w-20 bg-gray-700 rounded"></div>
             </div>
@@ -31,7 +31,7 @@
           </div>
           
           <!-- Status -->
-          <div class="flex flex-col md:flex-row animate-pulse">
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
             <div class="w-[300px] flex-shrink-0">
               <div class="h-4 w-16 bg-gray-700 rounded"></div>
             </div>
@@ -41,7 +41,7 @@
           </div>
           
           <!-- Creation Time -->
-          <div class="flex flex-col md:flex-row animate-pulse">
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
             <div class="w-[300px] flex-shrink-0">
               <div class="h-4 w-28 bg-gray-700 rounded"></div>
             </div>
@@ -51,7 +51,7 @@
           </div>
           
           <!-- Transactions -->
-          <div class="flex flex-col md:flex-row animate-pulse">
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
             <div class="w-[300px] flex-shrink-0">
               <div class="h-4 w-24 bg-gray-700 rounded"></div>
             </div>
@@ -61,7 +61,7 @@
           </div>
           
           <!-- Events -->
-          <div class="flex flex-col md:flex-row animate-pulse">
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
             <div class="w-[300px] flex-shrink-0">
               <div class="h-4 w-16 bg-gray-700 rounded"></div>
             </div>
@@ -77,7 +77,7 @@
         <!-- Section 2: Miner and Difficulty -->
         <div class="flex flex-col gap-4">
           <!-- Miner Account -->
-          <div class="flex flex-col md:flex-row animate-pulse">
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
             <div class="w-[300px] flex-shrink-0">
               <div class="h-4 w-28 bg-gray-700 rounded"></div>
             </div>
@@ -87,7 +87,7 @@
           </div>
           
           <!-- Block Reward -->
-          <div class="flex flex-col md:flex-row animate-pulse">
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
             <div class="w-[300px] flex-shrink-0">
               <div class="h-4 w-24 bg-gray-700 rounded"></div>
             </div>
@@ -97,7 +97,7 @@
           </div>
           
           <!-- Difficulty -->
-          <div class="flex flex-col md:flex-row animate-pulse">
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
             <div class="w-[300px] flex-shrink-0">
               <div class="h-4 w-20 bg-gray-700 rounded"></div>
             </div>
@@ -107,7 +107,7 @@
           </div>
           
           <!-- Nonce -->
-          <div class="flex flex-col md:flex-row animate-pulse">
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
             <div class="w-[300px] flex-shrink-0">
               <div class="h-4 w-12 bg-gray-700 rounded"></div>
             </div>
@@ -123,7 +123,7 @@
         <!-- Section 3: Gas -->
         <div class="flex flex-col gap-4">
           <!-- Gas Used -->
-          <div class="flex flex-col md:flex-row animate-pulse">
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
             <div class="w-[300px] flex-shrink-0">
               <div class="h-4 w-20 bg-gray-700 rounded"></div>
             </div>
@@ -133,7 +133,7 @@
           </div>
           
           <!-- Gas Limit -->
-          <div class="flex flex-col md:flex-row animate-pulse">
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
             <div class="w-[300px] flex-shrink-0">
               <div class="h-4 w-20 bg-gray-700 rounded"></div>
             </div>
@@ -143,7 +143,7 @@
           </div>
           
           <!-- Gas Price -->
-          <div class="flex flex-col md:flex-row animate-pulse">
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
             <div class="w-[300px] flex-shrink-0">
               <div class="h-4 w-20 bg-gray-700 rounded"></div>
             </div>
@@ -153,7 +153,7 @@
           </div>
           
           <!-- Kadena Price -->
-          <div class="flex flex-col md:flex-row animate-pulse">
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
             <div class="w-[300px] flex-shrink-0">
               <div class="h-4 w-28 bg-gray-700 rounded"></div>
             </div>
@@ -167,7 +167,7 @@
 
     <!-- More Details Card Skeleton -->
     <div class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5">
-      <div class="flex flex-col md:flex-row animate-pulse">
+      <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
         <div class="w-[300px] flex-shrink-0">
           <div class="h-4 w-24 bg-gray-700 rounded"></div>
         </div>
