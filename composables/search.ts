@@ -1,9 +1,8 @@
 import debounce from 'lodash/debounce'
-import { gql } from 'nuxt-graphql-request/utils';
 import { staticTokens } from '~/constants/tokens';
 
 // New individual queries for the updated indexer
-const blocksQuery = gql`
+const blocksQuery = `
   query BlocksFromHeight($startHeight: Int!, $endHeight: Int) {
     blocksFromHeight(startHeight: $startHeight, endHeight: $endHeight) {
       edges {
@@ -22,7 +21,7 @@ const blocksQuery = gql`
 `;
 
 // Block hash search query
-const blockHashQuery = gql`
+const blockHashQuery = `
   query Block($hash: String!) {
     block(hash: $hash) {
       hash
@@ -33,7 +32,7 @@ const blockHashQuery = gql`
   }
 `;
 
-const addressQuery = gql`
+const addressQuery = `
   query Transactions($accountName: String) {
     transactions(accountName: $accountName) {
       totalCount
@@ -41,20 +40,30 @@ const addressQuery = gql`
   }
 `;
 
-const transactionQuery = gql`
-  query Transaction($requestKey: String!) {
+const transactionQuery = `
+  query Query($requestKey: String!) {
     transaction(requestKey: $requestKey) {
+      result {
+        ... on TransactionResult {
+          badResult
+          goodResult
+          block {
+            height
+            chainId
+          }
+        }
+      }
       hash
-      requestKey
-      sender
-      result
-      chainId
-      creationTime
+      cmd {
+        meta {
+          creationTime
+        }
+      }
     }
   }
 `;
 
-const tokenQuery = gql`
+const tokenQuery = `
   query TokenPrice($tokenAddress: String!) {
     tokenPrice(tokenAddress: $tokenAddress) {
       id
@@ -100,7 +109,7 @@ export function useSearch () {
   });
 
   const router = useRouter();
-  const { $graphql } = useNuxtApp() as any;
+  const { selectedNetwork } = useSharedData();
 
   // Updated regex patterns - more flexible
   const strictKadenaAddressRegex = /^k:[a-fA-F0-9]{64}$/;
@@ -115,7 +124,6 @@ export function useSearch () {
       return;
     }
 
-    console.log('🔍 Searching for:', value);
     data.loading = true;
     data.error = null;
 
@@ -137,13 +145,20 @@ export function useSearch () {
           try {
             const height = parseInt(value);
             if (height >= 0 && height <= 20000000) { // Height range validation
-              const blockResponse = await $graphql.default.request(blocksQuery, {
-                startHeight: height,
-                endHeight: height
-              });
+                          const blockResponse: any = await $fetch('/api/graphql', {
+              method: 'POST',
+              body: {
+                query: blocksQuery,
+                variables: {
+                  startHeight: height,
+                  endHeight: height
+                },
+                networkId: selectedNetwork.value?.id,
+              },
+            });
               
-              if (blockResponse.blocksFromHeight?.edges) {
-                results.blocks = blockResponse.blocksFromHeight.edges.map((edge: any) => ({
+              if (blockResponse.data?.blocksFromHeight?.edges) {
+                results.blocks = blockResponse.data.blocksFromHeight.edges.map((edge: any) => ({
                   chainId: edge.node.chainId,
                   hash: edge.node.hash,
                   height: edge.node.height,
@@ -161,12 +176,19 @@ export function useSearch () {
         // Search by block hash
         if (blockHashRegex.test(value)) {
           try {
-            const blockHashResponse = await $graphql.default.request(blockHashQuery, {
-              hash: value
+            const blockHashResponse: any = await $fetch('/api/graphql', {
+              method: 'POST',
+              body: {
+                query: blockHashQuery,
+                variables: {
+                  hash: value
+                },
+                networkId: selectedNetwork.value?.id,
+              },
             });
             
-            if (blockHashResponse.block) {
-              const block = blockHashResponse.block;
+            if (blockHashResponse.data?.block) {
+              const block = blockHashResponse.data.block;
               // Add the block hash result to existing blocks array
               results.blocks = [...(results.blocks || []), {
                 chainId: block.chainId,
@@ -186,18 +208,38 @@ export function useSearch () {
       // Transaction search - if looks like request key
       if ((shouldSearchAll || data.filter.value === 'transactions') && likelyRequestKeyRegex.test(value)) {
         try {
-          const txResponse = await $graphql.default.request(transactionQuery, {
-            requestKey: value
+          const txResponse: any = await $fetch('/api/graphql', {
+            method: 'POST',
+            body: {
+              query: transactionQuery,
+              variables: {
+                requestKey: value
+              },
+              networkId: selectedNetwork.value?.id,
+            },
           });
           
-          if (txResponse.transaction) {
+          if (txResponse.data?.transaction) {
+            const transaction = txResponse.data.transaction;
+            
+            // Create a proper result string for useTransactionStatus
+            let resultString = '';
+            if (transaction.result?.badResult) {
+              resultString = `{"status":"error","badResult":${JSON.stringify(transaction.result.badResult)}}`;
+            } else if (transaction.result?.goodResult) {
+              resultString = `{"status":"success","goodResult":${JSON.stringify(transaction.result.goodResult)}}`;
+            } else {
+              resultString = '{"status":"success"}'; // Default to success if no error
+            }
+            
             results.transactions = [{
-              requestkey: txResponse.transaction.requestKey || value,
-              sender: txResponse.transaction.sender,
-              result: txResponse.transaction.result,
-              chainId: txResponse.transaction.chainId,
-              hash: txResponse.transaction.hash,
-              creationTime: txResponse.transaction.creationTime
+              requestkey: value,
+              sender: 'N/A', // Not available in this query  
+              result: resultString,
+              chainId: transaction.result?.block?.chainId || 'N/A',
+              height: transaction.result?.block?.height || 'N/A',
+              hash: transaction.hash,
+              creationTime: transaction.cmd?.meta?.creationTime || null
             }];
           }
         } catch (error) {
@@ -216,11 +258,18 @@ export function useSearch () {
           );
 
           if (staticToken) {
-            const tokenResponse = await $graphql.default.request(tokenQuery, {
-              tokenAddress: staticToken.module
+            const tokenResponse: any = await $fetch('/api/graphql', {
+              method: 'POST',
+              body: {
+                query: tokenQuery,
+                variables: {
+                  tokenAddress: staticToken.module
+                },
+                networkId: selectedNetwork.value?.id,
+              },
             });
             
-            if (tokenResponse.tokenPrice) {
+            if (tokenResponse.data?.tokenPrice) {
               results.tokens = [{
                 type: 'fungible',
                 module: staticToken.module,
@@ -238,11 +287,18 @@ export function useSearch () {
       // Address search - always try this as fallback, or if specifically searching addresses
       if (shouldSearchAll || data.filter.value === 'address') {
         try {
-          const addressResponse = await $graphql.default.request(addressQuery, {
-            accountName: value
+          const addressResponse: any = await $fetch('/api/graphql', {
+            method: 'POST',
+            body: {
+              query: addressQuery,
+              variables: {
+                accountName: value
+              },
+              networkId: selectedNetwork.value?.id,
+            },
           });
           
-          if (addressResponse.transactions && addressResponse.transactions.totalCount > 0) {
+          if (addressResponse.data?.transactions && addressResponse.data.transactions.totalCount > 0) {
             results.addresses = [{
               account: value,
               id: value, // Use the account name as ID
