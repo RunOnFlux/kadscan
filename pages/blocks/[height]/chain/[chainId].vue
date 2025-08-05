@@ -345,7 +345,12 @@ useHead({
                     </Tooltip>
                   </template>
                 </LabelValue>
-                <LabelValue :label="textContent.creationTime.label" :description="textContent.creationTime.description" tooltipPos="right">
+                <LabelValue 
+                  :label="textContent.creationTime.label" 
+                  :description="textContent.creationTime.description" 
+                  tooltipPos="right"
+                  topAlign="true"
+                >
                   <template #value>
                     <div class="flex items-center gap-1 text-white">
                       <IconClock class="w-4 h-4" />
@@ -358,6 +363,7 @@ useHead({
                   :value="block.transactions.totalCount"
                   :description="textContent.transactions.description"
                   tooltipPos="right"
+                  topAlign="true"
                 >
                   <template #value>
                     <Tooltip value="Click to view Transactions">
