@@ -790,7 +790,7 @@ onUnmounted(() => {
                       </template>
                     </LabelValue>
                     <!-- Custom Code Section with Full Width -->
-                    <div class="flex flex-col md:flex-row items-start gap-3 md:gap-0">
+                    <div class="flex flex-col md:flex-row items-start gap-1 md:gap-0">
                       <!-- Label Section (matching LabelValue styling) -->
                       <div class="flex gap-2 w-full md:min-w-[300px] md:max-w-[300px]">
                         <div class="flex items-center gap-2">

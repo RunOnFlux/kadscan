@@ -481,7 +481,7 @@ const destinationIndicatorColor = computed(() => {
             </LabelValue>
 
             <!-- Continuation Data -->
-            <div v-if="destinationTransaction.result?.continuation" class="flex flex-col md:flex-row items-start gap-3 md:gap-0">
+            <div v-if="destinationTransaction.result?.continuation" class="flex flex-col md:flex-row items-start gap-1 md:gap-0">
               <div class="flex gap-2 w-full md:min-w-[300px] md:max-w-[300px]">
                 <div class="flex items-center gap-2">
                   <Tooltip
@@ -509,7 +509,7 @@ const destinationIndicatorColor = computed(() => {
             </div>
 
             <!-- Proof Data -->
-            <div v-if="destinationTransaction.cmd.payload.proof" class="flex flex-col md:flex-row items-start gap-3 md:gap-0">
+            <div v-if="destinationTransaction.cmd.payload.proof" class="flex flex-col md:flex-row items-start gap-1 md:gap-0">
               <div class="flex gap-2 w-full md:min-w-[300px] md:max-w-[300px]">
                 <div class="flex items-center gap-2">
                   <Tooltip
@@ -537,7 +537,7 @@ const destinationIndicatorColor = computed(() => {
             </div>
 
             <!-- Payload Data -->
-            <div v-if="destinationTransaction.cmd.payload.data" class="flex flex-col md:flex-row items-start gap-3 md:gap-0">
+            <div v-if="destinationTransaction.cmd.payload.data" class="flex flex-col md:flex-row items-start gap-1 md:gap-0">
               <div class="flex gap-2 w-full md:min-w-[300px] md:max-w-[300px]">
                 <div class="flex items-center gap-2">
                   <Tooltip
