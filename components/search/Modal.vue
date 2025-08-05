@@ -62,9 +62,9 @@ const scrollToView = (viewId: string) => {
   <div
     v-if="open"
     ref="modalRef"
-    class="absolute top-full mt-2 w-full right-0 bg-gray-700 rounded-lg border border-gray-300 max-h-[344px] overflow-auto max-w-[580px] z-[99]"
+    class="absolute top-full mt-3 left-0 right-[52px] bg-[#111111] border-l border-r border-b border-[#222222] rounded-b-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] max-h-[344px] overflow-auto z-[99] w-full"
   >
-    <div class="sticky top-0 bg-gray-700 z-10 px-4 pt-4">
+    <div class="sticky top-0 z-10 px-4 pt-4 border-b border-b-[#222222] bg-[#111111]">
       <div
         v-if="loading"
         class="pb-4"
@@ -89,7 +89,7 @@ const scrollToView = (viewId: string) => {
 
       <div
         v-else
-        class="flex gap-2 border-b border-gray-300 pb-4 overflow-auto"
+        class="flex gap-2 pb-4 overflow-auto"
       >
         <SearchViewFilter
           label="Addresses"

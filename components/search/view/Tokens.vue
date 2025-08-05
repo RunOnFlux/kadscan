@@ -12,9 +12,9 @@ defineProps<{
       class="pb-2"
     >
       <span
-        class="text-white text-sm"
+        class="text-xs text-[#bbbbbb] mb-[1px]"
       >
-        Tokens
+        TOKENS
       </span>
     </div>
 
@@ -23,7 +23,7 @@ defineProps<{
       class="py-3"
       :key="'tokens:'+tokens.id"
       v-for="(tokens, i) in tokens"
-      :class="[!((i + 1) === tokens.length) && '!border-b border-b-gray-300']"
+      :class="[!((i + 1) === tokens.length) && '!border-b border-b-[#222222]']"
     />
   </div>
 </template>
