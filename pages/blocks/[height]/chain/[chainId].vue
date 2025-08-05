@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, computed, watch, onUnmounted, onMounted } from 'vue';
+import { ref, computed, watch, onUnmounted, onMounted, nextTick } from 'vue';
 import { useFormat } from '~/composables/useFormat';
 import { useBlock } from '~/composables/useBlock';
 import { useBlocks } from '~/composables/useBlocks';
@@ -57,6 +57,26 @@ const height = computed(() => Number(route.params.height));
 const chainId = computed(() => Number(route.params.chainId));
 const networkId = computed(() => selectedNetwork.value?.id);
 const selectedBlockIndex = ref(0);
+
+// More details animation variables
+const contentHeight = ref(0);
+const contentRef = ref<HTMLElement | null>(null);
+
+const toggleMoreDetails = () => {
+  if (!showMore.value) {
+    showMore.value = true;
+    nextTick(() => {
+      if (contentRef.value) {
+        contentHeight.value = contentRef.value.scrollHeight;
+      }
+    });
+  } else {
+    contentHeight.value = 0;
+    setTimeout(() => {
+      showMore.value = false;
+    }, 300);
+  }
+};
 
 const {
   block: initialBlock,
@@ -489,180 +509,190 @@ useHead({
           v-if="!loading && !error && block"
           class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5"
         >
+          <div 
+            ref="contentRef"
+            class="overflow-hidden transition-all duration-300 ease-out"
+            :style="{ height: showMore ? contentHeight + 'px' : '0px' }"
+          >
+            <div class="mb-4 pb-4 border-b border-[#333]">
+              <Divide>
+                <!-- Epoch -->
+                <DivideItem>
+                  <div class="flex flex-col gap-4">
+                    <LabelValue
+                      :label="textContent.epoch.label"
+                      :description="textContent.epoch.description"
+                      tooltipPos="right"
+                      topAlign="true"
+                    >
+                      <template #value>
+                        <div class="flex items-center gap-2">
+                          <span>{{ formatFullDate(block.epoch) }}</span>
+                        </div>
+                      </template>
+                    </LabelValue>
+                    <LabelValue 
+                      :label="textContent.flags.label" 
+                      :description="textContent.flags.description" 
+                      tooltipPos="right"
+                      :row="isMobile"
+                    >
+                      <template #value>
+                        <div class="flex items-center gap-2">
+                          <span>{{ block.flags }}</span>
+                        </div>
+                      </template>
+                    </LabelValue>
+                    <LabelValue 
+                      :label="textContent.weight.label" 
+                      :description="textContent.weight.description" 
+                      tooltipPos="right"
+                      topAlign="true"
+                    >
+                      <template #value>
+                        <div class="flex items-center gap-2 break-all">
+                          <span>{{ block.weight }}</span>
+                        </div>
+                      </template>
+                    </LabelValue>
+                    <LabelValue 
+                      :label="textContent.target.label" 
+                      :description="textContent.target.description" 
+                      tooltipPos="right"
+                      topAlign="true"
+                    >
+                      <template #value>
+                        <div class="flex items-center gap-2 break-all">
+                          <span>{{ block.target }}</span>
+                        </div>
+                      </template>
+                    </LabelValue>
+                  </div>
+                </DivideItem>
+
+                <!-- Hash -->
+                <DivideItem>
+                  <div class="flex flex-col gap-4">
+                    <LabelValue 
+                      :label="textContent.hash.label" 
+                      :description="textContent.hash.description" 
+                      tooltipPos="right"
+                      topAlign="true"
+                    >
+                      <template #value>
+                        <div class="flex items-center gap-2 break-all">
+                          <span>{{ block.hash }}</span>
+                        </div>
+                      </template>
+                    </LabelValue>
+                    <LabelValue 
+                      :label="textContent.parentHash.label" 
+                      :description="textContent.parentHash.description" 
+                      tooltipPos="right"
+                      topAlign="true"
+                    >
+                      <template #value>
+                        <div class="flex items-center md:gap-2 gap-0 break-all">
+                          <NuxtLink
+                              :to="`/blocks/${block.parent.height}/chain/${block.parent.chainId}`"
+                              class="text-[#6ab5db] hover:text-[#9ccee7]"
+                            >
+                              {{ block.parent.hash }}
+                          </NuxtLink>
+                          <Copy
+                            :value="block.parent.hash"
+                            tooltipText="Copy Parent Hash"
+                            iconSize="h-5 w-5"
+                            buttonClass="w-5 h-5 md:block hidden"
+                          />
+                        </div>
+                      </template>
+                    </LabelValue>
+                    <LabelValue 
+                      :label="textContent.powHash.label" 
+                      :description="textContent.powHash.description" 
+                      tooltipPos="right"
+                      topAlign="true"
+                    >
+                       <template #value>
+                        <div class="flex items-center gap-2 break-all">
+                          <span>{{ block.powHash }}</span>
+                        </div>
+                      </template>
+                    </LabelValue>
+                    <LabelValue 
+                      :label="textContent.payloadHash.label" 
+                      :description="textContent.payloadHash.description" 
+                      tooltipPos="right"
+                      topAlign="true"
+                    >
+                      <template #value>
+                        <div class="flex items-center gap-2 break-all">
+                          <span>{{ block.payloadHash }}</span>
+
+                        </div>
+                      </template>
+                    </LabelValue>
+                  </div>
+                </DivideItem>
+
+                <!-- Neighbors -->
+                <DivideItem>
+                  <div
+                    v-if="block.neighbors && block.neighbors.length > 0"
+                    class="flex flex-col gap-4"
+                  >
+                    <LabelValue
+                      v-for="neighbor in block.neighbors"
+                      :key="neighbor.hash"
+                      :label="`${textContent.neighbor.label}${neighbor.chainId}`"
+                      :description="textContent.neighbor.description"
+                      tooltipPos="right"
+                      topAlign="true"
+                    >
+                      <template #value>
+                        <div class="flex items-center md:gap-2 gap-0 break-all">
+                          <NuxtLink
+                            :to="`/blocks/${block.height}/chain/${neighbor.chainId}`"
+                            class="text-[15px] text-[#6ab5db] hover:text-[#9ccee7]"
+                            >{{ neighbor.hash }}</NuxtLink
+                          >
+                          <Copy
+                            :value="neighbor.hash"
+                            tooltipText="Copy Block Hash"
+                            iconSize="h-5 w-5"
+                            buttonClass="w-5 h-5 md:block hidden"
+                          />
+                        </div>
+                      </template>
+                    </LabelValue>
+                  </div>
+                  <div v-else class="text-gray-500">No neighbors found for this block.</div>
+                </DivideItem>
+              </Divide>
+            </div>
+          </div>
+          
           <Divide>
-            <!-- Epoch -->
-            <DivideItem v-if="showMore">
-              <div class="flex flex-col gap-4">
-                <LabelValue
-                  :label="textContent.epoch.label"
-                  :description="textContent.epoch.description"
-                  tooltipPos="right"
-                  topAlign="true"
-                >
-                  <template #value>
-                    <div class="flex items-center gap-2">
-                      <span>{{ formatFullDate(block.epoch) }}</span>
-                    </div>
-                  </template>
-                </LabelValue>
-                <LabelValue 
-                  :label="textContent.flags.label" 
-                  :description="textContent.flags.description" 
-                  tooltipPos="right"
-                  :row="isMobile"
-                >
-                  <template #value>
-                    <div class="flex items-center gap-2">
-                      <span>{{ block.flags }}</span>
-                    </div>
-                  </template>
-                </LabelValue>
-                <LabelValue 
-                  :label="textContent.weight.label" 
-                  :description="textContent.weight.description" 
-                  tooltipPos="right"
-                  topAlign="true"
-                >
-                  <template #value>
-                    <div class="flex items-center gap-2 break-all">
-                      <span>{{ block.weight }}</span>
-                    </div>
-                  </template>
-                </LabelValue>
-                <LabelValue 
-                  :label="textContent.target.label" 
-                  :description="textContent.target.description" 
-                  tooltipPos="right"
-                  topAlign="true"
-                >
-                  <template #value>
-                    <div class="flex items-center gap-2 break-all">
-                      <span>{{ block.target }}</span>
-                    </div>
-                  </template>
-                </LabelValue>
-              </div>
-            </DivideItem>
-
-            <!-- Hash -->
-            <DivideItem v-if="showMore">
-              <div class="flex flex-col gap-4">
-                <LabelValue 
-                  :label="textContent.hash.label" 
-                  :description="textContent.hash.description" 
-                  tooltipPos="right"
-                  topAlign="true"
-                >
-                  <template #value>
-                    <div class="flex items-center gap-2 break-all">
-                      <span>{{ block.hash }}</span>
-                    </div>
-                  </template>
-                </LabelValue>
-                <LabelValue 
-                  :label="textContent.parentHash.label" 
-                  :description="textContent.parentHash.description" 
-                  tooltipPos="right"
-                  topAlign="true"
-                >
-                  <template #value>
-                    <div class="flex items-center md:gap-2 gap-0 break-all">
-                      <NuxtLink
-                          :to="`/blocks/${block.parent.height}/chain/${block.parent.chainId}`"
-                          class="text-[#6ab5db] hover:text-[#9ccee7]"
-                        >
-                          {{ block.parent.hash }}
-                      </NuxtLink>
-                      <Copy
-                        :value="block.parent.hash"
-                        tooltipText="Copy Parent Hash"
-                        iconSize="h-5 w-5"
-                        buttonClass="w-5 h-5 md:block hidden"
-                      />
-                    </div>
-                  </template>
-                </LabelValue>
-                <LabelValue 
-                  :label="textContent.powHash.label" 
-                  :description="textContent.powHash.description" 
-                  tooltipPos="right"
-                  topAlign="true"
-                >
-                   <template #value>
-                    <div class="flex items-center gap-2 break-all">
-                      <span>{{ block.powHash }}</span>
-                    </div>
-                  </template>
-                </LabelValue>
-                <LabelValue 
-                  :label="textContent.payloadHash.label" 
-                  :description="textContent.payloadHash.description" 
-                  tooltipPos="right"
-                  topAlign="true"
-                >
-                  <template #value>
-                    <div class="flex items-center gap-2 break-all">
-                      <span>{{ block.payloadHash }}</span>
-
-                    </div>
-                  </template>
-                </LabelValue>
-              </div>
-            </DivideItem>
-
-            <!-- Neighbors -->
-            <DivideItem v-if="showMore">
-              <div
-                v-if="block.neighbors && block.neighbors.length > 0"
-                class="flex flex-col gap-4"
-              >
-                <LabelValue
-                  v-for="neighbor in block.neighbors"
-                  :key="neighbor.hash"
-                  :label="`${textContent.neighbor.label}${neighbor.chainId}`"
-                  :description="textContent.neighbor.description"
-                  tooltipPos="right"
-                  topAlign="true"
-                >
-                  <template #value>
-                    <div class="flex items-center md:gap-2 gap-0 break-all">
-                      <NuxtLink
-                        :to="`/blocks/${block.height}/chain/${neighbor.chainId}`"
-                        class="text-[15px] text-[#6ab5db] hover:text-[#9ccee7]"
-                        >{{ neighbor.hash }}</NuxtLink
-                      >
-                      <Copy
-                        :value="neighbor.hash"
-                        tooltipText="Copy Block Hash"
-                        iconSize="h-5 w-5"
-                        buttonClass="w-5 h-5 md:block hidden"
-                      />
-                    </div>
-                  </template>
-                </LabelValue>
-              </div>
-              <div v-else class="text-gray-500">No neighbors found for this block.</div>
-            </DivideItem>
-
-            <!-- More Details -->
             <DivideItem>
               <LabelValue
                 :label="isMobile ? '' : textContent.moreDetails.label"
                 tooltipPos="right"
               >
                 <template #value>
-                  <button
-                    @click="showMore = !showMore"
-                    class="text-[#6ab5db] hover:text-[#9ccee7] flex items-center gap-1 whitespace-nowrap"
+                  <button 
+                    @click="toggleMoreDetails"
+                    class="flex items-center gap-1 transition-colors hover:text-[#9ccee7] text-[#6AB5DB] "
                   >
-                    <template v-if="!showMore">
-                      <span v-if="!isMobile">+</span>
-                      <span>Click to show more</span>
-                    </template>
-                    <template v-else>
-                      <span v-if="!isMobile">-</span>
-                      <span>Click to show less</span>
-                    </template>
+                    <svg 
+                      class="w-3 h-3 transition-transform duration-300" 
+                      :class="showMore ? 'rotate-45' : ''"
+                      fill="none" 
+                      viewBox="0 0 16 16"
+                    >
+                      <path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    {{ showMore ? 'Click to show less' : 'Click to show more' }}
                   </button>
                 </template>
               </LabelValue>
