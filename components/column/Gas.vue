@@ -39,7 +39,7 @@ const shouldShowProgressBar = computed(() => {
       <span class="text-[14px] text-[#f5f5f5]">{{ formattedGas }}</span>
       <span v-if="shouldShowPercentage" class="text-[14px] text-[#b2b2b2]">({{ percentage.toFixed(0) }}%)</span>
     </div>
-    <div class="w-full bg-[#33393e] rounded-full h-[2px]" v-if="shouldShowProgressBar">
+    <div class="md:w-full max-w-[80px] bg-[#33393e] rounded-full h-[2px]" v-if="shouldShowProgressBar">
       <div
         class="bg-[#57ff90] h-[2px] rounded-full"
         :style="{ width: `${percentage}%` }"
