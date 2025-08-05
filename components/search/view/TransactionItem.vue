@@ -47,7 +47,7 @@ const timeAgo = computed(() => {
       class="flex flex-col truncate flex-1"
     >
       <span
-        class="text-font-400 text-sm truncate block"
+        class="text-[#fafafa] text-sm truncate block"
       >
         {{ requestkey }}
       </span>

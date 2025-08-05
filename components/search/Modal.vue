@@ -6,6 +6,7 @@ const props = withDefaults(
     loading: boolean,
     items: any,
     cleanup: any,
+    close: any,
   }>(),
   {
     error: null,
@@ -122,7 +123,7 @@ const scrollToView = (viewId: string) => {
     </div>
 
     <div
-      @click.prevent="cleanup"
+      @click="props.close"
       v-if="!loading && !isEmpty"
       class="flex flex-col p-4 overflow-auto scrollbar-custom min-h-full gap-4 max-w-full overflow-hidden"
     >
