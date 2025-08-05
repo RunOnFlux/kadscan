@@ -19,7 +19,7 @@ defineProps<{
     :class="[
       col && '!flex-col !items-start',
       row && '!flex-row !gap-6',
-      topAlign ? 'md:items-start' : (value && 'md:items-center')
+      topAlign ? 'gap-3 md:gap-0 md:items-start' : (value && 'md:items-center')
     ]"
   >
     <div

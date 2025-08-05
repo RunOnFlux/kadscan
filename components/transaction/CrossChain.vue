@@ -160,7 +160,7 @@ const destinationIndicatorColor = computed(() => {
       <Divide>
         <!-- Cross Chain Transfer Overview -->
         <DivideItem>
-          <div class="flex flex-col md:gap-4">
+          <div class="flex flex-col lg:gap-4">
             <LabelValue
               :row="isMobile"
               label="Cross Chain Status:"
@@ -177,7 +177,7 @@ const destinationIndicatorColor = computed(() => {
 
             <!-- Transfer Flow Visualization -->
             <div class="flex flex-col md:flex-row items-start">
-              <div class="md:block hidden flex gap-2 w-full min-w-[300px] max-w-[300px]">
+              <div class="lg:block hidden flex gap-2 w-full min-w-[300px] max-w-[300px]">
                 <div class="flex items-center gap-2">
                   <Tooltip
                     value="Visual representation of the cross-chain transfer process"
@@ -310,7 +310,6 @@ const destinationIndicatorColor = computed(() => {
         <DivideItem v-if="sourceTransaction">
           <div class="flex flex-col gap-4">
             <LabelValue
-              :row="isMobile"
               label="Source Transaction:"
               description="The initial transaction that initiated the cross-chain transfer"
               tooltipPos="right"
@@ -318,39 +317,43 @@ const destinationIndicatorColor = computed(() => {
             >
               <template #value>
                 <div class="flex flex-col gap-3">
-                  <div class="flex items-center gap-2">
+                  <div class="flex flex-col gap-1 lg:flex-row lg:gap-2">
                     <span class="text-[#bbbbbb]">Request Key:</span>
-                    <NuxtLink 
-                      :to="`/transactions/${sourceTransaction.hash}`" 
-                      class="text-[#6ab5db] hover:text-[#9ccee7] break-all"
-                    >
-                      {{ sourceTransaction.hash }}
-                    </NuxtLink>
-                    <Copy 
-                      :value="sourceTransaction.hash" 
-                      tooltipText="Copy Source Request Key"
-                      iconSize="h-5 w-5"
-                      buttonClass="w-5 h-5"
-                    />
+                    <div class="flex items-center gap-2">
+                      <NuxtLink 
+                        :to="`/transactions/${sourceTransaction.hash}`" 
+                        class="text-[#6ab5db] hover:text-[#9ccee7] break-all"
+                      >
+                        {{ sourceTransaction.hash }}
+                      </NuxtLink>
+                      <Copy 
+                        :value="sourceTransaction.hash" 
+                        tooltipText="Copy Source Request Key"
+                        iconSize="h-5 w-5"
+                        buttonClass="lg:block hidden w-5 h-5"
+                      />
+                    </div>
                   </div>
                   
-                  <div class="flex items-center gap-2">
+                  <div class="flex flex-col gap-1 lg:flex-row lg:gap-2">
                     <span class="text-[#bbbbbb]">From:</span>
-                    <NuxtLink 
-                      :to="`/account/${actualSender}`" 
-                      class="text-[#6ab5db] hover:text-[#9ccee7] break-all"
-                    >
-                      {{ actualSender }}
-                    </NuxtLink>
-                    <Copy 
-                      :value="actualSender" 
-                      tooltipText="Copy From Address"
-                      iconSize="h-5 w-5"
-                      buttonClass="w-5 h-5"
-                    />
+                    <div class="flex items-center gap-2">
+                      <NuxtLink 
+                        :to="`/account/${actualSender}`" 
+                        class="text-[#6ab5db] hover:text-[#9ccee7] break-all"
+                      >
+                        {{ actualSender }}
+                      </NuxtLink>
+                      <Copy 
+                        :value="actualSender" 
+                        tooltipText="Copy From Address"
+                        iconSize="h-5 w-5"
+                        buttonClass="lg:block hidden w-5 h-5"
+                      />
+                    </div>
                   </div>
                   
-                  <div class="flex flex-wrap items-center gap-4">
+                  <div class="flex flex-wrap items-center gap-2">
                     <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                       <span class="text-[#bbbbbb]">Chain:</span>
                       <span class="text-[#fafafa] ml-1">{{ sourceTransaction.cmd.meta.chainId }}</span>
@@ -376,7 +379,6 @@ const destinationIndicatorColor = computed(() => {
         <DivideItem v-if="destinationTransaction">
           <div class="flex flex-col gap-4">
             <LabelValue
-              :row="isMobile"
               label="Destination Transaction:"
               description="The completion transaction on the destination chain"
               tooltipPos="right"
@@ -384,39 +386,43 @@ const destinationIndicatorColor = computed(() => {
             >
               <template #value>
                 <div class="flex flex-col gap-3">
-                  <div class="flex items-center gap-2">
+                  <div class="flex flex-col gap-1 lg:flex-row lg:gap-2">
                     <span class="text-[#bbbbbb]">Request Key:</span>
-                    <NuxtLink 
-                      :to="`/transactions/${destinationTransaction.hash}`" 
-                      class="text-[#6ab5db] hover:text-[#9ccee7] break-all"
-                    >
-                      {{ destinationTransaction.hash }}
-                    </NuxtLink>
-                    <Copy 
-                      :value="destinationTransaction.hash" 
-                      tooltipText="Copy Destination Request Key"
-                      iconSize="h-5 w-5"
-                      buttonClass="w-5 h-5"
-                    />
+                    <div class="flex items-center gap-2">
+                      <NuxtLink 
+                        :to="`/transactions/${destinationTransaction.hash}`" 
+                        class="text-[#6ab5db] hover:text-[#9ccee7] break-all"
+                      >
+                        {{ destinationTransaction.hash }}
+                      </NuxtLink>
+                      <Copy 
+                        :value="destinationTransaction.hash" 
+                        tooltipText="Copy Destination Request Key"
+                        iconSize="h-5 w-5"
+                        buttonClass="lg:block hidden w-5 h-5"
+                      />
+                    </div>
                   </div>
                   
-                  <div class="flex items-center gap-2">
+                  <div class="flex flex-col gap-1 lg:flex-row lg:gap-2">
                     <span class="text-[#bbbbbb]">To:</span>
-                    <NuxtLink 
-                      :to="`/account/${actualReceiver}`" 
-                      class="text-[#6ab5db] hover:text-[#9ccee7] break-all"
-                    >
-                      {{ actualReceiver }}
-                    </NuxtLink>
-                    <Copy 
-                      :value="actualReceiver" 
-                      tooltipText="Copy To Address"
-                      iconSize="h-5 w-5"
-                      buttonClass="w-5 h-5"
-                    />
+                    <div class="flex items-center gap-2">
+                      <NuxtLink 
+                        :to="`/account/${actualReceiver}`" 
+                        class="text-[#6ab5db] hover:text-[#9ccee7] break-all"
+                      >
+                        {{ actualReceiver }}
+                      </NuxtLink>
+                      <Copy 
+                        :value="actualReceiver" 
+                        tooltipText="Copy To Address"
+                        iconSize="h-5 w-5"
+                        buttonClass="lg:block hidden w-5 h-5"
+                      />
+                    </div>
                   </div>
                   
-                  <div class="flex flex-wrap items-center gap-4">
+                  <div class="flex flex-wrap items-center gap-2">
                     <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                       <span class="text-[#bbbbbb]">Chain:</span>
                       <span class="text-[#fafafa] ml-1">{{ destinationTransaction.cmd.meta.chainId }}</span>
@@ -442,10 +448,10 @@ const destinationIndicatorColor = computed(() => {
         <DivideItem v-if="destinationTransaction?.cmd?.payload?.pactId">
           <div class="flex flex-col gap-4">
             <LabelValue
-              :row="isMobile"
               label="Pact ID:"
               description="Unique identifier linking the source and destination transactions"
               tooltipPos="right"
+              topAlign="true"
             >
               <template #value>
                 <div class="flex items-center gap-2">
@@ -475,8 +481,8 @@ const destinationIndicatorColor = computed(() => {
             </LabelValue>
 
             <!-- Continuation Data -->
-            <div v-if="destinationTransaction.result?.continuation" class="flex flex-col md:flex-row items-start">
-              <div class="flex gap-2 w-full min-w-[300px] max-w-[300px]">
+            <div v-if="destinationTransaction.result?.continuation" class="flex flex-col md:flex-row items-start gap-3 md:gap-0">
+              <div class="flex gap-2 w-full md:min-w-[300px] md:max-w-[300px]">
                 <div class="flex items-center gap-2">
                   <Tooltip
                     value="Continuation data from the cross-chain process"
@@ -491,7 +497,7 @@ const destinationIndicatorColor = computed(() => {
                 </div>
               </div>
               
-              <div class="text-[#f5f5f5] text-[15px] fix flex gap-2 flex-1 overflow-hidden">
+              <div class="text-[#f5f5f5] text-[15px] fix w-full md:flex-1 overflow-hidden">
                 <div class="w-full">
                   <textarea
                     readonly
@@ -503,8 +509,8 @@ const destinationIndicatorColor = computed(() => {
             </div>
 
             <!-- Proof Data -->
-            <div v-if="destinationTransaction.cmd.payload.proof" class="flex flex-col md:flex-row items-start">
-              <div class="flex gap-2 w-full min-w-[300px] max-w-[300px]">
+            <div v-if="destinationTransaction.cmd.payload.proof" class="flex flex-col md:flex-row items-start gap-3 md:gap-0">
+              <div class="flex gap-2 w-full md:min-w-[300px] md:max-w-[300px]">
                 <div class="flex items-center gap-2">
                   <Tooltip
                     value="Cryptographic proof for the cross-chain transfer"
@@ -519,7 +525,7 @@ const destinationIndicatorColor = computed(() => {
                 </div>
               </div>
               
-              <div class="text-[#f5f5f5] text-[15px] fix flex gap-2 flex-1 overflow-hidden">
+              <div class="text-[#f5f5f5] text-[15px] fix w-full md:flex-1 overflow-hidden">
                 <div class="w-full">
                   <textarea
                     readonly
@@ -531,8 +537,8 @@ const destinationIndicatorColor = computed(() => {
             </div>
 
             <!-- Payload Data -->
-            <div v-if="destinationTransaction.cmd.payload.data" class="flex flex-col md:flex-row items-start">
-              <div class="flex gap-2 w-full min-w-[300px] max-w-[300px]">
+            <div v-if="destinationTransaction.cmd.payload.data" class="flex flex-col md:flex-row items-start gap-3 md:gap-0">
+              <div class="flex gap-2 w-full md:min-w-[300px] md:max-w-[300px]">
                 <div class="flex items-center gap-2">
                   <Tooltip
                     value="Payload data for the destination transaction"
@@ -547,7 +553,7 @@ const destinationIndicatorColor = computed(() => {
                 </div>
               </div>
               
-              <div class="text-[#f5f5f5] text-[15px] fix flex gap-2 flex-1 overflow-hidden">
+              <div class="text-[#f5f5f5] text-[15px] fix w-full md:flex-1 overflow-hidden">
                 <div class="w-full">
                   <textarea
                     readonly

@@ -3,12 +3,21 @@ import { computed } from 'vue'
 import { formatJsonPretty } from '~/composables/string'
 import { useScreenSize } from '~/composables/useScreenSize'
 import Informational from '~/components/icon/Informational.vue'
+import Tooltip from '~/components/Tooltip.vue'
 
 const props = defineProps<{
   transaction: any
 }>()
 
 const { isMobile } = useScreenSize()
+
+// Text content for tooltips and labels
+const textContent = {
+  logsHash: { label: 'Logs Hash:', description: 'Unique identifier for the transaction logs generated during execution.' },
+  qualifiedName: { label: 'Qualified Name:', description: 'The fully qualified name of the event including module namespace.' },
+  eventDetails: { label: 'Event #', description: 'Event details.' },
+  parameters: { label: 'Parameters:', description: 'Parameters passed to this event when it was emitted.' },
+}
 
 // Sort events by orderIndex in ascending order (0, 1, 2, ...)
 const sortedEvents = computed(() => {
@@ -27,10 +36,10 @@ const sortedEvents = computed(() => {
         <!-- Logs Hash Section -->
         <DivideItem v-if="transaction?.result?.logs">
           <LabelValue
-            :row="isMobile"
-            label="Logs Hash:"
-            description="Unique identifier for the transaction logs generated during execution"
+            :label="textContent.logsHash.label"
+            :description="textContent.logsHash.description"
             tooltipPos="right"
+            topAlign="true"
           >
             <template #value>
               <div class="flex items-center gap-2">
@@ -48,15 +57,16 @@ const sortedEvents = computed(() => {
           <div class="flex flex-col gap-4">
 
             <LabelValue
-              :row="isMobile"
-              label="Qualified Name:"
-              description="The fully qualified name of the event including module namespace"
+              :label="textContent.qualifiedName.label"
+              :description="textContent.qualifiedName.description"
               tooltipPos="right"
+              topAlign="true"
             >
               <template #value>
                 <div class="flex items-center gap-2">
                   <span class="text-[#fafafa] text-[15px] break-all">{{ eventEdge.node.qualifiedName }}</span>
                   <Copy 
+                    v-if="!isMobile"
                     :value="eventEdge.node.qualifiedName" 
                     tooltipText="Copy Qualified Name"
                     iconSize="h-5 w-5"
@@ -67,9 +77,10 @@ const sortedEvents = computed(() => {
             </LabelValue>
 
             <LabelValue
-              :label="`Event #${index}:`"
-              :description="`${eventEdge.node.qualifiedName} event details`"
+              :label="`${textContent.eventDetails.label}${index}:`"
+              :description="`${eventEdge.node.qualifiedName} ${textContent.eventDetails.description}`"
               tooltipPos="right"
+              topAlign="true"
             >
               <template #value>
                 <div class="flex items-center gap-2">
@@ -90,25 +101,25 @@ const sortedEvents = computed(() => {
             </LabelValue>
 
             <!-- Event Parameters Section (matching Input Data style) -->
-            <div class="flex flex-col md:flex-row items-start">
+            <div class="flex flex-col md:flex-row items-start gap-3 md:gap-0">
               <!-- Label Section (matching LabelValue styling) -->
-              <div class="flex gap-2 w-full min-w-[300px] max-w-[300px]">
+              <div class="flex gap-2 w-full md:min-w-[300px] md:max-w-[300px]">
                 <div class="flex items-center gap-2">
                   <Tooltip
-                    value="Parameters passed to this event when it was emitted"
+                    :value="textContent.parameters.description"
                     placement="right"
                     :offset-distance="16"
                   >
                     <Informational class="w-4 h-4" />
                   </Tooltip>
                   <span class="text-[#bbbbbb] text-[15px] font-normal">
-                    Parameters:
+                    {{ textContent.parameters.label }}
                   </span>
                 </div>
               </div>
               
               <!-- Parameters Container with proper boundaries -->
-              <div class="text-[#f5f5f5] text-[15px] fix flex gap-2 flex-1 overflow-hidden">
+              <div class="text-[#f5f5f5] text-[15px] fix w-full md:flex-1 overflow-hidden">
                 <div v-if="eventEdge.node.parameterText" class="w-full">
                   <textarea
                     readonly
