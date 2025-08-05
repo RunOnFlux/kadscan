@@ -18,7 +18,7 @@ const status = 'success' // All blocks are valid
 <template>
   <NuxtLink
     :to="`/blocks/${height}/chain/${chainId}`"
-    class="py-3 flex gap-2 hover:opacity-[0.8]"
+    class="py-3 flex gap-2 hover:bg-[#1d1d1d] hover:rounded-md"
   >
     <IconStatus
       :status="status"

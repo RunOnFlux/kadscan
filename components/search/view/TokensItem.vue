@@ -11,7 +11,7 @@ const metadata = computed(() => {
 <template>
   <NuxtLink
     :to="metadata?.id ? `/tokens/${metadata.id}` : `/tokens/${module}`"
-    class="flex items-center justify-between w-full"
+    class="flex items-center justify-between w-full hover:bg-[#1d1d1d] hover:rounded-md"
   >
     <div
       class="flex items-center gap-2"

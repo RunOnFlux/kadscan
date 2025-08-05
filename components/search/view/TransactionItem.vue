@@ -36,11 +36,11 @@ const timeAgo = computed(() => {
 <template>
   <NuxtLink
     :to="`/transactions/${requestkey}`"
-    class="py-3 flex gap-2 hover:opacity-[0.8] w-full"
+    class="py-3 px-2 flex gap-2 hover:bg-[#1d1d1d] hover:rounded-md w-full"
   >
     <IconStatus
       :status="status"
-      class="mb-auto xl:mb-0 w-[28px] h-[28px]"
+      class="mb-auto w-[28px] h-[28px]"
     />
 
     <div
