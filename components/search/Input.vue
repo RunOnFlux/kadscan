@@ -10,13 +10,13 @@ const {
   handleKeyDown,
 } = useSearch();
 
-const placeholder = ref('Search by Transaction / Address / Token / Block')
+const placeholder = ref('Search by Transaction / Address / Block / Token / Code')
 
 const updatePlaceholder = () => {
   if (window.innerWidth < 640) {
-    placeholder.value = 'Transaction / Address / Token / Block'
+    placeholder.value = 'Transaction / Address / Block / Token'
   } else {
-    placeholder.value = 'Search by Transaction / Address / Token / Block'
+    placeholder.value = 'Search by Transaction / Address / Block / Token / Code'
   }
 }
 
