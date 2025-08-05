@@ -567,7 +567,6 @@ onUnmounted(() => {
                 <LabelValue 
                   v-if="transactionSigners.length > 0" 
                   :topAlign="true"
-                  :row="isMobile" 
                   :label="transactionSigners.length === 1 ? 'Signer:' : textContent.signers.label" 
                   :description="transactionSigners.length === 1 ? 'Account that authorized this transaction.' : textContent.signers.description" 
                   tooltipPos="right"
@@ -584,13 +583,19 @@ onUnmounted(() => {
                           :value="signer.address" 
                           tooltipText="Copy Signer Address"
                           iconSize="h-5 w-5"
-                          buttonClass="w-5 h-5"
+                          buttonClass="w-5 h-5 lg:block hidden"
                         />
                       </div>
                     </div>
                   </template>
                 </LabelValue>
-                <LabelValue v-if="feePayer" :row="isMobile" :label="textContent.paidBy.label" :description="textContent.paidBy.description" tooltipPos="right">
+                <LabelValue 
+                  v-if="feePayer" 
+                  :label="textContent.paidBy.label" 
+                  :description="textContent.paidBy.description" 
+                  tooltipPos="right"
+                  topAlign="true"
+                >
                   <template #value>
                     <div class="flex items-center gap-2">
                       <NuxtLink :to="`/account/${feePayer}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ feePayer }}</NuxtLink>
@@ -598,7 +603,7 @@ onUnmounted(() => {
                         :value="feePayer" 
                         tooltipText="Copy Fee Payer Address"
                         iconSize="h-5 w-5"
-                        buttonClass="w-5 h-5"
+                        buttonClass="w-5 h-5 lg:block hidden"
                       />
                     </div>
                   </template>
