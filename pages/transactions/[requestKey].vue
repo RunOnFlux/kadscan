@@ -16,6 +16,8 @@ import IconHourglass from '~/components/icon/Hourglass.vue';
 import IconCancel from '~/components/icon/Cancel.vue';
 import Clock from '~/components/icon/Clock.vue'
 import SkeletonTransactionDetails from '~/components/skeleton/TransactionDetails.vue'
+import Tooltip from '~/components/Tooltip.vue'
+import Informational from '~/components/icon/Informational.vue'
 
 definePageMeta({
   layout: 'app',
@@ -64,11 +66,14 @@ const textContent = {
   timestamp: { label: 'Timestamp:', description: 'Date and time at which a transaction is produced.' },
   signers: { label: 'Signers:', description: 'Accounts that authorized this transaction.' },
   paidBy: { label: 'Paid By:', description: 'The account that submitted and paid the gas fees for this transaction.' },
+  tokenTransfers: { label: 'Token Transfers:', description: 'Individual token transfers within this transaction' },
   value: { label: 'Value:', description: 'Total KDA transferred out of the signer(s) account(s) due to this transaction.' },
   transactionFee: { label: 'Transaction Fee:', description: 'Amount paid to process this transaction in KDA.' },
   gasPrice: { label: 'Gas Price:', description: 'Cost per unit of gas spent for this transaction.' },
   kadenaPrice: { label: 'Kadena Price:', description: 'Price of KDA on the day this transaction was created.' },
+  gasLimit: { label: 'Gas Limit & Usage by Txn:', description: 'Maximum amount of gas allocated for the transaction & the amount eventually used.' },
   otherAttributes: { label: 'Other Attributes:', description: 'Other data related to this transaction.' },
+  inputData: { label: 'Input Data:', description: 'Pact code executed in this transaction.' },
   moreDetails: { label: 'More Details:' },
 }
 
@@ -478,11 +483,17 @@ onUnmounted(() => {
             <!-- Section 1: Basic Information -->
             <DivideItem>
               <div class="flex flex-col gap-4">
-                <LabelValue  :label="textContent.transactionHash.label" :description="textContent.transactionHash.description" tooltipPos="right">
+                <LabelValue  
+                  :label="textContent.transactionHash.label" 
+                  :description="textContent.transactionHash.description" 
+                  tooltipPos="right"
+                  topAlign="true"
+                >
                   <template #value>
                     <div class="flex items-center gap-2">
                       <span class="text-[#fafafa] break-all text-[15px]">{{ displayHash }}</span>
                       <Copy 
+                        v-if="!isMobile"
                         :value="transaction.hash" 
                         tooltipText="Copy Transaction Hash"
                         iconSize="h-5 w-5"
@@ -526,7 +537,12 @@ onUnmounted(() => {
                   </span>
                 </template>
               </LabelValue>
-               <LabelValue :row="isMobile" :label="textContent.timestamp.label" :description="textContent.timestamp.description" tooltipPos="right">
+               <LabelValue 
+                :label="textContent.timestamp.label" 
+                :description="textContent.timestamp.description" 
+                tooltipPos="right"
+                topAlign="true"
+              >
                  <template #value>
                    <div class="flex items-center gap-2">
                      <!-- Show just "Genesis" for Genesis transactions without clock icon -->
@@ -594,8 +610,8 @@ onUnmounted(() => {
             <DivideItem v-if="transaction?.result?.transfers?.edges?.length && activeTab === 'Overview'">
               <LabelValue
                 :topAlign="true"
-                label="Token Transfers:"
-                description="Individual token transfers within this transaction"
+                :label="textContent.tokenTransfers.label"
+                :description="textContent.tokenTransfers.description"
                 tooltipPos="right"
               >
                 <template #value>
@@ -733,9 +749,10 @@ onUnmounted(() => {
                       </template>
                     </LabelValue>
                     <LabelValue
-                      label="Gas Limit & Usage by Txn:"
-                      description="Maximum amount of gas allocated for the transaction & the amount eventually used."
+                      :label="textContent.gasLimit.label"
+                      :description="textContent.gasLimit.description"
                       tooltipPos="right"
+                      :row="isMobile"
                     >
                       <template #value>
                         <div class="flex items-center gap-2">
@@ -750,10 +767,10 @@ onUnmounted(() => {
                 <DivideItem>
                   <div class="flex flex-col gap-4">
                     <LabelValue 
-                      :row="isMobile"
                       :label="textContent.otherAttributes.label" 
                       :description="textContent.otherAttributes.description"
                       tooltipPos="right"
+                      topAlign="true"
                     >
                       <template #value>
                         <div class="flex flex-wrap gap-2">
@@ -773,25 +790,25 @@ onUnmounted(() => {
                       </template>
                     </LabelValue>
                     <!-- Custom Code Section with Full Width -->
-                    <div class="flex flex-col md:flex-row items-start">
+                    <div class="flex flex-col md:flex-row items-start gap-3 md:gap-0">
                       <!-- Label Section (matching LabelValue styling) -->
-                      <div class="flex gap-2 w-full min-w-[300px] max-w-[300px]">
+                      <div class="flex gap-2 w-full md:min-w-[300px] md:max-w-[300px]">
                         <div class="flex items-center gap-2">
                           <Tooltip
-                            value="Smart contract code executed"
+                            :value="textContent.inputData.description"
                             placement="right"
                             :offset-distance="16"
                           >
                             <Informational class="w-4 h-4" />
                           </Tooltip>
                           <span class="text-[#bbbbbb] text-[15px] font-normal">
-                            Input Data:
+                            {{ textContent.inputData.label }}
                           </span>
                         </div>
                       </div>
                       
                       <!-- Code Container with proper boundaries -->
-                      <div class="text-[#f5f5f5] text-[15px] fix flex gap-2 flex-1 overflow-hidden">
+                      <div class="text-[#f5f5f5] text-[15px] fix w-full md:flex-1 overflow-hidden">
                         <div class="w-full">
                           <!-- Resizable Code Container -->
                           <div class="relative">
