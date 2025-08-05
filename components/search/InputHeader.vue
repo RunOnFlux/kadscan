@@ -1,4 +1,4 @@
-<script setup lang="ts">
+    <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 
 const {
@@ -12,22 +12,38 @@ const {
 
 const placeholder = ref('Search by Transaction / Address / Block / Token / Code')
 const focused = ref(false)
+const searchInput = ref<HTMLInputElement>()
 
 const updatePlaceholder = () => {
   if (window.innerWidth < 640) {
-    placeholder.value = 'Transaction / Address / Block / Token'
+    placeholder.value = 'Search by Transaction / Address / Block / Token / Code'
   } else {
     placeholder.value = 'Search by Transaction / Address / Block / Token / Code'
+  }
+}
+
+const handleSlashKey = (event: KeyboardEvent) => {
+  // Only focus if not already focused on an input/textarea and not inside the search modal
+  if (
+    event.key === '/' && 
+    !['INPUT', 'TEXTAREA'].includes((event.target as HTMLElement)?.tagName) &&
+    searchInput.value &&
+    !data.open
+  ) {
+    event.preventDefault()
+    searchInput.value.focus()
   }
 }
 
 onMounted(() => {
   updatePlaceholder()
   window.addEventListener('resize', updatePlaceholder)
+  document.addEventListener('keydown', handleSlashKey)
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', updatePlaceholder)
+  document.removeEventListener('keydown', handleSlashKey)
 })
 </script>
 
@@ -38,9 +54,10 @@ onUnmounted(() => {
   >
     <IconSearchMagnify class="absolute left-3 md:left-[10px] top-1/2 -translate-y-1/2 w-6 h-6 text-[#bbbbbb]" />
     <input
+      ref="searchInput"
       class="
         pl-10 md:pl-[38px]
-        pr-8 md:pr-[80px]
+        pr-12 md:pr-20
         py-[6px]
         text-[15px]
         font-normal
@@ -69,10 +86,14 @@ onUnmounted(() => {
     <div
       v-if="!!data.query"
       @click="cleanup()"
-      class="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer"
+      class="absolute right-12 md:right-16 top-1/2 -translate-y-1/2 cursor-pointer"
     >
       <IconSearchClose class="w-5 h-5 text-[#bbbbbb] hover:text-[#f5f5f5]" />
     </div>
+
+    <kbd class="absolute right-2 top-1/2 -translate-y-1/2 bg-[#121212] bg-opacity-75 rounded-[6px] px-2 py-[2px] text-[#fafafa] text-[12.69px] font-semibold leading-[19px] min-w-[23.64px] h-[23.03px] flex items-center justify-center">
+      /
+    </kbd>
 
     <SearchModal
       :cleanup="cleanup"
