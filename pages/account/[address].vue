@@ -6,6 +6,7 @@ import Eye from '~/components/icon/Eye.vue'
 import KadenaIcon from '~/components/icon/Kadena.vue'
 import UpperRightArrow from '~/components/icon/UpperRightArrow.vue'
 import Coins from '~/components/icon/Coins.vue'
+import Copy from '~/components/Copy.vue'
 
 definePageMeta({
   layout: 'app',
@@ -16,7 +17,7 @@ const route = useRoute()
 
 
 const account = {
-  address: '0x4675C7e5BaAFBFFbca748158bEcBA61ef3b0a263',
+  address: 'k:458aDbs7c',
   kdaBalance: '0.000027157124631',
   kdaValue: '0.10',
   kdaPrice: '3,727.58',
@@ -25,8 +26,8 @@ const account = {
   latestTransaction: '17 secs ago',
   firstTransaction: '2 yrs 312 days ago',
   fundedBy: {
-    address: '0x408...F6C',
-    name: 'MEV Bot',
+    address: 'k:7f3a9b2d8e',
+    name: 'k:7f3a9b2d8e',
     date: '2 yrs 312 days ago'
   },
   multichainPortfolio: '38.62',
@@ -244,8 +245,8 @@ useHead({
             </td>
             <td class="py-3">
               <div class="flex items-center gap-2">
-                <span class="text-[#6AB5DB] hover:text-[#9ccee7] font-mono text-xs">0x2db83d4548f...</span>
-                <Copy :value="'0x2db83d4548f...'" />
+                <span class="text-[#6AB5DB] hover:text-[#9ccee7] font-mono text-xs">2Hd8kF9mN3</span>
+                <Copy :value="'2Hd8kF9mN3pQ7rT5uW1xY6zB4cE8fG2jK5mP8sV1wX4yA7dF0gH3jM6pS9vY2eR5tU8xA1dG4'" />
               </div>
             </td>
             <td class="py-3">
@@ -259,14 +260,14 @@ useHead({
             </td>
             <td class="py-3">
               <div class="flex items-center gap-2">
-                <span class="text-[#6AB5DB] hover:text-[#9ccee7]">Titan</span>
-                <Copy :value="'Titan Builder'" />
+                <span class="text-[#6AB5DB] hover:text-[#9ccee7]">k:a1b2c3d4</span>
+                <Copy :value="'k:a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6'" />
               </div>
             </td>
             <td class="py-3">
               <div class="flex items-center gap-2">
-                <span class="text-[#6AB5DB] hover:text-[#9ccee7]">Beg</span>
-                <Copy :value="'Beg'" />
+                <span class="text-[#6AB5DB] hover:text-[#9ccee7]">k:f7e8d9c0</span>
+                <Copy :value="'k:f7e8d9c0b1a2f3e4d5c6b7a8f9e0d1c2b3a4f5e6d7c8b9a0f1e2d3c4b5a6f7e8d9c0b1a2f3e4'" />
               </div>
             </td>
             <td class="py-3">
@@ -286,8 +287,8 @@ useHead({
             </td>
             <td class="py-3">
               <div class="flex items-center gap-2">
-                <span class="text-[#6AB5DB] hover:text-[#9ccee7] font-mono text-xs">0x7a8f9c2d1e...</span>
-                <Copy :value="'0x7a8f9c2d1e...'" />
+                <span class="text-[#6AB5DB] hover:text-[#9ccee7] font-mono text-xs">9KmL3nP6qR</span>
+                <Copy :value="'9KmL3nP6qR8sT5uV2wX7yZ0aB4cD1eF8gH9jK2mN5oP8qR3sT6uV9wX2yZ5aB8cD1eF4gH7j'" />
               </div>
             </td>
             <td class="py-3">
@@ -301,14 +302,14 @@ useHead({
             </td>
             <td class="py-3">
               <div class="flex items-center gap-2">
-                <span class="text-[#6AB5DB] hover:text-[#9ccee7]">quasarbuilder</span>
-                <Copy :value="'quasarbuilder'" />
+                <span class="text-[#6AB5DB] hover:text-[#9ccee7]">k:b2c3d4e5</span>
+                <Copy :value="'k:b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8'" />
               </div>
             </td>
             <td class="py-3">
               <div class="flex items-center gap-2">
-                <span class="text-[#6AB5DB] hover:text-[#9ccee7]">Beg</span>
-                <Copy :value="'beg'" />
+                <span class="text-[#6AB5DB] hover:text-[#9ccee7]">k:g8h9i0j1</span>
+                <Copy :value="'k:g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3w4x5y6z7a8b9c0d1e2f3g4h5i6j7k8l9m0n1o2p3'" />
               </div>
             </td>
             <td class="py-3">
@@ -328,8 +329,8 @@ useHead({
             </td>
             <td class="py-3">
               <div class="flex items-center gap-2">
-                <span class="text-[#6AB5DB] hover:text-[#9ccee7] font-mono text-xs">0x9b2e4f8a3c...</span>
-                <Copy :value="'0x9b2e4f8a3c...'" />
+                <span class="text-[#6AB5DB] hover:text-[#9ccee7] font-mono text-xs">7PqR5sT8uV</span>
+                <Copy :value="'7PqR5sT8uV1wX4yZ9aB2cD5eF8gH1jK4mN7oP0qR3sT6uV9wX2yZ5aB8cD1eF4gH7jK0mN3o'" />
               </div>
             </td>
             <td class="py-3">
@@ -343,14 +344,14 @@ useHead({
             </td>
             <td class="py-3">
               <div class="flex items-center gap-2">
-                <span class="text-[#6AB5DB] hover:text-[#9ccee7]">BuilderNet</span>
-                <Copy :value="'BuilderNet'" />
+                <span class="text-[#6AB5DB] hover:text-[#9ccee7]">k:c3d4e5f6</span>
+                <Copy :value="'k:c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9'" />
               </div>
             </td>
             <td class="py-3">
               <div class="flex items-center gap-2">
-                <span class="text-[#6AB5DB] hover:text-[#9ccee7]">Beg</span>
-                <Copy :value="'Beg'" />
+                <span class="text-[#6AB5DB] hover:text-[#9ccee7]">k:h1i2j3k4</span>
+                <Copy :value="'k:h1i2j3k4l5m6n7o8p9q0r1s2t3u4v5w6x7y8z9a0b1c2d3e4f5g6h7i8j9k0l1m2n3o4p5'" />
               </div>
             </td>
             <td class="py-3">
