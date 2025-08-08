@@ -15,6 +15,7 @@ import AccountTokenTransfers from '~/components/account/AccountTokenTransfers.vu
 import AccountNFTTransfers from '~/components/account/AccountNFTTransfers.vue'
 import { useFormat } from '~/composables/useFormat'
 import QrIcon from '~/components/icon/Qr.vue'
+import Tooltip from '~/components/Tooltip.vue'
 import QrModal from '~/components/qr/Modal.vue'
 
 definePageMeta({
@@ -48,7 +49,6 @@ const isHydrated = ref(false)
 
 // Computed properties for time formatting
 const firstTransactionTimeAgo = computed(() => {
-  console.log('firstTransaction', lastTransaction.value)
   if (!firstTransaction.value?.creationTime) return 'N/A'
   const time = new Date().value
   const distance = formatDistanceToNowStrict(new Date(firstTransaction.value.creationTime), { addSuffix: true })
@@ -261,13 +261,15 @@ const displayKdaBalance = computed(() => {
               iconSize="h-5 w-5"
               buttonClass="w-5 h-5"
             />
-            <button
-              class="rounded-lg place-items-center grid group w-5 h-5"
-              @click.prevent="openQr"
-              aria-label="Show address QR"
-            >
-              <QrIcon class="text-[#888888] group-hover:text-kadscan-400" />
-            </button>
+            <Tooltip value="Show QR" placement="bottom">
+              <button
+                class="rounded-lg place-items-center grid group w-5 h-5 relative -top-[3px]"
+                @click.prevent="openQr"
+                aria-label="Show address QR"
+              >
+                <QrIcon class="text-[#888888] group-hover:text-kadscan-400" />
+              </button>
+            </Tooltip>
           </div>
         </div>
       </div>

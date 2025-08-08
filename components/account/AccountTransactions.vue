@@ -22,6 +22,7 @@ const props = defineProps<{
 }>();
 
 const route = useRoute();
+const router = useRouter();
 const { truncateAddress } = useFormat();
 const { selectedNetwork } = useSharedData();
 const { isMobile } = useScreenSize();
@@ -51,6 +52,23 @@ const chainOptions = computed(() => {
   return options;
 });
 
+// Initialize selectedChain from URL if valid; clean URL if invalid
+const initChainFromUrl = () => {
+  const q = route.query.chainId as string | undefined;
+  if (q === undefined) return;
+  const n = parseInt(q, 10);
+  const isValid = !Number.isNaN(n) && n >= 0 && n <= 19;
+  if (isValid) {
+    selectedChain.value = { label: n.toString(), value: n.toString() };
+  } else {
+    const newQuery: Record<string, any> = { ...route.query };
+    delete newQuery.chainId;
+    router.replace({ query: newQuery });
+    selectedChain.value = { label: 'All', value: null };
+  }
+};
+initChainFromUrl();
+
 // Table config
 const tableHeaders = [
   { key: 'requestKey', label: 'Request Key' },
@@ -66,9 +84,9 @@ const tableHeaders = [
 ];
 
 const rowOptions = [
+  { label: '10', value: 10 },
   { label: '25', value: 25 },
   { label: '50', value: 50 },
-  { label: '100', value: 100 },
 ];
 
 const currentPage = ref(1);
@@ -142,62 +160,73 @@ onMounted(() => {
   clearBlocksState();
 });
 
-// Core watcher: network, rows, chain, and currentPage
+// 1) React to network or chain change: reset to page 1 and refresh counts
 watch(
-  [selectedNetwork, rowsToShow, selectedChain, currentPage],
-  async ([network], [oldNetwork, oldRows, oldChain, oldPage]) => {
+  [selectedNetwork, selectedChain],
+  async ([network], [oldNetwork, oldChain]) => {
     if (!network || !props.accountName) return;
 
     const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
     const chainChanged = oldChain && selectedChain.value.value !== oldChain.value;
 
-    if (networkChanged) {
+    if (networkChanged || chainChanged) {
       await fetchLastBlockHeight({ networkId: network.id });
       await fetchTotalCount({ networkId: network.id, accountName: props.accountName, chainId: selectedChain.value.value || undefined });
-    }
-
-    // Reset to first page on rows change
-    if (rowsToShow.value !== (oldRows as any)?.value && currentPage.value !== 1) {
       currentPage.value = 1;
-      return;
+      const params: { networkId: string; accountName: string; chainId?: string } = {
+        networkId: network.id,
+        accountName: props.accountName,
+      };
+      if (selectedChain.value.value !== null) params.chainId = selectedChain.value.value as string;
+      await fetchAccountTransactions(params);
+      loadingPage.value = false;
     }
-
-    if ((networkChanged || chainChanged) && currentPage.value !== 1) {
-      currentPage.value = 1;
-      return;
-    }
-
-    const params: { networkId: string; accountName: string; after?: string; before?: string; toLastPage?: boolean; chainId?: string } = {
-      networkId: network.id,
-      accountName: props.accountName,
-    };
-
-    if (selectedChain.value.value !== null) {
-      params.chainId = selectedChain.value.value as string;
-    }
-
-    const oldPageNumber = typeof oldPage === 'number' ? oldPage : 1;
-    const pageNumber = currentPage.value || 1;
-
-    if (pageNumber > 1) {
-      if (pageNumber > oldPageNumber) {
-        params.after = pageInfo.value?.endCursor;
-      } else if (pageNumber < oldPageNumber) {
-        params.before = pageInfo.value?.startCursor;
-      }
-    }
-
-    if (pageNumber === totalPages.value) {
-      params.after = null as any;
-      params.before = null as any;
-      params.toLastPage = true;
-    }
-
-    await fetchAccountTransactions(params);
-    loadingPage.value = false;
   },
   { immediate: true, deep: true }
 );
+
+// 2) React to rows-per-page change: reset to page 1 and refetch
+watch(rowsToShow, async (newRows, oldRows) => {
+  const network = selectedNetwork.value;
+  if (!network || !props.accountName) return;
+  if (newRows === oldRows) return;
+  currentPage.value = 1;
+  const params: { networkId: string; accountName: string; chainId?: string } = {
+    networkId: network.id,
+    accountName: props.accountName,
+  };
+  if (selectedChain.value.value !== null) params.chainId = selectedChain.value.value as string;
+  await fetchAccountTransactions(params);
+  loadingPage.value = false;
+});
+
+// 3) React to page change only: fetch the next/prev page using cursors
+watch(currentPage, async (newPage, oldPage) => {
+  const network = selectedNetwork.value;
+  if (!network || !props.accountName) return;
+  if (!newPage || newPage === oldPage) return;
+
+  const params: { networkId: string; accountName: string; after?: string; before?: string; toLastPage?: boolean; chainId?: string } = {
+    networkId: network.id,
+    accountName: props.accountName,
+  };
+  if (selectedChain.value.value !== null) params.chainId = selectedChain.value.value as string;
+
+  if (newPage > oldPage) {
+    params.after = pageInfo.value?.endCursor;
+  } else if (newPage < oldPage) {
+    params.before = pageInfo.value?.startCursor;
+  }
+
+  if (newPage === totalPages.value) {
+    params.after = null as any;
+    params.before = null as any;
+    params.toLastPage = true;
+  }
+
+  await fetchAccountTransactions(params);
+  loadingPage.value = false;
+});
 
 // CSV download
 function downloadData() {
@@ -211,7 +240,7 @@ function downloadData() {
     <SkeletonTable v-if="loading" />
 
     <DataTable
-      v-else
+      v-else-if="filteredTransactions && filteredTransactions.length > 0"
       :headers="tableHeaders"
       :items="filteredTransactions"
       :totalItems="totalCount"
@@ -286,5 +315,16 @@ function downloadData() {
         <span class="text-[#f5f5f5]">{{ getFeeInKda(item) }}</span>
       </template>
     </DataTable>
+    
+    <!-- Empty state -->
+    <div v-else class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
+      <div class="flex flex-col items-center justify-center py-12">
+        <img src="/empty/txs.png" alt="No transactions" class="w-24 h-24 mb-4 opacity-50" />
+        <h3 class="text-[#fafafa] text-lg font-medium mb-2">No transactions yet</h3>
+        <p class="text-[#bbbbbb] text-sm text-center">
+          This account hasn't made any transactions yet.
+        </p>
+      </div>
+    </div>
   </div>
 </template>

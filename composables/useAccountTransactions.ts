@@ -55,7 +55,7 @@ const loading = ref(true);
 const { formatRelativeTime, formatGasPrice } = useFormat();
 const pageInfo = ref<any>(null);
 const totalCount = ref(0);
-const rowsToShow = ref(25);
+const rowsToShow = ref(10);
 const error = ref<any>(null);
 
 export const useAccountTransactions = () => {
@@ -115,6 +115,8 @@ export const useAccountTransactions = () => {
         transactions.value = [];
         return;
       }
+
+      console.log('result', result)
 
       const rawTxs = result?.edges || [];
       transactions.value = rawTxs.map((edge: any) => ({
