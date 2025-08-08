@@ -49,7 +49,7 @@ onUnmounted(() => {
 
 <template>
   <div
-    class="relative md:max-w-[675px] md:min-w-[480px] w-full md:w-auto"
+    class="relative md:max-w-[675px] md:min-w-[500px] w-full md:w-auto"
     v-outside="close"
   >
     <IconSearchMagnify class="absolute left-3 md:left-[10px] top-1/2 -translate-y-1/2 w-6 h-6 text-[#bbbbbb]" />
@@ -91,7 +91,7 @@ onUnmounted(() => {
       <IconSearchClose class="w-5 h-5 text-[#bbbbbb] hover:text-[#f5f5f5]" />
     </div>
 
-    <kbd class="absolute right-2 top-1/2 -translate-y-1/2 bg-[#121212] bg-opacity-75 rounded-[6px] px-2 py-[2px] text-[#fafafa] text-[12.69px] font-semibold leading-[19px] min-w-[23.64px] h-[23.03px] flex items-center justify-center">
+    <kbd class="hidden md:block absolute right-2 top-1/2 -translate-y-1/2 bg-[#121212] bg-opacity-75 rounded-[6px] px-2 py-[2px] text-[#fafafa] text-[12.69px] font-semibold leading-[19px] min-w-[23.64px] h-[23.03px] flex items-center justify-center">
       /
     </kbd>
 
