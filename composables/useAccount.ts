@@ -49,7 +49,29 @@ query Transfers($accountName: String, $last: Int) {
 }
 `;
 
+const CHAIN_ACCOUNT_QUERY = `
+query FungibleChainAccount($accountName: String!, $chainId: String!) {
+  fungibleChainAccount(accountName: $accountName, chainId: $chainId) {
+    chainId
+    transactions {
+      totalCount
+    }
+    balance
+    guard {
+      ... on KeysetGuard {
+        predicate
+        keys
+        raw
+      }
+    }
+    accountName
+    fungibleName
+  }
+}
+`;
+
 const accountData = ref<any>(null);
+const chainAccount = ref<any>(null);
 const loading = ref(false);
 const error = ref<any>(null);
 const transfersLoading = ref(false);
@@ -64,6 +86,7 @@ export const useAccount = () => {
     transfersLoading.value = false;
     firstTransaction.value = null;
     lastTransaction.value = null;
+    chainAccount.value = null;
   };
 
   const fetchFirstAndLastTransfers = async ({
@@ -195,14 +218,42 @@ export const useAccount = () => {
     }
   };
 
+  const fetchChainAccount = async ({
+    networkId,
+    accountName,
+    chainId,
+  }: {
+    networkId: string;
+    accountName: string;
+    chainId: string;
+  }) => {
+    if (!networkId || !accountName || !chainId) return;
+    try {
+      const response: any = await $fetch('/api/graphql', {
+        method: 'POST',
+        body: {
+          query: CHAIN_ACCOUNT_QUERY,
+          variables: { accountName, chainId },
+          networkId,
+        },
+      });
+      chainAccount.value = response?.data?.fungibleChainAccount || null;
+    } catch (e) {
+      console.error('Error fetching chain account data:', e);
+      chainAccount.value = null;
+    }
+  };
+
   return {
     accountData,
+    chainAccount,
     loading,
     error,
     transfersLoading,
     firstTransaction,
     lastTransaction,
     fetchAccount,
+    fetchChainAccount,
     fetchFirstAndLastTransfers,
     clearState,
   };

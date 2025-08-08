@@ -30,11 +30,13 @@ const address = computed(() => route.params.address as string)
 // Use composables
 const { 
   accountData, 
+  chainAccount,
   loading: accountLoading, 
   transfersLoading,
   firstTransaction,
   lastTransaction,
-  fetchAccount 
+  fetchAccount,
+  fetchChainAccount,
 } = useAccount()
 const { fetchKadenaPrice } = useBinance()
 const { selectedNetwork } = useSharedData()
@@ -134,6 +136,23 @@ watch(
         networkId: network.id,
         accountName: addr
       })
+    }
+  },
+  { immediate: true }
+)
+
+// Watch for chainId in URL to fetch chain-specific account info
+watch(
+  [selectedNetwork, address, () => route.query.chainId],
+  async ([network, addr, chainId]) => {
+    if (network && addr) {
+      const id = typeof chainId === 'string' ? chainId : undefined
+      if (id) {
+        await fetchChainAccount({ networkId: network.id, accountName: addr, chainId: id })
+      } else {
+        // Clear chain specific when not provided
+        // chainAccount is managed inside composable; nothing else to do
+      }
     }
   },
   { immediate: true }
@@ -452,7 +471,7 @@ const displayKdaBalance = computed(() => {
     <div class="mb-6">
       <AccountTransactions 
         v-if="activeTab === 'transactions'"
-        :address="address"
+        :accountName="address"
       />
       
       <AccountTokenTransfers 

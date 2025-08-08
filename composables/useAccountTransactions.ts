@@ -1,8 +1,57 @@
 import { ref, readonly } from 'vue';
 import { useFormat } from './useFormat';
 
+const GQL_QUERY = `
+  query Transactions($accountName: String, $after: String, $before: String, $first: Int, $last: Int, $chainId: String) {
+    transactions(accountName: $accountName, after: $after, before: $before, first: $first, last: $last, chainId: $chainId) {
+      totalCount
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      edges {
+        node {
+          hash
+          cmd {
+            meta {
+              chainId
+              creationTime
+              gasLimit
+              gasPrice
+              sender
+              ttl
+            }
+          }
+          result {
+            ... on TransactionResult {
+              badResult
+              gas
+              block {
+                chainId
+                height
+                canonical
+              }
+            }
+          }
+        }
+        cursor
+      }
+    }
+  }
+`;
+
+const TOTAL_COUNT_QUERY = `
+  query Transactions($accountName: String, $chainId: String) {
+    transactions(accountName: $accountName, chainId: $chainId) {
+      totalCount
+    }
+  }
+`;
+
 const transactions = ref<any[]>([]);
-const loading = ref(false);
+const loading = ref(true);
 const { formatRelativeTime, formatGasPrice } = useFormat();
 const pageInfo = ref<any>(null);
 const totalCount = ref(0);
@@ -12,7 +61,7 @@ const error = ref<any>(null);
 export const useAccountTransactions = () => {
   const clearState = () => {
     transactions.value = [];
-    loading.value = false;
+    loading.value = true;
     pageInfo.value = null;
     error.value = null;
   };
@@ -23,47 +72,103 @@ export const useAccountTransactions = () => {
 
   const fetchAccountTransactions = async ({
     networkId,
-    address,
+    accountName,
     after,
     before,
     toLastPage = false,
     chainId,
   }: {
     networkId: string,
-    address: string,
+    accountName: string,
     after?: string,
     before?: string,
     toLastPage?: boolean,
     chainId?: string,
   }) => {
-    // TODO: Implement real GraphQL query for account transactions
-    // For now, return empty data to show empty states
-    loading.value = false;
-    transactions.value = [];
-    totalCount.value = 0;
-    pageInfo.value = {
-      hasNextPage: false,
-      hasPreviousPage: false,
-      startCursor: null,
-      endCursor: null
-    };
+    if (!networkId || !accountName) return;
+    loading.value = transactions.value.length === 0;
+    error.value = null;
+
+    try {
+      const isForward = !!after || (!after && !before);
+      const response: any = await $fetch('/api/graphql', {
+        method: 'POST',
+        body: {
+          query: GQL_QUERY,
+          variables: {
+            accountName,
+            first: toLastPage ? null : isForward ? rowsToShow.value : null,
+            last: toLastPage ? rowsToShow.value : isForward ? null : rowsToShow.value,
+            after,
+            before,
+            chainId,
+          },
+          networkId,
+        },
+      });
+
+      const result = response?.data?.transactions;
+      pageInfo.value = result?.pageInfo || null;
+      totalCount.value = result?.totalCount || 0;
+
+      if (result === undefined || result.edges.length === 0) {
+        transactions.value = [];
+        return;
+      }
+
+      const rawTxs = result?.edges || [];
+      transactions.value = rawTxs.map((edge: any) => ({
+        requestKey: edge.node.hash,
+        height: edge.node.result.block?.height,
+        canonical: edge.node.result.block?.canonical,
+        badResult: edge.node.result.badResult,
+        chainId: edge.node.cmd.meta.chainId,
+        time: formatRelativeTime(edge.node.cmd.meta.creationTime),
+        sender: edge.node.cmd.meta.sender,
+        gasPrice: formatGasPrice(parseFloat(edge.node.cmd.meta.gasPrice)),
+        rawGasPrice: edge.node.cmd.meta.gasPrice,
+        gas: edge.node.result.gas,
+        gasLimit: new Intl.NumberFormat().format(edge.node.cmd.meta.gasLimit),
+        rawGasLimit: edge.node.cmd.meta.gasLimit,
+        cursor: edge.cursor,
+      }));
+    } catch (e) {
+      console.error('Error fetching or processing account transactions:', e);
+      error.value = e;
+      transactions.value = [];
+    } finally {
+      loading.value = false;
+    }
   };
 
-  const fetchTotalCount = async (networkId: string, address: string) => {
-    // TODO: Implement real query for total transaction count
-    totalCount.value = 0;
+  const fetchTotalCount = async ({ networkId, accountName, chainId }: { networkId: string; accountName: string; chainId?: string }) => {
+    if (!networkId || !accountName) return;
+    try {
+      const response: any = await $fetch('/api/graphql', {
+        method: 'POST',
+        body: {
+          query: TOTAL_COUNT_QUERY,
+          variables: { accountName, chainId },
+          networkId,
+        },
+      });
+      const count = response?.data?.transactions?.totalCount;
+      totalCount.value = typeof count === 'number' ? count : 0;
+    } catch (e) {
+      console.error('Error fetching account transactions count:', e);
+    }
   };
 
   return {
+    error: readonly(error),
     transactions: readonly(transactions),
     loading: readonly(loading),
+    fetchAccountTransactions,
     pageInfo: readonly(pageInfo),
     totalCount: readonly(totalCount),
-    rowsToShow: readonly(rowsToShow),
-    error: readonly(error),
-    fetchAccountTransactions,
     fetchTotalCount,
+    rowsToShow: readonly(rowsToShow),
     updateRowsToShow,
     clearState,
   };
-}; 
+};
