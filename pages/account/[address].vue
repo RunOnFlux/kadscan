@@ -31,13 +31,12 @@ const address = computed(() => route.params.address as string)
 // Use composables
 const { 
   accountData, 
-  chainAccount,
-  loading: accountLoading, 
+  accountLoading, 
   transfersLoading,
   firstTransaction,
   lastTransaction,
   fetchAccount,
-  fetchChainAccount,
+  fetchFirstAndLastTransfers,
 } = useAccount()
 const { fetchKadenaPrice } = useBinance()
 const { selectedNetwork } = useSharedData()
@@ -86,31 +85,60 @@ const account = computed(() => {
 
   const data = accountData.value
   const totalBalance = data.totalBalance || 0
-  const kdaValue = totalBalance * kdaPrice.value
+  // Validate chainId from URL param
+  const q = route.query.chainId as string | undefined
+  const n = q !== undefined ? parseInt(q, 10) : undefined
+  const isValidChain = n !== undefined && !Number.isNaN(n) && n >= 0 && n <= 19
 
-  // Extract unique guards information
-  const guards = data.chainAccounts?.map((chainAccount: any) => ({
+  // Build guards from chainAccounts
+  const allGuards = (data.chainAccounts?.map((chainAccount: any) => ({
     chainId: chainAccount.chainId,
     predicate: chainAccount.guard?.predicate || 'N/A',
     keys: chainAccount.guard?.keys || []
-  })) || []
+  })) || []) as Array<{ chainId: number | string; predicate: string; keys: string[] }>
 
+  // Select chain-specific balance and guard if a valid chain is present
+  let displayBalance = totalBalance
+  let guardsForView: typeof allGuards = allGuards
+  let displayChainId: string | null = null
+
+  if (isValidChain) {
+    const chainAccount = (data.chainAccounts || []).find((c: any) => `${c.chainId}` === `${n}`)
+    if (chainAccount) {
+      displayBalance = Number(chainAccount.balance || 0)
+      guardsForView = [{
+        chainId: chainAccount.chainId,
+        predicate: chainAccount.guard?.predicate || 'N/A',
+        keys: chainAccount.guard?.keys || []
+      }]
+      displayChainId = `${chainAccount.chainId}`
+    } else {
+      // No data for that chain: show 0 balance and no guards
+      displayBalance = 0
+      guardsForView = []
+      displayChainId = `${n}`
+    }
+  }
+
+  const kdaValue = displayBalance * kdaPrice.value
+
+      
   return {
     address: data.accountName || address.value,
-    kdaBalance: totalBalance.toFixed(12),
+    kdaBalance: displayBalance.toFixed(12),
     kdaValue: kdaValue.toFixed(2),
     kdaPrice: kdaPrice.value.toFixed(2),
     tokenHoldings: '0', // Will be implemented later
     tokenCount: '0', // Will be implemented later
     lastTransactionCreationTime: lastTransactionTimeAgo.value || null,
     firstTransactionCreationTime: firstTransactionTimeAgo.value || null,
-    fundedBy: lastTransaction.value?.fundedBy || null,
-    height: lastTransaction.value?.height === 0 ? '0' : lastTransaction.value?.height || null,
-    chainId: lastTransaction.value?.chainId === 0 ? '0' : lastTransaction.value?.chainId || null,
+    fundedBy: firstTransaction.value?.fundedBy || null,
+    height: firstTransaction.value?.height === 0 ? '0' : firstTransaction.value?.height || null,
+    chainId: displayChainId ?? (firstTransaction.value?.chainId === 0 ? '0' : firstTransaction.value?.chainId || null),
     multichainPortfolio: kdaValue.toFixed(2),
     totalTransactions: '0', // Will be implemented later
     badge: '0', // Will be implemented later
-    guards
+    guards: guardsForView
   }
 })
 
@@ -141,19 +169,16 @@ watch(
   { immediate: true }
 )
 
-// Watch for chainId in URL to fetch chain-specific account info
+// Watch for chainId in URL to fetch chain-specific transfers (first/last/funded by)
 watch(
-  [selectedNetwork, address, () => route.query.chainId],
+  [selectedNetwork, address, () => route.query.chainId, accountData],
   async ([network, addr, chainId]) => {
-    if (network && addr) {
-      const id = typeof chainId === 'string' ? chainId : undefined
-      if (id) {
-        await fetchChainAccount({ networkId: network.id, accountName: addr, chainId: id })
-      } else {
-        // Clear chain specific when not provided
-        // chainAccount is managed inside composable; nothing else to do
-      }
-    }
+    if (!network || !addr) return;
+    const q = typeof chainId === 'string' ? chainId : undefined
+    const n = q !== undefined ? parseInt(q, 10) : undefined
+    const isValid = n !== undefined && !Number.isNaN(n) && n >= 0 && n <= 19
+    const chainParam = isValid ? q : undefined
+    await fetchFirstAndLastTransfers({ networkId: network.id, accountName: addr, chainId: chainParam })
   },
   { immediate: true }
 )

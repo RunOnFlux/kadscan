@@ -42,14 +42,6 @@ const GQL_QUERY = `
   }
 `;
 
-const TOTAL_COUNT_QUERY = `
-  query Transactions($accountName: String, $chainId: String) {
-    transactions(accountName: $accountName, chainId: $chainId) {
-      totalCount
-    }
-  }
-`;
-
 const transactions = ref<any[]>([]);
 const loading = ref(true);
 const { formatRelativeTime, formatGasPrice } = useFormat();
@@ -143,24 +135,6 @@ export const useAccountTransactions = () => {
     }
   };
 
-  const fetchTotalCount = async ({ networkId, accountName, chainId }: { networkId: string; accountName: string; chainId?: string }) => {
-    if (!networkId || !accountName) return;
-    try {
-      const response: any = await $fetch('/api/graphql', {
-        method: 'POST',
-        body: {
-          query: TOTAL_COUNT_QUERY,
-          variables: { accountName, chainId },
-          networkId,
-        },
-      });
-      const count = response?.data?.transactions?.totalCount;
-      totalCount.value = typeof count === 'number' ? count : 0;
-    } catch (e) {
-      console.error('Error fetching account transactions count:', e);
-    }
-  };
-
   return {
     error: readonly(error),
     transactions: readonly(transactions),
@@ -168,7 +142,6 @@ export const useAccountTransactions = () => {
     fetchAccountTransactions,
     pageInfo: readonly(pageInfo),
     totalCount: readonly(totalCount),
-    fetchTotalCount,
     rowsToShow: readonly(rowsToShow),
     updateRowsToShow,
     clearState,

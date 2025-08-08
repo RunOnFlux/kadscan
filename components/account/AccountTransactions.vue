@@ -28,7 +28,6 @@ const { selectedNetwork } = useSharedData();
 const { isMobile } = useScreenSize();
 
 const { 
-  error: transactionsError,
   transactions,
   loading,
   fetchAccountTransactions,
@@ -40,9 +39,13 @@ const {
   clearState: clearTransactionsState,
 } = useAccountTransactions();
 
-const { totalCount: lastBlockHeight, fetchTotalCount: fetchLastBlockHeight, error: blocksError, clearState: clearBlocksState } = useBlocks();
+const { 
+  totalCount: lastBlockHeight, 
+  fetchTotalCount: fetchLastBlockHeight, 
+  error: blocksError, 
+  clearState: clearBlocksState 
+} = useBlocks();
 
-// Chain filter
 const selectedChain = ref({ label: 'All', value: null as string | null });
 const chainOptions = computed(() => {
   const options = [{ label: 'All', value: null as string | null }];
@@ -52,7 +55,6 @@ const chainOptions = computed(() => {
   return options;
 });
 
-// Initialize selectedChain from URL if valid; clean URL if invalid
 const initChainFromUrl = () => {
   const q = route.query.chainId as string | undefined;
   if (q === undefined) return;
@@ -67,9 +69,7 @@ const initChainFromUrl = () => {
     selectedChain.value = { label: 'All', value: null };
   }
 };
-initChainFromUrl();
 
-// Table config
 const tableHeaders = [
   { key: 'requestKey', label: 'Request Key' },
   { key: 'height', label: 'Block' },
@@ -156,6 +156,7 @@ const filteredTransactions = computed(() => {
 
 // Clear state on mount to show skeleton
 onMounted(() => {
+  initChainFromUrl();
   clearTransactionsState();
   clearBlocksState();
 });
@@ -171,7 +172,6 @@ watch(
 
     if (networkChanged || chainChanged) {
       await fetchLastBlockHeight({ networkId: network.id });
-      await fetchTotalCount({ networkId: network.id, accountName: props.accountName, chainId: selectedChain.value.value || undefined });
       currentPage.value = 1;
       const params: { networkId: string; accountName: string; chainId?: string } = {
         networkId: network.id,
