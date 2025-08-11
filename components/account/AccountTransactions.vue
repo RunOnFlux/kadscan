@@ -161,6 +161,20 @@ onMounted(() => {
   clearBlocksState();
 });
 
+// Keep selectedChain in sync with the URL even when the table is not rendered
+watch(() => route.query.chainId, (q) => {
+  const str = typeof q === 'string' ? q : undefined;
+  if (str === undefined) {
+    selectedChain.value = { label: 'All', value: null };
+    return;
+  }
+  const n = parseInt(str, 10);
+  const isValid = !Number.isNaN(n) && n >= 0 && n <= 19;
+  selectedChain.value = isValid
+    ? { label: n.toString(), value: n.toString() }
+    : { label: 'All', value: null };
+});
+
 // 1) React to network or chain change: reset to page 1 and refresh counts
 watch(
   [selectedNetwork, selectedChain],

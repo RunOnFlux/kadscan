@@ -17,6 +17,7 @@ import { useFormat } from '~/composables/useFormat'
 import QrIcon from '~/components/icon/Qr.vue'
 import Tooltip from '~/components/Tooltip.vue'
 import QrModal from '~/components/qr/Modal.vue'
+import Select from '~/components/Select.vue'
 
 definePageMeta({
   layout: 'app',
@@ -254,6 +255,63 @@ const displayKdaBalance = computed(() => {
   if (Number.isNaN(numeric)) return account.value.kdaBalance
   return numeric === 0 ? '0.0' : account.value.kdaBalance
 })
+
+// Multichain Select helpers
+const multichainLabel = computed(() => {
+  const q = route.query.chainId as string | undefined
+  const n = q !== undefined ? parseInt(q, 10) : undefined
+  const isValid = n !== undefined && !Number.isNaN(n) && n >= 0 && n <= 19
+  return isValid ? `Chain ${n}` : 'All Chains'
+})
+
+const selectedChainSelect = computed({
+  get() {
+    const q = route.query.chainId as string | undefined
+    const n = q !== undefined ? parseInt(q, 10) : undefined
+    const isValid = n !== undefined && !Number.isNaN(n) && n >= 0 && n <= 19
+    // Compute dollar value for the selected chain or total
+    const allChains = accountData.value?.chainAccounts || []
+    if (!isValid) {
+      const totalBalance = allChains.reduce((acc: number, c: any) => acc + Number(c.balance || 0), 0)
+      const totalValue = (totalBalance * kdaPrice.value).toFixed(2)
+      return { label: `$${totalValue} (All Chains)`, value: null }
+    }
+    const chainAccount = allChains.find((c: any) => `${c.chainId}` === `${n}`)
+    const balance = Number(chainAccount?.balance || 0)
+    const value = (balance * kdaPrice.value).toFixed(2)
+    return { label: `$${value} (Chain ${n})`, value: `${n}` }
+  },
+  set(val: any) {}
+})
+
+const chainSelectOptions = computed(() => {
+  const opts: Array<{ label: string; value: any }> = []
+  const set = new Set<string>()
+  const arr = accountData.value?.chainAccounts || []
+  const totalBalance = arr.reduce((acc: number, c: any) => acc + Number(c.balance || 0), 0)
+  const totalValue = (totalBalance * kdaPrice.value).toFixed(2)
+  opts.push({ label: `$${totalValue} (All Chains)`, value: null })
+  for (const c of arr) {
+    const id = `${c.chainId}`
+    if (!set.has(id)) {
+      set.add(id)
+      const balance = Number(c.balance || 0)
+      const value = (balance * kdaPrice.value).toFixed(2)
+      opts.push({ label: `$${value} (Chain ${id})`, value: id })
+    }
+  }
+  return opts
+})
+
+const onChangeChainSelect = (option: any) => {
+  const query = { ...route.query }
+  if (!option || option.value === null) {
+    delete query.chainId
+  } else {
+    query.chainId = option.value
+  }
+  navigateTo({ query }, { replace: true })
+}
 </script>
 
 <template>
@@ -350,26 +408,26 @@ const displayKdaBalance = computed(() => {
                 </template>
                 <template v-else>
                   <NuxtLink 
-                    v-if="firstTransaction?.requestKey" 
-                    :to="`/transactions/${firstTransaction.requestKey}`"
-                    class="text-[#6AB5DB] text-[14px] hover:text-[#9ccee7] transition-colors"
-                  >
-                    {{ account.firstTransactionCreationTime }}
-                  </NuxtLink>
-                  <span v-else class="text-[#bbb] text-[14px]">N/A</span>
-                </template>
-
-                <span class="text-[#bbb] text-[14px] ml-4 mr-1">First:</span>
-                <template v-if="showTransfersLoading">
-                  <span class="text-[#888888] text-[14px] animate-pulse">Loading...</span>
-                </template>
-                <template v-else>
-                  <NuxtLink 
                     v-if="lastTransaction?.requestKey" 
                     :to="`/transactions/${lastTransaction.requestKey}`"
                     class="text-[#6AB5DB] text-[14px] hover:text-[#9ccee7] transition-colors"
                   >
                     {{ account.lastTransactionCreationTime }}
+                  </NuxtLink>
+                  <span v-else class="text-[#bbb] text-[14px]">N/A</span>
+                </template>
+
+                <span class="text-[#bbb] text-[14px] mr-1 ml-4">First:</span>
+                <template v-if="showTransfersLoading">
+                  <span class="text-[#888888] text-[14px] animate-pulse">Loading...</span>
+                </template>
+                <template v-else>
+                  <NuxtLink 
+                    v-if="firstTransaction?.requestKey" 
+                    :to="`/transactions/${firstTransaction.requestKey}`"
+                    class="text-[#6AB5DB] text-[14px] hover:text-[#9ccee7] transition-colors"
+                  >
+                    {{ account.firstTransactionCreationTime }}
                   </NuxtLink>
                   <span v-else class="text-[#bbb] text-[14px]">N/A</span>
                 </template>
@@ -418,10 +476,23 @@ const displayKdaBalance = computed(() => {
         <h3 class="text-[#fafafa] font-semibold mb-4">Multichain Info</h3>
         <div class="space-y-4">
           <div>
-            <div class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[#222222] border border-[#333333]">
-              <Coins class="w-4 h-4 text-white" />
-              <span class="text-white text-[14px]">${{ account.multichainPortfolio }} (All Chains)</span>
-            </div>
+            <Select
+              :modelValue="selectedChainSelect"
+              @update:modelValue="onChangeChainSelect"
+              :items="chainSelectOptions"
+              position="bottom-left"
+              size="default"
+              variant="filled"
+              :fullWidth="false"
+            >
+              <div class="inline-flex items-center gap-2">
+                <Coins class="w-4 h-4 text-white" />
+                <span class="text-white text-[14px]">
+                  ${{ account.multichainPortfolio }}
+                  <span class="text-[#bbbbbb] text-[13px]">({{ multichainLabel }})</span>
+                </span>
+              </div>
+            </Select>
           </div>
           
           <!-- Guards Information -->

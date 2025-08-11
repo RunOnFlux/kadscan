@@ -15,6 +15,8 @@ const props = defineProps<{
   fontSize?: number;
   position?: 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right' | 'left-top' | 'left-bottom' | 'right-top' | 'right-bottom';
   size?: 'small' | 'default';
+  variant?: 'plain' | 'filled';
+  fullWidth?: boolean;
 }>()
 
 const emit = defineEmits(['update:modelValue'])
@@ -32,27 +34,35 @@ provideUseId(() => useId())
       <div class="relative">
         <ListboxButton
           :class="[
-            'flex items-center justify-center ring-0 outline-none shrink-0',
+            'inline-flex items-center justify-between ring-0 outline-none shrink-0',
             size === 'small'
-              ? 'gap-1 px-1 py-0.5 text-xs h-7 min-h-0'
-              : 'gap-11 px-[10px] py-[0.3rem] text-[15px]'
+              ? 'gap-1 px-2 py-1 text-xs h-7 min-h-0'
+              : 'gap-2 px-3 py-2 text-[15px]',
+            variant === 'filled'
+              ? 'rounded-lg bg-[#222222] border border-[#333333]'
+              : '',
+            fullWidth ? 'w-full' : ''
           ]"
         >
           <template v-if="slots.default">
-            <slot />
-            <IconArrow
-              class="transition shrink-0 h-5 w-5 text-[#bbbbbb]"
-              :class="open ? 'rotate-90' : '-rotate-90'"
-            />
+            <div class="flex items-center gap-2 w-full">
+              <slot />
+              <IconArrow
+                class="transition shrink-0 h-5 w-5 text-[#bbbbbb] ml-auto"
+                :class="open ? 'rotate-90' : '-rotate-90'"
+              />
+            </div>
           </template>
           <template v-else>
-            <span class="whitespace-nowrap block text-[#fafafa]">
-              {{ modelValue.label }}
-            </span>
-            <IconArrow
-              class="transition shrink-0 h-5 w-5 text-[#bbbbbb]"
-              :class="open ? 'rotate-90' : '-rotate-90'"
-            />
+            <div class="flex items-center gap-2 w-full">
+              <span class="whitespace-nowrap block text-[#fafafa]">
+                {{ modelValue.label }}
+              </span>
+              <IconArrow
+                class="transition shrink-0 h-5 w-5 text-[#bbbbbb] ml-auto"
+                :class="open ? 'rotate-90' : '-rotate-90'"
+              />
+            </div>
           </template>
         </ListboxButton>
         <SelectOptions :items="items" :position="position" />
