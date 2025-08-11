@@ -232,6 +232,12 @@ const displayKdaBalance = computed(() => {
   return numeric === 0 ? '0.0' : account.value.kdaBalance
 })
 
+// Show per-KDA price only when total KDA value is greater than 0
+const shouldShowPerKda = computed(() => {
+  const value = parseFloat(account.value.kdaValue)
+  return !Number.isNaN(value) && value > 0
+})
+
 // Multichain Select helpers
 const multichainLabel = computed(() => {
   const q = route.query.chainId as string | undefined
@@ -354,7 +360,10 @@ const onChangeChainSelect = (option: any) => {
             <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">KDA VALUE</div>
             <div class="text-[#fafafa] text-[14px]">
               <span v-if="showPriceLoading" class="text-[#888888] animate-pulse">Loading...</span>
-              <span v-else>${{ account.kdaValue }} (${{ account.kdaPrice }}/KDA)</span>
+              <span v-else>
+                ${{ account.kdaValue }}
+                <template v-if="shouldShowPerKda"> (${{ account.kdaPrice }}/KDA)</template>
+              </span>
             </div>
           </div>
           <div>
