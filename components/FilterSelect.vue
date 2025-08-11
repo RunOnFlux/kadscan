@@ -17,6 +17,29 @@ const router = useRouter()
 const showDropdown = ref(false)
 const currentChain = ref<number | null>(null)
 
+// Debounce configuration for propagating filter changes
+const DEBOUNCE_MS = 1500
+let debounceTimer: ReturnType<typeof setTimeout> | null = null
+
+const cancelDebounce = () => {
+  if (debounceTimer) {
+    clearTimeout(debounceTimer)
+    debounceTimer = null
+  }
+}
+
+const scheduleUpdate = (chainValue: number | null) => {
+  cancelDebounce()
+  debounceTimer = setTimeout(() => {
+    const modelValue = chainValue !== null
+      ? { label: chainValue.toString(), value: chainValue.toString() }
+      : { label: 'All', value: null }
+    emit('update:modelValue', modelValue)
+    updateUrl(chainValue)
+    debounceTimer = null
+  }, DEBOUNCE_MS)
+}
+
 // Initialize from URL parameter if urlParamName is provided
 const initializeFromUrl = () => {
   if (!props.urlParamName) return null;
@@ -61,6 +84,8 @@ onMounted(() => {
 
 // Watch for modelValue changes (from parent)
 watch(() => props.modelValue, (newValue) => {
+  // External change should cancel any pending internal update
+  cancelDebounce()
   if (newValue?.value === null) {
     currentChain.value = null;
   } else if (newValue?.value) {
@@ -72,6 +97,8 @@ watch(() => props.modelValue, (newValue) => {
 watch(() => route.query[props.urlParamName || ''], (newValue) => {
   if (!props.urlParamName) return;
   
+  // Cancel pending updates if URL changed externally
+  cancelDebounce()
   const urlChain = initializeFromUrl();
   if (urlChain !== currentChain.value) {
     currentChain.value = urlChain;
@@ -99,8 +126,7 @@ const updateUrl = (chainValue: number | null) => {
 // Handle "All" button click
 const selectAll = () => {
   currentChain.value = null
-  emit('update:modelValue', { label: 'All', value: null })
-  updateUrl(null);
+  scheduleUpdate(null)
 }
 
 // Handle direct input change
@@ -114,8 +140,7 @@ const handleInputChange = (event: Event) => {
   }
   
   currentChain.value = value
-  emit('update:modelValue', { label: value.toString(), value: value.toString() })
-  updateUrl(value);
+  scheduleUpdate(value)
 }
 
 // Handle chevron controls
@@ -127,8 +152,7 @@ const decrementChain = () => {
   } else {
     return // Don't go below 0
   }
-  emit('update:modelValue', { label: currentChain.value.toString(), value: currentChain.value.toString() })
-  updateUrl(currentChain.value);
+  scheduleUpdate(currentChain.value)
 }
 
 const incrementChain = () => {
@@ -139,8 +163,7 @@ const incrementChain = () => {
   } else {
     return // Don't go above 19
   }
-  emit('update:modelValue', { label: currentChain.value.toString(), value: currentChain.value.toString() })
-  updateUrl(currentChain.value);
+  scheduleUpdate(currentChain.value)
 }
 
 // Toggle dropdown
@@ -152,6 +175,10 @@ const toggleDropdown = () => {
 const closeDropdown = () => {
   showDropdown.value = false
 }
+
+onBeforeUnmount(() => {
+  cancelDebounce()
+})
 </script>
 
 <template>
