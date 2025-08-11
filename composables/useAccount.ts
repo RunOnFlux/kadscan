@@ -77,6 +77,10 @@ export const useAccount = () => {
   }) => {
     if (!networkId || !accountName || !accountData.value) return;
     
+    // Reset previous results to avoid showing stale data when chain has no history
+    firstTransaction.value = null;
+    lastTransaction.value = null;
+
     transfersLoading.value = true;
     
     try {
@@ -135,6 +139,8 @@ export const useAccount = () => {
         }
 
         firstTransaction.value.fundedBy = senderAccount;
+      } else {
+        firstTransaction.value = null;
       }
 
       // Process most recent transfer (from firstResponse since 'first' gets most recent)
@@ -144,6 +150,8 @@ export const useAccount = () => {
           requestKey: lastTransferData.requestKey,
           creationTime: lastTransferData.creationTime,      
         };
+      } else {
+        lastTransaction.value = null;
       }
 
     } catch (e) {

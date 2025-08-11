@@ -9,7 +9,7 @@ import KadenaIcon from '~/components/icon/Kadena.vue'
 import UpperRightArrow from '~/components/icon/UpperRightArrow.vue'
 import Coins from '~/components/icon/Coins.vue'
 import Copy from '~/components/Copy.vue'
-import IconChevron from '~/components/icon/Chevron.vue'
+// Removed inline chain navigation controls
 import AccountTransactions from '~/components/account/AccountTransactions.vue'
 import AccountTokenTransfers from '~/components/account/AccountTokenTransfers.vue'
 import AccountNFTTransfers from '~/components/account/AccountNFTTransfers.vue'
@@ -100,7 +100,8 @@ const account = computed(() => {
 
   // Select chain-specific balance and guard if a valid chain is present
   let displayBalance = totalBalance
-  let guardsForView: typeof allGuards = allGuards
+  // Only show guards when a specific valid chain is selected
+  let guardsForView: typeof allGuards = []
   let displayChainId: string | null = null
 
   if (isValidChain) {
@@ -199,35 +200,10 @@ const tabs = computed(() => [
   { id: 'nft-transfers', label: 'NFT Transfers' }
 ])
 
-// Guard navigation
-const currentGuardIndex = ref(0)
-
+// Current guard for selected chain (if any)
 const currentGuard = computed(() => {
-  if (!account.value.guards || account.value.guards.length === 0) {
-    return null
-  }
-  return account.value.guards[currentGuardIndex.value]
-})
-
-const hasMultipleGuards = computed(() => {
-  return account.value.guards && account.value.guards.length > 1
-})
-
-const nextGuard = () => {
-  if (account.value.guards && currentGuardIndex.value < account.value.guards.length - 1) {
-    currentGuardIndex.value++
-  }
-}
-
-const prevGuard = () => {
-  if (currentGuardIndex.value > 0) {
-    currentGuardIndex.value--
-  }
-}
-
-// Reset guard index when account data changes
-watch(accountData, () => {
-  currentGuardIndex.value = 0
+  const guards = account.value.guards || []
+  return guards.length > 0 ? guards[0] : null
 })
 
 useHead({
@@ -312,6 +288,9 @@ const onChangeChainSelect = (option: any) => {
   }
   navigateTo({ query }, { replace: true })
 }
+
+// Inline chain quick-navigation (formerly FilterSelect dropdown content)
+// Inline chain navigation removed
 </script>
 
 <template>
@@ -475,7 +454,7 @@ const onChangeChainSelect = (option: any) => {
       <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 h-full flex flex-col">
         <h3 class="text-[#fafafa] font-semibold mb-4">Multichain Info</h3>
         <div class="space-y-4">
-          <div>
+          <div class="flex items-center justify-between gap-2">
             <Select
               :modelValue="selectedChainSelect"
               @update:modelValue="onChangeChainSelect"
@@ -495,30 +474,9 @@ const onChangeChainSelect = (option: any) => {
             </Select>
           </div>
           
-          <!-- Guards Information -->
+          <!-- Guards Information for selected chain only -->
           <div v-if="currentGuard">
-            <div class="flex items-center justify-between mb-2">
-              <div class="text-[13px] text-[#bbbbbb] font-medium">GUARDS</div>
-              <nav v-if="hasMultipleGuards" class="flex items-stretch gap-0.5" aria-label="Guard Navigation">
-                <button
-                  :disabled="currentGuardIndex === 0"
-                  @click="prevGuard"
-                  class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#111111] text-[13px] font-normal text-[#6ab5db] hover:text-[#fafafa] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
-                >
-                  <IconChevron class="h-4 w-4 transform rotate-180" />
-                </button>
-                <span class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-[13px] font-normal text-[#888888] cursor-default">
-                  Chain {{ currentGuard.chainId }}
-                </span>
-                <button
-                  :disabled="currentGuardIndex === account.guards.length - 1"
-                  @click="nextGuard"
-                  class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#111111] text-[13px] font-normal text-[#6ab5db] hover:text-[#fafafa] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
-                >
-                  <IconChevron class="h-4 w-4" />
-                </button>
-              </nav>
-            </div>
+            <div class="text-[13px] text-[#bbbbbb] font-medium mb-2">GUARDS</div>
             <div class="bg-[#222222] border border-[#333333] rounded-lg p-3">
               <div class="grid grid-cols-4 gap-4">
                 <!-- Predicate Column (1/4) -->
