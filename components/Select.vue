@@ -17,6 +17,7 @@ const props = defineProps<{
   size?: 'small' | 'default';
   variant?: 'plain' | 'filled';
   fullWidth?: boolean;
+  maxVisible?: number;
 }>()
 
 const emit = defineEmits(['update:modelValue'])
@@ -65,7 +66,7 @@ provideUseId(() => useId())
             </div>
           </template>
         </ListboxButton>
-        <SelectOptions :items="items" :position="position" />
+        <SelectOptions :items="items" :position="position" :maxVisible="maxVisible ?? 5" />
       </div>
     </Listbox>
   </div>

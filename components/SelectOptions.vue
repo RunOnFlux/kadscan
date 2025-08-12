@@ -10,8 +10,10 @@ type Position = 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right' | 'lef
 const props = withDefaults(defineProps<{
   items: any[];
   position?: Position;
+  maxVisible?: number;
 }>(), {
   position: 'bottom-left',
+  maxVisible: 5,
 });
 
 const positionClasses = computed(() => {
@@ -56,8 +58,10 @@ const positionClasses = computed(() => {
       absolute
       bg-[#111111]
       shadow-[0_0_15px_rgba(255,255,255,0.0625)]
+      overflow-y-auto no-scrollbar
     "
     :class="positionClasses"
+    :style="{ maxHeight: `${(props.maxVisible ?? 5) * 40}px` }"
   >
     <ListboxOption
       v-for="item in items"
@@ -80,3 +84,8 @@ const positionClasses = computed(() => {
   </ListboxOptions>
 </transition>
 </template> 
+
+<style scoped>
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
