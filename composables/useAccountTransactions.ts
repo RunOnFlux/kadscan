@@ -108,8 +108,6 @@ export const useAccountTransactions = () => {
         return;
       }
 
-      console.log('result', result)
-
       const rawTxs = result?.edges || [];
       transactions.value = rawTxs.map((edge: any) => ({
         requestKey: edge.node.hash,

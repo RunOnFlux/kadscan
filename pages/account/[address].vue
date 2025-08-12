@@ -171,14 +171,13 @@ watch(
 watch(
   [selectedNetwork, address, () => route.query.chainId, accountData],
   async ([network, addr, chainId]) => {
-    if (!network || !addr) return;
+    if (!network || !addr || !accountData.value) return;
     const q = typeof chainId === 'string' ? chainId : undefined
     const n = q !== undefined ? parseInt(q, 10) : undefined
     const isValid = n !== undefined && !Number.isNaN(n) && n >= 0 && n <= 19
     const chainParam = isValid ? q : undefined
     await fetchFirstAndLastTransfers({ networkId: network.id, accountName: addr, chainId: chainParam })
-  },
-  { immediate: true }
+  }
 )
 
 // Tab management - similar to pages/transactions/[requestKey].vue

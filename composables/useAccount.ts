@@ -112,8 +112,6 @@ export const useAccount = () => {
           }
         })
       ]);
-      console.log('firstResponse', firstResponse)
-      console.log('lastResponse', lastResponse)
 
       const firstTransferData = firstResponse?.data?.transfers?.edges?.[0]?.node;
       if (firstTransferData) {
@@ -124,13 +122,11 @@ export const useAccount = () => {
 
         // Determine who funded this account (sender of the earliest transfer that brought assets IN)
         let senderAccount = firstTransferData.senderAccount;
-        let receiverAccount = firstTransferData.receiverAccount;
 
         // Handle cross-chain transfers - get the actual sender/receiver
         if (firstTransferData.crossChainTransfer) {
           // For cross-chain transfers, prioritize the crossChainTransfer data if available
           senderAccount = firstTransferData.crossChainTransfer.senderAccount || senderAccount;
-          receiverAccount = firstTransferData.crossChainTransfer.receiverAccount || receiverAccount;
           firstTransaction.value.height = firstTransferData.crossChainTransfer.block.height;
           firstTransaction.value.chainId = firstTransferData.crossChainTransfer.block.chainId;
         } else {
@@ -156,7 +152,9 @@ export const useAccount = () => {
 
     } catch (e) {
       console.error('Error fetching first and last transfers:', e);
-      // Don't set error state for transfers as it's supplementary data
+      error.value = e;
+      firstTransaction.value = null;
+      lastTransaction.value = null;
     } finally {
       transfersLoading.value = false;
     }
@@ -196,8 +194,6 @@ export const useAccount = () => {
 
       accountData.value = result;
       
-      // Transfers will be fetched separately with optional chain filter by callers
-      
     } catch (e) {
       console.error('Error fetching account data:', e);
       error.value = e;
@@ -206,8 +202,6 @@ export const useAccount = () => {
       accountLoading.value = false;
     }
   };
-
-  // Removed fetchChainAccount; use chain filter on transfers instead
 
   return {
     accountData,

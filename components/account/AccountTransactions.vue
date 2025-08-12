@@ -182,7 +182,7 @@ watch(
     if (!network || !props.accountName) return;
 
     const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
-    const chainChanged = oldChain && selectedChain.value.value !== oldChain.value;
+    const chainChanged = !!oldChain && selectedChain.value.value !== oldChain.value;
 
     if (networkChanged || chainChanged) {
       await fetchLastBlockHeight({ networkId: network.id });
@@ -196,7 +196,7 @@ watch(
       loadingPage.value = false;
     }
   },
-  { immediate: true, deep: true }
+  { immediate: true }
 );
 
 // 2) React to rows-per-page change: reset to page 1 and refetch

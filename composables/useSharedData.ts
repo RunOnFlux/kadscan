@@ -3,7 +3,7 @@ import { useGasPriceStats, useIsInitialGasPrice } from '~/composables/useAverage
 import { useNetworkInfo } from '~/composables/useNetworkInfo';
 import { useBinance } from '~/composables/useBinance';
 
-// State for CoinGecko data
+// State for Kadena data
 const kadenaCoinData = ref<{
   price: number | null,
   variation: number | null,
@@ -14,7 +14,7 @@ const kadenaCoinData = ref<{
   marketCap: null,
 });
 
-// Function to fetch CoinGecko data
+// Function to fetch Kadena data
 export async function fetchSharedKadenaData() {
   const { $coingecko } = useNuxtApp();
   const { fetchKadenaTickerData } = useBinance();
@@ -45,7 +45,7 @@ export async function fetchSharedKadenaData() {
     kadenaCoinData.value.variation = data?.market_data?.price_change_percentage_24h ?? null;
     kadenaCoinData.value.marketCap = data?.market_data?.market_cap?.usd ?? null;
   } catch (error) {
-    console.error('Failed to fetch Kadena coin data:', error);
+    console.error('Failed to fetch Kadena data from CoinGecko:', error);
   }
 }
 
@@ -55,9 +55,12 @@ const availableNetworks = [
   { name: 'Testnet', id: 'testnet04' },
 ];
 const selectedNetwork = ref<{ name: string; id: string; } | null>(null);
+let networkInitialized = false;
 const STORAGE_KEY = 'kadscan-selected-network';
 
 function setNetwork(network: { name: string; id: string; }) {
+  // Avoid unnecessary updates if the network hasn't changed
+  if (selectedNetwork.value?.id === network.id) return;
   selectedNetwork.value = network;
   if (process.client) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(network));
@@ -65,14 +68,18 @@ function setNetwork(network: { name: string; id: string; }) {
 }
 
 function initializeNetwork() {
-  if (process.client) {
-    const savedNetwork = localStorage.getItem(STORAGE_KEY);
-    if (savedNetwork && JSON.parse(savedNetwork).id !== selectedNetwork.value?.id) {
-      selectedNetwork.value = JSON.parse(savedNetwork);
-    } else {
-      selectedNetwork.value = availableNetworks[0]; // Default to Mainnet if nothing is saved
-    }
+  // Ensure we only initialize once, even if multiple components mount
+  if (networkInitialized || !process.client) return;
+
+  const savedNetwork = localStorage.getItem(STORAGE_KEY);
+  const parsedSavedNetwork = savedNetwork ? JSON.parse(savedNetwork) : null;
+  const target = parsedSavedNetwork ?? availableNetworks[0];
+
+  if (!selectedNetwork.value || selectedNetwork.value.id !== target.id) {
+    selectedNetwork.value = target;
   }
+
+  networkInitialized = true;
 }
 
 // The main composable that components will use
@@ -84,9 +91,12 @@ export function useSharedData() {
   const isInitialGasPrice = useIsInitialGasPrice();
 
   return {
+    // Kadena token data
     kdaPrice: computed(() => kadenaCoinData.value.price),
     kdaVariation: computed(() => kadenaCoinData.value.variation),
     kdaMarketCap: computed(() => kadenaCoinData.value.marketCap),
+
+    // Gas price stats
     gasPriceStats: gasPriceStats, // Pass through the reactive stats
     isInitialGasPrice: isInitialGasPrice,
 
