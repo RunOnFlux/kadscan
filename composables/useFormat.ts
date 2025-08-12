@@ -79,6 +79,22 @@ export const useFormat = () => {
     return feeStr.replace(/(\.\d*[1-9])0+$/, '$1').replace(/\.0+$/, '.0');
   };
 
+  const formatKda = (
+    amount: number | string,
+    maxDecimals: number = 12
+  ): string => {
+    if (amount === null || amount === undefined || amount === '') {
+      return '0.0';
+    }
+    const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+    if (Number.isNaN(numericAmount)) {
+      return String(amount);
+    }
+    const fixed = numericAmount.toFixed(maxDecimals);
+    // Remove trailing zeros but keep a single decimal place (e.g., 2 -> 2.0)
+    return fixed.replace(/(\.\d*[1-9])0+$/, '$1').replace(/\.0+$/, '.0');
+  };
+
   const removeTrailingZeros = (value: string | number | null | undefined): string => {
     if (value === null || value === undefined) {
       return '';
@@ -96,6 +112,7 @@ export const useFormat = () => {
     formatRelativeTime,
     formatFullDate,
     formatGasPrice,
+    formatKda,
     removeTrailingZeros,
   };
 }; 

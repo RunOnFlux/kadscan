@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
 import IconDownload from '~/components/icon/Download.vue';
 import IconHourglass from '~/components/icon/Hourglass.vue';
 import IconCancel from '~/components/icon/Cancel.vue';
@@ -10,21 +10,16 @@ import Tooltip from '~/components/Tooltip.vue';
 import Copy from '~/components/Copy.vue';
 import SkeletonTable from '~/components/skeleton/Table.vue';
 import ColumnGas from '~/components/column/Gas.vue';
-import { useTransactions } from '~/composables/useTransactions';
+import { useAccountTransactions } from '~/composables/useAccountTransactions';
 import { useFormat } from '~/composables/useFormat';
 import { useSharedData } from '~/composables/useSharedData';
 import { useScreenSize } from '~/composables/useScreenSize';
-import { exportableToCsv } from '~/composables/csv';
-import { downloadCSV } from '~/composables/csv';
+import { exportableToCsv, downloadCSV } from '~/composables/csv';
 import { useBlocks } from '~/composables/useBlocks';
 
-definePageMeta({
-  layout: 'app',
-});
-
-useHead({
-  title: 'Transactions'
-});
+const props = defineProps<{
+  accountName: string;
+}>();
 
 const route = useRoute();
 const router = useRouter();
@@ -32,85 +27,47 @@ const { truncateAddress } = useFormat();
 const { selectedNetwork } = useSharedData();
 const { isMobile } = useScreenSize();
 
-const { totalCount: lastBlockHeight, fetchTotalCount: fetchLastBlockHeight, error: blocksError, clearState: clearBlocksState } = useBlocks();
-
 const { 
-  error: transactionsError,
-  transactions, 
-  loading, 
-  fetchTransactions,
-  pageInfo, 
-  totalCount, 
-  fetchTotalCount, 
-  rowsToShow, 
+  transactions,
+  loading,
+  fetchAccountTransactions,
+  pageInfo,
+  totalCount,
+  fetchTotalCount,
+  rowsToShow,
   updateRowsToShow,
   clearState: clearTransactionsState,
-} = useTransactions();
+} = useAccountTransactions();
 
-// Chain filter state - initialize from URL parameters (commented due to query glitch)
-const selectedChain = ref({ label: 'All', value: null });
+const { 
+  totalCount: lastBlockHeight, 
+  fetchTotalCount: fetchLastBlockHeight, 
+  error: blocksError, 
+  clearState: clearBlocksState 
+} = useBlocks();
 
-// Clear global state on mount to show skeleton on page navigation
-onMounted(() => {
-  clearTransactionsState();
-  clearBlocksState();
-});
-
-// Initialize chain filter from URL parameter on component mount (commented due to query glitch)
-// onMounted(() => {
-//   const chainParam = route.query.chain;
-//   if (chainParam && chainParam !== 'all') {
-//     const chainValue = parseInt(chainParam as string);
-//     if (!isNaN(chainValue) && chainValue >= 0 && chainValue <= 19) {
-//       selectedChain.value = { label: chainValue.toString(), value: chainValue.toString() };
-//     }
-//   }
-// });
-
-// Generate chain filter options (All + 0-19)
+const selectedChain = ref({ label: 'All', value: null as string | null });
 const chainOptions = computed(() => {
-  const options = [{ label: 'All', value: null }];
+  const options = [{ label: 'All', value: null as string | null }];
   for (let i = 0; i <= 19; i++) {
     options.push({ label: i.toString(), value: i.toString() });
   }
   return options;
 });
 
-const subtitle = computed(() => {
-  if (filteredTransactions.value.length === 0 || loading.value || !totalCount.value) {
-    return '';
+const initChainFromUrl = () => {
+  const q = route.query.chainId as string | undefined;
+  if (q === undefined) return;
+  const n = parseInt(q, 10);
+  const isValid = !Number.isNaN(n) && n >= 0 && n <= 19;
+  if (isValid) {
+    selectedChain.value = { label: n.toString(), value: n.toString() };
+  } else {
+    const newQuery: Record<string, any> = { ...route.query };
+    delete newQuery.chainId;
+    router.replace({ query: newQuery });
+    selectedChain.value = { label: 'All', value: null };
   }
-
-  // Determine how many items should appear on the current page (handles last-page remainder)
-  const itemsBefore = (currentPage.value - 1) * rowsToShow.value;
-  const remaining = Math.max(totalCount.value - itemsBefore, 0);
-  const pageCount = Math.min(rowsToShow.value, remaining);
-
-  const newestTxIndex = totalCount.value - itemsBefore;
-  const oldestTxIndex = Math.max(newestTxIndex - pageCount + 1, 1);
-
-  const formattedNewest = new Intl.NumberFormat().format(newestTxIndex);
-  const formattedOldest = new Intl.NumberFormat().format(oldestTxIndex);
-
-  return `(Showing transactions between #${formattedOldest} to #${formattedNewest})`;
-});
-
-const getFeeInKda = (item: any) => {
-  if (!item.gas || !item.rawGasPrice) {
-    return '0.0 KDA';
-  }
-  const feeInKda = item.gas * item.rawGasPrice;
-  
-  // If fee is 0, show simplified format
-  if (feeInKda === 0) {
-    return '0.0 KDA';
-  }
-  
-  const formattedFee = new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 4,
-    maximumFractionDigits: 12,
-  }).format(feeInKda);
-  return `${formattedFee} KDA`;
 };
 
 const tableHeaders = [
@@ -127,19 +84,18 @@ const tableHeaders = [
 ];
 
 const rowOptions = [
+  { label: '10', value: 10 },
   { label: '25', value: 25 },
   { label: '50', value: 50 },
-  { label: '100', value: 100 },
 ];
-const currentPage = ref(Number(route.query.page) || 1);
+
+const currentPage = ref(1);
 const loadingPage = ref(false);
 
 const selectedRowOption = computed({
   get: () => rowOptions.find(option => option.value === rowsToShow.value) || rowOptions[0],
   set: (value) => {
-    if (value) {
-      updateRowsToShow(value);
-    }
+    if (value) updateRowsToShow(value);
   },
 });
 
@@ -148,8 +104,28 @@ const totalPages = computed(() => {
   return Math.ceil(totalCount.value / rowsToShow.value);
 });
 
+const subtitle = computed(() => {
+  if (!transactions.value || loading.value || !totalCount.value) return '';
+  const itemsBefore = (currentPage.value - 1) * rowsToShow.value;
+  const remaining = Math.max(totalCount.value - itemsBefore, 0);
+  const pageCount = Math.min(rowsToShow.value, remaining);
+  const newestTxIndex = totalCount.value - itemsBefore;
+  const oldestTxIndex = Math.max(newestTxIndex - pageCount + 1, 1);
+  const formattedNewest = new Intl.NumberFormat().format(newestTxIndex);
+  const formattedOldest = new Intl.NumberFormat().format(oldestTxIndex);
+  return `(Showing transactions between #${formattedOldest} to #${formattedNewest})`;
+});
+
+function getFeeInKda(item: any) {
+  if (!item.gas || !item.rawGasPrice) return '0.0 KDA';
+  const feeInKda = item.gas * item.rawGasPrice;
+  if (feeInKda === 0) return '0.0 KDA';
+  const formattedFee = new Intl.NumberFormat('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 12 }).format(feeInKda);
+  return `${formattedFee} KDA`;
+}
+
 function blockStatus(blockHeight: number, canonical: boolean, badResult: any) {
-  if((lastBlockHeight.value - 10 >= blockHeight && !canonical) || badResult !== null) {
+  if ((lastBlockHeight.value - 10 >= blockHeight && !canonical) || badResult !== null) {
     return {
       text: 'Failed',
       icon: IconCancel,
@@ -158,7 +134,7 @@ function blockStatus(blockHeight: number, canonical: boolean, badResult: any) {
     };
   }
 
-  if(canonical) {
+  if (canonical) {
     return {
       text: 'Success',
       icon: IconCheckmarkFill,
@@ -173,124 +149,115 @@ function blockStatus(blockHeight: number, canonical: boolean, badResult: any) {
     classes: 'bg-[#17150d] border-[#44464980] text-[#989898]',
     description: 'Transaction is pending to be finalized',
   };
-};
+}
 
-// Computed property to filter out transactions from orphaned blocks
+// Filter out transactions from orphaned blocks
 const filteredTransactions = computed(() => {
-  if (!transactions.value || !lastBlockHeight || !lastBlockHeight.value) return [];
-  
-  return transactions.value.filter((transaction: any) => {
-    // Remove transactions from orphaned blocks (same logic as blockStatus function)
-    const isFromOrphanedBlock = lastBlockHeight.value - 10 >= transaction.height && !transaction.canonical;
-    return !isFromOrphanedBlock;
-  });
+  if (!transactions.value || !lastBlockHeight || !lastBlockHeight.value) return [] as any[];
+  return transactions.value.filter((tx: any) => !(lastBlockHeight.value - 10 >= tx.height && !tx.canonical));
 });
 
-watch(
-  [currentPage, rowsToShow],
-  ([newPage, newRows], [oldPage, oldRows]) => {
-    // Don't update URL if there's an error (prevents race condition with error redirect)
-    if (transactionsError.value || blocksError.value) return;
-    
-    const query = { ...route.query, page: newPage };
-    if (newRows !== oldRows) {
-      query.page = 1;
-      currentPage.value = 1;
-    }
-    router.push({ query });
-  },
-);
+// Clear state on mount to show skeleton
+onMounted(() => {
+  initChainFromUrl();
+  clearTransactionsState();
+  clearBlocksState();
+});
 
-watch(
-  [() => route.query.page, selectedNetwork, rowsToShow, selectedChain],
-  async ([page, network], [oldPage, oldNetwork, oldRows, oldChain]) => {
-    if (!network) {
-      return;
-    }
+// Keep selectedChain in sync with the URL even when the table is not rendered
+watch(() => route.query.chainId, (q) => {
+  const str = typeof q === 'string' ? q : undefined;
+  if (str === undefined) {
+    selectedChain.value = { label: 'All', value: null };
+    return;
+  }
+  const n = parseInt(str, 10);
+  const isValid = !Number.isNaN(n) && n >= 0 && n <= 19;
+  selectedChain.value = isValid
+    ? { label: n.toString(), value: n.toString() }
+    : { label: 'All', value: null };
+});
 
-    // Don't run pagination logic if there's an error (prevents race condition with error redirect)
-    if (transactionsError.value || blocksError.value) return;
+// 1) React to network or chain change: reset to page 1 and refresh counts
+watch(
+  [selectedNetwork, selectedChain],
+  async ([network], [oldNetwork, oldChain]) => {
+    if (!network || !props.accountName) return;
 
     const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
-    const chainChanged = oldChain && selectedChain.value.value !== oldChain.value;
-    
-    if (networkChanged) {
-      await fetchTotalCount({ networkId: network.id });
-      await fetchLastBlockHeight({ networkId: network.id }); // Fetch lastBlockHeight from useBlocks
+    const chainChanged = !!oldChain && selectedChain.value.value !== oldChain.value;
+
+    if (networkChanged || chainChanged) {
+      await fetchLastBlockHeight({ networkId: network.id });
+      currentPage.value = 1;
+      const params: { networkId: string; accountName: string; chainId?: string } = {
+        networkId: network.id,
+        accountName: props.accountName,
+      };
+      if (selectedChain.value.value !== null) params.chainId = selectedChain.value.value as string;
+      await fetchAccountTransactions(params);
+      loadingPage.value = false;
     }
-
-    if (rowsToShow.value !== oldRows && Number(page) !== 1) {
-      router.push({ query: { page: 1 } });
-      return;
-    }
-
-    if ((networkChanged || chainChanged) && Number(page) !== 1) {
-      router.push({ query: { page: 1 } });
-      return;
-    }
-
-    const pageNumber = Number(page) || 1;
-    const oldPageNumber = Number(oldPage) || 1;
-
-    const params: { networkId: string; after?: string, before?: string, toLastPage?: boolean, chainId?: string } = {
-      networkId: network.id,
-    };
-
-    // Add chainIds filter if a specific chain is selected
-    if (selectedChain.value.value !== null) {
-      console.log("selectedChain.value.value", selectedChain.value.value);
-      params.chainId = selectedChain.value.value;
-    }
-
-    if (pageNumber > 1) {
-      if (pageNumber > oldPageNumber) {
-        params.after = pageInfo.value?.endCursor;
-      } else {
-        params.before = pageInfo.value?.startCursor;
-      }
-    }
-
-    if(pageNumber === totalPages.value) {
-      params.after = null;
-      params.before = null;
-      params.toLastPage = true;
-    }
-
-    await fetchTransactions(params);
-    currentPage.value = pageNumber;
-    loadingPage.value = false;
   },
-  {
-    immediate: true,
-    deep: true,
-  }
+  { immediate: true }
 );
 
-// Redirect to error page when transaction is not found
-watch([transactionsError, blocksError], ([transactionsError, blocksError]) => {
-  if (transactionsError || blocksError) {
-    navigateTo('/error', { replace: true })
-  }
-})
+// 2) React to rows-per-page change: reset to page 1 and refetch
+watch(rowsToShow, async (newRows, oldRows) => {
+  const network = selectedNetwork.value;
+  if (!network || !props.accountName) return;
+  if (newRows === oldRows) return;
+  currentPage.value = 1;
+  const params: { networkId: string; accountName: string; chainId?: string } = {
+    networkId: network.id,
+    accountName: props.accountName,
+  };
+  if (selectedChain.value.value !== null) params.chainId = selectedChain.value.value as string;
+  await fetchAccountTransactions(params);
+  loadingPage.value = false;
+});
 
+// 3) React to page change only: fetch the next/prev page using cursors
+watch(currentPage, async (newPage, oldPage) => {
+  const network = selectedNetwork.value;
+  if (!network || !props.accountName) return;
+  if (!newPage || newPage === oldPage) return;
+
+  const params: { networkId: string; accountName: string; after?: string; before?: string; toLastPage?: boolean; chainId?: string } = {
+    networkId: network.id,
+    accountName: props.accountName,
+  };
+  if (selectedChain.value.value !== null) params.chainId = selectedChain.value.value as string;
+
+  if (newPage > oldPage) {
+    params.after = pageInfo.value?.endCursor;
+  } else if (newPage < oldPage) {
+    params.before = pageInfo.value?.startCursor;
+  }
+
+  if (newPage === totalPages.value) {
+    params.after = null as any;
+    params.before = null as any;
+    params.toLastPage = true;
+  }
+
+  await fetchAccountTransactions(params);
+  loadingPage.value = false;
+});
+
+// CSV download
 function downloadData() {
   const csv = exportableToCsv(filteredTransactions.value, tableHeaders);
-  downloadCSV(csv, `kadena-transactions-page-${currentPage.value}.csv`);
+  downloadCSV(csv, `kadena-account-transactions-page-${currentPage.value}.csv`);
 }
 </script>
 
 <template>
   <div>
-    <div class="flex items-center justify-between pb-5 border-b border-[#222222] mb-6">
-      <h1 class="text-[19px] font-semibold leading-[150%] text-[#fafafa]">
-        Transactions
-      </h1>
-    </div>
-
     <SkeletonTable v-if="loading" />
 
     <DataTable
-      v-else
+      v-else-if="filteredTransactions && filteredTransactions.length > 0"
       :headers="tableHeaders"
       :items="filteredTransactions"
       :totalItems="totalCount"
@@ -305,13 +272,12 @@ function downloadData() {
       :has-previous-page="pageInfo?.hasPreviousPage"
     >
       <template #actions>
-        <!-- TODO: fix filter select (query glitch with chainId variable) -->
-        <!-- <FilterSelect
+        <FilterSelect
           :modelValue="selectedChain"
           @update:modelValue="selectedChain = $event"
           :items="chainOptions"
-          urlParamName="chain"
-        /> -->
+          urlParamName="chainId"
+        />
         <button
           @click="downloadData"
           class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
@@ -366,5 +332,16 @@ function downloadData() {
         <span class="text-[#f5f5f5]">{{ getFeeInKda(item) }}</span>
       </template>
     </DataTable>
+    
+    <!-- Empty state -->
+    <div v-else class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
+      <div class="flex flex-col items-center justify-center py-12">
+        <img src="/empty/txs.png" alt="No transactions" class="w-24 h-24 mb-4 opacity-50" />
+        <h3 class="text-[#fafafa] text-lg font-medium mb-2">No transactions yet</h3>
+        <p class="text-[#bbbbbb] text-sm text-center">
+          This account hasn't made any transactions yet.
+        </p>
+      </div>
+    </div>
   </div>
 </template>
