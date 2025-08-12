@@ -85,7 +85,7 @@ export const useAccount = () => {
     
     try {
       // Fetch first and last transfers in parallel
-      // Note: In our indexer, 'first' returns the oldest transfer, 'last' returns the most recent one
+      // Note: In our indexer, 'first' returns the most recent transfer, 'last' returns the oldest one
       const [firstResponse, lastResponse] = await Promise.all([
         $fetch('/api/graphql', {
           method: 'POST',
@@ -93,7 +93,7 @@ export const useAccount = () => {
             query: TRANSFERS_QUERY,
             variables: {
               accountName,
-              first: 1,
+              last: 1,
               chainId,
             },
             networkId,
@@ -105,7 +105,7 @@ export const useAccount = () => {
             query: TRANSFERS_QUERY,
             variables: {
               accountName,
-              last: 1,
+              first: 1,
               chainId,
             },
             networkId,

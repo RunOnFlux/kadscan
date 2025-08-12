@@ -233,6 +233,15 @@ const shouldShowPerKda = computed(() => {
   return !Number.isNaN(value) && value > 0
 })
 
+  // Overview chain label: "All" when no chain selected, otherwise the chain id
+  const overviewChainLabel = computed(() => {
+    const q = route.query.chainId as string | undefined
+    if (q === undefined) return 'All'
+    const n = parseInt(q, 10)
+    const isValid = !Number.isNaN(n) && n >= 0 && n <= 19
+    return isValid ? `${n}` : 'All'
+  })
+
 // Multichain Select helpers
 const multichainLabel = computed(() => {
   const q = route.query.chainId as string | undefined
@@ -341,7 +350,9 @@ const onChangeChainSelect = (option: any) => {
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6 items-stretch">
       <!-- Card 1: Overview -->
       <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 h-full flex flex-col">
-        <h3 class="text-[#fafafa] font-semibold mb-4">Overview</h3>
+        <h3 class="text-[#fafafa] font-semibold mb-4">
+          Overview <span class="text-[#bbbbbb] font-normal">— {{ overviewChainLabel }}</span>
+        </h3>
         <div class="flex-1 flex flex-col justify-between gap-4">
           <div>
             <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">KDA BALANCE</div>
