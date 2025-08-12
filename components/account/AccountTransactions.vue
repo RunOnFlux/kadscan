@@ -106,8 +106,11 @@ const totalPages = computed(() => {
 
 const subtitle = computed(() => {
   if (!transactions.value || loading.value || !totalCount.value) return '';
-  const newestTxIndex = totalCount.value - ((currentPage.value - 1) * rowsToShow.value);
-  const oldestTxIndex = newestTxIndex - transactions.value.length + 1;
+  const itemsBefore = (currentPage.value - 1) * rowsToShow.value;
+  const remaining = Math.max(totalCount.value - itemsBefore, 0);
+  const pageCount = Math.min(rowsToShow.value, remaining);
+  const newestTxIndex = totalCount.value - itemsBefore;
+  const oldestTxIndex = Math.max(newestTxIndex - pageCount + 1, 1);
   const formattedNewest = new Intl.NumberFormat().format(newestTxIndex);
   const formattedOldest = new Intl.NumberFormat().format(oldestTxIndex);
   return `(Showing transactions between #${formattedOldest} to #${formattedNewest})`;

@@ -116,13 +116,20 @@ export const useTransactions = () => {
     
     try {
       const isForward = !!after || (!after && !before);
+      // Compute the correct page size for the last page when requested
+      const lastPageSize = (() => {
+        const remainder = totalCount.value % rowsToShow.value;
+        return remainder === 0 ? rowsToShow.value : remainder;
+      })();
+
       const response: any = await $fetch('/api/graphql', {
         method: 'POST',
         body: {
           query: GQL_QUERY,
           variables: {
             first: toLastPage ? null : isForward ? rowsToShow.value : null,
-            last: toLastPage ? rowsToShow.value : isForward ? null : rowsToShow.value,
+            // When jumping to the last page, request only the remaining items
+            last: toLastPage ? lastPageSize : isForward ? null : rowsToShow.value,
             after,
             before,
             chainId,

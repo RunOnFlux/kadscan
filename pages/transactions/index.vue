@@ -81,8 +81,13 @@ const subtitle = computed(() => {
     return '';
   }
 
-  const newestTxIndex = totalCount.value - ((currentPage.value - 1) * rowsToShow.value);
-  const oldestTxIndex = newestTxIndex - filteredTransactions.value.length + 1;
+  // Determine how many items should appear on the current page (handles last-page remainder)
+  const itemsBefore = (currentPage.value - 1) * rowsToShow.value;
+  const remaining = Math.max(totalCount.value - itemsBefore, 0);
+  const pageCount = Math.min(rowsToShow.value, remaining);
+
+  const newestTxIndex = totalCount.value - itemsBefore;
+  const oldestTxIndex = Math.max(newestTxIndex - pageCount + 1, 1);
 
   const formattedNewest = new Intl.NumberFormat().format(newestTxIndex);
   const formattedOldest = new Intl.NumberFormat().format(oldestTxIndex);
