@@ -78,8 +78,6 @@ const account = computed(() => {
       height: null,
       chainId: null,
       multichainPortfolio: '0',
-      totalTransactions: '0',
-      badge: '0',
       guards: []
     }
   }
@@ -138,8 +136,6 @@ const account = computed(() => {
     height: firstTransaction.value?.height === 0 ? '0' : firstTransaction.value?.height || null,
     chainId: displayChainId ?? (firstTransaction.value?.chainId === 0 ? '0' : firstTransaction.value?.chainId || null),
     multichainPortfolio: kdaValue.toFixed(2),
-    totalTransactions: '0', // Will be implemented later
-    badge: '0', // Will be implemented later
     guards: guardsForView
   }
 })

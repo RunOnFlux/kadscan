@@ -67,7 +67,7 @@ function setNetwork(network: { name: string; id: string; }) {
 function initializeNetwork() {
   if (process.client) {
     const savedNetwork = localStorage.getItem(STORAGE_KEY);
-    if (savedNetwork) {
+    if (savedNetwork && JSON.parse(savedNetwork).id !== selectedNetwork.value?.id) {
       selectedNetwork.value = JSON.parse(savedNetwork);
     } else {
       selectedNetwork.value = availableNetworks[0]; // Default to Mainnet if nothing is saved
