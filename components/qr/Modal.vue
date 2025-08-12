@@ -66,7 +66,7 @@ watch(
         >
           <div class="flex items-center justify-between p-4 border-b border-gray-700">
             <h2 class="text-[15px] font-semibold text-white">
-              Address QR Code
+              Account QR Code
             </h2>
             <button @click="closeModal">
               <CloseIcon class="w-6 h-6 text-[#888888]" />
@@ -82,7 +82,7 @@ watch(
                 Generating...
               </div>
             </div>
-            <div class="text-[12px] text-[#f5f5f5] break-all text-center">
+            <div class="text-[14px] text-[#f5f5f5] break-all text-center">
               {{ address }}
             </div>
           </div>
