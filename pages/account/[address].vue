@@ -41,7 +41,7 @@ const {
 } = useAccount()
 const { fetchKadenaPrice } = useBinance()
 const { selectedNetwork } = useSharedData()
-const { truncateAddress } = useFormat()
+const { truncateAddress, formatKda } = useFormat()
 
 // Reactive state for KDA price and time updates
 const kdaPrice = ref<number>(0)
@@ -125,7 +125,7 @@ const account = computed(() => {
       
   return {
     address: data.accountName || address.value,
-    kdaBalance: displayBalance.toFixed(12),
+    kdaBalance: formatKda(displayBalance, 12),
     kdaValue: kdaValue.toFixed(2),
     kdaPrice: kdaPrice.value.toFixed(2),
     tokenHoldings: '0', // Will be implemented later
