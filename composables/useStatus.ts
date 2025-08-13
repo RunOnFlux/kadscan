@@ -14,7 +14,7 @@ export interface StatusDescriptor {
 export const SAFE_CONFIRMATIONS = 6
 
 export function useStatus(providedLastBlockHeight?: Ref<number | null>) {
-  const { totalCount: blocksLastBlockHeight } = useBlocks()
+  const { lastBlockHeight: blocksLastBlockHeight } = useBlocks()
   const lastBlockHeight = providedLastBlockHeight ?? blocksLastBlockHeight
 
   const isSafe = (blockHeight?: number | null) => {

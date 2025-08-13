@@ -30,8 +30,8 @@ const {
   loadingByHeight: loading,
   error,
   fetchBlocksByHeight,
-  totalCount: lastBlockHeight,
-  fetchTotalCount,
+  lastBlockHeight,
+  fetchLastBlockHeight,
 } = useBlocks();
 
 useHead({
@@ -68,7 +68,7 @@ watch(
 
     const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
     if (networkChanged) {
-      await fetchTotalCount({ networkId: network.id });
+      await fetchLastBlockHeight({ networkId: network.id });
     }
 
     await fetchBlocksByHeight({

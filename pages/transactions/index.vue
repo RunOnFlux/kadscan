@@ -32,8 +32,8 @@ const { selectedNetwork } = useSharedData();
 const { isMobile } = useScreenSize();
 
 const { 
-  totalCount: lastBlockHeight, 
-  fetchTotalCount: fetchLastBlockHeight, 
+  lastBlockHeight, 
+  fetchLastBlockHeight, 
   error: blocksError, 
   clearState: clearBlocksState 
   } = useBlocks();
@@ -58,17 +58,6 @@ onMounted(() => {
   clearTransactionsState();
   clearBlocksState();
 });
-
-// Initialize chain filter from URL parameter on component mount (commented due to query glitch)
-// onMounted(() => {
-//   const chainParam = route.query.chain;
-//   if (chainParam && chainParam !== 'all') {
-//     const chainValue = parseInt(chainParam as string);
-//     if (!isNaN(chainValue) && chainValue >= 0 && chainValue <= 19) {
-//       selectedChain.value = { label: chainValue.toString(), value: chainValue.toString() };
-//     }
-//   }
-// });
 
 // Generate chain filter options (All + 0-19)
 const chainOptions = computed(() => {
@@ -179,69 +168,79 @@ watch(
   },
 );
 
+// Keep currentPage in sync with the URL (back/forward, manual edits)
+watch(() => route.query.page, (page) => {
+  const pageNumber = Number(page) || 1;
+  if (pageNumber !== currentPage.value) {
+    currentPage.value = pageNumber;
+  }
+});
+
+// 1) React to network or chain change: reset to page 1 and refresh counts, then fetch first page
 watch(
-  [() => route.query.page, selectedNetwork, rowsToShow, selectedChain],
-  async ([page, network], [oldPage, oldNetwork, oldRows, oldChain]) => {
-    if (!network) {
-      return;
-    }
+  [selectedNetwork, selectedChain],
+  async ([network], [oldNetwork, oldChain]) => {
+    if (!network) return;
 
     // Don't run pagination logic if there's an error (prevents race condition with error redirect)
     if (transactionsError.value || blocksError.value) return;
 
     const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
-    const chainChanged = oldChain && selectedChain.value.value !== oldChain.value;
-    
-    if (networkChanged) {
-      await fetchLastBlockHeight({ networkId: network.id }); // Fetch lastBlockHeight from useBlocks
+    const chainChanged = !!oldChain && selectedChain.value.value !== oldChain.value;
+
+    if (networkChanged || chainChanged) {
+      await fetchLastBlockHeight({ networkId: network.id });
+      currentPage.value = 1;
+      const params: { networkId: string; chainId?: string } = { networkId: network.id };
+      if (selectedChain.value.value !== null) params.chainId = selectedChain.value.value as string;
+      await fetchTransactions(params);
+      loadingPage.value = false;
     }
-
-    if (rowsToShow.value !== oldRows && Number(page) !== 1) {
-      router.push({ query: { page: 1 } });
-      return;
-    }
-
-    if ((networkChanged || chainChanged) && Number(page) !== 1) {
-      router.push({ query: { page: 1 } });
-      return;
-    }
-
-    const pageNumber = Number(page) || 1;
-    const oldPageNumber = Number(oldPage) || 1;
-
-    const params: { networkId: string; after?: string, before?: string, toLastPage?: boolean, chainId?: string } = {
-      networkId: network.id,
-    };
-
-    // Add chainIds filter if a specific chain is selected
-    if (selectedChain.value.value !== null) {
-      console.log("selectedChain.value.value", selectedChain.value.value);
-      params.chainId = selectedChain.value.value;
-    }
-
-    if (pageNumber > 1) {
-      if (pageNumber > oldPageNumber) {
-        params.after = pageInfo.value?.endCursor;
-      } else {
-        params.before = pageInfo.value?.startCursor;
-      }
-    }
-
-    if(pageNumber === totalPages.value) {
-      params.after = null;
-      params.before = null;
-      params.toLastPage = true;
-    }
-
-    await fetchTransactions(params);
-    currentPage.value = pageNumber;
-    loadingPage.value = false;
   },
-  {
-    immediate: true,
-    deep: true,
-  }
+  { immediate: true }
 );
+
+// 2) React to rows-per-page change: reset to page 1 and refetch first page
+watch(rowsToShow, async (newRows, oldRows) => {
+  const network = selectedNetwork.value;
+  if (!network) return;
+  if (transactionsError.value || blocksError.value) return;
+  if (newRows === oldRows) return;
+  currentPage.value = 1;
+  const params: { networkId: string; chainId?: string } = { networkId: network.id };
+  if (selectedChain.value.value !== null) params.chainId = selectedChain.value.value as string;
+  await fetchTransactions(params);
+  loadingPage.value = false;
+});
+
+// 3) React to page change only: fetch the next/prev page using cursors
+watch(currentPage, async (newPage, oldPage) => {
+  const network = selectedNetwork.value;
+  if (!network) return;
+  if (transactionsError.value || blocksError.value) return;
+  if (!newPage || newPage === oldPage) return;
+
+  const params: { networkId: string; after?: string; before?: string; toLastPage?: boolean; chainId?: string } = {
+    networkId: network.id,
+  };
+  if (selectedChain.value.value !== null) params.chainId = selectedChain.value.value as string;
+
+  if (newPage > oldPage) {
+    params.after = pageInfo.value?.endCursor as string | undefined;
+  } else if (newPage < oldPage) {
+    params.before = pageInfo.value?.startCursor as string | undefined;
+  }
+
+  // Only trigger last page jump when we truly are on the last page (after counts are known)
+  if (totalPages.value > 1 && newPage === totalPages.value) {
+    params.after = null as any;
+    params.before = null as any;
+    params.toLastPage = true;
+  }
+
+  await fetchTransactions(params);
+  loadingPage.value = false;
+});
 
 // Redirect to error page when transaction is not found
 watch([transactionsError, blocksError], ([transactionsError, blocksError]) => {
@@ -282,13 +281,12 @@ function downloadData() {
       :has-previous-page="pageInfo?.hasPreviousPage"
     >
       <template #actions>
-        <!-- TODO: fix filter select (query glitch with chainId variable) -->
-        <!-- <FilterSelect
+        <FilterSelect
           :modelValue="selectedChain"
           @update:modelValue="selectedChain = $event"
           :items="chainOptions"
           urlParamName="chain"
-        /> -->
+        />
         <button
           @click="downloadData"
           class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"

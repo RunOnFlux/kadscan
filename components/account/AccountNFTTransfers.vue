@@ -30,7 +30,6 @@ const {
   rowsToShow,
   error,
   fetchAccountTokenTransfers,
-  fetchTotalCount,
   updateRowsToShow,
   clearState
 } = useAccountNFTTransfers();
@@ -141,8 +140,10 @@ watch(
         accountName: props.address,
       };
       if (selectedChain.value.value !== null) params.chainId = selectedChain.value.value as string;
-      await fetchAccountTokenTransfers(params);
-      await fetchTotalCount(params);
+      Promise.all([
+        fetchAccountTokenTransfers(params),
+        fetchLastBlockHeight({ networkId: network.id })
+      ]);
       loadingPage.value = false;
     }
   },
