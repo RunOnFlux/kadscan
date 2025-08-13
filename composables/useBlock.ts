@@ -149,21 +149,26 @@ export const useBlock = (
         const txEdges = response.data?.blocksFromHeight?.edges?.[0]?.node?.transactions?.edges || [];
         const pageInfo = response.data?.blocksFromHeight?.edges?.[0]?.node?.transactions?.pageInfo;
 
-
-        for (const edge of txEdges) {
-          if (edge.node?.result?.gas) {
+        // Sum gas and average gas price using only transactions that actually used gas (excludes coinbase)
+        let includedCount = 0;
+        txEdges.forEach((edge: any) => {
+          if (edge?.node?.result?.gas) {
+            includedCount++;
             gasAccumulator += Number(edge.node.result.gas);
-            gasPriceAccumulator += parseFloat(edge.node.cmd.meta.gasPrice);
+            gasPriceAccumulator += parseFloat(edge?.node?.cmd?.meta?.gasPrice);
           }
-        }
-        gasPriceAccumulator = gasPriceAccumulator / txEdges.length;
+        });
+
+        // Use the count of included transactions as denominator to avoid dilution
+        gasPriceAccumulator = includedCount ? (gasPriceAccumulator / includedCount) : 0;
         hasNextPage = pageInfo?.hasNextPage || false;
         cursor = pageInfo?.endCursor;
       }
 
       if(totalGasUsed.value !== gasAccumulator) {
         totalGasUsed.value = gasAccumulator;
-        totalGasPrice.value = gasPriceAccumulator.toFixed(9);
+        // Keep numeric precision; formatting handled in view
+        totalGasPrice.value = String(gasPriceAccumulator);
       }
     } catch (e) {
       console.error('Error calculating total gas:', e);

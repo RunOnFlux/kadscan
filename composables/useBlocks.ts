@@ -103,14 +103,14 @@ const processBlockDetails = (node: any) => {
   const txCount = node.transactions.totalCount;
 
   if (txCount > 1) {
-    const gasPrices = node.transactions.edges
-      .slice(1) // Skip coinbase transaction
-      .map((edge: any) => edge.node.cmd.meta.gasPrice)
-      .filter((price: any) => typeof price === 'string');
-    
-    if (gasPrices.length > 0) {
-      const sum = gasPrices.reduce((acc: string, price: string) => parseFloat(acc) + parseFloat(price), 0);
-      gasPrice = sum / gasPrices.length;
+    // Average only positive gas prices; this safely excludes coinbase without assuming position
+    const parsedGasPrices: number[] = (node.transactions.edges || [])
+      .map((edge: any) => parseFloat(edge?.node?.cmd?.meta?.gasPrice))
+      .filter((value: number) => !Number.isNaN(value) && value > 0);
+
+    if (parsedGasPrices.length > 0) {
+      const sum = parsedGasPrices.reduce((acc: number, value: number) => acc + value, 0);
+      gasPrice = sum / parsedGasPrices.length;
     }
   }
 
