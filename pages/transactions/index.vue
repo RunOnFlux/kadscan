@@ -59,17 +59,6 @@ onMounted(() => {
   clearBlocksState();
 });
 
-// Initialize chain filter from URL parameter on component mount (commented due to query glitch)
-// onMounted(() => {
-//   const chainParam = route.query.chain;
-//   if (chainParam && chainParam !== 'all') {
-//     const chainValue = parseInt(chainParam as string);
-//     if (!isNaN(chainValue) && chainValue >= 0 && chainValue <= 19) {
-//       selectedChain.value = { label: chainValue.toString(), value: chainValue.toString() };
-//     }
-//   }
-// });
-
 // Generate chain filter options (All + 0-19)
 const chainOptions = computed(() => {
   const options = [{ label: 'All', value: null }];
@@ -292,13 +281,12 @@ function downloadData() {
       :has-previous-page="pageInfo?.hasPreviousPage"
     >
       <template #actions>
-        <!-- TODO: fix filter select (query glitch with chainId variable) -->
-        <!-- <FilterSelect
+        <FilterSelect
           :modelValue="selectedChain"
           @update:modelValue="selectedChain = $event"
           :items="chainOptions"
           urlParamName="chain"
-        /> -->
+        />
         <button
           @click="downloadData"
           class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
