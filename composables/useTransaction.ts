@@ -114,12 +114,6 @@ query Step0($requestKey: String!, $first: Int, $transfersFirst2: Int) {
 }
 `;
 
-const LAST_BLOCK_HEIGHT_QUERY = `
-  query Query {
-    lastBlockHeight
-  }
-`;
-
 // Query for fetching cross-chain related transaction
 const CROSS_CHAIN_RELATED_TRANSACTION_QUERY = `
   query GetRelatedTransaction($requestKey: String!) {
@@ -184,6 +178,7 @@ export const useTransaction = (
   networkId: Ref<string | undefined>
 ) => {
   const { fetchKadenaPriceAtDate } = useBinance()
+  const { totalCount: lastBlockHeight, fetchTotalCount: fetchLastBlockHeight } = useBlocks();
 
   const fetchKadenaPrice = async (creationTime: string) => {
     if (!creationTime) return
@@ -223,24 +218,6 @@ export const useTransaction = (
       crossChainTransaction.value = null
     } finally {
       loadingCrossChain.value = false
-    }
-  }
-
-  const fetchLastBlockHeight = async () => {
-    if (!networkId.value) return
-    
-    try {
-      const response: any = await $fetch('/api/graphql', {
-        method: 'POST',
-        body: { 
-          query: LAST_BLOCK_HEIGHT_QUERY,
-          networkId: networkId.value,
-        },
-      });
-      lastBlockHeight.value = response?.data?.lastBlockHeight || null;
-    } catch (error) {
-      console.error('Error fetching last block height:', error);
-      lastBlockHeight.value = null;
     }
   }
 
@@ -433,7 +410,7 @@ export const useTransaction = (
             networkId: networkId.value,
           },
         }),
-        fetchLastBlockHeight()
+        fetchLastBlockHeight({ networkId: networkId.value })
       ]);
 
       if (transactionResponse.errors) {
