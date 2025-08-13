@@ -243,7 +243,7 @@ onBeforeUnmount(() => {
               :value="currentChain"
               @input="handleInputChange"
               @focus="$event.target.select()"
-              class="w-12 h-8 text-center text-sm bg-[#151515] border border-[#222222] rounded-md text-[#fafafa] focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              class="w-12 h-8 text-center text-sm bg-[#151515] border border-[#222222] rounded-md text-[#fafafa] focus:outline-none transition-colors duration-300 hover:border-[#0784c3] focus:border-[#0784c3] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="0"
             />
 
