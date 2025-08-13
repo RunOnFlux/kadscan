@@ -31,7 +31,12 @@ const { truncateAddress } = useFormat();
 const { selectedNetwork } = useSharedData();
 const { isMobile } = useScreenSize();
 
-const { totalCount: lastBlockHeight, fetchTotalCount: fetchLastBlockHeight, error: blocksError, clearState: clearBlocksState } = useBlocks();
+const { 
+  totalCount: lastBlockHeight, 
+  fetchTotalCount: fetchLastBlockHeight, 
+  error: blocksError, 
+  clearState: clearBlocksState 
+  } = useBlocks();
 
 const { 
   error: transactionsError,
@@ -40,7 +45,6 @@ const {
   fetchTransactions,
   pageInfo, 
   totalCount, 
-  fetchTotalCount, 
   rowsToShow, 
   updateRowsToShow,
   clearState: clearTransactionsState,
@@ -189,7 +193,6 @@ watch(
     const chainChanged = oldChain && selectedChain.value.value !== oldChain.value;
     
     if (networkChanged) {
-      await fetchTotalCount({ networkId: network.id });
       await fetchLastBlockHeight({ networkId: network.id }); // Fetch lastBlockHeight from useBlocks
     }
 

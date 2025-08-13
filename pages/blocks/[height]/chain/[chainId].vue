@@ -43,7 +43,7 @@ const textContent = {
 };
 
 
-const { formatFullDate, truncateAddress, removeTrailingZeros } = useFormat();
+const { formatFullDate, truncateAddress, removeTrailingZeros, formatGasPrice } = useFormat();
 const route = useRoute();
 const router = useRouter();
 const { isMobile } = useScreenSize();
@@ -122,10 +122,11 @@ const formattedGasPrice = computed(() => {
   if (totalGasPrice.value === null) {
     return '0';
   }
-  if(parseFloat(totalGasPrice.value) === 0) {
+  const numeric = parseFloat(totalGasPrice.value);
+  if (!isFinite(numeric) || numeric === 0) {
     return '0';
   }
-  return `${(totalGasPrice.value)} KDA`;
+  return `${formatGasPrice(numeric)} KDA`;
 });
 
 const minerAccount = computed(() => coinbaseData.value?.events?.[0]?.params?.[1]);

@@ -40,14 +40,6 @@ const GQL_QUERY = `
   }
 `;
 
-const TOTAL_COUNT_QUERY = `
-query TransactionCount {
-  networkInfo {
-    transactionCount
-  }
-}
-`;
-
 const transactions = ref<any[]>([]);
 const loading = ref(true);
 const { formatRelativeTime, formatGasPrice } = useFormat();
@@ -66,33 +58,6 @@ export const useTransactions = () => {
 
   const updateRowsToShow = (rows: any) => {
     rowsToShow.value = rows.value;
-  };
-
-  const fetchTotalCount = async ({ networkId }: { networkId: string }) => {
-    if (!networkId) return;
-    
-    // Reset error state at the beginning of each fetch
-    error.value = null;
-    
-    try {
-      const response: any = await $fetch('/api/graphql', {
-        method: 'POST',
-        body: { 
-          query: TOTAL_COUNT_QUERY,
-          networkId,
-        },
-      });
-
-      if (response?.data?.networkInfo?.transactionCount) {
-        totalCount.value = response?.data?.networkInfo?.transactionCount;
-      } else {
-        error.value = true;
-      }
-
-    } catch (e) {
-      console.error('Error fetching total block count:', e);
-      error.value = true;
-    }
   };
 
   const fetchTransactions = async ({
@@ -182,7 +147,6 @@ export const useTransactions = () => {
     fetchTransactions,
     pageInfo,
     totalCount,
-    fetchTotalCount,
     rowsToShow,
     updateRowsToShow,
     clearState,
