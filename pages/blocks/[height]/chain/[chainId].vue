@@ -5,9 +5,8 @@ import { useBlock } from '~/composables/useBlock';
 import { useBlocks } from '~/composables/useBlocks';
 import { useSharedData } from '~/composables/useSharedData';
 import { useScreenSize } from '~/composables/useScreenSize';
-import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
-import IconHourglass from '~/components/icon/Hourglass.vue';
-import IconCancel from '~/components/icon/Cancel.vue';
+import { useStatus } from '~/composables/useStatus';
+import StatusBadge from '~/components/StatusBadge.vue';
 import GasUsage from '~/components/column/Gas.vue';
 import SkeletonBlockDetails from '~/components/skeleton/BlockDetails.vue';
 import { useBinance } from '~/composables/useBinance';
@@ -98,32 +97,8 @@ const block = computed(() => {
   return initialBlock.value;
 });
 
-const blockStatus = computed(() => {
-  if(lastBlockHeight.value - 10 >= block.value.height && !block.value.canonical) {
-    return {
-      text: 'Orphaned',
-      icon: IconCancel,
-      classes: 'bg-[#7f1d1d66] border-[#f87171] text-[#f87171]',
-      description: 'Block is not part of the canonical chain and is orphaned',
-    };
-  }
-
-  if(block.value.canonical) {
-    return {
-      text: 'Finalized',
-      icon: IconCheckmarkFill,
-      classes: 'bg-[#0f1f1d] border-[#00a186] text-[#00a186]',
-      description: 'Block is part of the canonical chain and safe to use',
-    };
-  }
-
-  return {
-    text: 'Pending',
-    icon: IconHourglass,
-    classes: 'bg-[#17150d] border-[#444649] text-[#989898]',
-    description: 'Block is not part of the canonical chain and is pending to be finalized or orphaned',
-  };
-});
+const { blockStatus: computeBlockStatus } = useStatus(lastBlockHeight);
+const blockStatus = computed(() => computeBlockStatus(block.value.height, block.value.canonical));
 
 const coinbaseData = computed(() => {
   if (!block.value?.coinbase) {
@@ -352,16 +327,7 @@ useHead({
                 <LabelValue :row="isMobile" :label="textContent.status.label" :description="textContent.status.description" tooltipPos="right">
                   <template #value>
                     <Tooltip :value="blockStatus.description" :offset-distance="8">
-                      <div
-                        v-if="blockStatus"
-                        class="px-2 py-1.5 text-[11px] rounded-md border flex items-center gap-1 leading-none"
-                        :class="blockStatus.classes"
-                      >
-                        <component :is="blockStatus.icon" class="w-2.5 h-2.5" />
-                        <span>
-                          {{ blockStatus.text }}
-                        </span>
-                      </div>
+                      <StatusBadge v-if="blockStatus" :status="blockStatus" />
                     </Tooltip>
                   </template>
                 </LabelValue>

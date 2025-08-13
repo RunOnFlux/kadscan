@@ -7,9 +7,8 @@ import FilterSelect from '~/components/FilterSelect.vue';
 import Tooltip from '~/components/Tooltip.vue';
 import Copy from '~/components/Copy.vue';
 import SkeletonTable from '~/components/skeleton/Table.vue';
-import IconHourglass from '~/components/icon/Hourglass.vue';
-import IconCancel from '~/components/icon/Cancel.vue';
-import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
+import { useStatus } from '~/composables/useStatus';
+import StatusBadge from '~/components/StatusBadge.vue';
 import { useBlocks } from '~/composables/useBlocks';
 import { useFormat } from '~/composables/useFormat';
 import { useSharedData } from '~/composables/useSharedData';
@@ -121,32 +120,7 @@ const totalPages = computed(() => {
   return Math.ceil(lastBlockHeight.value / rowsToShow.value);
 });
 
-function blockStatus(blockHeight: number, canonical: boolean) {
-  if(lastBlockHeight.value - 10 >= blockHeight && !canonical) {
-    return {
-      text: 'Orphaned',
-      icon: IconCancel,
-      classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]',
-      description: 'Block is not part of the canonical chain and is orphaned',
-    };
-  }
-
-  if(canonical) {
-    return {
-      text: 'Finalized',
-      icon: IconCheckmarkFill,
-      classes: 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]',
-      description: 'Block is part of the canonical chain and safe to use',
-    };
-  }
-
-  return {
-    text: 'Pending',
-    icon: IconHourglass,
-    classes: 'bg-[#17150d] border-[#44464980] text-[#989898]',
-    description: 'Block is not part of the canonical chain and is pending to be finalized or orphaned',
-  };
-};
+const { blockStatus } = useStatus(lastBlockHeight);
 
 // Computed property to filter out orphaned blocks
 const filteredBlocks = computed(() => {
@@ -297,18 +271,7 @@ function downloadData() {
         <NuxtLink :to="`/blocks/${item.height}/chain/${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.height }}</NuxtLink>
       </template>
       <template #status="{ item }">
-        <Tooltip :value="blockStatus(item.height, item.canonical).description" :offset-distance="8">
-          <div
-            v-if="blockStatus"
-            class="px-2 py-1.5 text-[11px] rounded-md border flex items-center gap-1 leading-none"
-            :class="blockStatus(item.height, item.canonical).classes"
-          >
-            <component :is="blockStatus(item.height, item.canonical).icon" class="w-2.5 h-2.5" />
-            <span>
-              {{ blockStatus(item.height, item.canonical).text }}
-            </span>
-          </div>
-        </Tooltip>
+        <StatusBadge :status="blockStatus(item.height, item.canonical)" />
       </template>
       <template #txn="{ item }">
         <NuxtLink :to="`/transactions/${item.txn}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.txn }}</NuxtLink>

@@ -11,9 +11,9 @@ import { integer } from '~/composables/number'
 import { unescapeCodeString, parsePactCode, formatJsonPretty, formatSignatures } from '~/composables/string'
 import TransactionLogs from '~/components/transaction/Logs.vue'
 import TransactionCrossChain from '~/components/transaction/CrossChain.vue'
-import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
-import IconHourglass from '~/components/icon/Hourglass.vue';
-import IconCancel from '~/components/icon/Cancel.vue';
+import { useStatus } from '~/composables/useStatus'
+import IconHourglass from '~/components/icon/Hourglass.vue'
+import StatusBadge from '~/components/StatusBadge.vue'
 import Clock from '~/components/icon/Clock.vue'
 import SkeletonTransactionDetails from '~/components/skeleton/TransactionDetails.vue'
 import Tooltip from '~/components/Tooltip.vue'
@@ -173,32 +173,12 @@ const displayedCode = computed(() => {
   }
 })
 
-  const transactionStatus = computed(() => {
-    if((lastBlockHeight.value - 10 >= transaction.value?.result?.block?.height && !transaction.value?.result?.block?.canonical) || transaction.value?.result?.badResult !== null) {
-      return {
-        text: 'Failed',
-        icon: IconCancel,
-        classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]',
-        description: 'Transaction failed to execute',
-      };
-    }
-
-    if(transaction.value?.result?.block?.canonical) {
-      return {
-        text: 'Success',
-        icon: IconCheckmarkFill,
-        classes: 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]',
-        description: 'Transaction executed successfully',
-      };
-    }
-
-    return {
-      text: 'Pending',
-      icon: IconHourglass,
-      classes: 'bg-[#17150d] border-[#44464980] text-[#989898]',
-      description: 'Transaction is pending to be finalized',
-    };
-  });
+  const { transactionStatus: computeTxStatus } = useStatus(lastBlockHeight)
+  const transactionStatus = computed(() => computeTxStatus(
+    transaction.value?.result?.block?.height,
+    transaction.value?.result?.block?.canonical,
+    transaction.value?.result?.badResult,
+  ))
 
   // Cross-chain transaction status (duplicated from transactionStatus pattern)
   const crossChainStatus = computed(() => {
@@ -505,10 +485,9 @@ onUnmounted(() => {
                 <LabelValue :row="isMobile" :label="textContent.status.label" :description="textContent.status.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-2">
-                      <div :class="['flex items-center px-2 py-1 rounded-lg border text-[11px] w-fit gap-2', transactionStatus.classes]">
-                        <component :is="transactionStatus.icon" class="w-3 h-3" />
-                        {{ transactionStatus.text }}
-                      </div>
+                        <div class="w-fit">
+                          <StatusBadge :status="transactionStatus" />
+                        </div>
                       <!-- Cross Chain Transfer Badge with Status -->
                       <div v-if="crossChainStatus" :class="['flex items-center px-2 py-1 rounded-lg border text-[11px] w-fit gap-2', crossChainStatus.classes]">
                         <component :is="crossChainStatus.icon" class="w-3 h-3" />

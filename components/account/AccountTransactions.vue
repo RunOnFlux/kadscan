@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref, watch, computed, onMounted } from 'vue';
 import IconDownload from '~/components/icon/Download.vue';
-import IconHourglass from '~/components/icon/Hourglass.vue';
-import IconCancel from '~/components/icon/Cancel.vue';
-import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue';
+import { useStatus } from '~/composables/useStatus';
+import StatusBadge from '~/components/StatusBadge.vue';
 import DataTable from '~/components/DataTable.vue';
 import FilterSelect from '~/components/FilterSelect.vue';
 import Tooltip from '~/components/Tooltip.vue';
@@ -124,32 +123,7 @@ function getFeeInKda(item: any) {
   return `${formattedFee} KDA`;
 }
 
-function blockStatus(blockHeight: number, canonical: boolean, badResult: any) {
-  if ((lastBlockHeight.value - 10 >= blockHeight && !canonical) || badResult !== null) {
-    return {
-      text: 'Failed',
-      icon: IconCancel,
-      classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]',
-      description: 'Transaction failed to execute',
-    };
-  }
-
-  if (canonical) {
-    return {
-      text: 'Success',
-      icon: IconCheckmarkFill,
-      classes: 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]',
-      description: 'Transaction executed successfully',
-    };
-  }
-
-  return {
-    text: 'Pending',
-    icon: IconHourglass,
-    classes: 'bg-[#17150d] border-[#44464980] text-[#989898]',
-    description: 'Transaction is pending to be finalized',
-  };
-}
+const { transactionStatus } = useStatus(lastBlockHeight);
 
 // Filter out transactions from orphaned blocks
 const filteredTransactions = computed(() => {
@@ -300,18 +274,7 @@ function downloadData() {
         <NuxtLink v-else :to="`/blocks/${item.height}/chain/${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.height }}</NuxtLink>
       </template>
       <template #status="{ item }">
-        <Tooltip :value="blockStatus(item.height, item.canonical, item.badResult).description" :offset-distance="8">
-          <div
-            v-if="blockStatus"
-            class="px-2 py-1.5 text-[11px] rounded-md border flex items-center gap-1 leading-none"
-            :class="blockStatus(item.height, item.canonical, item.badResult).classes"
-          >
-            <component :is="blockStatus(item.height, item.canonical, item.badResult).icon" class="w-2.5 h-2.5" />
-            <span>
-              {{ blockStatus(item.height, item.canonical, item.badResult).text }}
-            </span>
-          </div>
-        </Tooltip>
+        <StatusBadge :status="transactionStatus(item.height, item.canonical, item.badResult)" />
       </template>
       <template #sender="{ item }">
         <div class="flex items-center">
