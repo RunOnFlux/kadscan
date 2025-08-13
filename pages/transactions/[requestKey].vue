@@ -35,7 +35,7 @@ const route = useRoute()
 const transactionId = computed(() => route.params.requestKey as string)
 const networkId = computed(() => selectedNetwork.value?.id)
 
-const { totalCount: lastBlockHeight, fetchTotalCount } = useBlocks();
+const { lastBlockHeight, fetchLastBlockHeight } = useBlocks();
 
 const {
   transaction,
@@ -92,7 +92,7 @@ const startPolling = () => {
   pollingInterval = setInterval(() => {
     if (networkId.value && transactionId.value) {
       fetchTransaction();
-      fetchTotalCount({ networkId: networkId.value });
+      fetchLastBlockHeight({ networkId: networkId.value });
     }
   }, 6000);
 };
@@ -360,7 +360,7 @@ watch(
   networkId,
   (newNetworkId) => {
     if (newNetworkId) {
-      fetchTotalCount({ networkId: newNetworkId });
+      fetchLastBlockHeight({ networkId: newNetworkId });
     }
   },
   { immediate: true }

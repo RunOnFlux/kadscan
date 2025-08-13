@@ -47,11 +47,12 @@ query Blocks(
       hasPreviousPage
       startCursor
     }
+    totalCount
   }
 }
 `;
 
-const TOTAL_COUNT_QUERY = `
+const LAST_BLOCK_HEIGHT_QUERY = `
   query Query {
     lastBlockHeight
   }
@@ -127,6 +128,7 @@ const blocks = ref<any[]>([]);
 const loading = ref(true);
 const { formatRelativeTime } = useFormat();
 const pageInfo = ref<any>(null);
+const lastBlockHeight = ref(0);
 const totalCount = ref(0);
 const rowsToShow = ref<number>(25);
 const error = ref<any>(null);
@@ -149,7 +151,7 @@ export const useBlocks = () => {
     rowsToShow.value = rows.value;
   };
 
-  const fetchTotalCount = async ({ networkId }: { networkId: string }) => {
+  const fetchLastBlockHeight = async ({ networkId }: { networkId: string }) => {
     if (!networkId) return;
     
     // Reset error state at the beginning of each fetch
@@ -159,13 +161,13 @@ export const useBlocks = () => {
       const response: any = await $fetch('/api/graphql', {
         method: 'POST',
         body: { 
-          query: TOTAL_COUNT_QUERY,
+          query: LAST_BLOCK_HEIGHT_QUERY,
           networkId,
         },
       });
 
       if (response?.data?.lastBlockHeight) {
-        totalCount.value = response?.data?.lastBlockHeight;
+        lastBlockHeight.value = response?.data?.lastBlockHeight;
       } else {
         error.value = true;
       }
@@ -212,19 +214,22 @@ export const useBlocks = () => {
         }
       });
 
-      const result = response?.data?.blocksFromDepth;
+      if (!response) {
+        throw new Error('No response from server');
+      }
+
+      const result = response.data?.blocksFromDepth;
       pageInfo.value = result?.pageInfo || null;
 
       const rawBlocks = result?.edges || [];
       
       // Check if no blocks found - this should trigger error state
       if (rawBlocks.length === 0) {
-        console.log("NO BLOCKS FOUND")
-        error.value = true;
-        blocks.value = [];
-        return;
+        throw new Error('No blocks found');
       }
-      
+
+      totalCount.value = result?.totalCount;
+
       const blocksMap = rawBlocks.map((edge: any) => {
         const details = processBlockDetails(edge.node);
         return {
@@ -313,7 +318,8 @@ export const useBlocks = () => {
     fetchBlocks,
     pageInfo,
     totalCount,
-    fetchTotalCount,
+    lastBlockHeight,
+    fetchLastBlockHeight,
     blocksByHeight,
     loadingByHeight,
     error,

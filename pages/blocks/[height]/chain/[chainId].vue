@@ -48,7 +48,7 @@ const route = useRoute();
 const router = useRouter();
 const { isMobile } = useScreenSize();
 const { selectedNetwork } = useSharedData();
-const { totalCount: lastBlockHeight, fetchTotalCount } = useBlocks();
+const { lastBlockHeight, fetchLastBlockHeight } = useBlocks();
 
 const activeView = ref('overview');
 const showMore = ref(false);
@@ -151,7 +151,7 @@ const startPolling = () => {
   pollingInterval = setInterval(() => {
     if (networkId.value) {
       fetchBlock();
-      fetchTotalCount({ networkId: networkId.value });
+      fetchLastBlockHeight({ networkId: networkId.value });
     }
   }, 6000);
 };
@@ -189,7 +189,7 @@ watch(
   networkId,
   (newNetworkId) => {
     if (newNetworkId) {
-      fetchTotalCount({ networkId: newNetworkId });
+      fetchLastBlockHeight({ networkId: newNetworkId });
     }
   },
   { immediate: true }

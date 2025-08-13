@@ -162,31 +162,6 @@ export const useAccountTokenTransfers = () => {
     }
   };
 
-  // Lightweight totalCount fetcher, honoring optional chainId
-  const fetchTotalCount = async ({ networkId, accountName, chainId }: { networkId: string; accountName: string; chainId?: string }) => {
-    try {
-      const response: any = await $fetch('/api/graphql', {
-        method: 'POST',
-        body: {
-          query: GQL_QUERY,
-          variables: {
-            accountName,
-            chainId,
-            first: 1,
-            last: null,
-            after: null,
-            before: null,
-          },
-          networkId,
-        },
-      });
-      totalCount.value = response?.data?.transfers?.totalCount || 0;
-    } catch (e) {
-      // If this fails, we can still rely on main fetch to populate totalCount
-      console.error('Error fetching transfers total count:', e);
-    }
-  };
-
   return {
     tokenTransfers: readonly(tokenTransfers),
     loading: readonly(loading),
@@ -195,7 +170,6 @@ export const useAccountTokenTransfers = () => {
     rowsToShow: readonly(rowsToShow),
     error: readonly(error),
     fetchAccountTokenTransfers,
-    fetchTotalCount,
     updateRowsToShow,
     clearState,
   };

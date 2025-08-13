@@ -32,8 +32,8 @@ const { selectedNetwork } = useSharedData();
 const { isMobile } = useScreenSize();
 
 const { 
-  totalCount: lastBlockHeight, 
-  fetchTotalCount: fetchLastBlockHeight, 
+  lastBlockHeight, 
+  fetchLastBlockHeight, 
   error: blocksError, 
   clearState: clearBlocksState 
   } = useBlocks();

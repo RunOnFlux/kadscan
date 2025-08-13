@@ -178,7 +178,7 @@ export const useTransaction = (
   networkId: Ref<string | undefined>
 ) => {
   const { fetchKadenaPriceAtDate } = useBinance()
-  const { totalCount: lastBlockHeight, fetchTotalCount: fetchLastBlockHeight } = useBlocks();
+  const { lastBlockHeight, fetchLastBlockHeight } = useBlocks();
 
   const fetchKadenaPrice = async (creationTime: string) => {
     if (!creationTime) return

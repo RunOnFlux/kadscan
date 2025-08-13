@@ -32,15 +32,14 @@ const {
   fetchAccountTransactions,
   pageInfo,
   totalCount,
-  fetchTotalCount,
   rowsToShow,
   updateRowsToShow,
   clearState: clearTransactionsState,
 } = useAccountTransactions();
 
 const { 
-  totalCount: lastBlockHeight, 
-  fetchTotalCount: fetchLastBlockHeight, 
+  lastBlockHeight, 
+  fetchLastBlockHeight, 
   error: blocksError, 
   clearState: clearBlocksState 
 } = useBlocks();
