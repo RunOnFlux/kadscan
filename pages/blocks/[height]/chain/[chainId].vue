@@ -385,7 +385,7 @@ useHead({
                   topAlign="true"
                 >
                   <template #value>
-                    <div class="flex items-center gap-2">
+                    <div v-if="minerAccount" class="flex items-center gap-2">
                       <Tooltip :value="minerAccount" variant="hash">
                         <NuxtLink
                           :to="`/account/${minerAccount}`"
@@ -402,6 +402,7 @@ useHead({
                         buttonClass="w-5 h-5"
                       />
                     </div>
+                    <span v-else class="text-[#f5f5f5]">N/A</span>
                   </template>
                 </LabelValue>
                 <LabelValue 
@@ -410,8 +411,9 @@ useHead({
                   tooltipPos="right"
                   :row="isMobile"
                 >
-                  <template #value v-if="blockReward != null">
-                    {{ blockReward }} KDA
+                  <template #value>
+                    <span v-if="blockReward != null">{{ blockReward }} KDA</span>
+                    <span v-else class="text-[#f5f5f5]">N/A</span>
                   </template>
                 </LabelValue>
                 <LabelValue 
@@ -551,6 +553,12 @@ useHead({
                       <template #value>
                         <div class="flex items-center gap-2 break-all">
                           <span>{{ block.hash }}</span>
+                          <Copy
+                            :value="block.hash"
+                            tooltipText="Copy Block Hash"
+                            iconSize="h-5 w-5"
+                            buttonClass="w-5 h-5 md:block hidden"
+                          />
                         </div>
                       </template>
                     </LabelValue>
