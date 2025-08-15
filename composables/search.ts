@@ -108,6 +108,9 @@ export function useSearch () {
     searched: null,
     filters,
     filter: filters[0],
+    // Prevent repeated Enter-triggered searches for the same query
+    enterLockedForQuery: null as null | string,
+    lastSearchWasEmpty: false as boolean,
   });
 
   const router = useRouter();
@@ -324,6 +327,23 @@ export function useSearch () {
       data.error = 'An error occurred while searching. Please try again.';
     } finally {
       data.loading = false;
+      // Determine if results are empty to control Enter lock
+      const isEmptyResults = (items: any) => {
+        if (!items) return true;
+        try {
+          return Object.values(items).every((item: any) => item?.length === 0);
+        } catch {
+          return true;
+        }
+      };
+      data.lastSearchWasEmpty = isEmptyResults(data.searched);
+      // If there were no results, keep Enter locked for this query until it changes
+      if (data.lastSearchWasEmpty) {
+        data.enterLockedForQuery = value;
+      } else if (data.enterLockedForQuery === value) {
+        // If we previously locked for this value but now have results, unlock
+        data.enterLockedForQuery = null;
+      }
     }
   };
 
@@ -490,11 +510,21 @@ export function useSearch () {
   const handleInput = (event: Event) => {
     const value = (event.target as HTMLInputElement).value;
     data.query = value;
+    // If user changed the query, allow Enter again
+    if (data.enterLockedForQuery !== null && data.enterLockedForQuery !== value) {
+      data.enterLockedForQuery = null;
+    }
     search(value);
   };
 
   const handleKeyDown = async (event: KeyboardEvent) => {
     if (event.key !== 'Enter') {
+      return;
+    }
+
+    // Block Enter if already locked for this exact query
+    if (data.enterLockedForQuery && data.enterLockedForQuery === data.query) {
+      event.preventDefault();
       return;
     }
 
@@ -505,6 +535,9 @@ export function useSearch () {
     data.open = true;
     data.loading = true;
     data.error = null;
+
+    // Lock Enter for this query while the rest of this handler runs
+    data.enterLockedForQuery = data.query;
 
     const redirectInfo: any = await shouldRedirectBeforeSearch(data.query);
 
@@ -536,6 +569,10 @@ export function useSearch () {
 
     if (shouldRedirect()) {
       cleanup();
+    }
+    // If results are not empty, unlock to allow another Enter for the same query
+    if (!data.lastSearchWasEmpty && data.enterLockedForQuery === data.query) {
+      data.enterLockedForQuery = null;
     }
   };
 

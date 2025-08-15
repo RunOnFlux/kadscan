@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import { useBinance } from '~/composables/useBinance';
 
-const GQL_QUERY = `
+const BLOCK_QUERY = `
   query blocksFromHeight($startHeight: Int!, $endHeight: Int, $chainIds: [String!]) {
     blocksFromHeight(startHeight: $startHeight, endHeight: $endHeight, chainIds: $chainIds) {
       edges {
@@ -193,7 +193,7 @@ export const useBlock = (
       const response: any = await $fetch('/api/graphql', {
         method: 'POST',
         body: {
-          query: GQL_QUERY,
+          query: BLOCK_QUERY,
           variables: {
             startHeight: height.value,
             endHeight: height.value,
