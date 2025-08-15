@@ -6,10 +6,23 @@ definePageMeta({
 useHead({
   title: 'Page Not Found | Kadscan'
 })
+
+onMounted(() => {
+  const route = useRoute()
+  if (route.path !== '/error') {
+    navigateTo('/error', { replace: true })
+  }
+})
 </script>
 
 <template>
-  <div class="relative min-h-[calc(50vh-200px)]">
+  <div class="relative h-full z-0">
+    <!-- Background image (behind content only, not the footer) -->
+    <div
+      class="absolute left-1/2 -translate-x-1/2 top-0 -bottom-10 md:-bottom-20 -z-10 w-[100vw] bg-cover bg-center opacity-100 pointer-events-none"
+      style="background-image: url('/404.png');"
+      aria-hidden="true"
+    />
     <!-- Content positioned like Etherscan - higher on page, not centered -->
     <div class="pt-20 pb-16">
 
@@ -39,7 +52,3 @@ useHead({
     </div>
   </div>
 </template>
-
-<style scoped>
-/* Additional styling for the 404 page */
-</style>
