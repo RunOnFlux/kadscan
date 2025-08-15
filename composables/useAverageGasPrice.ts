@@ -19,7 +19,6 @@ export const resetGasPriceStats = () => {
 const homeTransactionsQuery = `
 query HomeTxListInit($first: Int) {
   transactions(first: $first) {
-    totalCount
     edges {
       node {
         hash
