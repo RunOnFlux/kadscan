@@ -52,6 +52,7 @@ const {
 
 // Chain filter state - initialize from URL parameters (commented due to query glitch)
 const selectedChain = ref({ label: 'All', value: null });
+const selectedBlock = ref<number | null>(route.query.block ? Number(route.query.block) : null);
 
 // Clear global state on mount to show skeleton on page navigation
 onMounted(() => {
@@ -178,8 +179,8 @@ watch(() => route.query.page, (page) => {
 
 // 1) React to network or chain change: reset to page 1 and refresh counts, then fetch first page
 watch(
-  [selectedNetwork, selectedChain],
-  async ([network], [oldNetwork, oldChain]) => {
+  [selectedNetwork, selectedChain, selectedBlock],
+  async ([network], [oldNetwork, oldChain, oldBlock]) => {
     if (!network) return;
 
     // Don't run pagination logic if there's an error (prevents race condition with error redirect)
@@ -187,12 +188,23 @@ watch(
 
     const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
     const chainChanged = !!oldChain && selectedChain.value.value !== oldChain.value;
+    const blockChanged = selectedBlock.value !== oldBlock;
 
-    if (networkChanged || chainChanged) {
+    if (networkChanged || chainChanged || blockChanged) {
       await fetchLastBlockHeight({ networkId: network.id });
       currentPage.value = 1;
-      const params: { networkId: string; chainId?: string } = { networkId: network.id };
+      const params: { networkId: string; chainId?: string; isCoinbase?: boolean; minHeight?: number; maxHeight?: number } = { networkId: network.id };
+      // Default coinbase behavior: false unless both chain and block are present
+      params.isCoinbase = false;
+      // Chain filter
       if (selectedChain.value.value !== null) params.chainId = selectedChain.value.value as string;
+      // Block filter
+      if (selectedBlock.value !== null) {
+        params.minHeight = selectedBlock.value;
+        params.maxHeight = selectedBlock.value;
+        // Only include coinbase when both chain and block are present
+        if (params.chainId) params.isCoinbase = true;
+      }
       await fetchTransactions(params);
       loadingPage.value = false;
     }
@@ -207,8 +219,14 @@ watch(rowsToShow, async (newRows, oldRows) => {
   if (transactionsError.value || blocksError.value) return;
   if (newRows === oldRows) return;
   currentPage.value = 1;
-  const params: { networkId: string; chainId?: string } = { networkId: network.id };
+  const params: { networkId: string; chainId?: string; isCoinbase?: boolean; minHeight?: number; maxHeight?: number } = { networkId: network.id };
+  params.isCoinbase = false;
   if (selectedChain.value.value !== null) params.chainId = selectedChain.value.value as string;
+  if (selectedBlock.value !== null) {
+    params.minHeight = selectedBlock.value;
+    params.maxHeight = selectedBlock.value;
+    if (params.chainId) params.isCoinbase = true;
+  }
   await fetchTransactions(params);
   loadingPage.value = false;
 });
@@ -220,10 +238,16 @@ watch(currentPage, async (newPage, oldPage) => {
   if (transactionsError.value || blocksError.value) return;
   if (!newPage || newPage === oldPage) return;
 
-  const params: { networkId: string; after?: string; before?: string; toLastPage?: boolean; chainId?: string } = {
+  const params: { networkId: string; after?: string; before?: string; toLastPage?: boolean; chainId?: string; isCoinbase?: boolean; minHeight?: number; maxHeight?: number } = {
     networkId: network.id,
   };
+  params.isCoinbase = false;
   if (selectedChain.value.value !== null) params.chainId = selectedChain.value.value as string;
+  if (selectedBlock.value !== null) {
+    params.minHeight = selectedBlock.value;
+    params.maxHeight = selectedBlock.value;
+    if (params.chainId) params.isCoinbase = true;
+  }
 
   if (newPage > oldPage) {
     params.after = pageInfo.value?.endCursor as string | undefined;
@@ -240,6 +264,15 @@ watch(currentPage, async (newPage, oldPage) => {
 
   await fetchTransactions(params);
   loadingPage.value = false;
+});
+
+// Keep selectedBlock in sync with URL (back/forward, manual edits)
+watch(() => route.query.block, (block) => {
+  const blockNumber = typeof block === 'string' && block !== '' ? Number(block) : null;
+  const normalized = blockNumber !== null && !Number.isNaN(blockNumber) && blockNumber >= 0 ? blockNumber : null;
+  if (normalized !== selectedBlock.value) {
+    selectedBlock.value = normalized;
+  }
 });
 
 // Redirect to error page when transaction is not found
@@ -286,6 +319,8 @@ function downloadData() {
           @update:modelValue="selectedChain = $event"
           :items="chainOptions"
           urlParamName="chain"
+          :enableBlockFilter="true"
+          blockUrlParamName="block"
         />
         <button
           @click="downloadData"

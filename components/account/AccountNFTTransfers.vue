@@ -44,7 +44,7 @@ const chainOptions = computed(() => {
 });
 
 const initChainFromUrl = () => {
-  const q = route.query.chainId as string | undefined;
+  const q = route.query.chain as string | undefined;
   if (q === undefined) return;
   const n = parseInt(q, 10);
   const isValid = !Number.isNaN(n) && n >= 0 && n <= 19;
@@ -52,7 +52,7 @@ const initChainFromUrl = () => {
     selectedChain.value = { label: n.toString(), value: n.toString() };
   } else {
     const newQuery: Record<string, any> = { ...route.query };
-    delete newQuery.chainId;
+    delete newQuery.chain;
     router.replace({ query: newQuery });
     selectedChain.value = { label: 'All', value: null };
   }
@@ -111,7 +111,7 @@ onMounted(() => {
 });
 
 // Keep selectedChain in sync with the URL
-watch(() => route.query.chainId, (q) => {
+watch(() => route.query.chain, (q) => {
   const str = typeof q === 'string' ? q : undefined;
   if (str === undefined) {
     selectedChain.value = { label: 'All', value: null };
@@ -224,7 +224,7 @@ function downloadData() {
           :modelValue="selectedChain"
           @update:modelValue="selectedChain = $event"
           :items="chainOptions"
-          urlParamName="chainId"
+          urlParamName="chain"
         />
         <button
           @click="downloadData"

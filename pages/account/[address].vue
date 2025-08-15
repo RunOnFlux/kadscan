@@ -452,7 +452,7 @@ const onChangeChainSelect = (option: any) => {
                     </NuxtLink>
                     <span> and Chain ID </span>
                     <NuxtLink
-                      :to="`/blocks?chainId=${account.chainId}`"
+                      :to="`/blocks?chain=${account.chainId}`"
                       class="text-[#6AB5DB] hover:text-[#9ccee7]"
                     >
                       {{ account.chainId }}

@@ -5,7 +5,9 @@ import IconChevron from '~/components/icon/Chevron.vue'
 const props = defineProps<{
   modelValue: any;
   items: any[];
-  urlParamName?: string; // New prop for URL parameter name (e.g., "chain")
+  urlParamName?: string; // URL parameter name for chain (e.g., "chain")
+  enableBlockFilter?: boolean; // When true, render block filter row below chain
+  blockUrlParamName?: string; // URL parameter name for block (defaults to "block")
 }>()
 
 const emit = defineEmits(['update:modelValue'])
@@ -16,15 +18,24 @@ const router = useRouter()
 // Track if showing dropdown and current chain number
 const showDropdown = ref(false)
 const currentChain = ref<number | null>(null)
+const currentBlock = ref<number | null>(null)
 
 // Debounce configuration for propagating filter changes
 const DEBOUNCE_MS = 1500
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
+let blockDebounceTimer: ReturnType<typeof setTimeout> | null = null
 
 const cancelDebounce = () => {
   if (debounceTimer) {
     clearTimeout(debounceTimer)
     debounceTimer = null
+  }
+}
+
+const cancelBlockDebounce = () => {
+  if (blockDebounceTimer) {
+    clearTimeout(blockDebounceTimer)
+    blockDebounceTimer = null
   }
 }
 
@@ -40,8 +51,8 @@ const scheduleUpdate = (chainValue: number | null) => {
   }, DEBOUNCE_MS)
 }
 
-// Initialize from URL parameter if urlParamName is provided
-const initializeFromUrl = () => {
+// Initialize chain from URL parameter if urlParamName is provided
+const initializeChainFromUrl = () => {
   if (!props.urlParamName) return null;
   
   const urlValue = route.query[props.urlParamName];
@@ -58,22 +69,38 @@ const initializeFromUrl = () => {
   return chainValue;
 }
 
-// Initialize current chain from URL or modelValue
+// Initialize block from URL parameter if enabled
+const initializeBlockFromUrl = () => {
+  const blockParamName = props.blockUrlParamName || 'block';
+  const urlValue = route.query[blockParamName];
+  if (!urlValue) return null;
+  const blockValue = parseInt(urlValue as string);
+  if (isNaN(blockValue) || blockValue < 0) return null;
+  return blockValue;
+}
+
+// Initialize current chain/block from URL or modelValue
 const initializeChain = () => {
   // First try to get from URL if urlParamName is provided
-  const urlChain = initializeFromUrl();
+  const urlChain = initializeChainFromUrl();
   if (urlChain !== null) {
     currentChain.value = urlChain;
     // Emit the URL value to sync with parent component
     emit('update:modelValue', { label: urlChain.toString(), value: urlChain.toString() });
-    return;
+  } else {
+    // Fallback to modelValue initialization
+    if (props.modelValue?.value === null) {
+      currentChain.value = null;
+    } else if (props.modelValue?.value) {
+      currentChain.value = parseInt(props.modelValue.value);
+    }
   }
-  
-  // Fallback to modelValue initialization
-  if (props.modelValue?.value === null) {
-    currentChain.value = null;
-  } else if (props.modelValue?.value) {
-    currentChain.value = parseInt(props.modelValue.value);
+
+  if (props.enableBlockFilter) {
+    const urlBlock = initializeBlockFromUrl();
+    if (urlBlock !== null) {
+      currentBlock.value = urlBlock;
+    }
   }
 }
 
@@ -99,7 +126,7 @@ watch(() => route.query[props.urlParamName || ''], (newValue) => {
   
   // Cancel pending updates if URL changed externally
   cancelDebounce()
-  const urlChain = initializeFromUrl();
+  const urlChain = initializeChainFromUrl();
   if (urlChain !== currentChain.value) {
     currentChain.value = urlChain;
     const modelValue = urlChain !== null 
@@ -122,6 +149,40 @@ const updateUrl = (chainValue: number | null) => {
   
   router.push({ query });
 }
+
+// Block URL helpers
+const updateBlockUrl = (blockValue: number | null) => {
+  const blockParamName = props.blockUrlParamName || 'block';
+  const query = { ...route.query } as Record<string, any>;
+  if (blockValue !== null) {
+    query[blockParamName] = blockValue.toString();
+  } else {
+    delete query[blockParamName];
+  }
+  router.push({ query });
+}
+
+const scheduleBlockUpdate = (blockValue: number | null) => {
+  cancelBlockDebounce()
+  blockDebounceTimer = setTimeout(() => {
+    updateBlockUrl(blockValue)
+    blockDebounceTimer = null
+  }, DEBOUNCE_MS)
+}
+
+watch(() => route.query[props.blockUrlParamName || 'block'], () => {
+  if (!props.enableBlockFilter) return;
+  const urlBlock = initializeBlockFromUrl();
+  if (urlBlock !== currentBlock.value) {
+    currentBlock.value = urlBlock;
+  }
+});
+
+// Debounced URL updates when the block input changes via v-model
+watch(currentBlock, (val) => {
+  if (!props.enableBlockFilter) return;
+  scheduleBlockUpdate(val ?? null);
+});
 
 // Handle "All" button click
 const selectAll = () => {
@@ -178,6 +239,7 @@ const closeDropdown = () => {
 
 onBeforeUnmount(() => {
   cancelDebounce()
+  cancelBlockDebounce()
 })
 </script>
 
@@ -215,7 +277,9 @@ onBeforeUnmount(() => {
           w-56
         "
       >
-        <div class="flex gap-2">
+        <div class="flex flex-col gap-3">
+          <!-- Chain row -->
+          <div class="flex gap-2">
                      <!-- All Chains Button (left side) -->
            <button
              @click="selectAll"
@@ -255,6 +319,27 @@ onBeforeUnmount(() => {
             >
               <IconChevron class="h-4 w-4" />
             </button>
+          </div>
+          </div>
+
+          <!-- Block filter row (optional) -->
+          <div v-if="enableBlockFilter" class="flex gap-2 items-center">
+            <button
+              @click="() => { cancelBlockDebounce(); currentBlock = null; updateBlockUrl(null); }"
+              class="px-2 py-1 text-[12px] font-normal text-[#6ab5db] bg-[#151515] border border-[#222222] rounded-md hover:text-[#fafafa] hover:bg-[#0784c3] whitespace-nowrap transition-colors duration-300"
+            >
+              All Blocks
+            </button>
+            <input
+              v-model.number="currentBlock"
+              type="number"
+              min="0"
+              @keyup.enter="() => { cancelBlockDebounce(); updateBlockUrl(currentBlock ?? null); }"
+              @blur="() => { cancelBlockDebounce(); updateBlockUrl(currentBlock ?? null); }"
+              @focus="$event.target.select()"
+              class="w-full h-8 px-2 text-sm bg-[#151515] border border-[#222222] rounded-md text-[#fafafa] focus:outline-none transition-colors duration-300 hover:border-[#0784c3] focus:border-[#0784c3] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              placeholder="Block height"
+            />
           </div>
         </div>
       </div>
