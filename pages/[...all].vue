@@ -20,7 +20,7 @@ onMounted(() => {
     <!-- Background image (behind content only, not the footer) -->
     <div
       class="absolute left-1/2 -translate-x-1/2 top-0 -bottom-10 md:-bottom-20 -z-10 w-[100vw] bg-cover bg-center opacity-100 pointer-events-none"
-      style="background-image: url('/404.png');"
+      style="background-image: url('/404.svg');"
       aria-hidden="true"
     />
     <!-- Content positioned like Etherscan - higher on page, not centered -->
