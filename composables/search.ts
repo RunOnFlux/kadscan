@@ -121,6 +121,8 @@ export function useSearch () {
   const searchImpl = async (value: string) => {
     if (!value) {
       data.searched = null;
+      data.loading = false;
+      data.error = null;
       return;
     }
 
@@ -325,7 +327,27 @@ export function useSearch () {
     }
   };
 
-  const search = debounce(searchImpl, 1000);
+  const debouncedSearch = debounce((value: string) => {
+    searchImpl(value);
+  }, 250);
+
+  type SearchFunction = ((value: string) => void) & { cancel: () => void };
+  const search: SearchFunction = Object.assign(
+    (value: string) => {
+      if (!value) {
+        debouncedSearch.cancel();
+        data.searched = null;
+        data.loading = false;
+        data.error = null;
+        return;
+      }
+      data.loading = true;
+      data.error = null;
+      data.open = true;
+      debouncedSearch(value);
+    },
+    { cancel: () => debouncedSearch.cancel() }
+  );
 
   async function shouldRedirectBeforeSearch(searchTerm: string) {
     // 1. Block Height - Highest Priority (numeric only)
@@ -479,6 +501,11 @@ export function useSearch () {
     event.preventDefault();
     search.cancel();
 
+    // Show loading while pre-redirect checks run
+    data.open = true;
+    data.loading = true;
+    data.error = null;
+
     const redirectInfo: any = await shouldRedirectBeforeSearch(data.query);
 
     if (redirectInfo) {
@@ -519,6 +546,8 @@ export function useSearch () {
   const cleanup = () => {
     data.query = ''
     data.searched = null
+    data.loading = false
+    data.error = null
     close()
   }
 

@@ -86,7 +86,7 @@ onUnmounted(() => {
     <SearchModal
       :cleanup="cleanup"
       :close="close"
-      :open="data.open && !!data.query && !!data.searched"
+      :open="data.open && !!data.query && (data.loading || !!data.searched || !!data.error)"
       :error="data.error"
       :loading="data.loading"
       :items="data.searched"
