@@ -192,7 +192,7 @@ const handleSectionVisible = (type: string) => {
     <div
       @click="props.close"
       v-if="!loading && !isEmpty"
-      class="flex flex-col px-2 pb-2 overflow-auto scrollbar-custom min-h-full gap-4 max-w-full overflow-hidden"
+      class="flex flex-col px-2 pb-2 overflow-auto scrollbar-custom min-h-full max-w-full overflow-hidden"
     >
       <SearchViewVisible
         v-if="hasAddresses"
