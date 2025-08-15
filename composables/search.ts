@@ -31,10 +31,13 @@ const blockHashQuery = `
   }
 `;
 
-const addressQuery = `
-  query Transactions($accountName: String) {
-    transactions(accountName: $accountName) {
-      totalCount
+// Account existence check (works even for accounts without transactions)
+const fungibleAccountQuery = `
+  query FungibleAccount($accountName: String!) {
+    fungibleAccount(accountName: $accountName) {
+      fungibleName
+      accountName
+      totalBalance
     }
   }
 `;
@@ -114,7 +117,6 @@ export function useSearch () {
   const strictKadenaAddressRegex = /^k:[a-fA-F0-9]{64}$/;
   const likelyRequestKeyRegex = /^[A-Za-z0-9\-_]{20,}$/; // More flexible length
   const numericRegex = /^\d+$/;
-  // Removed 0x block hash pattern - Kadena doesn't use 0x prefixes
 
   const searchImpl = async (value: string) => {
     if (!value) {
@@ -287,10 +289,10 @@ export function useSearch () {
       // Address search - always try this as fallback, or if specifically searching addresses
       if (shouldSearchAll || data.filter.value === 'address') {
         try {
-          const addressResponse: any = await $fetch('/api/graphql', {
+          const fungibleResponse: any = await $fetch('/api/graphql', {
             method: 'POST',
             body: {
-              query: addressQuery,
+              query: fungibleAccountQuery,
               variables: {
                 accountName: value
               },
@@ -298,11 +300,11 @@ export function useSearch () {
             },
           });
           
-          if (addressResponse.data?.transactions && addressResponse.data.transactions.totalCount > 0) {
+          if (fungibleResponse?.data?.fungibleAccount) {
             results.addresses = [{
               account: value,
               id: value, // Use the account name as ID
-              totalBalance: addressResponse.transactions.totalCount // Store transaction count instead of balance
+              totalBalance: fungibleResponse.data.fungibleAccount.totalBalance
             }];
           }
         } catch (error) {
@@ -330,17 +332,31 @@ export function useSearch () {
     if (numericRegex.test(searchTerm)) {
       const height = parseInt(searchTerm);
       if (height >= 0 && height <= 20000000) {
-        return "blocks";
+        try {
+          const blockResponse: any = await $fetch('/api/graphql', {
+            method: 'POST',
+            body: {
+              query: blocksQuery,
+              variables: {
+                startHeight: height,
+                endHeight: height
+              },
+              networkId: selectedNetwork.value?.id,
+            },
+          });
+
+          const firstEdge = blockResponse?.data?.blocksFromHeight?.edges?.[0]?.node;
+          if (firstEdge) {
+            return { type: "blocks", chainId: firstEdge.chainId, canonical: firstEdge.canonical } as any;
+          }
+        } catch (error) {
+          console.warn('Block height verification failed:', error);
+        }
+        // If no block at that height, fall through to other checks (it could be an account like "1234567")
       }
     }
 
-    // 2. Skip hash searches if string is too short (< 40 characters)
-    if (searchTerm.length < 40) {
-      // Default to account for short strings
-      return "account";
-    }
-
-    // 3. Transaction Hash - Second Priority (query to verify it exists)
+    // 2. Transaction Hash - Second Priority (query to verify it exists)
     if (likelyRequestKeyRegex.test(searchTerm)) {
       try {
         const txResponse: any = await $fetch('/api/graphql', {
@@ -355,14 +371,14 @@ export function useSearch () {
         });
         
         if (txResponse.data?.transaction) {
-          return "transactions";
+          return { type: "transactions" } as any;
         }
       } catch (error) {
         console.warn('Transaction verification failed:', error);
       }
     }
 
-    // 4. Block Hash - Third Priority (query to verify it exists)
+    // 3. Block Hash - Third Priority (query to verify it exists)
     try {
       const blockHashResponse: any = await $fetch('/api/graphql', {
         method: 'POST',
@@ -376,13 +392,33 @@ export function useSearch () {
       });
       
       if (blockHashResponse.data?.block) {
-        return "block-hash";
+        return { type: "block-hash" } as any;
       }
     } catch (error) {
       console.warn('Block hash verification failed:', error);
     }
 
-    // 5. Default to account (catch-all for everything else)
+    // 4. Account - Final Fallback (verify existence via fungibleAccount)
+    try {
+      const fungibleResponse: any = await $fetch('/api/graphql', {
+        method: 'POST',
+        body: {
+          query: fungibleAccountQuery,
+          variables: {
+            accountName: searchTerm
+          },
+          networkId: selectedNetwork.value?.id,
+        },
+      });
+      
+      if (fungibleResponse?.data?.fungibleAccount) {
+        return { type: "account" } as any;
+      }
+    } catch (error) {
+      console.warn('Fungible account verification failed:', error);
+    }
+
+    // If nothing matched, return null to show no results
     return null;
   }
 
@@ -443,19 +479,20 @@ export function useSearch () {
     event.preventDefault();
     search.cancel();
 
-    const redirectType = await shouldRedirectBeforeSearch(data.query);
+    const redirectInfo: any = await shouldRedirectBeforeSearch(data.query);
 
-    if (redirectType) {
-      if (redirectType === "blocks") {
-        // For blocks, we need to search first to get chainId, default to chain 0
-        router.push(`/blocks/${data.query}/chain/0`);
+    if (redirectInfo) {
+      if (redirectInfo.type === "blocks") {
+        const baseUrl = `/blocks/${data.query}/chain/${redirectInfo.chainId}`;
+        const url = redirectInfo.canonical === false ? `${baseUrl}?canonical=false` : baseUrl;
+        router.push(url);
         cleanup();
         return;
-      } else if (redirectType === "block-hash") {
+      } else if (redirectInfo.type === "block-hash") {
         // For block hashes, we need to search first to get the block data
         // Don't redirect immediately, let the search complete first
       } else {
-        router.push(`/${redirectType}/${data.query}`);
+        router.push(`/${redirectInfo.type}/${data.query}`);
         cleanup();
         return;
       }
