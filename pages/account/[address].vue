@@ -332,6 +332,7 @@ const onChangeChainSelect = (option: any) => {
               tooltipText="Copy Address"
               iconSize="h-5 w-5"
               buttonClass="w-5 h-5"
+              placement="bottom"
             />
             <Tooltip value="Show QR" placement="bottom">
               <button

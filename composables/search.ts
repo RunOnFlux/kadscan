@@ -108,6 +108,17 @@ export function useSearch () {
     searched: null,
     filters,
     filter: filters[0],
+    // Prevent repeated Enter-triggered searches for the same query
+    enterLockedForQuery: null as null | string,
+    lastSearchWasEmpty: false as boolean,
+    // Cache results from pre-redirect checks to avoid duplicate queries in searchImpl
+    precheck: {
+      query: null as string | null,
+      accountExists: null as boolean | null,
+      blockHashData: null as any | null, // if falsey but not null => checked and not found
+      blockHeightInfo: null as { exists: boolean, chainId?: number, canonical?: boolean } | null,
+      transactionData: null as any | null,
+    },
   });
 
   const router = useRouter();
@@ -121,6 +132,8 @@ export function useSearch () {
   const searchImpl = async (value: string) => {
     if (!value) {
       data.searched = null;
+      data.loading = false;
+      data.error = null;
       return;
     }
 
@@ -177,32 +190,46 @@ export function useSearch () {
         
         // Search by block hash (for any non-numeric string >= 40 chars)
         if (value.length >= 40 && !numericRegex.test(value)) {
-          try {
-            const blockHashResponse: any = await $fetch('/api/graphql', {
-              method: 'POST',
-              body: {
-                query: blockHashQuery,
-                variables: {
-                  hash: value
-                },
-                networkId: selectedNetwork.value?.id,
-              },
-            });
-            
-            if (blockHashResponse.data?.block) {
-              const block = blockHashResponse.data.block;
-              // Add the block hash result to existing blocks array
+          // If pre-check already looked this up for the same query, reuse it
+          if (data.precheck.query === value && data.precheck.blockHashData !== null) {
+            const block = data.precheck.blockHashData as any;
+            if (block) {
               results.blocks = [...(results.blocks || []), {
                 chainId: block.chainId,
                 hash: block.hash,
                 height: block.height,
-                transactionsCount: 0, // Hash search doesn't return transaction count
+                transactionsCount: 0,
                 creationTime: block.creationTime,
                 canonical: block.canonical
               }];
             }
-          } catch (error) {
-            console.warn('Block hash search failed:', error);
+          } else {
+            try {
+              const blockHashResponse: any = await $fetch('/api/graphql', {
+                method: 'POST',
+                body: {
+                  query: blockHashQuery,
+                  variables: {
+                    hash: value
+                  },
+                  networkId: selectedNetwork.value?.id,
+                },
+              });
+              
+              if (blockHashResponse.data?.block) {
+                const block = blockHashResponse.data.block;
+                results.blocks = [...(results.blocks || []), {
+                  chainId: block.chainId,
+                  hash: block.hash,
+                  height: block.height,
+                  transactionsCount: 0,
+                  creationTime: block.creationTime,
+                  canonical: block.canonical
+                }];
+              }
+            } catch (error) {
+              console.warn('Block hash search failed:', error);
+            }
           }
         }
       }
@@ -288,27 +315,31 @@ export function useSearch () {
 
       // Address search - always try this as fallback, or if specifically searching addresses
       if (shouldSearchAll || data.filter.value === 'address') {
-        try {
-          const fungibleResponse: any = await $fetch('/api/graphql', {
-            method: 'POST',
-            body: {
-              query: fungibleAccountQuery,
-              variables: {
-                accountName: value
+        // If pre-check already determined the account does NOT exist for this query, skip the request
+        const canSkip = data.precheck.query === value && data.precheck.accountExists === false;
+        if (!canSkip) {
+          try {
+            const fungibleResponse: any = await $fetch('/api/graphql', {
+              method: 'POST',
+              body: {
+                query: fungibleAccountQuery,
+                variables: {
+                  accountName: value
+                },
+                networkId: selectedNetwork.value?.id,
               },
-              networkId: selectedNetwork.value?.id,
-            },
-          });
-          
-          if (fungibleResponse?.data?.fungibleAccount) {
-            results.addresses = [{
-              account: value,
-              id: value, // Use the account name as ID
-              totalBalance: fungibleResponse.data.fungibleAccount.totalBalance
-            }];
+            });
+            
+            if (fungibleResponse?.data?.fungibleAccount) {
+              results.addresses = [{
+                account: value,
+                id: value, // Use the account name as ID
+                totalBalance: fungibleResponse.data.fungibleAccount.totalBalance
+              }];
+            }
+          } catch (error) {
+            console.warn('Address search failed:', error);
           }
-        } catch (error) {
-          console.warn('Address search failed:', error);
         }
       }
 
@@ -322,12 +353,56 @@ export function useSearch () {
       data.error = 'An error occurred while searching. Please try again.';
     } finally {
       data.loading = false;
+      // Determine if results are empty to control Enter lock
+      const isEmptyResults = (items: any) => {
+        if (!items) return true;
+        try {
+          return Object.values(items).every((item: any) => item?.length === 0);
+        } catch {
+          return true;
+        }
+      };
+      data.lastSearchWasEmpty = isEmptyResults(data.searched);
+      // If there were no results, keep Enter locked for this query until it changes
+      if (data.lastSearchWasEmpty) {
+        data.enterLockedForQuery = value;
+      } else if (data.enterLockedForQuery === value) {
+        // If we previously locked for this value but now have results, unlock
+        data.enterLockedForQuery = null;
+      }
     }
   };
 
-  const search = debounce(searchImpl, 1000);
+  const debouncedSearch = debounce((value: string) => {
+    searchImpl(value);
+  }, 250);
+
+  type SearchFunction = ((value: string) => void) & { cancel: () => void };
+  const search: SearchFunction = Object.assign(
+    (value: string) => {
+      if (!value) {
+        debouncedSearch.cancel();
+        data.searched = null;
+        data.loading = false;
+        data.error = null;
+        return;
+      }
+      data.loading = true;
+      data.error = null;
+      data.open = true;
+      debouncedSearch(value);
+    },
+    { cancel: () => debouncedSearch.cancel() }
+  );
 
   async function shouldRedirectBeforeSearch(searchTerm: string) {
+    // Prepare precheck cache for this query
+    data.precheck.query = searchTerm;
+    data.precheck.accountExists = null;
+    data.precheck.blockHashData = null;
+    data.precheck.blockHeightInfo = null;
+    data.precheck.transactionData = null;
+
     // 1. Block Height - Highest Priority (numeric only)
     if (numericRegex.test(searchTerm)) {
       const height = parseInt(searchTerm);
@@ -347,8 +422,10 @@ export function useSearch () {
 
           const firstEdge = blockResponse?.data?.blocksFromHeight?.edges?.[0]?.node;
           if (firstEdge) {
+            data.precheck.blockHeightInfo = { exists: true, chainId: firstEdge.chainId, canonical: firstEdge.canonical } as any;
             return { type: "blocks", chainId: firstEdge.chainId, canonical: firstEdge.canonical } as any;
           }
+          data.precheck.blockHeightInfo = { exists: false } as any;
         } catch (error) {
           console.warn('Block height verification failed:', error);
         }
@@ -371,6 +448,7 @@ export function useSearch () {
         });
         
         if (txResponse.data?.transaction) {
+          data.precheck.transactionData = txResponse.data.transaction;
           return { type: "transactions" } as any;
         }
       } catch (error) {
@@ -392,8 +470,10 @@ export function useSearch () {
       });
       
       if (blockHashResponse.data?.block) {
+        data.precheck.blockHashData = blockHashResponse.data.block;
         return { type: "block-hash" } as any;
       }
+      data.precheck.blockHashData = false as any;
     } catch (error) {
       console.warn('Block hash verification failed:', error);
     }
@@ -412,8 +492,10 @@ export function useSearch () {
       });
       
       if (fungibleResponse?.data?.fungibleAccount) {
+        data.precheck.accountExists = true;
         return { type: "account" } as any;
       }
+      data.precheck.accountExists = false;
     } catch (error) {
       console.warn('Fungible account verification failed:', error);
     }
@@ -468,6 +550,18 @@ export function useSearch () {
   const handleInput = (event: Event) => {
     const value = (event.target as HTMLInputElement).value;
     data.query = value;
+    // If user changed the query, allow Enter again
+    if (data.enterLockedForQuery !== null && data.enterLockedForQuery !== value) {
+      data.enterLockedForQuery = null;
+    }
+    // Reset precheck cache when query text changes
+    if (data.precheck.query !== value) {
+      data.precheck.query = null;
+      data.precheck.accountExists = null;
+      data.precheck.blockHashData = null;
+      data.precheck.blockHeightInfo = null;
+      data.precheck.transactionData = null;
+    }
     search(value);
   };
 
@@ -476,8 +570,22 @@ export function useSearch () {
       return;
     }
 
+    // Block Enter if already locked for this exact query
+    if (data.enterLockedForQuery && data.enterLockedForQuery === data.query) {
+      event.preventDefault();
+      return;
+    }
+
     event.preventDefault();
     search.cancel();
+
+    // Show loading while pre-redirect checks run
+    data.open = true;
+    data.loading = true;
+    data.error = null;
+
+    // Lock Enter for this query while the rest of this handler runs
+    data.enterLockedForQuery = data.query;
 
     const redirectInfo: any = await shouldRedirectBeforeSearch(data.query);
 
@@ -510,6 +618,10 @@ export function useSearch () {
     if (shouldRedirect()) {
       cleanup();
     }
+    // If results are not empty, unlock to allow another Enter for the same query
+    if (!data.lastSearchWasEmpty && data.enterLockedForQuery === data.query) {
+      data.enterLockedForQuery = null;
+    }
   };
 
   const close = () => {
@@ -519,6 +631,15 @@ export function useSearch () {
   const cleanup = () => {
     data.query = ''
     data.searched = null
+    data.loading = false
+    data.error = null
+    data.enterLockedForQuery = null
+    data.lastSearchWasEmpty = false
+    data.precheck.query = null
+    data.precheck.accountExists = null
+    data.precheck.blockHashData = null
+    data.precheck.blockHeightInfo = null
+    data.precheck.transactionData = null
     close()
   }
 

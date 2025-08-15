@@ -66,6 +66,9 @@ const getInitialActiveFilter = () => {
 
 const activeFilter = ref(getInitialActiveFilter());
 
+// Track whether the user has interacted (clicked a filter or scrolled)
+const hasInteracted = ref(false)
+
 // Watch for selectedFilter changes to update activeFilter
 watch(() => props.selectedFilter, () => {
   activeFilter.value = getInitialActiveFilter()
@@ -80,7 +83,24 @@ watch(() => props.items, () => {
 
 const modalRef = ref<any>(null);
 
+onMounted(() => {
+  if (modalRef.value) {
+    modalRef.value.addEventListener('scroll', () => {
+      hasInteracted.value = true
+    })
+  }
+})
+
+onUnmounted(() => {
+  if (modalRef.value) {
+    modalRef.value.removeEventListener('scroll', () => {
+      hasInteracted.value = true
+    })
+  }
+})
+
 const scrollToView = (viewId: string) => {
+  hasInteracted.value = true
   activeFilter.value = viewId;
   nextTick(() => {
     const element = document.getElementById(viewId);
@@ -96,6 +116,14 @@ const scrollToView = (viewId: string) => {
     }
   });
 };
+
+// Only update the active filter from visibility events once the user has
+// interacted, or when a single result type exists
+const handleSectionVisible = (type: string) => {
+  if (hasInteracted.value || singleResultType.value === type) {
+    activeFilter.value = type
+  }
+}
 </script>
 
 <template>
@@ -134,7 +162,7 @@ const scrollToView = (viewId: string) => {
         <SearchViewFilter
           label="Addresses"
           v-if="hasAddresses"
-          @click.prevent="scrollToView('search-addresses-view')"
+          @click.prevent="scrollToView('search-address-view')"
           :isActive="activeFilter === 'address'"
         />
 
@@ -164,32 +192,32 @@ const scrollToView = (viewId: string) => {
     <div
       @click="props.close"
       v-if="!loading && !isEmpty"
-      class="flex flex-col px-2 pb-2 overflow-auto scrollbar-custom min-h-full gap-4 max-w-full overflow-hidden"
+      class="flex flex-col px-2 pb-2 overflow-auto scrollbar-custom min-h-full max-w-full overflow-hidden"
     >
       <SearchViewVisible
         v-if="hasAddresses"
-        @visible="activeFilter = 'address'"
+        @visible="handleSectionVisible('address')"
       >
         <SearchViewAddress id="search-address-view" :addresses="items?.addresses" />
       </SearchViewVisible>
 
       <SearchViewVisible
         v-if="hasTransactions"
-        @visible="activeFilter = 'transactions'"
+        @visible="handleSectionVisible('transactions')"
       >
         <SearchViewTransaction id="search-transactions-view" :transactions="items?.transactions" />
       </SearchViewVisible>
 
       <SearchViewVisible
         v-if="hasTokens"
-        @visible="activeFilter = 'tokens'"
+        @visible="handleSectionVisible('tokens')"
       >
         <SearchViewTokens id="search-tokens-view" :tokens="items?.tokens" />
       </SearchViewVisible>
 
       <SearchViewVisible
         v-if="hasBlocks"
-        @visible="activeFilter = 'blocks'"
+        @visible="handleSectionVisible('blocks')"
       >
         <SearchViewBlock id="search-blocks-view" :blocks="items?.blocks" />
       </SearchViewVisible>
