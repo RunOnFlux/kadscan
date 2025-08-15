@@ -137,7 +137,7 @@ function downloadData() {
         <StatusBadge :status="blockStatus(item.height, item.canonical)" />
       </template>
       <template #txn="{ item }">
-        <NuxtLink :to="`/transactions?block=${item.height}&chainId=${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.txn }}</NuxtLink>
+        <NuxtLink :to="`/transactions?block=${item.height}&chain=${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.txn }}</NuxtLink>
       </template>
       <template #miner="{ item }">
         <div class="flex items-center">

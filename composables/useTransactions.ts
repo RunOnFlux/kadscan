@@ -2,8 +2,26 @@ import { ref } from 'vue';
 import { useFormat } from './useFormat';
 
 const GQL_QUERY = `
-  query Transactions($first: Int, $last: Int, $after: String, $before: String, $chainId: String) {
-    transactions(first: $first, last: $last, after: $after, before: $before, chainId: $chainId) {
+  query Transactions(
+    $first: Int,
+    $last: Int,
+    $after: String,
+    $before: String,
+    $chainId: String,
+    $isCoinbase: Boolean,
+    $minHeight: Int,
+    $maxHeight: Int
+  ) {
+    transactions(
+      first: $first,
+      last: $last,
+      after: $after,
+      before: $before,
+      chainId: $chainId,
+      isCoinbase: $isCoinbase,
+      minHeight: $minHeight,
+      maxHeight: $maxHeight
+    ) {
       totalCount
       pageInfo {
         endCursor
@@ -66,12 +84,18 @@ export const useTransactions = () => {
     before,
     toLastPage = false,
     chainId,
+    isCoinbase = false,
+    minHeight,
+    maxHeight,
   }: {
     networkId: string,
     after?: string,
     before?: string,
     toLastPage?: boolean,
     chainId?: string,
+    isCoinbase?: boolean,
+    minHeight?: number,
+    maxHeight?: number,
   }) => {
     if (!networkId) return;
     loading.value = transactions.value.length === 0;
@@ -98,6 +122,9 @@ export const useTransactions = () => {
             after,
             before,
             chainId,
+            isCoinbase,
+            minHeight,
+            maxHeight,
           },
           networkId,
         }
