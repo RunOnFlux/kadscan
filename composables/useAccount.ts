@@ -23,7 +23,6 @@ query FungibleAccount($accountName: String!) {
 const TRANSFERS_QUERY = `
 query Transfers($accountName: String, $first: Int, $last: Int, $chainId: String) {
   transfers(accountName: $accountName, first: $first, last: $last, chainId: $chainId) {
-    totalCount
     edges {
       node {
         amount
