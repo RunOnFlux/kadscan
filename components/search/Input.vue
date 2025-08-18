@@ -8,6 +8,9 @@ const {
   cleanup,
   handleInput,
   handleKeyDown,
+  selectHistoryItem,
+  loadHistory,
+  submit,
 } = useSearch();
 
 const placeholder = ref('Search by Transaction / Address / Block / Token / Code')
@@ -24,6 +27,7 @@ const updatePlaceholder = () => {
 onMounted(() => {
   updatePlaceholder()
   window.addEventListener('resize', updatePlaceholder)
+  loadHistory()
 })
 
 onUnmounted(() => {
@@ -67,7 +71,7 @@ onUnmounted(() => {
             outline-none
           "
           spellcheck="false"
-          @click.prevent="data.open = true"
+          @click.prevent="(data.open = true, loadHistory())"
           @focus="focused = true"
           @blur="focused = false"
           :value="data.query"
@@ -86,16 +90,20 @@ onUnmounted(() => {
     <SearchModal
       :cleanup="cleanup"
       :close="close"
-      :open="data.open && !!data.query && (data.loading || !!data.searched || !!data.error)"
+      :open="data.open && (data.loading || !!data.searched || !!data.error || !data.query)"
       :error="data.error"
       :loading="data.loading"
       :items="data.searched"
       :selectedFilter="data.filter.value"
+      :history="data.history"
+      :query="data.query"
+      :onSelectHistory="selectHistoryItem"
+      :onRecordHistory="(q, t) => recordHistory(q, t)"
     />
       </div>
 
       <div
-        @click="search(data.query as any)"
+        @click="submit()"
         class="flex items-center justify-center bg-[#009367] hover:bg-[#00805b] rounded-lg w-[36px] h-[34px] shrink-0 cursor-pointer"
       >
         <IconSearch

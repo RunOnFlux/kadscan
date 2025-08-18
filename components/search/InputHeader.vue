@@ -8,6 +8,9 @@ const {
   cleanup,
   handleInput,
   handleKeyDown,
+  selectHistoryItem,
+  loadHistory,
+  submit,
 } = useSearch();
 
 const placeholder = ref('Search by Transaction / Address / Block / Token / Code')
@@ -39,6 +42,7 @@ onMounted(() => {
   updatePlaceholder()
   window.addEventListener('resize', updatePlaceholder)
   document.addEventListener('keydown', handleSlashKey)
+  loadHistory()
 })
 
 onUnmounted(() => {
@@ -75,7 +79,7 @@ onUnmounted(() => {
       "
       style="font-family: Roboto, system-ui, -apple-system, sans-serif;"
       spellcheck="false"
-      @click.prevent="data.open = true"
+      @click.prevent="(data.open = true, loadHistory())"
       @focus="focused = true"
       @blur="focused = false"
       :value="data.query"
@@ -98,11 +102,15 @@ onUnmounted(() => {
     <SearchModal
       :cleanup="cleanup"
       :close="close"
-      :open="data.open && !!data.query && !!data.searched"
+      :open="data.open && (data.loading || !!data.searched || !data.query)"
       :error="data.error"
       :loading="data.loading"
       :items="data.searched"
       :selectedFilter="data.filter.value"
+      :history="data.history"
+      :query="data.query"
+      :onSelectHistory="selectHistoryItem"
+      :onRecordHistory="(q, t) => recordHistory(q, t)"
     />
   </div>
 </template>

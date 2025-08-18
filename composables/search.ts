@@ -108,6 +108,9 @@ export function useSearch () {
     searched: null,
     filters,
     filter: filters[0],
+    // Local search history (persisted in localStorage)
+    history: [] as Array<{ query: string, type?: string | null, timestamp: number }>,
+    _historyLoaded: false as boolean,
     // Prevent repeated Enter-triggered searches for the same query
     enterLockedForQuery: null as null | string,
     lastSearchWasEmpty: false as boolean,
@@ -395,7 +398,64 @@ export function useSearch () {
     { cancel: () => debouncedSearch.cancel() }
   );
 
+  // -------- History helpers --------
+  const loadHistory = () => {
+    if (data._historyLoaded) return;
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = localStorage.getItem('searchHistory');
+      const parsed = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(parsed)) {
+        data.history = parsed.slice(0, 20);
+      }
+      data._historyLoaded = true;
+      
+    } catch {}
+  };
+
+  const saveHistory = () => {
+    if (typeof window === 'undefined') return;
+    try {
+      const payload = JSON.stringify(data.history.slice(0, 20));
+      localStorage.setItem('searchHistory', payload);
+    } catch {}
+  };
+
+  const addToHistory = (query: string, type?: string | null) => {
+    loadHistory();
+    const trimmed = (query || '').trim();
+    if (!trimmed) return;
+    // De-duplicate by moving existing to front
+    const existingIndex = data.history.findIndex((h: { query: string }) => h.query === trimmed);
+    
+    if (existingIndex !== -1) {
+      const existing = data.history.splice(existingIndex, 1)[0];
+      data.history.unshift({ ...existing, type: type ?? existing.type ?? null, timestamp: Date.now() });
+    } else {
+      data.history.unshift({ query: trimmed, type: type ?? null, timestamp: Date.now() });
+    }
+    // Cap length
+    if (data.history.length > 20) data.history.length = 20;
+    saveHistory();
+    
+  };
+
+  // Public wrapper for result items to record history
+  const recordHistory = (query: string, type?: string | null) => {
+    addToHistory(query, type);
+  };
+
+  const selectHistoryItem = (query: string) => {
+    data.open = true;
+    data.query = query;
+    // Start searching immediately for quick feedback
+    search.cancel();
+    // Use submit to also handle redirects and add to history
+    submit(query);
+  };
+
   async function shouldRedirectBeforeSearch(searchTerm: string) {
+    loadHistory();
     // Prepare precheck cache for this query
     data.precheck.query = searchTerm;
     data.precheck.accountExists = null;
@@ -550,6 +610,8 @@ export function useSearch () {
   const handleInput = (event: Event) => {
     const value = (event.target as HTMLInputElement).value;
     data.query = value;
+    // Ensure history is available when user starts interacting
+    loadHistory();
     // If user changed the query, allow Enter again
     if (data.enterLockedForQuery !== null && data.enterLockedForQuery !== value) {
       data.enterLockedForQuery = null;
@@ -569,6 +631,7 @@ export function useSearch () {
     if (event.key !== 'Enter') {
       return;
     }
+    
 
     // Block Enter if already locked for this exact query
     if (data.enterLockedForQuery && data.enterLockedForQuery === data.query) {
@@ -588,6 +651,9 @@ export function useSearch () {
     data.enterLockedForQuery = data.query;
 
     const redirectInfo: any = await shouldRedirectBeforeSearch(data.query);
+
+    // Record this search attempt in history regardless of redirect
+    addToHistory(data.query, redirectInfo?.type ?? null);
 
     if (redirectInfo) {
       if (redirectInfo.type === "blocks") {
@@ -624,6 +690,51 @@ export function useSearch () {
     }
   };
 
+  // Trigger a search programmatically (used by search button and history click)
+  const submit = async (value?: string) => {
+    const q = typeof value === 'string' ? value : data.query;
+    if (!q) return;
+    
+    data.query = q;
+    search.cancel();
+    data.open = true;
+    data.loading = true;
+    data.error = null;
+    data.enterLockedForQuery = q;
+
+    const redirectInfo: any = await shouldRedirectBeforeSearch(q);
+    
+    addToHistory(q, redirectInfo?.type ?? null);
+
+    if (redirectInfo) {
+      if (redirectInfo.type === "blocks") {
+        const baseUrl = `/blocks/${q}/chain/${redirectInfo.chainId}`;
+        const url = redirectInfo.canonical === false ? `${baseUrl}?canonical=false` : baseUrl;
+        router.push(url);
+        cleanup();
+        return;
+      } else if (redirectInfo.type === "block-hash") {
+        // Need to resolve block data first
+      } else {
+        router.push(`/${redirectInfo.type}/${q}`);
+        cleanup();
+        return;
+      }
+    }
+
+    await searchImpl(q);
+    
+
+    if (shouldRedirect()) {
+      cleanup();
+      return;
+    }
+
+    if (!data.lastSearchWasEmpty && data.enterLockedForQuery === q) {
+      data.enterLockedForQuery = null;
+    }
+  };
+
   const close = () => {
     data.open = false
   }
@@ -647,8 +758,12 @@ export function useSearch () {
     data,
     close,
     search,
+    submit,
     cleanup,
     handleKeyDown,
     handleInput,
+    selectHistoryItem,
+    loadHistory,
+    recordHistory,
   };
 }

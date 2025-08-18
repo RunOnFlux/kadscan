@@ -236,10 +236,10 @@ const shouldShowPerKda = computed(() => {
   // Overview chain label: "All" when no chain selected, otherwise the chain id
   const overviewChainLabel = computed(() => {
     const q = route.query.chainId as string | undefined
-    if (q === undefined) return 'All'
+    if (q === undefined) return 'Showing All Chains'
     const n = parseInt(q, 10)
     const isValid = !Number.isNaN(n) && n >= 0 && n <= 19
-    return isValid ? `${n}` : 'All'
+    return isValid ? `Showing Chain ${n}` : 'Showing All Chains'
   })
 
 // Multichain Select helpers

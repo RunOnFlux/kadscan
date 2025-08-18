@@ -1,6 +1,7 @@
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   blocks: any,
+  onRecordHistory?: (q: string, type?: string | null) => void,
 }>()
 </script>
 
@@ -24,6 +25,7 @@ defineProps<{
         class="py-2"
         :key="'block:'+block.id"
         v-for="(block, i) in blocks"
+        @select="props.onRecordHistory && props.onRecordHistory(block.hash || String(block.height), 'blocks')"
       />
     </div>
   </div>
