@@ -8,6 +8,10 @@ const props = withDefaults(
     cleanup: any,
     close: any,
     selectedFilter?: string,
+    history?: Array<{ query: string, type?: string | null, timestamp: number }>,
+    query?: string,
+    onSelectHistory?: (q: string) => void,
+    onRecordHistory?: (q: string, type?: string | null) => void,
   }>(),
   {
     error: null,
@@ -124,6 +128,12 @@ const handleSectionVisible = (type: string) => {
     activeFilter.value = type
   }
 }
+
+// History
+const showHistory = computed(() => {
+  const q = (props.query ?? '').trim();
+  return !q && (props.history?.length ?? 0) > 0 && !props.loading;
+});
 </script>
 
 <template>
@@ -133,6 +143,10 @@ const handleSectionVisible = (type: string) => {
     class="absolute top-full left-0 right-[52px] bg-[#111111] border border-[#222222] rounded-b-md max-h-[344px] overflow-auto z-[99] w-full"
   >
     <div class="sticky top-0 z-10 px-4 pt-3 border-b border-b-[#222222] bg-[#111111]">
+      <!-- History header -->
+      <div v-if="showHistory">
+        <span class="text-white text-sm">Recent searches</span>
+      </div>
       <div
         v-if="loading"
         class="pb-4"
@@ -146,7 +160,7 @@ const handleSectionVisible = (type: string) => {
 
       <div
         class="pb-4"
-        v-else-if="isEmpty"
+        v-else-if="isEmpty && !showHistory"
       >
         <span
           class="text-white text-sm"
@@ -189,37 +203,55 @@ const handleSectionVisible = (type: string) => {
       </div>
     </div>
 
+    <!-- History list -->
+    <div v-if="showHistory" class="flex flex-col px-2 pb-2 overflow-auto scrollbar-custom max-w-full overflow-hidden">
+      <div class="flex flex-col">
+        <button
+          v-for="(h, idx) in (history || [])"
+          :key="h.query + ':' + idx"
+          class="text-left w-full px-3 py-2 hover:bg-[#151515] rounded-md transition-colors"
+          @click.prevent="onSelectHistory && onSelectHistory(h.query)"
+        >
+          <div class="flex items-center gap-2">
+            <IconSearch class="w-4 h-4 text-[#bbbbbb] shrink-0" />
+            <span class="text-sm text-[#f5f5f5] flex-1 min-w-0 truncate">{{ h.query }}</span>
+            <span v-if="h.type" class="text-xs text-[#9aa0a6] ml-auto shrink-0">{{ h.type }}</span>
+          </div>
+        </button>
+      </div>
+    </div>
+
     <div
       @click="props.close"
-      v-if="!loading && !isEmpty"
+      v-if="!loading && !isEmpty && !showHistory"
       class="flex flex-col px-2 pb-2 overflow-auto scrollbar-custom min-h-full max-w-full overflow-hidden"
     >
       <SearchViewVisible
         v-if="hasAddresses"
         @visible="handleSectionVisible('address')"
       >
-        <SearchViewAddress id="search-address-view" :addresses="items?.addresses" />
+        <SearchViewAddress id="search-address-view" :addresses="items?.addresses" :onRecordHistory="onRecordHistory" />
       </SearchViewVisible>
 
       <SearchViewVisible
         v-if="hasTransactions"
         @visible="handleSectionVisible('transactions')"
       >
-        <SearchViewTransaction id="search-transactions-view" :transactions="items?.transactions" />
+        <SearchViewTransaction id="search-transactions-view" :transactions="items?.transactions" :onRecordHistory="onRecordHistory" />
       </SearchViewVisible>
 
       <SearchViewVisible
         v-if="hasTokens"
         @visible="handleSectionVisible('tokens')"
       >
-        <SearchViewTokens id="search-tokens-view" :tokens="items?.tokens" />
+        <SearchViewTokens id="search-tokens-view" :tokens="items?.tokens" :onRecordHistory="onRecordHistory" />
       </SearchViewVisible>
 
       <SearchViewVisible
         v-if="hasBlocks"
         @visible="handleSectionVisible('blocks')"
       >
-        <SearchViewBlock id="search-blocks-view" :blocks="items?.blocks" />
+        <SearchViewBlock id="search-blocks-view" :blocks="items?.blocks" :onRecordHistory="onRecordHistory" />
       </SearchViewVisible>
     </div>
   </div>

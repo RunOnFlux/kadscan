@@ -6,11 +6,13 @@ const props = defineProps<{
 const metadata = computed(() => {
   return staticTokens.find(({ module }) => module === props.module) || unknownToken
 })
+const { recordHistory } = useSearch();
 </script>
 
 <template>
   <NuxtLink
     :to="metadata?.id ? `/tokens/${metadata.id}` : `/tokens/${module}`"
+    @click="recordHistory(module, 'tokens')"
     class="flex items-center justify-between w-full hover:bg-[#1d1d1d] hover:rounded-md"
   >
     <div

@@ -18,11 +18,13 @@ const timeAgo = computed(() => {
   const distance = formatDistanceToNowStrict(new Date(props.creationTime), { addSuffix: true })
   return distance.replace(' seconds', ' secs').replace(' second', ' sec')
 })
+const { recordHistory } = useSearch();
 </script>
 
 <template>
   <NuxtLink
     :to="`/transactions/${requestkey}`"
+    @click="recordHistory(requestkey, 'transactions')"
     class="py-2 px-2 flex gap-2 hover:bg-[#1d1d1d] hover:rounded-md w-full"
   >
     <IconStatus

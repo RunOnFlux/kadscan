@@ -1,6 +1,7 @@
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   tokens: any,
+  onRecordHistory?: (q: string, type?: string | null) => void,
 }>()
 </script>
 
@@ -24,6 +25,7 @@ defineProps<{
         class="py-2"
         :key="'tokens:'+tokens.id"
         v-for="(tokens, i) in tokens"
+        @select="props.onRecordHistory && props.onRecordHistory(tokens.module, 'tokens')"
       />
     </div>
   </div>
