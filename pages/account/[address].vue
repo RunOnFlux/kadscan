@@ -211,8 +211,12 @@ const openQr = () => { isQrOpen.value = true }
 const closeQr = () => { isQrOpen.value = false }
 
 // Loading helpers
-const isOverviewLoading = computed(() => !accountData.value || accountLoading.value)
-const isPriceLoading = computed(() => isOverviewLoading.value || kdaPrice.value === 0)
+const isOverviewLoading = computed(() => accountLoading.value)
+const isPriceLoading = computed(() => {
+  const balanceNumeric = parseFloat(account.value.kdaBalance)
+  const hasPositiveBalance = !Number.isNaN(balanceNumeric) && balanceNumeric > 0
+  return accountLoading.value || (kdaPrice.value === 0 && hasPositiveBalance)
+})
 const isTransfersLoading = computed(() => accountLoading.value || transfersLoading.value)
 
 // SSR-friendly gates to avoid N/A flash before hydration
