@@ -2,6 +2,7 @@
 import { ref, watch, computed } from 'vue';
 import IconDownload from '~/components/icon/Download.vue';
 import StatsGrid from '~/components/StatsGrid.vue';
+import { useBlocksMetrics } from '~/composables/useBlocksMetrics';
 import DataTable from '~/components/DataTable.vue';
 import FilterSelect from '~/components/FilterSelect.vue';
 import Tooltip from '~/components/Tooltip.vue';
@@ -69,13 +70,7 @@ const chainOptions = computed(() => {
   return options;
 });
 
-/// TODO: get real analytics
-// const mockedCards = [
-//   { label: 'NETWORK UTILIZATION (24H)', value: '--' },
-//   { label: 'LAST SAFE BLOCK', value: '--' },
-//   { label: 'BLOCKS PRODUCED (24H)', value: '--' },
-//   { label: 'REWARDS GIVEN (24H)', value: '--' },
-// ];
+const { cards: metricsCards, loading: metricsLoading, error: metricsError } = useBlocksMetrics(selectedNetwork);
 
 const subtitle = computed(() => {
   if (filteredBlocks.value.length === 0 || loading.value) {
@@ -242,8 +237,7 @@ function downloadData() {
       </h1>
     </div>
 
-    <!-- TODO: get real analytics -->
-    <!-- <StatsGrid :cards="mockedCards" /> -->
+    <StatsGrid v-if="!metricsLoading && !metricsError && metricsCards.length" :cards="metricsCards" />
     
     <SkeletonTable v-if="loading" />
     <DataTable
