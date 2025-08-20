@@ -28,6 +28,14 @@ const pageInfo = ref<any>(null)
 const lastBlockHeight = ref<number | null>(null)
 const balances = ref<Array<{ balance: string; chainId: string; module: string }>>([])
 
+// In-memory cache keyed by `${networkId}:${accountName}:${chainKey}`
+// where chainKey is 'all' or a comma-joined list of chainIds (sorted)
+const balancesCache = new Map<string, {
+  lastBlockHeight: number | null,
+  pageInfo: any,
+  balances: Array<{ balance: string; chainId: string; module: string }>
+}>()
+
 export const useAccountBalances = () => {
   const clearState = () => {
     loading.value = false
@@ -35,6 +43,7 @@ export const useAccountBalances = () => {
     pageInfo.value = null
     lastBlockHeight.value = null
     balances.value = []
+    balancesCache.clear()
   }
 
   const fetchAccountBalances = async ({
@@ -55,6 +64,23 @@ export const useAccountBalances = () => {
     after?: string | null
   }) => {
     if (!networkId || !accountName) return
+    // Build cache key
+    const chainKey = chainIds && chainIds.length > 0
+      ? chainIds.slice().sort((a, b) => (a < b ? -1 : a > b ? 1 : 0)).join(',')
+      : 'all'
+    const cacheKey = `${networkId}:${accountName}:${chainKey}`
+
+    // Serve from cache if present
+    const cached = balancesCache.get(cacheKey)
+    if (cached) {
+      lastBlockHeight.value = cached.lastBlockHeight
+      pageInfo.value = cached.pageInfo
+      balances.value = cached.balances
+      loading.value = false
+      error.value = null
+      return
+    }
+
     loading.value = balances.value.length === 0
     error.value = null
 
@@ -81,6 +107,13 @@ export const useAccountBalances = () => {
       pageInfo.value = result?.pageInfo || null
       const edges = Array.isArray(result?.edges) ? result.edges : []
       balances.value = edges.map((e: any) => e?.node).filter(Boolean)
+
+      // Store in cache
+      balancesCache.set(cacheKey, {
+        lastBlockHeight: lastBlockHeight.value,
+        pageInfo: pageInfo.value,
+        balances: balances.value,
+      })
     } catch (e: any) {
       error.value = e
     } finally {

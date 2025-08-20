@@ -42,6 +42,7 @@ const {
   lastTransaction,
   fetchAccount,
   fetchFirstAndLastTransfers,
+  clearState: clearAccountState,
 } = useAccount()
 const { fetchKadenaPrice } = useBinance()
 const { selectedNetwork } = useSharedData()
@@ -155,6 +156,22 @@ onMounted(async () => {
   } catch (error) {
     console.error('Failed to fetch KDA price:', error)
   }
+})
+
+// Reset cached state when switching to a different account or leaving the page
+watch(
+  () => address.value,
+  (newAddr, oldAddr) => {
+    if (newAddr && oldAddr && newAddr !== oldAddr) {
+      clearAccountState()
+      clearBalancesState()
+    }
+  }
+)
+
+onUnmounted(() => {
+  clearAccountState()
+  clearBalancesState()
 })
 
 // Watch for network changes and address changes to fetch account data
