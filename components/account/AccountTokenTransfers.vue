@@ -79,6 +79,7 @@ const rowOptions = [
 
 const currentPage = ref(1);
 const loadingPage = ref(false);
+const isInitialized = ref(false);
 
 const selectedRowOption = computed({
   get: () => rowOptions.find(option => option.value === rowsToShow.value) || rowOptions[0],
@@ -104,10 +105,24 @@ const subtitle = computed(() => {
   return `(Showing transfers between #${formattedOldest} to #${formattedNewest})`;
 });
 
-// Clear state on mount to show skeleton
-onMounted(() => {
+// Clear state and perform the initial fetch after initializing chain from URL
+onMounted(async () => {
   initChainFromUrl();
   clearState();
+
+  const network = selectedNetwork.value;
+  if (network && props.address) {
+    loadingPage.value = true;
+    const params: { networkId: string; accountName: string; chainId?: string } = {
+      networkId: network.id,
+      accountName: props.address,
+    };
+    if (selectedChain.value.value !== null) params.chainId = selectedChain.value.value as string;
+    await fetchAccountTokenTransfers(params);
+    loadingPage.value = false;
+  }
+
+  isInitialized.value = true;
 });
 
 // Keep selectedChain in sync with the URL
@@ -128,6 +143,7 @@ watch(() => route.query.chain, (q) => {
 watch(
   [selectedNetwork, selectedChain, () => props.address],
   async ([network], [oldNetwork, oldChain]) => {
+    if (!isInitialized.value) return;
     if (!network || !props.address) return;
 
     const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
@@ -140,11 +156,11 @@ watch(
         accountName: props.address,
       };
       if (selectedChain.value.value !== null) params.chainId = selectedChain.value.value as string;
+      loadingPage.value = true;
       await fetchAccountTokenTransfers(params);
       loadingPage.value = false;
     }
-  },
-  { immediate: true }
+  }
 );
 
 // 2) React to rows-per-page change
