@@ -26,6 +26,7 @@ export const transformRawBalances = ({
         prev[module] = {
           module,
           metadata,
+          symbol: metadata?.symbol,
           balance: 0,
           balances: [],
 
@@ -38,6 +39,7 @@ export const transformRawBalances = ({
       prev[module].balances.push({
         ...etl,
         ...current,
+        value: '-',
       })
 
       return prev

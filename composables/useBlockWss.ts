@@ -122,8 +122,8 @@ export const useBlockWss = () => {
 
     // Setup new client
     const wssUrl = network.id === 'mainnet01'
-      ? 'wss://vps.mainnet.kadindexer.io/wss/graphql'
-      : 'wss://testnet.kadindexer.io/graphql';
+      ? 'wss://devnet.kadindexer.io/mainnet/wss/graphql'
+      : 'wss://devnet.kadindexer.io/testnet/wss/graphql';
 
     client = createClient({
       url: wssUrl,

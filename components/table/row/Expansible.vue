@@ -20,7 +20,7 @@ const emit = defineEmits(['click'])
   <Disclosure
     as="div"
     v-slot="{ open }"
-    :class="[isLast && 'md:!border-b border-b-gray-300']"
+    :class="[isLast && 'md:!border-b border-b-transparent']"
   >
     <DisclosureButton
       @click.prevent="emit('click')"
@@ -85,10 +85,10 @@ const emit = defineEmits(['click'])
       leave-to-class="transform scale-95 opacity-0"
     >
       <DisclosurePanel
-        class="text-font-400 rounded-lg bg-gray-700 p-4 mx-4 mb-4 mt-2"
+        class="text-font-400 rounded-lg bg-[#111111] border border-[#222222] p-4 mx-4 mb-4 mt-2"
       >
         <div
-          class="grid grid-cols-3 pb-4 border-b border-b-gray-300"
+          class="grid grid-cols-3 pb-4 border-b border-b-[#222222]"
         >
           <div
             :key="`subheader:${index}`"
@@ -106,7 +106,7 @@ const emit = defineEmits(['click'])
         <div
           :key="`subrow:${index}`"
           v-for="(balance, index) in row.balances"
-          class="grid grid-cols-3 py-4 border-b border-b-gray-300"
+          :class="['grid grid-cols-3 py-4', index !== row.balances.length - 1 ? 'border-b border-b-[#222222]' : '']"
         >
           <div
             :key="`subcol:${index}`"

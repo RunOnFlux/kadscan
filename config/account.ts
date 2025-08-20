@@ -15,15 +15,15 @@ export const assetsTableColumns = [
   },
   {
     cols: 4,
-    key: 'balance',
-    label: 'Quantity',
-    description: blockchainTooltipData.account.tabAssets.quantity
-  },
-  {
-    cols: 4,
     key: 'price',
     label: 'Price',
     description: blockchainTooltipData.account.tabAssets.price
+  },
+  {
+    cols: 4,
+    key: 'balance',
+    label: 'Quantity',
+    description: blockchainTooltipData.account.tabAssets.quantity
   },
   {
     cols: 4,

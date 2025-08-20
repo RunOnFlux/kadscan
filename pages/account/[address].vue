@@ -13,6 +13,10 @@ import Copy from '~/components/Copy.vue'
 import AccountTransactions from '~/components/account/AccountTransactions.vue'
 import AccountTokenTransfers from '~/components/account/AccountTokenTransfers.vue'
 import AccountNFTTransfers from '~/components/account/AccountNFTTransfers.vue'
+import AccountAssets from '~/components/account/AccountAssets.vue'
+import TokenHoldings from '~/components/account/TokenHoldings.vue'
+import { useAccountBalances } from '~/composables/useAccountBalances'
+import { transformRawBalances } from '~/composables/balances'
 import { useFormat } from '~/composables/useFormat'
 import QrIcon from '~/components/icon/Qr.vue'
 import Tooltip from '~/components/Tooltip.vue'
@@ -84,8 +88,8 @@ const account = computed(() => {
 
   const data = accountData.value
   const totalBalance = data.totalBalance || 0
-  // Validate chainId from URL param
-  const q = route.query.chainId as string | undefined
+  // Validate chain from URL param
+  const q = route.query.chain as string | undefined
   const n = q !== undefined ? parseInt(q, 10) : undefined
   const isValidChain = n !== undefined && !Number.isNaN(n) && n >= 0 && n <= 19
 
@@ -169,7 +173,7 @@ watch(
 
 // Watch for chainId in URL to fetch chain-specific transfers (first/last/funded by)
 watch(
-  [selectedNetwork, address, () => route.query.chainId, accountData],
+  [selectedNetwork, address, () => route.query.chain, accountData],
   async ([network, addr, chainId]) => {
     if (!network || !addr || !accountData.value) return;
     const q = typeof chainId === 'string' ? chainId : undefined
@@ -192,7 +196,8 @@ const tabLabels = computed(() => [
 const tabs = computed(() => [
   { id: 'transactions', label: 'Transactions' },
   { id: 'token-transfers', label: 'Token Transfers' },
-  { id: 'nft-transfers', label: 'NFT Transfers' }
+  { id: 'nft-transfers', label: 'NFT Transfers' },
+  { id: 'assets', label: 'Assets' },
 ])
 
 // Current guard for selected chain (if any)
@@ -239,7 +244,7 @@ const shouldShowPerKda = computed(() => {
 
   // Overview chain label: "All" when no chain selected, otherwise the chain id
   const overviewChainLabel = computed(() => {
-    const q = route.query.chainId as string | undefined
+    const q = route.query.chain as string | undefined
     if (q === undefined) return 'Showing All Chains'
     const n = parseInt(q, 10)
     const isValid = !Number.isNaN(n) && n >= 0 && n <= 19
@@ -248,7 +253,7 @@ const shouldShowPerKda = computed(() => {
 
 // Multichain Select helpers
 const multichainLabel = computed(() => {
-  const q = route.query.chainId as string | undefined
+  const q = route.query.chain as string | undefined
   const n = q !== undefined ? parseInt(q, 10) : undefined
   const isValid = n !== undefined && !Number.isNaN(n) && n >= 0 && n <= 19
   return isValid ? `Chain ${n}` : 'All Chains'
@@ -256,7 +261,7 @@ const multichainLabel = computed(() => {
 
 const selectedChainSelect = computed({
   get() {
-    const q = route.query.chainId as string | undefined
+    const q = route.query.chain as string | undefined
     const n = q !== undefined ? parseInt(q, 10) : undefined
     const isValid = n !== undefined && !Number.isNaN(n) && n >= 0 && n <= 19
     // Compute dollar value for the selected chain or total
@@ -295,16 +300,57 @@ const chainSelectOptions = computed(() => {
 
 const onChangeChainSelect = (option: any) => {
   const query = { ...route.query }
+  delete (query as any).chainId
   if (!option || option.value === null) {
-    delete query.chainId
+    delete query.chain
   } else {
-    query.chainId = option.value
+    ;(query as any).chain = option.value
   }
   navigateTo({ query }, { replace: true })
 }
 
-// Inline chain quick-navigation (formerly FilterSelect dropdown content)
-// Inline chain navigation removed
+// Balances fetching and computed views
+const {
+  balances: rawBalances,
+  loading: balancesLoading,
+  fetchAccountBalances,
+  clearState: clearBalancesState,
+} = useAccountBalances()
+
+const aggregatedBalances = computed(() => {
+  // transformRawBalances expects an object with allBalances.nodes like in legacy
+  // We adapt our shape to match it
+  const nodes = (rawBalances.value || []).map((n: any) => ({
+    balance: n.balance,
+    chainId: n.chainId,
+    module: n.module,
+  }))
+  return transformRawBalances({ prices: null, allBalances: { nodes } })
+})
+
+const overviewAssetsList = computed(() => {
+  // Flat list for dropdown: show module, chainId and amount (no $)
+  return (rawBalances.value || []).map((n: any) => ({
+    module: n.module,
+    chainId: n.chainId,
+    amount: n.balance,
+  }))
+})
+
+const showAssetsMenu = ref(false)
+
+watch(
+  [selectedNetwork, address, () => route.query.chain],
+  async ([network, addr, chainId]) => {
+    if (!network || !addr) return
+    const q = typeof chainId === 'string' ? chainId : undefined
+    const n = q !== undefined ? parseInt(q, 10) : undefined
+    const isValid = n !== undefined && !Number.isNaN(n) && n >= 0 && n <= 19
+    const chainIds = isValid ? [q as string] : undefined
+    await fetchAccountBalances({ networkId: network.id, accountName: addr, chainIds })
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
@@ -354,7 +400,7 @@ const onChangeChainSelect = (option: any) => {
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6 items-stretch">
       <!-- Card 1: Overview -->
-      <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 h-full flex flex-col">
+      <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
         <h3 class="text-[#fafafa] font-semibold mb-4">
           Overview <span class="text-[#bbbbbb] font-normal">— {{ overviewChainLabel }}</span>
         </h3>
@@ -379,22 +425,16 @@ const onChangeChainSelect = (option: any) => {
           </div>
           <div>
             <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">TOKEN HOLDINGS</div>
-            <div class="w-full">
-              <button class="w-full px-3 py-2 rounded border border-[#222] bg-[#151515] text-[#fafafa] text-[14px] hover:bg-[#222] transition-colors flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <span>${{ account.tokenHoldings }}</span><span class="text-[#bbbbbb] text-[13px]"> ({{ account.tokenCount }} Tokens)</span>
-                </div>
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 16 16">
-                  <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-         
-              </button>
-            </div>
+            <TokenHoldings
+              :loading="balancesLoading"
+              :balances="rawBalances"
+              @view-all-assets="() => { activeTab = 'assets' }"
+            />
           </div>
         </div>
       </div>
 
-      <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 h-full flex flex-col">
+      <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
         <h3 class="text-[#fafafa] font-semibold mb-4">More Info</h3>
         <div class="space-y-4">
           <div>
@@ -471,7 +511,7 @@ const onChangeChainSelect = (option: any) => {
         </div>
       </div>
 
-      <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 h-full flex flex-col">
+      <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
         <h3 class="text-[#fafafa] font-semibold mb-4">Multichain Info</h3>
         <div class="space-y-4">
           <div class="flex items-center justify-between gap-2">
@@ -485,8 +525,8 @@ const onChangeChainSelect = (option: any) => {
               :fullWidth="false"
             >
               <div class="inline-flex items-center gap-2">
-                <Coins class="w-4 h-4 text-white" />
-                <span class="text-white text-[14px]">
+                <Coins class="w-4 h-4 text-[#fafafa]" />
+                <span class="text-[#fafafa] text-[14px]">
                   ${{ account.multichainPortfolio }}
                   <span class="text-[#bbbbbb] text-[13px]">({{ multichainLabel }})</span>
                 </span>
@@ -534,7 +574,7 @@ const onChangeChainSelect = (option: any) => {
           :class="[
             'px-3 py-1 rounded-lg text-[14px] font-medium transition-colors whitespace-nowrap relative',
             activeTab === tab.id 
-              ? 'bg-[#0784c3] text-white' 
+              ? 'bg-[#009367] text-[#fafafa]' 
               : 'bg-[#222222] text-[#fafafa] hover:bg-[#333333]'
           ]"
         >
@@ -557,6 +597,11 @@ const onChangeChainSelect = (option: any) => {
       
       <AccountNFTTransfers 
         v-else-if="activeTab === 'nft-transfers'"
+        :address="address"
+      />
+
+      <AccountAssets
+        v-else-if="activeTab === 'assets'"
         :address="address"
       />
     </div>
