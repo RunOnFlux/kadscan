@@ -140,10 +140,7 @@ watch(
         accountName: props.address,
       };
       if (selectedChain.value.value !== null) params.chainId = selectedChain.value.value as string;
-      await Promise.all([
-        fetchAccountTokenTransfers(params),
-        fetchLastBlockHeight({ networkId: network.id })
-      ]);
+      await fetchAccountTokenTransfers(params);
       loadingPage.value = false;
     }
   },
