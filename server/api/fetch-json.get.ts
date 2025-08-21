@@ -22,12 +22,35 @@ function isBlockedHost(hostname: string): boolean {
   return false
 }
 
-function ipfsToGateway(input: string): string {
-  if (!input) return input
+// Build a list of candidate URLs to try when the source is an IPFS URL
+function buildIpfsCandidates(input: string): string[] {
+  if (!input) return []
+  const gateways = [
+    'https://ipfs.io',
+    'https://cloudflare-ipfs.com',
+    'https://dweb.link',
+    'https://nftstorage.link',
+  ]
+
+  // ipfs://CID[/path]
   if (input.startsWith('ipfs://')) {
-    return `https://ipfs.io/ipfs/${input.replace('ipfs://', '')}`
+    const path = input.replace('ipfs://', '').replace(/^[/,]+/, '')
+    return gateways.map(g => `${g}/ipfs/${path}`)
   }
-  return input
+
+  // https?://host/(ipfs|ipns)/...
+  try {
+    const u = new URL(input)
+    const m = u.pathname.match(/^\/(ipfs|ipns)\/(.+)$/)
+    if (m) {
+      const path = `${m[1]}/${m[2]}`
+      return gateways.map(g => `${g}/${path}`)
+    }
+  } catch {
+    // ignore
+  }
+
+  return [input]
 }
 
 // Single-attempt policy: no gateway fallbacks
@@ -35,7 +58,7 @@ function ipfsToGateway(input: string): string {
 export default defineEventHandler(async (event) => {
   const q = getQuery(event)
   const rawUrl = (q.url as string) || ''
-  const urlStr = ipfsToGateway(rawUrl.trim())
+  const urlStr = rawUrl.trim()
 
   if (!isHttpUrl(urlStr)) {
     throw createError({ statusCode: 400, statusMessage: 'Only http/https URLs are allowed' })
@@ -45,57 +68,66 @@ export default defineEventHandler(async (event) => {
   if (isBlockedHost(hostname)) {
     throw createError({ statusCode: 400, statusMessage: 'Blocked host' })
   }
+  const candidates = buildIpfsCandidates(urlStr)
 
-  const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 10_000)
-  try {
-    const res = await fetch(urlStr, {
-      signal: controller.signal,
-      redirect: 'follow',
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125 Safari/537.36',
-        'Accept': 'application/json,text/plain;q=0.9,*/*;q=0.8',
-        'Referer': 'https://kadscan.io/',
-      },
-    })
-    const contentType = (res.headers.get('content-type') || '').toLowerCase()
-    const contentLength = parseInt(res.headers.get('content-length') || '0', 10)
-
-    // Treat as JSON only if the header indicates JSON-ish content
-    const headerSaysJson = (
-      contentType.includes('application/json') ||
-      contentType.includes('application/ld+json') ||
-      contentType.includes('+json') ||
-      contentType.includes('text/plain')
-    )
-
-    // If not JSON by header, do not download/parse body; consider it non-JSON
-    if (!headerSaysJson) {
-      return { ok: false, reason: 'non-json', finalUrl: res.url || urlStr, contentType }
-    }
-
-    // Enforce limits only for JSON-like responses
-    if (contentLength && contentLength > 1_800_000) {
-      throw createError({ statusCode: 413, statusMessage: 'JSON too large' })
-    }
-
-    const text = await res.text()
-    if (text.length > 2_000_000) {
-      throw createError({ statusCode: 413, statusMessage: 'JSON too large' })
-    }
-
+  for (const candidate of candidates) {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 25_000)
     try {
-      const data = JSON.parse(text)
-      return { ok: true, data, finalUrl: res.url || urlStr, contentType }
-    } catch {
-      return { ok: false, reason: 'invalid-json', finalUrl: res.url || urlStr, contentType }
+      const res = await fetch(candidate, {
+        signal: controller.signal,
+        redirect: 'follow',
+        headers: {
+          'Accept': 'application/json',
+        },
+      })
+
+      if (!res.ok) {
+        // Try next gateway on non-OK
+        continue
+      }
+
+      const contentType = (res.headers.get('content-type') || '').toLowerCase()
+      const contentLength = parseInt(res.headers.get('content-length') || '0', 10)
+
+      const headerSaysJson = (
+        contentType.includes('application/json') ||
+        contentType.includes('application/ld+json') ||
+        contentType.includes('+json') ||
+        contentType.includes('text/plain')
+      )
+
+      if (!headerSaysJson) {
+        return { ok: false, reason: 'non-json', finalUrl: res.url || candidate, contentType }
+      }
+
+      if (contentLength && contentLength > 1_800_000) {
+        throw createError({ statusCode: 413, statusMessage: 'JSON too large' })
+      }
+
+      const text = await res.text()
+      if (text.length > 2_000_000) {
+        throw createError({ statusCode: 413, statusMessage: 'JSON too large' })
+      }
+
+      try {
+        const data = JSON.parse(text)
+        return { ok: true, data, finalUrl: res.url || candidate, contentType }
+      } catch {
+        return { ok: false, reason: 'invalid-json', finalUrl: res.url || candidate, contentType }
+      }
+    } catch (err: any) {
+      // On timeout/network error, try next candidate
+      if (err?.statusCode && err.statusCode !== 408 && err.statusCode !== 502) {
+        // For non-network errors like 413, bubble up immediately
+        throw err
+      }
+    } finally {
+      clearTimeout(timeout)
     }
-  } catch (err: any) {
-    if (err?.statusCode) throw err
-    throw createError({ statusCode: 502, statusMessage: 'Upstream fetch failed. IPFS link might not exist.' })
-  } finally {
-    clearTimeout(timeout)
   }
+
+  throw createError({ statusCode: 502, statusMessage: 'Upstream fetch failed' })
 })
 
 

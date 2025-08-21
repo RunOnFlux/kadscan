@@ -51,6 +51,7 @@ const metadataErrors = ref<Record<string, { url: string; reason: string } | null
 // Track current cache key and a simple cache so repeated navigations within the same view reuse data
 const currentCacheKey = ref<string | null>(null)
 const cache = new Map<string, { nfts: NftHolding[]; metadataByKey: MetadataRecord }>()
+const inflight = new Map<string, Promise<void>>()
 
 // Background queue controls
 let abortController: AbortController | null = null
@@ -183,36 +184,45 @@ export const useAccountNFTs = () => {
     loading.value = true
     error.value = null
 
-    try {
-      const response: any = await $fetch('/api/graphql', {
-        method: 'POST',
-        body: {
-          query: GQL_QUERY,
-          variables: { accountName },
-          networkId,
-        },
-      })
-      console.log('response', response)
+    // De-duplicate concurrent requests for the same cacheKey
+    const runner = async () => {
+      try {
+        const response: any = await $fetch('/api/graphql', {
+          method: 'POST',
+          body: {
+            query: GQL_QUERY,
+            variables: { accountName },
+            networkId,
+          },
+        })
+        console.log('response', response)
 
-      const list = response?.data?.nonFungibleAccount?.nonFungibleTokenBalances
-      const arr: NftHolding[] = Array.isArray(list) ? list : []
-      nfts.value = arr
+        const list = response?.data?.nonFungibleAccount?.nonFungibleTokenBalances
+        const arr: NftHolding[] = Array.isArray(list) ? list : []
+        nfts.value = arr
 
-      // Initialize empty metadata entries to allow reactive updates
-      const dict: MetadataRecord = {}
-      for (const h of arr) {
-        dict[keyFor(h)] = metadataByKey.value[keyFor(h)] || null
+        // Initialize empty metadata entries to allow reactive updates
+        const dict: MetadataRecord = {}
+        for (const h of arr) {
+          dict[keyFor(h)] = metadataByKey.value[keyFor(h)] || null
+        }
+        metadataByKey.value = dict
+        metadataErrors.value = {}
+
+        // Prime cache now (metadata may fill in later)
+        cache.set(cacheKey, { nfts: arr, metadataByKey: { ...dict } })
+      } catch (e: any) {
+        error.value = e
+      } finally {
+        loading.value = false
+        inflight.delete(cacheKey)
       }
-      metadataByKey.value = dict
-      metadataErrors.value = {}
-
-      // Prime cache now (metadata may fill in later)
-      cache.set(cacheKey, { nfts: arr, metadataByKey: { ...dict } })
-    } catch (e: any) {
-      error.value = e
-    } finally {
-      loading.value = false
     }
+
+    if (!inflight.has(cacheKey)) {
+      inflight.set(cacheKey, runner())
+    }
+    await inflight.get(cacheKey)
   }
 
   const startMetadataQueue = async (accountName: string, opts?: { batchSize?: number }) => {
@@ -229,7 +239,7 @@ export const useAccountNFTs = () => {
 
     const signal = abortController.signal
 
-    const batchSize = Math.max(1, Math.min(50, opts?.batchSize ?? 10))
+    const batchSize = Math.max(1, Math.min(50, opts?.batchSize ?? 5))
 
     const items = nfts.value.slice()
 
