@@ -82,7 +82,7 @@ const ownerRoute = computed(() => {
               <div v-else class="text-[#888888] text-center px-3">
                 <div>No image</div>
                 <div v-if="props.errorUrl" class="text-[#ff6b6b] text-xs mt-1 break-all">
-                  This URL blocks kadscan.io:<br />{{ props.errorUrl }}
+                  This URL is not available
                 </div>
               </div>
               <div v-if="props.holding?.balance && Number(props.holding.balance) > 1" class="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-[2px] rounded">

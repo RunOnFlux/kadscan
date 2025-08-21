@@ -179,7 +179,7 @@ onBeforeUnmount(() => {
           <div class="relative w-8 h-8 rounded-md overflow-hidden bg-[#1a1a1a] border border-[#222222] grid place-items-center">
             <img v-if="item._image" :src="item._image" alt="nft" class="w-full h-full object-cover" />
             <span v-else-if="!item._metaErr" class="text-xs text-[#888888]">—</span>
-            <span v-else class="text-[10px] text-[#ff6b6b] text-center">CORS</span>
+            <span v-else class="text-[10px] text-[#ff6b6b] text-center">IPFS</span>
             <div v-if="item._holding?.balance && Number(item._holding.balance) > 1" class="absolute bottom-[2px] left-[2px] bg-black/70 text-white text-[10px] px-[4px] py-[1px] rounded">
               x{{ item._holding.balance }}
             </div>
