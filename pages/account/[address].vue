@@ -259,6 +259,29 @@ const shouldShowPerKda = computed(() => {
   return !Number.isNaN(value) && value > 0
 })
 
+// Dynamic component + KeepAlive to persist table state across tab switches
+const activeComponent = computed(() => {
+  switch (activeTab.value) {
+    case 'transactions':
+      return AccountTransactions
+    case 'token-transfers':
+      return AccountTokenTransfers
+    case 'nft-transfers':
+      return AccountNFTTransfers
+    case 'assets':
+      return AccountAssets
+    default:
+      return AccountTransactions
+  }
+})
+
+const activeProps = computed(() => {
+  if (activeTab.value === 'transactions') {
+    return { accountName: address.value }
+  }
+  return { address: address.value }
+})
+
   // Overview chain label: "All" when no chain selected, otherwise the chain id
   const overviewChainLabel = computed(() => {
     const q = route.query.chain as string | undefined
@@ -600,27 +623,11 @@ watch(
       </div>
     </div>
 
-    <!-- Tab Content -->
+    <!-- Tab Content with KeepAlive to persist table state across tab switches -->
     <div class="mb-6">
-      <AccountTransactions 
-        v-if="activeTab === 'transactions'"
-        :accountName="address"
-      />
-      
-      <AccountTokenTransfers 
-        v-else-if="activeTab === 'token-transfers'"
-        :address="address"
-      />
-      
-      <AccountNFTTransfers 
-        v-else-if="activeTab === 'nft-transfers'"
-        :address="address"
-      />
-
-      <AccountAssets
-        v-else-if="activeTab === 'assets'"
-        :address="address"
-      />
+      <KeepAlive include="AccountTransactions,AccountTokenTransfers,AccountNFTTransfers,AccountAssets">
+        <component :is="activeComponent" v-bind="activeProps" />
+      </KeepAlive>
     </div>
 
     <!-- QR Modal -->
