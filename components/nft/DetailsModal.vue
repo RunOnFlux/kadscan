@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import CloseIcon from '~/components/icon/Close.vue'
+import Copy from '~/components/Copy.vue'
 
 const props = defineProps<{
   open: boolean,
@@ -87,20 +88,23 @@ const externalUrl = computed(() => safeUrl(props.metadata?.external_url))
               </div>
               <div>
                 <div class="text-xs text-[#bbbbbb] mb-[2px]">Name</div>
-                <div class="text-[18px] text-[#f5f5f5] font-medium">{{ title }}</div>
+                <div class="text-[15px] text-[#f5f5f5]">{{ title }}</div>
               </div>
               <div v-if="description">
                 <div class="text-xs text-[#bbbbbb] mb-[2px]">Description</div>
                 <div class="text-[14px] text-[#f5f5f5] leading-5">{{ description }}</div>
               </div>
-              <div class="grid grid-cols-2 gap-3">
+              <div class="grid grid-cols-1 gap-3">
                 <div>
                   <div class="text-xs text-[#bbbbbb] mb-[2px]">Chain</div>
-                  <div class="text-[14px] text-[#f5f5f5]">{{ props.holding?.chainId }}</div>
+                  <div class="text-[15px] text-[#f5f5f5]">{{ props.holding?.chainId }}</div>
                 </div>
                 <div>
                   <div class="text-xs text-[#bbbbbb] mb-[2px]">TokenId</div>
-                  <div class="text-[14px] text-[#f5f5f5] break-all">{{ props.holding?.tokenId }}</div>
+                  <div class="flex items-center gap-2">
+                    <div class="text-[15px] text-[#f5f5f5] break-all">{{ props.holding?.tokenId }}</div>
+                    <Copy :value="props.holding?.tokenId" tooltipText="Copy Token ID" />
+                  </div>
                 </div>
               </div>
               <div v-if="externalUrl" class="pt-1">

@@ -123,7 +123,7 @@ function closeModal() { modalOpen.value = false }
         </div>
       </div>
       <div v-if="windowItems.length === 0" class="col-span-5 grid place-items-center py-12">
-        <div class="text-[#fafafa] text-lg font-medium text-center">No NFTs available for display.</div>
+        <div class="text-[#fafafa] text-md font-medium text-center">No NFTs available for display.</div>
       </div>
     </div>
 

@@ -5,6 +5,8 @@ import SkeletonTable from '~/components/skeleton/Table5.vue'
 import { staticTokens, unknownToken } from '~/constants/tokens'
 import { useAccountBalances } from '~/composables/useAccountBalances'
 import { useSharedData } from '~/composables/useSharedData'
+import Tooltip from '~/components/Tooltip.vue'
+import { useFormat } from '~/composables/useFormat'
 
 const props = defineProps<{
   address: string
@@ -13,6 +15,7 @@ const props = defineProps<{
 const route = useRoute()
 const { selectedNetwork } = useSharedData()
 const { balances, loading, pageInfo } = useAccountBalances()
+const { truncateAddress } = useFormat()
 
 // Table setup
 const headers = [
@@ -95,6 +98,22 @@ const flattenedRows = computed(() => {
     })
 })
 
+// Helpers for displaying long module names
+const isLongModule = (module: string | undefined | null) => {
+  const ns = (module || '').split('.')?.[0] || ''
+  return ns.length > 20
+}
+
+const displayModule = (module: string | undefined | null) => {
+  const text = module || ''
+  const [ns, name] = text.split('.')
+  if (ns && ns.length > 20) {
+    const truncated = truncateAddress(ns, 8, 6)
+    return name ? `${truncated}.${name}` : truncated
+  }
+  return text
+}
+
 const filteredRows = computed(() => {
   const rows = flattenedRows.value
   const chain = chainFromQuery.value
@@ -139,6 +158,11 @@ const subtitle = computed(() => {
           </div>
           <span class="text-[#f5f5f5]">{{ item.asset }}</span>
         </div>
+      </template>
+      <template #module="{ item }">
+        <Tooltip :value="item.module" :disabled="!isLongModule(item.module)">
+          <span class="text-[#f5f5f5]">{{ displayModule(item.module) }}</span>
+        </Tooltip>
       </template>
     </DataTable>
 

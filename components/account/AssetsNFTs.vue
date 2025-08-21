@@ -6,6 +6,9 @@ import PreviewIcon from '~/components/icon/Preview.vue'
 import DetailsModal from '~/components/nft/DetailsModal.vue'
 import { useAccountNFTs } from '~/composables/useAccountNFTs'
 import { useSharedData } from '~/composables/useSharedData'
+import Tooltip from '~/components/Tooltip.vue'
+import Copy from '~/components/Copy.vue'
+import { shortenString } from '~/composables/string'
 
 const props = defineProps<{
   address: string
@@ -84,6 +87,19 @@ const selectedRowOption = computed({
   set: (val: any) => { if (val) rowsToShow.value = val.value },
 })
 const totalPages = computed(() => Math.max(Math.ceil(totalItems.value / rowsToShow.value), 1))
+
+// Slice rows for the current page
+const pageSlice = computed(() => {
+  const start = (currentPage.value - 1) * rowsToShow.value
+  const end = start + rowsToShow.value
+  return flattenedRows.value.slice(start, end)
+})
+
+// Keep current page within range when page size changes
+watch(rowsToShow, () => {
+  if (currentPage.value > totalPages.value) currentPage.value = totalPages.value
+})
+
 const loadingPage = ref(false)
 
 const subtitle = computed(() => {
@@ -163,7 +179,7 @@ onBeforeUnmount(() => {
           <div class="relative w-8 h-8 rounded-md overflow-hidden bg-[#1a1a1a] border border-[#222222] grid place-items-center">
             <img v-if="item._image" :src="item._image" alt="nft" class="w-full h-full object-cover" />
             <span v-else-if="!item._metaErr" class="text-xs text-[#888888]">—</span>
-            <span v-else class="text-[10px] text-[#ff6b6b] px-1 text-center">CORS</span>
+            <span v-else class="text-[10px] text-[#ff6b6b] text-center">CORS</span>
             <div v-if="item._holding?.balance && Number(item._holding.balance) > 1" class="absolute bottom-[2px] left-[2px] bg-black/70 text-white text-[10px] px-[4px] py-[1px] rounded">
               x{{ item._holding.balance }}
             </div>
@@ -172,7 +188,12 @@ onBeforeUnmount(() => {
         </div>
       </template>
       <template #tokenId="{ item }">
-        <span class="text-[#f5f5f5] break-all">{{ item.tokenId }}</span>
+        <div class="flex items-center gap-1">
+          <Tooltip :value="item.tokenId" variant="hash">
+            <span class="text-[#6ab5db] hover:text-[#9ccee7]">{{ shortenString(item.tokenId, 10, 10) }}</span>
+          </Tooltip>
+          <Copy :value="item.tokenId" tooltipText="Copy Token ID" />
+        </div>
       </template>
     </DataTable>
 
