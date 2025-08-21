@@ -1,22 +1,75 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import DataTable from '~/components/DataTable.vue'
 import SkeletonTable from '~/components/skeleton/Table5.vue'
+import PreviewIcon from '~/components/icon/Preview.vue'
+import DetailsModal from '~/components/nft/DetailsModal.vue'
+import { useAccountNFTs } from '~/composables/useAccountNFTs'
+import { useSharedData } from '~/composables/useSharedData'
 
 const props = defineProps<{
   address: string
 }>()
 
 const headers = [
+  { key: 'preview', label: '' },
   { key: 'collection', label: 'Collection' },
   { key: 'name', label: 'Name' },
   { key: 'chain', label: 'Chain' },
   { key: 'tokenId', label: 'TokenId' },
-  { key: 'value', label: 'Value' },
 ]
 
-const items: any[] = []
-const totalItems = computed(() => items.length)
+const { selectedNetwork } = useSharedData()
+const { loading, nfts, metadataByKey, metadataErrors, fetchAccountNFTs, startMetadataQueue, clearState } = useAccountNFTs()
+
+const route = useRoute()
+
+const chainFromQuery = computed(() => {
+  const q = route.query.chain as string | undefined
+  const n = q !== undefined ? parseInt(q, 10) : undefined
+  return n !== undefined && !Number.isNaN(n) && n >= 0 && n <= 19 ? `${n}` : null
+})
+
+const sanitize = (input: any, maxLen = 200): string => {
+  if (input === null || input === undefined) return ''
+  let text = String(input)
+  text = text.replace(/<[^>]*>/g, ' ')
+  text = text
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+  text = text.replace(/[^\w\s.,:;!?()\[\]\-_/&#%+'"@]/g, ' ')
+  text = text.replace(/\s+/g, ' ').trim()
+  if (text.length > maxLen) text = text.slice(0, maxLen - 1) + '…'
+  return text
+}
+
+const flattenedRows = computed(() => {
+  const arr = nfts.value || []
+  const chain = chainFromQuery.value
+  const filtered = chain === null ? arr : arr.filter(r => `${r.chainId}` === chain)
+  return filtered.map(h => {
+    const meta = metadataByKey.value[`${h.chainId}:${h.tokenId}`] || null
+    const err = metadataErrors.value[`${h.chainId}:${h.tokenId}`] || null
+    const name = sanitize(meta?.name || 'Unknown')
+    const collection = sanitize(meta?.collection || meta?.collection_id || 'Unknown')
+    return {
+      preview: h,
+      collection,
+      name,
+      chain: h.chainId,
+      tokenId: h.tokenId,
+      _image: meta?.image || null,
+      _meta: meta,
+      _metaErr: err,
+      _holding: h,
+    }
+  })
+})
+
+const totalItems = computed(() => flattenedRows.value.length)
 
 const rowOptions = [
   { label: '10', value: 10 },
@@ -39,15 +92,53 @@ const subtitle = computed(() => {
   const last = Math.min(currentPage.value * rowsToShow.value, totalItems.value)
   return `(Showing NFTs ${first}–${last})`
 })
+
+// Modal state
+const modalOpen = ref(false)
+const modalHolding = ref<any>(null)
+const modalMetadata = ref<any>(null)
+const modalErrorUrl = ref<string | null>(null)
+
+function openModal(row: any) {
+  modalHolding.value = row?._holding || null
+  modalMetadata.value = row?._meta || null
+  modalErrorUrl.value = row?._metaErr?.url || null
+  modalOpen.value = true
+}
+
+function closeModal() {
+  modalOpen.value = false
+}
+
+// Fetch on mount and when network/address changes
+onMounted(async () => {
+  const networkId = selectedNetwork.value?.id
+  if (networkId && props.address) {
+    await fetchAccountNFTs({ networkId, accountName: props.address })
+    startMetadataQueue(props.address)
+  }
+})
+
+watch(() => [selectedNetwork.value?.id, props.address], async ([networkId, address]) => {
+  if (networkId && address) {
+    await fetchAccountNFTs({ networkId, accountName: address })
+    startMetadataQueue(address)
+    currentPage.value = 1
+  }
+})
+
+onBeforeUnmount(() => {
+  clearState()
+})
 </script>
 
 <template>
   <div>
-    <SkeletonTable v-if="false" />
+    <SkeletonTable v-if="loading" />
     <DataTable
-      v-else-if="false"
+      v-else-if="pageSlice && pageSlice.length > 0"
       :headers="headers"
-      :items="[]"
+      :items="pageSlice"
       :totalItems="totalItems"
       itemNamePlural="NFTs"
       :subtitle="subtitle"
@@ -56,10 +147,36 @@ const subtitle = computed(() => {
       v-model:selectedRows="selectedRowOption"
       :rowOptions="rowOptions"
       v-model:loadingPage="loadingPage"
-      :has-next-page="false"
-      :has-previous-page="false"
-    />
-    <div class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
+      :has-next-page="currentPage < totalPages"
+      :has-previous-page="currentPage > 1"
+    >
+      <template #preview="{ item }">
+        <button
+          class="w-8 h-8 rounded-md border border-[#222222] grid place-items-center hover:bg-[#1a1a1a] active:bg-[#252525]"
+          @click.prevent="openModal(item)"
+        >
+          <PreviewIcon />
+        </button>
+      </template>
+      <template #name="{ item }">
+        <div class="flex items-center gap-2">
+          <div class="relative w-8 h-8 rounded-md overflow-hidden bg-[#1a1a1a] border border-[#222222] grid place-items-center">
+            <img v-if="item._image" :src="item._image" alt="nft" class="w-full h-full object-cover" />
+            <span v-else-if="!item._metaErr" class="text-xs text-[#888888]">—</span>
+            <span v-else class="text-[10px] text-[#ff6b6b] px-1 text-center">CORS</span>
+            <div v-if="item._holding?.balance && Number(item._holding.balance) > 1" class="absolute bottom-[2px] left-[2px] bg-black/70 text-white text-[10px] px-[4px] py-[1px] rounded">
+              x{{ item._holding.balance }}
+            </div>
+          </div>
+          <span class="text-[#f5f5f5]">{{ item.name }}</span>
+        </div>
+      </template>
+      <template #tokenId="{ item }">
+        <span class="text-[#f5f5f5] break-all">{{ item.tokenId }}</span>
+      </template>
+    </DataTable>
+
+    <div v-else class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
       <div class="flex flex-col items-center justify-center py-12">
         <img src="/empty/nft.png" alt="No NFTs" class="w-24 h-24 mb-4 opacity-50" />
         <h3 class="text-[#fafafa] text-lg font-medium mb-2">No NFTs yet</h3>
@@ -68,6 +185,8 @@ const subtitle = computed(() => {
         </p>
       </div>
     </div>
+
+    <DetailsModal :open="modalOpen" :holding="modalHolding" :metadata="modalMetadata" :error-url="modalErrorUrl" @close="closeModal" />
   </div>
 </template>
 

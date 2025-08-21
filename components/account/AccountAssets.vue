@@ -3,6 +3,7 @@ import { computed, watch } from 'vue'
 import AssetsPieChart from '~/components/account/AssetsPieChart.vue'
 import AssetsTokens from '~/components/account/AssetsTokens.vue'
 import AssetsNFTs from '~/components/account/AssetsNFTs.vue'
+import AssetsNFTCarousel from '~/components/account/AssetsNFTCarousel.vue'
 
 const props = defineProps<{
   address: string
@@ -30,18 +31,11 @@ watch(() => route.query.chain, () => {}, { immediate: true })
 
     <!-- Right column: Pie (top) and placeholder (bottom) -->
     <div class="flex flex-col gap-4">
-      <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="text-[#fafafa] font-semibold">Assets Distribution</h3>
-        </div>
+      <div class="bg-[#111111] border border-[#222222] rounded-xl px-10 py-8 shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
         <AssetsPieChart />
       </div>
 
-      <!-- Placeholder for future surprise block -->
-      <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 h-full flex flex-col items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
-        <h3 class="text-[#fafafa] font-semibold mb-1">Coming soon</h3>
-        <p class="text-[#bbbbbb] text-[13px]">A new DeFi overview block will appear here.</p>
-      </div>
+      <AssetsNFTCarousel :address="props.address" />
     </div>
   </div>
 </template>
