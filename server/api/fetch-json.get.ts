@@ -92,7 +92,7 @@ export default defineEventHandler(async (event) => {
     }
   } catch (err: any) {
     if (err?.statusCode) throw err
-    throw createError({ statusCode: 502, statusMessage: 'Upstream fetch failed' })
+    throw createError({ statusCode: 502, statusMessage: 'Upstream fetch failed. IPFS link might not exist.' })
   } finally {
     clearTimeout(timeout)
   }
