@@ -10,10 +10,12 @@ const props = defineProps<{ address: string }>()
 const { selectedNetwork } = useSharedData()
 const { nfts, metadataByKey, metadataErrors, fetchAccountNFTs, startMetadataQueue } = useAccountNFTs()
 
-const visibleCount = 5
+const visibleCount = 4
 const startIndex = ref(0)
 const hovering = ref(false)
 let intervalId: any = null
+
+const broken: any = ref<Record<string, boolean>>({})
 
 function next() {
   const len = displayable.value.length
@@ -34,8 +36,8 @@ const displayable = computed(() => {
     const meta = metadataByKey.value[k]
     const image = meta?.image || null
     const err = metadataErrors.value[k]
-    return { holding: h, meta, image, err }
-  }).filter(r => !!r.image && !r.err)
+    return { holding: h, meta, image, err, key: k }
+  }).filter(r => !!r.image && !r.err && !broken.value[r.key])
 })
 
 const windowItems = computed(() => {
@@ -98,33 +100,49 @@ function onLeave() {
 }
 
 function closeModal() { modalOpen.value = false }
+
+function markBroken(key: string) {
+  broken.value = { ...broken.value, [key]: true }
+}
 </script>
 
 <template>
   <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
-    <div v-if="windowItems.length > 0" class="flex items-center justify-between mb-3">
+    <div class="flex items-center justify-between mb-3">
       <h3 class="text-[#fafafa] font-semibold">NFTs</h3>
-      <div class="flex gap-2">
-        <button class="w-8 h-8 grid place-items-center rounded-md border border-[#222222] hover:bg-[#1a1a1a] active:bg-[#252525]" @click="prev">
-          <ChevronIcon class="w-4 h-4 rotate-180" />
-        </button>
-        <button class="w-8 h-8 grid place-items-center rounded-md border border-[#222222] hover:bg-[#1a1a1a] active:bg-[#252525]" @click="next">
-          <ChevronIcon class="w-4 h-4" />
-        </button>
-      </div>
     </div>
 
-    <div class="grid grid-cols-5 gap-2" @mouseenter="hovering = true" @mouseleave="hovering = false">
-      <div v-for="(item, idx) in windowItems" :key="idx" class="relative aspect-square rounded-lg overflow-hidden bg-[#151515] border border-[#222222]"
-           @mouseenter="onEnter(item)" @mouseleave="onLeave">
-        <img :src="item.image" alt="nft" class="w-full h-full object-cover" />
-        <div v-if="item.holding?.balance && Number(item.holding.balance) > 1" class="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-[2px] rounded">
-          x{{ item.holding.balance }}
+    <div class="relative">
+      <button
+        v-if="displayable.length > 0"
+        class="absolute left-0 top-1/2 -translate-y-1/2 w-8 h-8 grid place-items-center rounded-md bg-[#222222] text-[#bbbbbb] hover:bg-[#2a2a2a]"
+        @click="prev"
+        aria-label="Previous"
+      >
+        <ChevronIcon class="w-4 h-4 rotate-180" />
+      </button>
+
+      <div class="grid grid-cols-4 gap-2 px-10" @mouseenter="hovering = true" @mouseleave="hovering = false">
+        <div v-for="(item, idx) in windowItems" :key="idx" class="relative aspect-square rounded-lg overflow-hidden bg-[#151515] border border-[#222222]"
+             @mouseenter="onEnter(item)" @mouseleave="onLeave">
+          <img :src="item.image" alt="nft" class="w-full h-full object-cover" @error="markBroken(item.key)" />
+          <div v-if="item.holding?.balance && Number(item.holding.balance) > 1" class="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-[2px] rounded">
+            x{{ item.holding.balance }}
+          </div>
+        </div>
+        <div v-if="windowItems.length === 0" class="col-span-4 grid place-items-center py-12">
+          <div class="text-[#fafafa] text-md font-medium text-center">No NFTs available for display.</div>
         </div>
       </div>
-      <div v-if="windowItems.length === 0" class="col-span-5 grid place-items-center py-12">
-        <div class="text-[#fafafa] text-md font-medium text-center">No NFTs available for display.</div>
-      </div>
+
+      <button
+        v-if="displayable.length > 0"
+        class="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 grid place-items-center rounded-md bg-[#222222] text-[#bbbbbb] hover:bg-[#2a2a2a]"
+        @click="next"
+        aria-label="Next"
+      >
+        <ChevronIcon class="w-4 h-4" />
+      </button>
     </div>
 
     <DetailsModal :open="modalOpen" :holding="modalHolding" :metadata="modalMetadata" @close="closeModal" />

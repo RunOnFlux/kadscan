@@ -49,6 +49,15 @@ const collection = computed(() => sanitize(props.metadata?.collection || 'Unknow
 const description = computed(() => sanitize(props.metadata?.description || ''))
 const imageUrl = computed(() => props.metadata?.image || null)
 const externalUrl = computed(() => safeUrl(props.metadata?.external_url))
+
+const ownerRoute = computed(() => {
+  const keys = props.holding?.guard?.keys
+  const first = Array.isArray(keys) && keys.length > 0 ? String(keys[0]) : null
+  if (!first) return null
+  const isHex64 = /^[0-9a-f]{64}$/i.test(first)
+  const owner = isHex64 ? `k:${first}` : first
+  return { owner, href: `/account/${owner}` }
+})
 </script>
 
 <template>
@@ -82,6 +91,10 @@ const externalUrl = computed(() => safeUrl(props.metadata?.external_url))
             </div>
 
             <div class="flex flex-col gap-3">
+              <div v-if="ownerRoute">
+                <div class="text-xs text-[#bbbbbb] mb-[2px]">Owner</div>
+                <NuxtLink :to="ownerRoute!.href" class="text-[15px] text-[#6ab5db] hover:text-[#9ccee7] break-all">{{ ownerRoute!.owner }}</NuxtLink>
+              </div>
               <div>
                 <div class="text-xs text-[#bbbbbb] mb-[2px]">Collection</div>
                 <div class="text-[15px] text-[#f5f5f5]">{{ collection }}</div>
