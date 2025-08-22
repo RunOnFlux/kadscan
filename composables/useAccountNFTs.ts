@@ -195,7 +195,6 @@ export const useAccountNFTs = () => {
             networkId,
           },
         })
-        console.log('response', response)
 
         const list = response?.data?.nonFungibleAccount?.nonFungibleTokenBalances
         const arr: NftHolding[] = Array.isArray(list) ? list : []

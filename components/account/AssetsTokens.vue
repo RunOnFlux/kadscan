@@ -35,7 +35,6 @@ const rowOptions = [
 
 const currentPage = ref(1)
 const rowsToShow = ref(10)
-const loadingPage = ref(false)
 
 const selectedRowOption = computed({
   get: () => rowOptions.find(o => o.value === rowsToShow.value) || rowOptions[0],
@@ -122,6 +121,12 @@ const filteredRows = computed(() => {
   return [...visible].sort((a, b) => (b._sortValue || 0) - (a._sortValue || 0))
 })
 
+// Clamp current page when total pages or page size changes (after filteredRows exists)
+watch([totalPages, rowsToShow], () => {
+  if (currentPage.value > totalPages.value) currentPage.value = totalPages.value
+  if (currentPage.value < 1) currentPage.value = 1
+})
+
 const subtitle = computed(() => {
   if (totalCount.value === 0) return ''
   const first = (currentPage.value - 1) * rowsToShow.value + 1
@@ -144,7 +149,6 @@ const subtitle = computed(() => {
       :totalPages="totalPages"
       v-model:selectedRows="selectedRowOption"
       :rowOptions="rowOptions"
-      v-model:loadingPage="loadingPage"
       :has-next-page="pageInfo?.hasNextPage"
       :has-previous-page="pageInfo?.hasPreviousPage"
     >

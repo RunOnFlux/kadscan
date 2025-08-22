@@ -106,7 +106,11 @@ watch(rowsToShow, () => {
   if (currentPage.value > totalPages.value) currentPage.value = totalPages.value
 })
 
-const loadingPage = ref(false)
+// Clamp when total pages changes (dataset/filter/tab switches)
+watch(totalPages, () => {
+  if (currentPage.value > totalPages.value) currentPage.value = totalPages.value
+  if (currentPage.value < 1) currentPage.value = 1
+})
 
 const subtitle = computed(() => {
   if (totalItems.value === 0) return ''
@@ -159,7 +163,6 @@ onBeforeUnmount(() => {
       :totalPages="totalPages"
       v-model:selectedRows="selectedRowOption"
       :rowOptions="rowOptions"
-      v-model:loadingPage="loadingPage"
       :has-next-page="currentPage < totalPages"
       :has-previous-page="currentPage > 1"
     >

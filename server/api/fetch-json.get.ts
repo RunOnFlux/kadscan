@@ -53,6 +53,29 @@ function buildIpfsCandidates(input: string): string[] {
   return [input]
 }
 
+// Basic CID matcher (CIDv0 and lenient CIDv1 base32)
+const CID_REGEX = /(Qm[1-9A-HJ-NP-Za-km-z]{44}|[abcdefghijklmnopqrstuvwxyz234567]{20,})/i
+
+function extractHttpUrl(input: string): string | null {
+  if (!input) return null
+  const m = input.match(/https?:\/\/[^\s"'<>()]+/i)
+  return m ? m[0] : null
+}
+
+function recoverResourceUrlFromText(text: string): string | null {
+  if (!text) return null
+  // Prefer explicit ipfs:// URIs first
+  const ipfsMatch = text.match(/ipfs:\/\/[^\s"'<>()]+/i)
+  if (ipfsMatch) return ipfsMatch[0]
+  // Then bare CIDs
+  const cidMatch = text.match(CID_REGEX)
+  if (cidMatch) return `https://ipfs.io/ipfs/${cidMatch[1]}`
+  // Finally, plain http(s) URLs
+  const http = extractHttpUrl(text)
+  if (http) return http
+  return null
+}
+
 // Single-attempt policy: no gateway fallbacks
 
 export default defineEventHandler(async (event) => {
@@ -114,6 +137,11 @@ export default defineEventHandler(async (event) => {
         const data = JSON.parse(text)
         return { ok: true, data, finalUrl: res.url || candidate, contentType }
       } catch {
+        const recovered = recoverResourceUrlFromText(text)
+        console.log('recovered', recovered)
+        if (recovered) {
+          return { ok: true, data: { image: recovered }, finalUrl: recovered, contentType }
+        }
         return { ok: false, reason: 'invalid-json', finalUrl: res.url || candidate, contentType }
       }
     } catch (err: any) {
