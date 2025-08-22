@@ -1,7 +1,8 @@
 <script setup lang="ts">
 defineProps<{
   address: string,
-  balances: any
+  balances: any,
+  pending?: boolean,
 }>()
 
 const {
@@ -17,12 +18,13 @@ const {
 
 <template>
   <div
-    class="py-3 md:p-6 rounded-lg md:rounded-2xl border border-gray-300"
+    class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4"
   >
     <TableRoot
       :rows="balances"
       :isFull="true"
       :mobileWithoutHeader="true"
+      :pending="pending"
       :columns="assetsTableColumns"
     >
       <template #row="{ row, columns, rowIndex, isLast }">
@@ -65,8 +67,8 @@ const {
 
           <template #distribution="{ open }">
             <div
-              :class="[open && 'bg-gray-500']"
-              class="w-8 h-8 group hover:bg-gray-500 rounded grid items-center justify-center"
+              :class="[open && 'bg-[#151515] border-[#222222]']"
+              class="w-8 h-8 group rounded grid items-center justify-center bg-[#151515] border border-transparent hover:border-[#222222]"
             >
               <IconArrow
                 :class="[open && 'rotate-90 text-kadscan-500']"
@@ -81,9 +83,9 @@ const {
         #empty
       >
         <EmptyTable
-          image="/empty/txs.png"
-          title="No assets found for this account"
-          description="We couldn't find any assets for this account"
+          image="/empty/nft.png"
+          title="No assets held in account"
+          description="This account is not holding any assets."
         />
       </template>
     </TableRoot>

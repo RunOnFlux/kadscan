@@ -55,6 +55,10 @@ const transfersLoading = ref(false);
 const firstTransaction = ref<any>(null);
 const lastTransaction = ref<any>(null);
 
+// Simple in-memory cache for first/last transfers per (networkId, accountName, chainId)
+// Key format: `${networkId}:${accountName}:${chainKey}` where chainKey is 'all' or a specific chain id string
+const transfersCache = new Map<string, { first: any; last: any }>();
+
 export const useAccount = () => {
   const clearState = () => {
     accountData.value = null;
@@ -63,6 +67,7 @@ export const useAccount = () => {
     transfersLoading.value = false;
     firstTransaction.value = null;
     lastTransaction.value = null;
+    transfersCache.clear();
   };
 
   const fetchFirstAndLastTransfers = async ({
@@ -75,11 +80,21 @@ export const useAccount = () => {
     chainId?: string;
   }) => {
     if (!networkId || !accountName || !accountData.value) return;
-    
-    // Reset previous results to avoid showing stale data when chain has no history
+
+    const key = `${networkId}:${accountName}:${chainId ?? 'all'}`;
+
+    // Serve from cache when available to avoid refetching on chain switches
+    if (transfersCache.has(key)) {
+      const cached = transfersCache.get(key)!;
+      firstTransaction.value = cached.first ?? null;
+      lastTransaction.value = cached.last ?? null;
+      transfersLoading.value = false;
+      return;
+    }
+
+    // Only show loading when we actually need to fetch
     firstTransaction.value = null;
     lastTransaction.value = null;
-
     transfersLoading.value = true;
     
     try {
@@ -148,6 +163,12 @@ export const useAccount = () => {
       } else {
         lastTransaction.value = null;
       }
+
+      // Store in cache for subsequent chain switches
+      transfersCache.set(key, {
+        first: firstTransaction.value,
+        last: lastTransaction.value,
+      });
 
     } catch (e) {
       console.error('Error fetching first and last transfers:', e);

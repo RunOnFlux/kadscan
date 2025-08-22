@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import { useFormat } from './useFormat';
 
-const GQL_QUERY = `
+const BLOCKS_FROM_DEPTH_QUERY = `
 query Blocks(
   $minimumDepth: Int!,
   $first: Int,
@@ -201,7 +201,7 @@ export const useBlocks = () => {
       const response: any = await $fetch('/api/graphql', {
         method: 'POST',
         body: {
-          query: GQL_QUERY,
+          query: BLOCKS_FROM_DEPTH_QUERY,
           variables: {
             minimumDepth: 0,
             first: toLastPage ? null : isForward ? rowsToShow.value : null,

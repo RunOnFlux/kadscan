@@ -4,6 +4,7 @@ import {
   LinearScale,
   PointElement,
   LineElement,
+  ArcElement,
   Title,
   Filler,
   Tooltip,
@@ -12,5 +13,16 @@ import {
 import gradient from 'chartjs-plugin-gradient';
 
 export default defineNuxtPlugin(() => {
-  Chart.register(gradient, CategoryScale, Filler, LinearScale, Title, Tooltip, Legend, PointElement, LineElement)
+  Chart.register(
+    gradient,
+    CategoryScale,
+    Filler,
+    LinearScale,
+    Title,
+    Tooltip,
+    Legend,
+    PointElement,
+    LineElement,
+    ArcElement,
+  )
 })
