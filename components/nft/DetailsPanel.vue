@@ -33,7 +33,27 @@ function safeUrl(url: any): string | null {
 }
 
 const title = computed(() => sanitize(props.metadata?.name || 'Unknown'))
-const collection = computed(() => sanitize(props.metadata?.collection || 'Unknown'))
+const collection = computed(() => {
+  const meta: any = props.metadata || null
+  const attrCollection = Array.isArray(meta?.attributes)
+    ? (() => {
+        const found = meta.attributes.find((a: any) =>
+          typeof a?.trait_type === 'string' && a.trait_type.toLowerCase() === 'collection' && typeof a?.value === 'string' && a.value
+        )
+        return found ? found.value : null
+      })()
+    : null
+  const value = (typeof meta?.collection === 'string' && meta.collection)
+    ? meta.collection
+    : (typeof meta?.collection_id === 'string' && meta.collection_id)
+    ? meta.collection_id
+    : (typeof attrCollection === 'string' && attrCollection)
+    ? attrCollection
+    : (typeof meta?.creator === 'string' && meta.creator)
+    ? meta.creator
+    : 'Unknown'
+  return sanitize(value)
+})
 const description = computed(() => sanitize(props.metadata?.description || ''))
 const imageUrl = computed(() => props.metadata?.image || null)
 const externalUrl = computed(() => safeUrl(props.metadata?.external_url))
@@ -53,8 +73,8 @@ const ownerRoute = computed(() => {
     <div class="text-[#fafafa] font-semibold mb-3">NFT Details</div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="relative rounded-lg bg-[#151515] border border-[#222222] aspect-square overflow-hidden grid place-items-center">
-        <img v-if="imageUrl" :src="imageUrl as any" alt="nft" class="w-full h-full object-cover" />
+      <div class="relative rounded-lg bg-[#151515] border border-[#222222] aspect-square overflow-hidden flex items-center justify-center">
+        <img v-if="imageUrl" :src="imageUrl as any" alt="nft" class="block max-w-full max-h-full object-contain" />
         <div v-else class="text-[#888888] text-center px-3">
           <div>No image</div>
           <div v-if="props.errorUrl" class="text-[#ff6b6b] text-xs mt-1 break-all">

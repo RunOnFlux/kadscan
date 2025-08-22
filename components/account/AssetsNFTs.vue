@@ -60,7 +60,24 @@ const flattenedRows = computed(() => {
     const meta = metadataByKey.value[`${h.chainId}:${h.tokenId}`] || null
     const err = metadataErrors.value[`${h.chainId}:${h.tokenId}`] || null
     const name = sanitize(meta?.name || 'Unknown')
-    const collection = sanitize(meta?.collection || meta?.collection_id || 'Unknown')
+    const attrCollection = Array.isArray(meta?.attributes)
+      ? (() => {
+          const found = meta.attributes.find((a: any) =>
+            typeof a?.trait_type === 'string' && a.trait_type.toLowerCase() === 'collection' && typeof a?.value === 'string' && a.value
+          )
+          return found ? found.value : null
+        })()
+      : null
+    const rawCollection = (
+      typeof meta?.collection === 'string' && meta?.collection
+    ) ? meta.collection : (
+      typeof meta?.collection_id === 'string' && meta?.collection_id
+    ) ? meta.collection_id : (
+      typeof attrCollection === 'string' && attrCollection
+    ) ? attrCollection : (
+      typeof meta?.creator === 'string' && meta?.creator
+    ) ? meta.creator : 'Unknown'
+    const collection = sanitize(rawCollection)
     return {
       preview: h,
       collection,
