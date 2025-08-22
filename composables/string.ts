@@ -31,6 +31,42 @@ export const shortenString = (
 }
 
 /**
+ * Normalize Unicode text to NFC and safely sanitize for display.
+ * Keeps diacritics (e.g., ñ) while removing HTML tags and dangerous entities.
+ */
+export function normalizeUnicode(input: any, form: 'NFC' | 'NFKC' = 'NFC'): string {
+  if (input === null || input === undefined) return ''
+  let text = String(input)
+  try {
+    text = text.normalize(form)
+  } catch (_e) {
+    // ignore if environment lacks normalize
+  }
+  return text
+}
+
+/**
+ * Sanitizes untrusted text for safe display while preserving Unicode characters.
+ */
+export function sanitizeDisplayText(input: any, maxLen = 800): string {
+  if (input === null || input === undefined) return ''
+  let text = normalizeUnicode(String(input))
+  // Strip tags
+  text = text.replace(/<[^>]*>/g, ' ')
+  // Decode common HTML entities
+  text = text
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+  // Collapse whitespace
+  text = text.replace(/\s+/g, ' ').trim()
+  if (text.length > maxLen) text = text.slice(0, maxLen - 1) + '…'
+  return text
+}
+
+/**
  * Safely unescapes a JSON string for display purposes
  * Handles cases where the string might be double-encoded or contain escape sequences
  * @param input - The input string that might contain escape sequences

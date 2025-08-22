@@ -7,7 +7,7 @@ import { useAccountNFTs } from '~/composables/useAccountNFTs'
 import { useSharedData } from '~/composables/useSharedData'
 import Tooltip from '~/components/Tooltip.vue'
 import Copy from '~/components/Copy.vue'
-import { shortenString } from '~/composables/string'
+import { shortenString, sanitizeDisplayText } from '~/composables/string'
 
 const props = defineProps<{
   address: string
@@ -36,21 +36,7 @@ const chainFromQuery = computed(() => {
   return n !== undefined && !Number.isNaN(n) && n >= 0 && n <= 19 ? `${n}` : null
 })
 
-const sanitize = (input: any, maxLen = 200): string => {
-  if (input === null || input === undefined) return ''
-  let text = String(input)
-  text = text.replace(/<[^>]*>/g, ' ')
-  text = text
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-  text = text.replace(/[^\w\s.,:;!?()\[\]\-_/&#%+'"@]/g, ' ')
-  text = text.replace(/\s+/g, ' ').trim()
-  if (text.length > maxLen) text = text.slice(0, maxLen - 1) + '…'
-  return text
-}
+const sanitize = (input: any, maxLen = 200): string => sanitizeDisplayText(input, maxLen)
 
 const flattenedRows = computed(() => {
   const arr = nfts.value || []
