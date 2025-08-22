@@ -3,11 +3,13 @@ import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import DataTable from '~/components/DataTable.vue'
 import SkeletonTable from '~/components/skeleton/Table5.vue'
 import PreviewIcon from '~/components/icon/Preview.vue'
+import IconDownload from '~/components/icon/Download.vue'
 import { useAccountNFTs } from '~/composables/useAccountNFTs'
 import { useSharedData } from '~/composables/useSharedData'
 import Tooltip from '~/components/Tooltip.vue'
 import Copy from '~/components/Copy.vue'
 import { shortenString, sanitizeDisplayText } from '~/composables/string'
+import { exportableToCsv, downloadCSV } from '~/composables/csv'
 
 const props = defineProps<{
   address: string
@@ -119,6 +121,13 @@ const subtitle = computed(() => {
   return `(Showing NFTs ${first}–${last})`
 })
 
+function downloadData() {
+  const exportHeaders = headers.filter(h => h.key !== 'preview')
+  const csv = exportableToCsv(pageSlice.value, exportHeaders)
+  const ts = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')
+  downloadCSV(csv, `nfts-page-${currentPage.value}-${ts}.csv`)
+}
+
 function openPreview(row: any) {
   emit('preview', {
     holding: row?._holding || null,
@@ -165,13 +174,23 @@ onBeforeUnmount(() => {
       :rowOptions="rowOptions"
       :has-next-page="currentPage < totalPages"
       :has-previous-page="currentPage > 1"
+      :showTopPagination="false"
     >
+      <template #actions>
+        <button
+          @click="downloadData"
+          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
+        >
+          <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
+          {{ isMobile ? 'Download' : 'Download Page Data' }}
+        </button>
+      </template>
       <template #preview="{ item }">
         <button
           class="w-8 h-8 rounded-md border border-[#222222] grid place-items-center hover:bg-[#1a1a1a] active:bg-[#252525]"
           @click.prevent="openPreview(item)"
         >
-          <PreviewIcon />
+          <PreviewIcon class="opacity-60"/>
         </button>
       </template>
       <template #name="{ item }">

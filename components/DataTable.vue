@@ -51,6 +51,10 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  showTopPagination: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const emit = defineEmits(['update:currentPage', 'update:selectedRows', 'update:loadingPage']);
@@ -74,6 +78,7 @@ const formatTotalItems = (num: number) => {
       <div class="flex items-center gap-2 w-full md:w-fit justify-end">
         <slot name="actions" />
         <PaginationControls
+          v-if="showTopPagination"
           :currentPage="currentPage"
           :totalPages="totalPages"
           :loadingPage="loadingPage"

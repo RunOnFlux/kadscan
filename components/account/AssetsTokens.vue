@@ -2,11 +2,13 @@
 import { computed, ref, watch, onMounted } from 'vue'
 import DataTable from '~/components/DataTable.vue'
 import SkeletonTable from '~/components/skeleton/Table5.vue'
+import IconDownload from '~/components/icon/Download.vue'
 import { staticTokens, unknownToken } from '~/constants/tokens'
 import { useAccountBalances } from '~/composables/useAccountBalances'
 import { useSharedData } from '~/composables/useSharedData'
 import Tooltip from '~/components/Tooltip.vue'
 import { useFormat } from '~/composables/useFormat'
+import { exportableToCsv, downloadCSV } from '~/composables/csv'
 
 const props = defineProps<{
   address: string
@@ -133,6 +135,12 @@ const subtitle = computed(() => {
   const last = Math.min(currentPage.value * rowsToShow.value, totalCount.value)
   return `(Showing assets between #${first} to #${last})`
 })
+
+function downloadData() {
+  const csv = exportableToCsv(pageSlice.value, headers)
+  const ts = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')
+  downloadCSV(csv, `assets-page-${currentPage.value}-${ts}.csv`)
+}
 </script>
 
 <template>
@@ -151,7 +159,17 @@ const subtitle = computed(() => {
       :rowOptions="rowOptions"
       :has-next-page="pageInfo?.hasNextPage"
       :has-previous-page="pageInfo?.hasPreviousPage"
+      :showTopPagination="false"
     >
+      <template #actions>
+        <button
+          @click="downloadData"
+          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
+        >
+          <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
+          {{ isMobile ? 'Download' : 'Download Page Data' }}
+        </button>
+      </template>
       <template #asset="{ item }">
         <div class="flex items-center gap-2">
           <div class="w-6 h-6 rounded-full bg-[#222222] overflow-hidden grid place-items-center">
