@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Copy from '~/components/Copy.vue'
+const { truncateAddress } = useFormat()
 
 const props = defineProps<{
   holding: any | null,
@@ -66,11 +67,29 @@ const ownerRoute = computed(() => {
   const owner = isHex64 ? `k:${first}` : first
   return { owner, href: `/account/${owner}` }
 })
+
+const ownerDisplay = computed(() => {
+  const route = ownerRoute.value as any
+  if (!route?.owner) return ''
+  return truncateAddress(route.owner, 10, 10)
+})
 </script>
 
 <template>
   <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 md:p-5 shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
-    <div class="text-[#fafafa] font-semibold mb-3">NFT Details</div>
+    <div class="flex items-center justify-between mb-3">
+      <div class="text-[#fafafa] font-semibold">NFT Details</div>
+      <a
+        v-if="externalUrl"
+        :href="externalUrl"
+        target="_blank"
+        rel="noopener"
+        aria-label="Open external site"
+        class="inline-flex items-center justify-center text-[#888888] hover:text-kadscan-400"
+      >
+        <IconExternal class="w-5 h-5" />
+      </a>
+    </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="relative rounded-lg bg-[#151515] border border-[#222222] aspect-square overflow-hidden flex items-center justify-center">
@@ -89,7 +108,7 @@ const ownerRoute = computed(() => {
       <div class="flex flex-col gap-3">
         <div v-if="ownerRoute">
           <div class="text-xs text-[#bbbbbb] mb-[2px]">Owner</div>
-          <NuxtLink :to="ownerRoute!.href" class="text-[15px] text-[#6ab5db] hover:text-[#9ccee7] break-all">{{ ownerRoute!.owner }}</NuxtLink>
+          <NuxtLink :to="ownerRoute!.href" class="text-[15px] text-[#6ab5db] hover:text-[#9ccee7] break-all">{{ ownerDisplay }}</NuxtLink>
         </div>
         <div>
           <div class="text-xs text-[#bbbbbb] mb-[2px]">Collection</div>
@@ -110,17 +129,10 @@ const ownerRoute = computed(() => {
           </div>
           <div>
             <div class="text-xs text-[#bbbbbb] mb-[2px]">TokenId</div>
-            <div class="flex items-center gap-2">
-              <div class="text-[15px] text-[#f5f5f5] break-all">{{ props.holding?.tokenId }}</div>
-              <Copy :value="props.holding?.tokenId" tooltipText="Copy Token ID" />
-            </div>
+            <div class="text-[15px] text-[#f5f5f5] break-all">{{ props.holding?.tokenId }}</div>
           </div>
         </div>
-        <div v-if="externalUrl" class="pt-1">
-          <a :href="externalUrl" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-3 py-2 text-sm text-white bg-[#1b1b1b] border border-[#2a2a2a] rounded-md hover:bg-[#262626]">
-            Open site
-          </a>
-        </div>
+        
       </div>
     </div>
   </div>
@@ -132,5 +144,6 @@ const ownerRoute = computed(() => {
 .tab-fade-enter-from, .tab-fade-leave-to { opacity: 0; }
 .tab-fade-enter-to, .tab-fade-leave-from { opacity: 1; }
 </style>
+
 
 
