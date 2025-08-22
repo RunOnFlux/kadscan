@@ -178,7 +178,9 @@ onBeforeUnmount(() => {
         <div class="flex items-center gap-2">
           <div class="relative w-8 h-8 rounded-md overflow-hidden bg-[#1a1a1a] border border-[#222222] grid place-items-center">
             <img v-if="item._image" :src="item._image" alt="nft" class="w-full h-full object-cover" />
-            <span v-else-if="!item._metaErr" class="text-xs text-[#888888]">—</span>
+            <span v-else-if="!item._metaErr" class="inline-block">
+              <span class="block w-[12px] h-[12px] border-2 border-[#bbbbbb] border-t-transparent rounded-full animate-spin"></span>
+            </span>
             <span v-else class="text-[10px] text-[#ff6b6b] text-center">IPFS</span>
             <div v-if="item._holding?.balance && Number(item._holding.balance) > 1" class="absolute bottom-[2px] left-[2px] bg-black/70 text-white text-[10px] px-[4px] py-[1px] rounded">
               x{{ item._holding.balance }}
@@ -200,10 +202,8 @@ onBeforeUnmount(() => {
     <div v-else class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
       <div class="flex flex-col items-center justify-center py-12">
         <img src="/empty/nft.png" alt="No NFTs" class="w-24 h-24 mb-4 opacity-50" />
-        <h3 class="text-[#fafafa] text-lg font-medium mb-2">No NFTs yet</h3>
-        <p class="text-[#bbbbbb] text-sm text-center">
-          This account doesn’t hold any NFTs on this chain.
-        </p>
+        <h3 class="text-[#fafafa] text-lg font-medium mb-2">No NFTs held in this account</h3>
+        <p class="text-[#bbbbbb] text-sm text-center">&nbsp;</p>
       </div>
     </div>
 

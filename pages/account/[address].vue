@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { useAccountNFTs } from '~/composables/useAccountNFTs'
 import { formatDistanceToNowStrict } from 'date-fns'
 import { useScreenSize } from '~/composables/useScreenSize'
 import { useAccount } from '~/composables/useAccount'
@@ -47,6 +48,7 @@ const {
 const { fetchKadenaPrice } = useBinance()
 const { selectedNetwork } = useSharedData()
 const { truncateAddress, formatKda } = useFormat()
+const { fetchAccountNFTs, startMetadataQueue } = useAccountNFTs()
 
 // Reactive state for KDA price and time updates
 const kdaPrice = ref<number>(0)
@@ -183,6 +185,12 @@ watch(
         networkId: network.id,
         accountName: addr
       })
+      // Prefetch NFTs and start metadata processing in the background
+      await fetchAccountNFTs({
+        networkId: network.id,
+        accountName: addr
+      })
+      startMetadataQueue(addr)
     }
   },
   { immediate: true }
