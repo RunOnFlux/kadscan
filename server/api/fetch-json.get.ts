@@ -56,23 +56,79 @@ function buildIpfsCandidates(input: string): string[] {
 // Basic CID matcher (CIDv0 and lenient CIDv1 base32)
 const CID_REGEX = /(Qm[1-9A-HJ-NP-Za-km-z]{44}|[abcdefghijklmnopqrstuvwxyz234567]{20,})/i
 
-function extractHttpUrl(input: string): string | null {
-  if (!input) return null
-  const m = input.match(/https?:\/\/[^\s"'<>()]+/i)
-  return m ? m[0] : null
+function findUrlNearImageKey(text: string): string | null {
+  if (!text) return null
+  const keys = ['image', 'image_url', 'imageUri', 'imageURI', 'imageUrl', 'thumbnail']
+  for (const key of keys) {
+    const re = new RegExp(`"${key}"\\s*:\\s*(?:\"|)(ipfs:\\/\\/[^\\s\"'<>()]+|https?:\\/\\/[^\\s\"'<>()]+)`, 'i')
+    const m = text.match(re)
+    if (m && m[1]) return m[1]
+  }
+  return null
+}
+
+function collectAllHttpUrls(text: string): string[] {
+  const urls: string[] = []
+  if (!text) return urls
+  const re = /https?:\/\/[^\s"'<>()]+/ig
+  let m: RegExpExecArray | null
+  while ((m = re.exec(text)) !== null) {
+    urls.push(m[0])
+  }
+  // de-duplicate
+  return Array.from(new Set(urls))
+}
+
+function scoreHttpUrl(text: string, url: string): number {
+  let score = 0
+  const lower = url.toLowerCase()
+  // Prefer image-like extensions
+  if (/(\.png|\.jpg|\.jpeg|\.webp|\.gif|\.svg)(\?|#|$)/i.test(lower)) score += 8
+  // Prefer common image path hints
+  if (/(\/uploads\/|\/images\/|\/img\/|\/media\/|\/content\/|\/assets\/)/i.test(lower)) score += 4
+  // Prefer https
+  if (lower.startsWith('https://')) score += 2
+  // Penalize if near external_url key in the surrounding context
+  const idx = text.indexOf(url)
+  if (idx >= 0) {
+    const start = Math.max(0, idx - 80)
+    const context = text.slice(start, idx + url.length + 10).toLowerCase()
+    if (context.includes('external_url')) score -= 7
+    if (context.includes('thumbnail')) score += 2
+    if (context.includes('image')) score += 3
+  }
+  // Length as weak tie-breaker
+  score += Math.min(5, Math.floor(url.length / 50))
+  return score
+}
+
+function pickBestHttpUrl(text: string): string | null {
+  const urls = collectAllHttpUrls(text)
+  if (!urls.length) return null
+  let best: { url: string; score: number } | null = null
+  for (const u of urls) {
+    const s = scoreHttpUrl(text, u)
+    if (!best || s > best.score || (s === best.score && u.length > best.url.length)) {
+      best = { url: u, score: s }
+    }
+  }
+  return best ? best.url : null
 }
 
 function recoverResourceUrlFromText(text: string): string | null {
   if (!text) return null
-  // Prefer explicit ipfs:// URIs first
+  // 1) Prefer value next to image-like keys
+  const fromImageKey = findUrlNearImageKey(text)
+  if (fromImageKey) return fromImageKey
+  // 2) Prefer explicit ipfs:// URIs anywhere
   const ipfsMatch = text.match(/ipfs:\/\/[^\s"'<>()]+/i)
   if (ipfsMatch) return ipfsMatch[0]
-  // Then bare CIDs
+  // 3) Then bare CIDs
   const cidMatch = text.match(CID_REGEX)
   if (cidMatch) return `https://ipfs.io/ipfs/${cidMatch[1]}`
-  // Finally, plain http(s) URLs
-  const http = extractHttpUrl(text)
-  if (http) return http
+  // 4) Finally, pick the best http(s) candidate by heuristic
+  const bestHttp = pickBestHttpUrl(text)
+  if (bestHttp) return bestHttp
   return null
 }
 
