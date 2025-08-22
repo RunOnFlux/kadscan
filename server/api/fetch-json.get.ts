@@ -72,7 +72,7 @@ export default defineEventHandler(async (event) => {
 
   for (const candidate of candidates) {
     const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 25_000)
+    const timeout = setTimeout(() => controller.abort(), 1_000)
     try {
       const res = await fetch(candidate, {
         signal: controller.signal,
