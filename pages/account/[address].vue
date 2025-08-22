@@ -210,7 +210,7 @@ watch(
 )
 
 // Tab management - similar to pages/transactions/[requestKey].vue
-const activeTab = ref('transactions')
+const activeTab = ref('assets')
 
 const tabLabels = computed(() => [
   'Transactions',
@@ -219,10 +219,10 @@ const tabLabels = computed(() => [
 ])
 
 const tabs = computed(() => [
+  { id: 'assets', label: 'Assets' },
   { id: 'transactions', label: 'Transactions' },
   { id: 'token-transfers', label: 'Token Transfers' },
   { id: 'nft-transfers', label: 'NFT Transfers' },
-  { id: 'assets', label: 'Assets' },
 ])
 
 // Current guard for selected chain (if any)

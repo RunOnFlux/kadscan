@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import AssetsPieChart from '~/components/account/AssetsPieChart.vue'
 import AssetsTokens from '~/components/account/AssetsTokens.vue'
 import AssetsNFTs from '~/components/account/AssetsNFTs.vue'
 import AssetsNFTCarousel from '~/components/account/AssetsNFTCarousel.vue'
+import DetailsPanel from '~/components/nft/DetailsPanel.vue'
+import { useAccountNFTs } from '~/composables/useAccountNFTs'
 
 const props = defineProps<{
   address: string
@@ -19,6 +21,51 @@ const currentChain = computed(() => {
 })
 
 watch(() => route.query.chain, () => {}, { immediate: true })
+
+// Selection state and initial default logic
+const { nfts, metadataByKey, metadataErrors } = useAccountNFTs()
+
+const selectedHolding = ref<any | null>(null)
+const selectedMetadata = ref<any | null>(null)
+const selectedErrorUrl = ref<string | null>(null)
+
+function selectFirstAvailable() {
+  const chain = currentChain.value
+  const arr = (nfts.value || []) as any[]
+  const filtered = chain === null ? arr : arr.filter(h => `${h.chainId}` === chain)
+  if (filtered.length > 0) {
+    const h = filtered[0]
+    const key = `${h.chainId}:${h.tokenId}`
+    selectedHolding.value = h
+    selectedMetadata.value = metadataByKey.value[key] || null
+    selectedErrorUrl.value = (metadataErrors.value[key] && (metadataErrors.value[key] as any).url) ? (metadataErrors.value[key] as any).url : null
+  } else {
+    selectedHolding.value = null
+    selectedMetadata.value = null
+    selectedErrorUrl.value = null
+  }
+}
+
+// Initialize and react to changes
+onMounted(() => {
+  selectFirstAvailable()
+})
+
+watch([
+  () => route.query.chain,
+  nfts,
+  () => metadataByKey.value,
+  () => metadataErrors.value,
+], () => {
+  selectFirstAvailable()
+})
+
+function handlePreview(payload: { holding: any | null; metadata: any | null; errorUrl: string | null }) {
+  // quick swap; transition handled inside DetailsPanel via CSS
+  selectedHolding.value = payload.holding
+  selectedMetadata.value = payload.metadata
+  selectedErrorUrl.value = payload.errorUrl
+}
 </script>
 
 <template>
@@ -26,7 +73,7 @@ watch(() => route.query.chain, () => {}, { immediate: true })
     <!-- Left column: Tokens (top) and NFTs (bottom) -->
     <div class="flex flex-col gap-4">
       <AssetsTokens :address="props.address" />
-      <AssetsNFTs :address="props.address" />
+      <AssetsNFTs :address="props.address" @preview="handlePreview" />
     </div>
 
     <!-- Right column: Pie (top) and placeholder (bottom) -->
@@ -36,8 +83,24 @@ watch(() => route.query.chain, () => {}, { immediate: true })
       </div>
 
       <AssetsNFTCarousel :address="props.address" />
+      <Transition name="tab-fade" mode="out-in">
+        <DetailsPanel
+          v-if="selectedHolding && selectedMetadata !== undefined"
+          :key="`${selectedHolding?.chainId}:${selectedHolding?.tokenId}`"
+          :holding="selectedHolding"
+          :metadata="selectedMetadata"
+          :error-url="selectedErrorUrl"
+        />
+      </Transition>
     </div>
   </div>
 </template>
+
+<style scoped>
+.tab-fade-enter-active { transition: opacity 0.15s ease-in-out; }
+.tab-fade-leave-active { transition: opacity 0.15s ease-in-out; }
+.tab-fade-enter-from, .tab-fade-leave-to { opacity: 0; }
+.tab-fade-enter-to, .tab-fade-leave-from { opacity: 1; }
+</style>
 
 

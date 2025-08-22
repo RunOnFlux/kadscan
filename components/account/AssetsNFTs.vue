@@ -3,7 +3,6 @@ import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import DataTable from '~/components/DataTable.vue'
 import SkeletonTable from '~/components/skeleton/Table5.vue'
 import PreviewIcon from '~/components/icon/Preview.vue'
-import DetailsModal from '~/components/nft/DetailsModal.vue'
 import { useAccountNFTs } from '~/composables/useAccountNFTs'
 import { useSharedData } from '~/composables/useSharedData'
 import Tooltip from '~/components/Tooltip.vue'
@@ -15,15 +14,19 @@ const props = defineProps<{
 }>()
 
 const headers = [
-  { key: 'preview', label: '' },
   { key: 'collection', label: 'Collection' },
   { key: 'name', label: 'Name' },
   { key: 'chain', label: 'Chain' },
   { key: 'tokenId', label: 'TokenId' },
+  { key: 'preview', label: '' },
 ]
 
 const { selectedNetwork } = useSharedData()
 const { loading, nfts, metadataByKey, metadataErrors, fetchAccountNFTs, startMetadataQueue, clearState } = useAccountNFTs()
+
+const emit = defineEmits<{
+  (e: 'preview', payload: { holding: any | null; metadata: any | null; errorUrl: string | null }): void
+}>()
 
 const route = useRoute()
 
@@ -109,21 +112,12 @@ const subtitle = computed(() => {
   return `(Showing NFTs ${first}–${last})`
 })
 
-// Modal state
-const modalOpen = ref(false)
-const modalHolding = ref<any>(null)
-const modalMetadata = ref<any>(null)
-const modalErrorUrl = ref<string | null>(null)
-
-function openModal(row: any) {
-  modalHolding.value = row?._holding || null
-  modalMetadata.value = row?._meta || null
-  modalErrorUrl.value = row?._metaErr?.url || null
-  modalOpen.value = true
-}
-
-function closeModal() {
-  modalOpen.value = false
+function openPreview(row: any) {
+  emit('preview', {
+    holding: row?._holding || null,
+    metadata: row?._meta || null,
+    errorUrl: (row?._metaErr && row._metaErr.url) ? row._metaErr.url : null,
+  })
 }
 
 // Fetch on mount and when network/address changes
@@ -169,7 +163,7 @@ onBeforeUnmount(() => {
       <template #preview="{ item }">
         <button
           class="w-8 h-8 rounded-md border border-[#222222] grid place-items-center hover:bg-[#1a1a1a] active:bg-[#252525]"
-          @click.prevent="openModal(item)"
+          @click.prevent="openPreview(item)"
         >
           <PreviewIcon />
         </button>
@@ -186,13 +180,13 @@ onBeforeUnmount(() => {
               x{{ item._holding.balance }}
             </div>
           </div>
-          <span class="text-[#f5f5f5]">{{ item.name }}</span>
+          <span class="text-[#fafafa]">{{ item.name }}</span>
         </div>
       </template>
       <template #tokenId="{ item }">
         <div class="flex items-center gap-1">
           <Tooltip :value="item.tokenId" variant="hash">
-            <span class="text-[#6ab5db] hover:text-[#9ccee7]">{{ shortenString(item.tokenId, 10, 10) }}</span>
+            <span class="text-[#fafafa]">{{ shortenString(item.tokenId, 10, 10) }}</span>
           </Tooltip>
           <Copy :value="item.tokenId" tooltipText="Copy Token ID" />
         </div>
@@ -202,12 +196,10 @@ onBeforeUnmount(() => {
     <div v-else class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
       <div class="flex flex-col items-center justify-center py-12">
         <img src="/empty/nft.png" alt="No NFTs" class="w-24 h-24 mb-4 opacity-50" />
-        <h3 class="text-[#fafafa] text-lg font-medium mb-2">No NFTs held in this account</h3>
+        <h3 class="text-[#fafafa] text-lg font-medium mb-2">No NFTs held in this account or specific chain</h3>
         <p class="text-[#bbbbbb] text-sm text-center">&nbsp;</p>
       </div>
     </div>
-
-    <DetailsModal :open="modalOpen" :holding="modalHolding" :metadata="modalMetadata" :error-url="modalErrorUrl" @close="closeModal" />
   </div>
 </template>
 
