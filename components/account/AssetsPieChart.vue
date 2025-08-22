@@ -183,7 +183,7 @@ const chartOptions = reactive({
         </div>
       </div>
     </template>
-    <div v-else class="py-12 text-center text-[#fafafa] text-md font-medium">No assets to be displayed.</div>
+    <div v-else class="py-12 text-center text-[#bbbbbb] text-sm">No tokens breakdown to be displayed.</div>
   </div>
 </template>
 

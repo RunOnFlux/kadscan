@@ -191,7 +191,7 @@ function downloadData() {
     <div v-else class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
       <div class="flex flex-col items-center justify-center py-12">
         <img src="/empty/nft.png" alt="No assets" class="w-24 h-24 mb-4 opacity-50" />
-        <h3 class="text-[#fafafa] text-lg font-medium mb-2">No assets yet</h3>
+        <div class="text-[#fafafa] text-lg font-medium mb-2">No tokens yet</div>
         <p class="text-[#bbbbbb] text-sm text-center">
           This account doesn’t hold any tokens on this chain.
         </p>
