@@ -1,4 +1,4 @@
-import { ref, readonly } from 'vue'
+import { ref, readonly, computed } from 'vue'
 import { useSharedData } from '~/composables/useSharedData'
 
 type NftHolding = {
@@ -47,6 +47,9 @@ const error = ref<any>(null)
 const nfts = ref<NftHolding[]>([])
 const metadataByKey = ref<MetadataRecord>({})
 const metadataErrors = ref<Record<string, { url: string; reason: string } | null>>({})
+
+// Shared selection (module scope so it persists across components on the page)
+const selectedKey = ref<string | null>(null)
 
 // Track current cache key and a simple cache so repeated navigations within the same view reuse data
 const currentCacheKey = ref<string | null>(null)
@@ -153,6 +156,7 @@ export const useAccountNFTs = () => {
     metadataErrors.value = {}
     currentCacheKey.value = null
     queueStartedForKey = null
+    selectedKey.value = null
     if (abortController) {
       abortController.abort()
       abortController = null
@@ -292,6 +296,40 @@ export const useAccountNFTs = () => {
     nfts: readonly(nfts),
     metadataByKey: readonly(metadataByKey),
     metadataErrors: readonly(metadataErrors),
+    // Selection API
+    selectedKey: readonly(selectedKey),
+    selectedHolding: computed(() => {
+      const k = selectedKey.value
+      if (!k) return null
+      return nfts.value.find(h => `${h.chainId}:${h.tokenId}` === k) || null
+    }),
+    selectedMetadata: computed(() => {
+      const k = selectedKey.value
+      if (!k) return null
+      return metadataByKey.value[k] ?? null
+    }),
+    selectedError: computed(() => {
+      const k = selectedKey.value
+      if (!k) return null
+      return metadataErrors.value[k] ?? null
+    }),
+    setSelected: (holding: NftHolding | null) => {
+      selectedKey.value = holding ? `${holding.chainId}:${holding.tokenId}` : null
+    },
+    selectFirstForChain: (chainId: string | null) => {
+      const list = nfts.value
+      const filtered = chainId === null ? list : list.filter(h => `${h.chainId}` === chainId)
+      const first = filtered[0] || null
+      selectedKey.value = first ? `${first.chainId}:${first.tokenId}` : null
+    },
+    isSelectionValid: (chainId: string | null) => {
+      const k = selectedKey.value
+      if (!k) return false
+      const found = nfts.value.find(h => `${h.chainId}:${h.tokenId}` === k)
+      if (!found) return false
+      if (chainId === null) return true
+      return `${found.chainId}` === chainId
+    },
     fetchAccountNFTs,
     startMetadataQueue,
     clearState,

@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, ref, watch, onMounted } from 'vue'
+import { computed } from 'vue'
 import AssetsPieChart from '~/components/account/AssetsPieChart.vue'
 import AssetsTokens from '~/components/account/AssetsTokens.vue'
 import AssetsNFTs from '~/components/account/AssetsNFTs.vue'
 import AssetsNFTCarousel from '~/components/account/AssetsNFTCarousel.vue'
 import DetailsPanel from '~/components/nft/DetailsPanel.vue'
 import { useAccountNFTs } from '~/composables/useAccountNFTs'
+import { useAccountBalances } from '~/composables/useAccountBalances'
 
 const props = defineProps<{
   address: string
@@ -20,78 +21,48 @@ const currentChain = computed(() => {
   return n !== undefined && !Number.isNaN(n) && n >= 0 && n <= 19 ? `${n}` : null
 })
 
-watch(() => route.query.chain, () => {}, { immediate: true })
+// Keep access to NFTs for hasNFTs/invertOrder logic
+const { nfts } = useAccountNFTs()
+const { balances } = useAccountBalances()
 
-// Selection state and initial default logic
-const { nfts, metadataByKey, metadataErrors } = useAccountNFTs()
+// Ordering logic: invert when tokens are empty for the current chain and NFTs are not
+const hasTokens = computed(() => {
+  const chain = currentChain.value
+  const arr = (balances.value || []) as Array<{ balance: string; chainId: string; module: string }>
+  const positive = arr.filter(b => Number(b?.balance) > 0)
+  const filtered = chain === null ? positive : positive.filter(b => `${b.chainId}` === chain)
+  return filtered.length > 0
+})
 
-const selectedHolding = ref<any | null>(null)
-const selectedMetadata = ref<any | null>(null)
-const selectedErrorUrl = ref<string | null>(null)
-
-function selectFirstAvailable() {
+const hasNFTs = computed(() => {
   const chain = currentChain.value
   const arr = (nfts.value || []) as any[]
   const filtered = chain === null ? arr : arr.filter(h => `${h.chainId}` === chain)
-  if (filtered.length > 0) {
-    const h = filtered[0]
-    const key = `${h.chainId}:${h.tokenId}`
-    selectedHolding.value = h
-    selectedMetadata.value = metadataByKey.value[key] || null
-    selectedErrorUrl.value = (metadataErrors.value[key] && (metadataErrors.value[key] as any).url) ? (metadataErrors.value[key] as any).url : null
-  } else {
-    selectedHolding.value = null
-    selectedMetadata.value = null
-    selectedErrorUrl.value = null
-  }
-}
-
-// Initialize and react to changes
-onMounted(() => {
-  selectFirstAvailable()
+  return filtered.length > 0
 })
 
-watch([
-  () => route.query.chain,
-  nfts,
-  () => metadataByKey.value,
-  () => metadataErrors.value,
-], () => {
-  selectFirstAvailable()
-})
-
-function handlePreview(payload: { holding: any | null; metadata: any | null; errorUrl: string | null }) {
-  // quick swap; transition handled inside DetailsPanel via CSS
-  selectedHolding.value = payload.holding
-  selectedMetadata.value = payload.metadata
-  selectedErrorUrl.value = payload.errorUrl
-}
+const invertOrder = computed(() => !hasTokens.value && hasNFTs.value)
 </script>
 
 <template>
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
-    <!-- Left column: Tokens (top) and NFTs (bottom) -->
+    <!-- Left column: Tokens and NFTs (order may invert without unmounting) -->
     <div class="flex flex-col gap-4">
-      <AssetsTokens :address="props.address" />
-      <AssetsNFTs :address="props.address" @preview="handlePreview" />
+      <AssetsTokens :address="props.address" :class="invertOrder ? 'order-2' : 'order-1'" />
+      <AssetsNFTs :address="props.address" :class="invertOrder ? 'order-1' : 'order-2'" />
     </div>
 
-    <!-- Right column: Pie (top) and placeholder (bottom) -->
+    <!-- Right column: Pie (tokens section) and NFTs preview (order may invert without unmounting) -->
     <div class="flex flex-col gap-4">
-      <div class="bg-[#111111] border border-[#222222] rounded-xl px-10 py-8 shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+      <div :class="['bg-[#111111] border border-[#222222] rounded-xl px-10 py-8 shadow-[0_0_20px_rgba(255,255,255,0.0625)]', invertOrder ? 'order-2' : 'order-1']">
         <AssetsPieChart />
       </div>
-
-      <AssetsNFTCarousel :address="props.address" />
-      <Transition name="tab-fade" mode="out-in">
-        <DetailsPanel
-          v-if="selectedHolding && selectedMetadata !== undefined"
-          :key="`${selectedHolding?.chainId}:${selectedHolding?.tokenId}`"
-          :holding="selectedHolding"
-          :metadata="selectedMetadata"
-          :error-url="selectedErrorUrl"
-        />
-      </Transition>
+      <div class="flex flex-col gap-4" :class="invertOrder ? 'order-1' : 'order-2'">
+        <AssetsNFTCarousel :address="props.address" />
+        <Transition name="tab-fade" mode="out-in">
+          <DetailsPanel />
+        </Transition>
+      </div>
     </div>
   </div>
 </template>

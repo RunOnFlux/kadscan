@@ -24,11 +24,7 @@ const headers = [
 ]
 
 const { selectedNetwork } = useSharedData()
-const { loading, nfts, metadataByKey, metadataErrors, fetchAccountNFTs, startMetadataQueue, clearState } = useAccountNFTs()
-
-const emit = defineEmits<{
-  (e: 'preview', payload: { holding: any | null; metadata: any | null; errorUrl: string | null }): void
-}>()
+const { loading, nfts, metadataByKey, metadataErrors, fetchAccountNFTs, startMetadataQueue, clearState, setSelected } = useAccountNFTs()
 
 const route = useRoute()
 
@@ -129,11 +125,7 @@ function downloadData() {
 }
 
 function openPreview(row: any) {
-  emit('preview', {
-    holding: row?._holding || null,
-    metadata: row?._meta || null,
-    errorUrl: (row?._metaErr && row._metaErr.url) ? row._metaErr.url : null,
-  })
+  if (row?._holding) setSelected(row._holding)
 }
 
 // Fetch on mount and when network/address changes
