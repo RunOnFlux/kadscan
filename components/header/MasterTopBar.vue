@@ -76,6 +76,14 @@ const medGasPrice = computed(() => {
 
           <span class="ml-4 mr-1 hidden lg:inline">Med Gas Price:</span>
           <span class="text-[#6ab5db] hover:text-[#9ccee7] hidden lg:inline">{{ medGasPrice ? medGasPrice + ' KDA' : '-' }}</span>
+          <NuxtLink
+            to="https://forms.gle/f3RB1A8MUAf1Pvgx9"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="ml-4 text-[#6ab5db] hover:text-[#9ccee7] hidden lg:inline"
+          >
+            Provide a Feedback!
+          </NuxtLink>
         </div>
 
         <div class="flex items-center gap-2 w-full md:w-auto justify-center md:justify-end">
