@@ -182,7 +182,7 @@ function downloadData() {
         </div>
       </template>
       <template #module="{ item }">
-        <Tooltip :value="item.module" :disabled="!isLongModule(item.module)">
+        <Tooltip :value="item.module" :variant="'hash'" :disabled="!isLongModule(item.module)">
           <span class="text-[#f5f5f5]">{{ displayModule(item.module) }}</span>
         </Tooltip>
       </template>

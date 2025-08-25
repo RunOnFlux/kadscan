@@ -69,6 +69,12 @@ const imageUrl = computed(() => selectedMetadata.value?.image || null)
 const externalUrl = computed(() => safeUrl(selectedMetadata.value?.external_url))
 const errorUrl = computed(() => selectedError.value?.url || null)
 
+// Track image load failures so we can show the fallback copy instead of a broken icon
+const imageFailed = ref(false)
+
+// Reset failure state when the image URL changes or a load succeeds
+watch(imageUrl, () => { imageFailed.value = false })
+
 const ownerRoute = computed(() => {
   const keys = selectedHolding.value?.guard?.keys
   const first = Array.isArray(keys) && keys.length > 0 ? String(keys[0]) : null
@@ -103,10 +109,10 @@ const ownerDisplay = computed(() => {
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="relative rounded-lg bg-[#151515] border border-[#222222] aspect-square overflow-hidden flex items-center justify-center">
-        <img v-if="imageUrl" :src="imageUrl as any" alt="nft" class="block max-w-full max-h-full object-contain" />
-        <div v-else class="text-[#888888] text-center px-3">
+        <img v-show="imageUrl && !imageFailed" :src="imageUrl as any" alt="nft" class="block max-w-full max-h-full object-contain" @error="imageFailed = true" @load="imageFailed = false" />
+        <div v-if="!imageUrl || imageFailed" class="text-[#888888] text-center px-3">
           <div>No image</div>
-          <div v-if="errorUrl" class="text-[#ff6b6b] text-xs mt-1 break-all">
+          <div class="text-[#ff6b6b] text-xs mt-1 break-all">
             This URL is not available
           </div>
         </div>

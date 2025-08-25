@@ -26,6 +26,26 @@ const headers = [
 const { selectedNetwork } = useSharedData()
 const { loading, nfts, metadataByKey, metadataErrors, fetchAccountNFTs, startMetadataQueue, clearState, setSelected } = useAccountNFTs()
 
+// Track thumbnails that failed to load so we can show the IPFS label
+const miniBroken = ref<Record<string, boolean>>({})
+
+function keyForItem(item: any): string {
+  const h = item?._holding
+  if (h && h.chainId !== undefined && h.tokenId !== undefined) return `${h.chainId}:${h.tokenId}`
+  if (item && item.chain !== undefined && item.tokenId !== undefined) return `${item.chain}:${item.tokenId}`
+  return String(Math.random())
+}
+
+function isMiniBroken(item: any): boolean {
+  const k = keyForItem(item)
+  return !!miniBroken.value[k]
+}
+
+function markMiniBroken(item: any) {
+  const k = keyForItem(item)
+  miniBroken.value = { ...miniBroken.value, [k]: true }
+}
+
 const route = useRoute()
 
 const chainFromQuery = computed(() => {
@@ -188,8 +208,8 @@ onBeforeUnmount(() => {
       <template #name="{ item }">
         <div class="flex items-center gap-2">
           <div class="relative w-8 h-8 rounded-md overflow-hidden bg-[#1a1a1a] border border-[#222222] grid place-items-center">
-            <img v-if="item._image" :src="item._image" alt="nft" class="w-full h-full object-cover" />
-            <span v-else-if="!item._metaErr" class="inline-block">
+            <img v-if="item._image && !isMiniBroken(item)" :src="item._image" alt="nft" class="w-full h-full object-cover" @error="markMiniBroken(item)" />
+            <span v-else-if="!item._metaErr && !isMiniBroken(item)" class="inline-block">
               <span class="block w-[12px] h-[12px] border-2 border-[#bbbbbb] border-t-transparent rounded-full animate-spin"></span>
             </span>
             <span v-else class="text-[10px] text-[#ff6b6b] text-center">IPFS</span>

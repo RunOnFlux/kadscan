@@ -74,7 +74,7 @@ function markBroken(key: string) {
   <div class="bg-[#111111] border border-[#222222] rounded-xl px-5 pb-6 pt-4 shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
     <div v-if="displayable.length > 0" class="flex items-center justify-between mb-3">
       <div class="text-[#fafafa] font-semibold">NFTs Accross All Chains</div>
-      <Tooltip placement="left" :value="`We are currently fetching the NFTs metadata directly in the URLs found associated with the NFT in the blockchain. NFTs usually don't store their images on the blockchain, they rather share an URL pointing to the image. But in most cases, these links are not maintained after a long period of time and might not be available.`">
+      <Tooltip placement="left" :value="`We are currently fetching the NFTs metadata directly in the URLs found associated with the NFT in the blockchain. NFTs usually don't store their images on the blockchain, they rather use an URL pointing to the image. But in most cases, these links are missconfigured or not maintained after a long period of time and might not be available.`">
         <button class="w-5 h-5 grid place-items-center text-[#bbbbbb] hover:text-[#e0e0e0]" aria-label="NFTs info">
           <InfoIcon class="w-5 h-5" />
         </button>
