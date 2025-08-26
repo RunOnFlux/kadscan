@@ -9,6 +9,7 @@ import { useSharedData } from '~/composables/useSharedData'
 import Tooltip from '~/components/Tooltip.vue'
 import { useFormat } from '~/composables/useFormat'
 import { exportableToCsv, downloadCSV } from '~/composables/csv'
+import { useAssetUsdPrices } from '~/composables/useAssetUsdPrices'
 
 const props = defineProps<{
   address: string
@@ -18,6 +19,13 @@ const route = useRoute()
 const { selectedNetwork } = useSharedData()
 const { balances, loading, pageInfo } = useAccountBalances()
 const { truncateAddress } = useFormat()
+const { getUsdPerUnit, primeModules } = useAssetUsdPrices()
+// Prime pricing when balances change
+watch(balances, (arr) => {
+  const mods = (arr || []).map((b: any) => b?.module).filter(Boolean)
+  primeModules(mods)
+}, { immediate: true })
+
 
 // Table setup
 const headers = [
@@ -51,8 +59,13 @@ const pageSlice = computed(() => {
   return filteredRows.value.slice(start, start + rowsToShow.value)
 })
 
-function formatUsd(num: number) {
+function formatUsdFixed2(num: number) {
   return `$${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num)}`
+}
+
+function formatUsdUpTo8(num: number) {
+  if (num > 0 && num < 1e-8) return '<$0.00000001'
+  return `$${new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 8 }).format(num)}`
 }
 
 const iconForModule = (module: string) => {
@@ -69,7 +82,7 @@ const nameForModule = (module: string) => {
   return fallback
 }
 
-const priceForModule = (_module: string) => 0 // USD price hardcoded for now
+const unitUsdForModule = (module: string) => getUsdPerUnit(module) || 0
 
 const chainFromQuery = computed(() => {
   const q = route.query.chain as string | undefined
@@ -84,17 +97,21 @@ const flattenedRows = computed(() => {
     .filter((b: any) => Number(b.balance) > 0)
     .map((b: any) => {
       const amountNum = Number(b.balance)
-      const price = priceForModule(b.module)
-      const value = price * amountNum
+      const unitUsd = unitUsdForModule(b.module)
+      const value = unitUsd * amountNum
+      if (process.client) {
+        console.debug('[table] module', b.module, 'amount', amountNum, 'unitUSD', unitUsd, 'value', value)
+      }
       return {
         asset: nameForModule(b.module),
         module: b.module,
         chain: b.chainId,
-        price: formatUsd(price),
+        price: formatUsdUpTo8(unitUsd),
         amount: new Intl.NumberFormat('en-US', { maximumFractionDigits: 12 }).format(amountNum),
-        value: formatUsd(value),
+        value: formatUsdFixed2(parseFloat(value.toFixed(2))),
         _sortValue: value,
         _icon: iconForModule(b.module),
+        _amountRaw: amountNum,
       }
     })
 })
@@ -102,15 +119,15 @@ const flattenedRows = computed(() => {
 // Helpers for displaying long module names
 const isLongModule = (module: string | undefined | null) => {
   const ns = (module || '').split('.')?.[0] || ''
-  return ns.length > 20
+  return ns.length > 18
 }
 
 const displayModule = (module: string | undefined | null) => {
   const text = module || ''
   const [ns, name] = text.split('.')
-  if (ns && ns.length > 20) {
-    const truncated = truncateAddress(ns, 8, 6)
-    return name ? `${truncated}.${name}` : truncated
+  if (ns && ns.length > 18) {
+    // For long namespaces, display only the module name (second part)
+    return name || text
   }
   return text
 }
