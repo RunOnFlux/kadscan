@@ -55,6 +55,14 @@ defineProps({
     type: Boolean,
     default: true,
   },
+  unknownTotal: {
+    type: Boolean,
+    default: false,
+  },
+  customTitle: {
+    type: String,
+    default: '',
+  },
 });
 
 const emit = defineEmits(['update:currentPage', 'update:selectedRows', 'update:loadingPage']);
@@ -69,7 +77,12 @@ const formatTotalItems = (num: number) => {
     <div class="flex flex-col md:flex-row gap-y-2 justify-between items-start md:items-center mb-4">
       <div>
         <h2 class="text-[15px] text-normal text-[#f5f5f5]">
-          Total of {{ formatTotalItems(totalItems) }} {{ itemNamePlural }}
+          <template v-if="!unknownTotal">
+            Total of {{ formatTotalItems(totalItems) }} {{ itemNamePlural }}
+          </template>
+          <template v-else>
+            {{ customTitle || 'Searching with code' }}
+          </template>
         </h2>
         <p class="text-[13px] text-[#bbbbbb]">
           {{ subtitle }}
@@ -84,6 +97,7 @@ const formatTotalItems = (num: number) => {
           :loadingPage="loadingPage"
           :has-next-page="hasNextPage"
           :has-previous-page="hasPreviousPage"
+          :unknownTotal="unknownTotal"
           @update:currentPage="emit('update:currentPage', $event)"
           @update:loadingPage="emit('update:loadingPage', $event)"
         />
@@ -141,6 +155,7 @@ const formatTotalItems = (num: number) => {
         :loadingPage="loadingPage"
         :has-next-page="hasNextPage"
         :has-previous-page="hasPreviousPage"
+        :unknownTotal="unknownTotal"
         @update:currentPage="emit('update:currentPage', $event)"
         @update:loadingPage="emit('update:loadingPage', $event)"
       />

@@ -11,6 +11,7 @@ const {
   selectHistoryItem,
   loadHistory,
   submit,
+  recordHistory,
 } = useSearch();
 
 const placeholder = ref('Search by Transaction / Address / Block / Token / Code')
@@ -98,7 +99,7 @@ onUnmounted(() => {
       :history="data.history"
       :query="data.query"
       :onSelectHistory="selectHistoryItem"
-      :onRecordHistory="(q, t) => recordHistory(q, t)"
+      :onRecordHistory="recordHistory"
     />
       </div>
 

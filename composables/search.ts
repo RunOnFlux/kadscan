@@ -76,6 +76,34 @@ const tokenQuery = `
   }
 `;
 
+// Transactions by Pact code (code search)
+const transactionsByPactCodeQuery = `
+  query TransactionsByPactCode($pactCode: String!, $after: String, $before: String, $first: Int, $last: Int) {
+    transactionsByPactCode(pactCode: $pactCode, after: $after, before: $before, first: $first, last: $last) {
+      edges {
+        cursor
+        node {
+          requestKey
+          canonical
+          chainId
+          creationTime
+          gas
+          gasLimit
+          gasPrice
+          height
+          sender
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+    }
+  }
+`;
+
 const filters = [
   {
     value: 'all',
@@ -148,7 +176,8 @@ export function useSearch () {
         blocks: [] as any[],
         addresses: [] as any[],
         transactions: [] as any[],
-        tokens: [] as any[]
+        tokens: [] as any[],
+        code: [] as any[]
       };
 
       // Search based on filter or search all types
@@ -351,6 +380,53 @@ export function useSearch () {
         data.searched = results;
       }
 
+      // Fire code search in background and pop it in first when ready (min 4 chars)
+      if ((shouldSearchAll || data.filter.value === 'transactions') && value.length >= 4) {
+        (async (currentQuery: string) => {
+          try {
+            const codeResponse: any = await $fetch('/api/graphql', {
+              method: 'POST',
+              body: {
+                query: transactionsByPactCodeQuery,
+                variables: {
+                  pactCode: currentQuery,
+                  first: 6,
+                },
+                networkId: selectedNetwork.value?.id,
+              },
+            });
+
+            const edges = codeResponse?.data?.transactionsByPactCode?.edges || [];
+            if (currentQuery === data.query && edges.length) {
+              // TEMP: convert unix seconds to ISO for creationTime until API returns ISO
+              const toIso = (v: any): string => {
+                if (typeof v === 'number') return new Date(v * 1000).toISOString();
+                if (typeof v === 'string' && /^\d+$/.test(v)) return new Date(parseInt(v, 10) * 1000).toISOString();
+                return new Date(v).toISOString();
+              };
+
+              const codeItems = edges.map((edge: any) => {
+                const n = edge.node;
+                const resultString = '{"status":"success","badResult":null}';
+                return {
+                  requestkey: n.requestKey,
+                  chainId: n.chainId,
+                  height: n.height,
+                  creationTime: toIso(n.creationTime),
+                  result: resultString,
+                };
+              });
+
+              const current = { ...(data.searched || results) } as any;
+              current.code = codeItems;
+              data.searched = current;
+            }
+          } catch (error) {
+            console.warn('Code search failed:', error);
+          }
+        })(value);
+      }
+
     } catch (error) {
       console.error('Search error:', error);
       data.error = 'An error occurred while searching. Please try again.';
@@ -538,7 +614,7 @@ export function useSearch () {
       console.warn('Block hash verification failed:', error);
     }
 
-    // 4. Account - Final Fallback (verify existence via fungibleAccount)
+    // 4. Account - Next (verify existence via fungibleAccount)
     try {
       const fungibleResponse: any = await $fetch('/api/graphql', {
         method: 'POST',
@@ -558,6 +634,29 @@ export function useSearch () {
       data.precheck.accountExists = false;
     } catch (error) {
       console.warn('Fungible account verification failed:', error);
+    }
+
+    // 5. Code search - Last attempt (min 4 chars)
+    if ((searchTerm || '').length >= 4) {
+      try {
+        const codeCheck: any = await $fetch('/api/graphql', {
+          method: 'POST',
+          body: {
+            query: transactionsByPactCodeQuery,
+            variables: {
+              pactCode: searchTerm,
+              first: 1,
+            },
+            networkId: selectedNetwork.value?.id,
+          },
+        });
+        const hasAny = (codeCheck?.data?.transactionsByPactCode?.edges || []).length > 0;
+        if (hasAny) {
+          return { type: 'code' } as any;
+        }
+      } catch (error) {
+        console.warn('Code verification failed:', error);
+      }
     }
 
     // If nothing matched, return null to show no results
@@ -665,6 +764,10 @@ export function useSearch () {
       } else if (redirectInfo.type === "block-hash") {
         // For block hashes, we need to search first to get the block data
         // Don't redirect immediately, let the search complete first
+      } else if (redirectInfo.type === 'code') {
+        router.push({ path: '/transactions', query: { code: data.query } });
+        cleanup();
+        return;
       } else {
         router.push(`/${redirectInfo.type}/${data.query}`);
         cleanup();
@@ -715,6 +818,10 @@ export function useSearch () {
         return;
       } else if (redirectInfo.type === "block-hash") {
         // Need to resolve block data first
+      } else if (redirectInfo.type === 'code') {
+        router.push({ path: '/transactions', query: { code: q } });
+        cleanup();
+        return;
       } else {
         router.push(`/${redirectInfo.type}/${q}`);
         cleanup();

@@ -10,6 +10,7 @@ import Copy from '~/components/Copy.vue';
 import SkeletonTable from '~/components/skeleton/Table.vue';
 import ColumnGas from '~/components/column/Gas.vue';
 import { useTransactions } from '~/composables/useTransactions';
+import { useTransactionsByPactCode } from '~/composables/useTransactionsByPactCode';
 import { useFormat } from '~/composables/useFormat';
 import { useSharedData } from '~/composables/useSharedData';
 import { useScreenSize } from '~/composables/useScreenSize';
@@ -50,6 +51,19 @@ const {
   clearState: clearTransactionsState,
 } = useTransactions();
 
+// Code-mode support (minimum 4 characters)
+const codeMode = computed(() => typeof route.query.code === 'string' && route.query.code.length >= 4);
+const {
+  error: codeError,
+  transactions: codeTransactions,
+  loading: codeLoading,
+  fetchTransactionsByCode,
+  pageInfo: codePageInfo,
+  rowsToShow: codeRowsToShow,
+  updateRowsToShow: updateCodeRowsToShow,
+  clearState: clearCodeState,
+} = useTransactionsByPactCode();
+
 // Chain filter state - initialize from URL parameters (commented due to query glitch)
 const selectedChain = ref({ label: 'All', value: null });
 const selectedBlock = ref<number | null>(route.query.block ? Number(route.query.block) : null);
@@ -57,6 +71,7 @@ const selectedBlock = ref<number | null>(route.query.block ? Number(route.query.
 // Clear global state on mount to show skeleton on page navigation
 onMounted(() => {
   clearTransactionsState();
+  clearCodeState();
   clearBlocksState();
 });
 
@@ -70,11 +85,11 @@ const chainOptions = computed(() => {
 });
 
 const subtitle = computed(() => {
+  if (codeMode.value) return '';
   if (filteredTransactions.value.length === 0 || loading.value || !totalCount.value) {
     return '';
   }
 
-  // Determine how many items should appear on the current page (handles last-page remainder)
   const itemsBefore = (currentPage.value - 1) * rowsToShow.value;
   const remaining = Math.max(totalCount.value - itemsBefore, 0);
   const pageCount = Math.min(rowsToShow.value, remaining);
@@ -128,15 +143,24 @@ const currentPage = ref(Number(route.query.page) || 1);
 const loadingPage = ref(false);
 
 const selectedRowOption = computed({
-  get: () => rowOptions.find(option => option.value === rowsToShow.value) || rowOptions[0],
+  get: () => codeMode.value
+    ? (rowOptions.find(option => option.value === codeRowsToShow.value) || rowOptions[0])
+    : (rowOptions.find(option => option.value === rowsToShow.value) || rowOptions[0]),
   set: (value) => {
     if (value) {
-      updateRowsToShow(value);
+      if (codeMode.value) {
+        updateCodeRowsToShow(value);
+        currentPage.value = 1;
+      } else {
+        updateRowsToShow(value);
+        currentPage.value = 1;
+      }
     }
   },
 });
 
 const totalPages = computed(() => {
+  if (codeMode.value) return 1;
   if (!totalCount.value) return 1;
   return Math.ceil(totalCount.value / rowsToShow.value);
 });
@@ -145,14 +169,18 @@ const { transactionStatus } = useStatus(lastBlockHeight);
 
 // Computed property to filter out transactions from orphaned blocks
 const filteredTransactions = computed(() => {
-  if (!transactions.value || !lastBlockHeight || !lastBlockHeight.value) return [];
+  const list = codeMode.value ? codeTransactions.value : transactions.value;
+  if (!list || !lastBlockHeight || !lastBlockHeight.value) return [];
   
-  return transactions.value.filter((transaction: any) => {
+  return list.filter((transaction: any) => {
     // Remove transactions from orphaned blocks (same logic as blockStatus function)
     const isFromOrphanedBlock = lastBlockHeight.value - 10 >= transaction.height && !transaction.canonical;
     return !isFromOrphanedBlock;
   });
 });
+
+// Use the correct loading state depending on mode
+const isLoading = computed(() => codeMode.value ? codeLoading.value : loading.value);
 
 watch(
   [currentPage, rowsToShow],
@@ -179,55 +207,59 @@ watch(() => route.query.page, (page) => {
 
 // 1) React to network or chain change: reset to page 1 and refresh counts, then fetch first page
 watch(
-  [selectedNetwork, selectedChain, selectedBlock],
-  async ([network], [oldNetwork, oldChain, oldBlock]) => {
+  [selectedNetwork, selectedChain, selectedBlock, () => route.query.code],
+  async ([network]) => {
     if (!network) return;
-
-    // Don't run pagination logic if there's an error (prevents race condition with error redirect)
     if (transactionsError.value || blocksError.value) return;
 
-    const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
-    const chainChanged = !!oldChain && selectedChain.value.value !== oldChain.value;
-    const blockChanged = selectedBlock.value !== oldBlock;
+    await fetchLastBlockHeight({ networkId: network.id });
+    currentPage.value = 1;
 
-    if (networkChanged || chainChanged || blockChanged) {
-      await fetchLastBlockHeight({ networkId: network.id });
-      currentPage.value = 1;
-      const params: { networkId: string; chainId?: string; isCoinbase?: boolean; minHeight?: number; maxHeight?: number } = { networkId: network.id };
-      // Default coinbase behavior: false unless both chain and block are present
-      params.isCoinbase = false;
-      // Chain filter
-      if (selectedChain.value.value !== null) params.chainId = selectedChain.value.value as string;
-      // Block filter
-      if (selectedBlock.value !== null) {
-        params.minHeight = selectedBlock.value;
-        params.maxHeight = selectedBlock.value;
-        // Only include coinbase when both chain and block are present
-        if (params.chainId) params.isCoinbase = true;
+    if (codeMode.value) {
+      // Strip chain filter when in code mode
+      const q: any = { ...route.query };
+      if (q.chain) {
+        delete q.chain;
+        router.replace({ query: q });
       }
-      await fetchTransactions(params);
+      await fetchTransactionsByCode({ networkId: network.id, pactCode: String(route.query.code) });
       loadingPage.value = false;
+      return;
     }
+
+    const params: { networkId: string; chainId?: string; isCoinbase?: boolean; minHeight?: number; maxHeight?: number } = { networkId: network.id };
+    params.isCoinbase = false;
+    if (selectedChain.value.value !== null) params.chainId = selectedChain.value.value as string;
+    if (selectedBlock.value !== null) {
+      params.minHeight = selectedBlock.value;
+      params.maxHeight = selectedBlock.value;
+      if (params.chainId) params.isCoinbase = true;
+    }
+    await fetchTransactions(params);
+    loadingPage.value = false;
   },
   { immediate: true }
 );
 
 // 2) React to rows-per-page change: reset to page 1 and refetch first page
-watch(rowsToShow, async (newRows, oldRows) => {
+watch([rowsToShow, codeRowsToShow], async () => {
   const network = selectedNetwork.value;
   if (!network) return;
   if (transactionsError.value || blocksError.value) return;
-  if (newRows === oldRows) return;
   currentPage.value = 1;
-  const params: { networkId: string; chainId?: string; isCoinbase?: boolean; minHeight?: number; maxHeight?: number } = { networkId: network.id };
-  params.isCoinbase = false;
-  if (selectedChain.value.value !== null) params.chainId = selectedChain.value.value as string;
-  if (selectedBlock.value !== null) {
-    params.minHeight = selectedBlock.value;
-    params.maxHeight = selectedBlock.value;
-    if (params.chainId) params.isCoinbase = true;
+  if (codeMode.value) {
+    await fetchTransactionsByCode({ networkId: network.id, pactCode: String(route.query.code) });
+  } else {
+    const params: { networkId: string; chainId?: string; isCoinbase?: boolean; minHeight?: number; maxHeight?: number } = { networkId: network.id };
+    params.isCoinbase = false;
+    if (selectedChain.value.value !== null) params.chainId = selectedChain.value.value as string;
+    if (selectedBlock.value !== null) {
+      params.minHeight = selectedBlock.value;
+      params.maxHeight = selectedBlock.value;
+      if (params.chainId) params.isCoinbase = true;
+    }
+    await fetchTransactions(params);
   }
-  await fetchTransactions(params);
   loadingPage.value = false;
 });
 
@@ -237,6 +269,15 @@ watch(currentPage, async (newPage, oldPage) => {
   if (!network) return;
   if (transactionsError.value || blocksError.value) return;
   if (!newPage || newPage === oldPage) return;
+
+  if (codeMode.value) {
+    const params: { networkId: string; after?: string; before?: string } = { networkId: network.id };
+    if (newPage > oldPage) params.after = codePageInfo.value?.endCursor as string | undefined;
+    else if (newPage < oldPage) params.before = codePageInfo.value?.startCursor as string | undefined;
+    await fetchTransactionsByCode({ ...params, pactCode: String(route.query.code) });
+    loadingPage.value = false;
+    return;
+  }
 
   const params: { networkId: string; after?: string; before?: string; toLastPage?: boolean; chainId?: string; isCoinbase?: boolean; minHeight?: number; maxHeight?: number } = {
     networkId: network.id,
@@ -275,9 +316,18 @@ watch(() => route.query.block, (block) => {
   }
 });
 
+// Normalize short code query (remove if < 4 chars)
+watch(() => route.query.code, (code) => {
+  if (typeof code === 'string' && code.length > 0 && code.length < 4) {
+    const q: any = { ...route.query };
+    delete q.code;
+    router.replace({ query: q });
+  }
+});
+
 // Redirect to error page when transaction is not found
-watch([transactionsError, blocksError], ([transactionsError, blocksError]) => {
-  if (transactionsError || blocksError) {
+watch([transactionsError, blocksError, codeError], ([transactionsError, blocksError, codeErrorVal]) => {
+  if (transactionsError || blocksError || codeErrorVal) {
     navigateTo('/error', { replace: true })
   }
 })
@@ -296,13 +346,13 @@ function downloadData() {
       </h1>
     </div>
 
-    <SkeletonTable v-if="loading" />
+    <SkeletonTable v-if="isLoading" />
 
     <DataTable
       v-else
       :headers="tableHeaders"
       :items="filteredTransactions"
-      :totalItems="totalCount"
+      :totalItems="totalCount || 0"
       itemNamePlural="transactions"
       :subtitle="subtitle"
       v-model:currentPage="currentPage"
@@ -310,18 +360,22 @@ function downloadData() {
       v-model:selectedRows="selectedRowOption"
       :rowOptions="rowOptions"
       v-model:loadingPage="loadingPage"
-      :has-next-page="pageInfo?.hasNextPage"
-      :has-previous-page="pageInfo?.hasPreviousPage"
+      :has-next-page="codeMode ? codePageInfo?.hasNextPage : pageInfo?.hasNextPage"
+      :has-previous-page="codeMode ? codePageInfo?.hasPreviousPage : pageInfo?.hasPreviousPage"
+      :unknownTotal="codeMode"
+      customTitle="Searching with code"
     >
       <template #actions>
-        <FilterSelect
-          :modelValue="selectedChain"
-          @update:modelValue="selectedChain = $event"
-          :items="chainOptions"
-          urlParamName="chain"
-          :enableBlockFilter="true"
-          blockUrlParamName="block"
-        />
+        <template v-if="!codeMode">
+          <FilterSelect
+            :modelValue="selectedChain"
+            @update:modelValue="selectedChain = $event"
+            :items="chainOptions"
+            urlParamName="chain"
+            :enableBlockFilter="true"
+            blockUrlParamName="block"
+          />
+        </template>
         <button
           @click="downloadData"
           class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
