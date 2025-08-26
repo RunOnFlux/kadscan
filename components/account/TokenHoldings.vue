@@ -15,12 +15,22 @@ const emit = defineEmits<{
 const open = ref(false)
 const search = ref('')
 
+function deriveNameFromModule(module: string): string {
+  const text = module || ''
+  const afterDot = text.split('.')?.[1] || text
+  const cleaned = afterDot.replace(/[-_]+/g, ' ')
+  const lower = cleaned.toLowerCase()
+  return lower ? lower.charAt(0).toUpperCase() + lower.slice(1) : 'Unknown'
+}
+
 const tokenItems = computed(() => {
   const list = (props.balances || []).map((n: any) => {
     const meta = staticTokens.find(t => t.module === n.module) || unknownToken
+    const fallbackToModule = !meta?.name || meta.name.toLowerCase() === 'unknown'
+    const name = fallbackToModule ? deriveNameFromModule(n.module) : meta.name
     return {
       type: 'token',
-      name: meta.name || n.module,
+      name,
       module: n.module,
       icon: meta.icon || '',
       chainId: n.chainId,
@@ -31,7 +41,25 @@ const tokenItems = computed(() => {
 })
 
 // NFTs sourced from composable already used elsewhere on the page
-const { nfts, metadataByKey } = useAccountNFTs()
+const { nfts, metadataByKey, metadataErrors } = useAccountNFTs()
+
+// Track thumbnails that failed to load so we can show the IPFS label
+const miniBroken = ref<Record<string, boolean>>({})
+
+function keyForItem(item: any): string {
+  if (item && item.chainId !== undefined && item.tokenId !== undefined) return `${item.chainId}:${item.tokenId}`
+  return String(Math.random())
+}
+
+function isMiniBroken(item: any): boolean {
+  const k = keyForItem(item)
+  return !!miniBroken.value[k]
+}
+
+function markMiniBroken(item: any) {
+  const k = keyForItem(item)
+  miniBroken.value = { ...miniBroken.value, [k]: true }
+}
 
 const nftItems = computed(() => {
   const rows = nfts.value || []
@@ -39,7 +67,8 @@ const nftItems = computed(() => {
     const k = `${h.chainId}:${h.tokenId}`
     const meta = (metadataByKey as any).value?.[k] || null
     const name = (meta?.name as string) || 'Unknown'
-    const icon = (meta?.image as string) || '/nft/mock.webp'
+    const icon = (meta?.image as string) || null
+    const metaErr = !!((metadataErrors as any).value?.[k])
     return {
       type: 'nft',
       name,
@@ -47,8 +76,9 @@ const nftItems = computed(() => {
       chainId: h.chainId,
       amount: String(h.balance ?? 1),
       tokenId: h.tokenId,
+      metaErr,
     }
-  }) as Array<{ type: 'nft'; name: string; icon: string; chainId: string; amount: string; tokenId: string }>
+  }) as Array<{ type: 'nft'; name: string; icon: string | null; chainId: string; amount: string; tokenId: string; metaErr: boolean }>
 })
 
 const nonZeroTokens = computed(() => tokenItems.value.filter(i => Number(i.amount) > 0))
@@ -99,7 +129,7 @@ const onViewAll = () => {
 
     <div 
       v-if="open"
-      class="absolute z-30 mt-2 w-full max-h-[420px] rounded-md border border-[#222] bg-[#0f0f0f] shadow-xl flex flex-col overflow-hidden"
+      class="absolute z-30 mt-2 w-full max-h-[420px] rounded-md border border-[#222] bg-[#0f0f0f] shadow-[0_0_20px_rgba(255,255,255,0.0625)] flex flex-col overflow-hidden"
     >
       <!-- Search -->
       <div class="px-3 py-3 bg-[#0f0f0f] border-b border-[#1f1f1f]">
@@ -121,6 +151,7 @@ const onViewAll = () => {
         </div>
 
         <div v-if="loading" class="px-3 py-2 text-[14px] text-[#888888]">Loading...</div>
+        <div v-else-if="filteredTokenItems.length === 0" class="px-5 pb-2 text-[13px] text-[#888]">No Tokens</div>
         <div v-else>
           <div 
             v-for="(item, idx) in filteredTokenItems" 
@@ -128,7 +159,12 @@ const onViewAll = () => {
             class="px-5 py-2 text-[14px] text-[#fafafa] flex items-center justify-between border-b border-[#1f1f1f] last:border-b-0"
           >
             <div class="flex items-center gap-3 min-w-0">
-              <img :src="item.icon" class="w-6 h-6 rounded-full bg-[#222] object-contain" alt="" />
+              <div class="w-7 h-7 rounded-full bg-[#222222] overflow-hidden grid place-items-center">
+                <img v-if="item.icon" :src="item.icon" alt="icon" class="w-7 h-7 object-contain" />
+                <span v-else class="text-[12px] text-[#fafafa]">
+                  {{ (item.name || 'U')[0]?.toUpperCase() }}
+                </span>
+              </div>
               <div class="min-w-0">
                 <div class="text-[14px] text-[#fafafa] truncate">{{ item.name }}</div>
                 <div class="text-[13px] text-[#bbbbbb] truncate">Chain <b>{{ item.chainId }}</b></div>
@@ -142,7 +178,7 @@ const onViewAll = () => {
         </div>
 
         <!-- NFTs Group -->
-        <div class="px-3 pt-3 pb-2 mt-2">
+        <div class="px-3 pt-3 pb-2">
           <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-[#141414] text-[#fafafa] text-[15px] font-semibold">
             <span>NFTs ({{ nftsCount }})</span>
           </div>
@@ -155,7 +191,13 @@ const onViewAll = () => {
             class="px-5 py-2 text-[14px] text-[#fafafa] flex items-center justify-between border-b border-[#1f1f1f] last:border-b-0"
           >
             <div class="flex items-center gap-3 min-w-0">
-              <img :src="item.icon" class="w-6 h-6 rounded bg-[#222] object-cover" alt="" />
+              <div class="w-6 h-6 rounded bg-[#222] grid place-items-center overflow-hidden">
+                <img v-if="item.icon && !isMiniBroken(item)" :src="item.icon" alt="nft" class="w-full h-full object-cover" @error="markMiniBroken(item)" />
+                <span v-else-if="!item.metaErr && !isMiniBroken(item)" class="inline-block">
+                  <span class="block w-[10px] h-[10px] border-2 border-[#bbbbbb] border-t-transparent rounded-full animate-spin"></span>
+                </span>
+                <span v-else class="text-[9px] text-[#ff6b6b] leading-none">IPFS</span>
+              </div>
               <div class="min-w-0">
                 <div class="text-[14px] text-[#fafafa] truncate">{{ item.name || 'Unknown' }}</div>
                 <div class="text-[13px] text-[#bbbbbb] truncate">Chain <b>{{ item.chainId }}</b> · #{{ item.tokenId }}</div>
@@ -169,7 +211,7 @@ const onViewAll = () => {
       </div>
 
       <!-- Footer CTA (sticky bottom, styled like List.vue) -->
-      <div class="px-6 py-3 text-center bg-[#151515] rounded-b-md border-t border-[#222222]">
+      <div class="px-6 py-3 mt-3 text-center bg-[#151515] rounded-b-md border-t border-[#222222]">
         <button 
           class="text-[12px] font-semibold text-[#b8b8b8] hover:text-[#9ccee7]"
           @click.prevent="onViewAll"
