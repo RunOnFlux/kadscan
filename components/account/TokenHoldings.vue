@@ -31,7 +31,25 @@ const tokenItems = computed(() => {
 })
 
 // NFTs sourced from composable already used elsewhere on the page
-const { nfts, metadataByKey } = useAccountNFTs()
+const { nfts, metadataByKey, metadataErrors } = useAccountNFTs()
+
+// Track thumbnails that failed to load so we can show the IPFS label
+const miniBroken = ref<Record<string, boolean>>({})
+
+function keyForItem(item: any): string {
+  if (item && item.chainId !== undefined && item.tokenId !== undefined) return `${item.chainId}:${item.tokenId}`
+  return String(Math.random())
+}
+
+function isMiniBroken(item: any): boolean {
+  const k = keyForItem(item)
+  return !!miniBroken.value[k]
+}
+
+function markMiniBroken(item: any) {
+  const k = keyForItem(item)
+  miniBroken.value = { ...miniBroken.value, [k]: true }
+}
 
 const nftItems = computed(() => {
   const rows = nfts.value || []
@@ -39,7 +57,8 @@ const nftItems = computed(() => {
     const k = `${h.chainId}:${h.tokenId}`
     const meta = (metadataByKey as any).value?.[k] || null
     const name = (meta?.name as string) || 'Unknown'
-    const icon = (meta?.image as string) || '/nft/mock.webp'
+    const icon = (meta?.image as string) || null
+    const metaErr = !!((metadataErrors as any).value?.[k])
     return {
       type: 'nft',
       name,
@@ -47,8 +66,9 @@ const nftItems = computed(() => {
       chainId: h.chainId,
       amount: String(h.balance ?? 1),
       tokenId: h.tokenId,
+      metaErr,
     }
-  }) as Array<{ type: 'nft'; name: string; icon: string; chainId: string; amount: string; tokenId: string }>
+  }) as Array<{ type: 'nft'; name: string; icon: string | null; chainId: string; amount: string; tokenId: string; metaErr: boolean }>
 })
 
 const nonZeroTokens = computed(() => tokenItems.value.filter(i => Number(i.amount) > 0))
@@ -155,7 +175,13 @@ const onViewAll = () => {
             class="px-5 py-2 text-[14px] text-[#fafafa] flex items-center justify-between border-b border-[#1f1f1f] last:border-b-0"
           >
             <div class="flex items-center gap-3 min-w-0">
-              <img :src="item.icon" class="w-6 h-6 rounded bg-[#222] object-cover" alt="" />
+              <div class="w-6 h-6 rounded bg-[#222] grid place-items-center overflow-hidden">
+                <img v-if="item.icon && !isMiniBroken(item)" :src="item.icon" alt="nft" class="w-full h-full object-cover" @error="markMiniBroken(item)" />
+                <span v-else-if="!item.metaErr && !isMiniBroken(item)" class="inline-block">
+                  <span class="block w-[10px] h-[10px] border-2 border-[#bbbbbb] border-t-transparent rounded-full animate-spin"></span>
+                </span>
+                <span v-else class="text-[9px] text-[#ff6b6b] leading-none">IPFS</span>
+              </div>
               <div class="min-w-0">
                 <div class="text-[14px] text-[#fafafa] truncate">{{ item.name || 'Unknown' }}</div>
                 <div class="text-[13px] text-[#bbbbbb] truncate">Chain <b>{{ item.chainId }}</b> · #{{ item.tokenId }}</div>
