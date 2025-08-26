@@ -134,6 +134,7 @@ const externalTooltipHandler = (context: any) => {
     tooltipEl.style.padding = '8px 10px'
     tooltipEl.style.color = '#fafafa'
     tooltipEl.style.fontSize = '12px'
+    tooltipEl.style.whiteSpace = 'normal'
     tooltipEl.style.zIndex = '50'
     chart.canvas.parentNode.appendChild(tooltipEl)
   }
@@ -148,12 +149,7 @@ const externalTooltipHandler = (context: any) => {
     const label = labels.value[index]
     const value = dataValues.value[index]
     const pct = totalBalance.value > 0 ? ((value / totalBalance.value) * 100).toFixed(2) : '0.00'
-    tooltipEl.innerHTML = `<div class="flex items-center gap-2">
-      <div class="w-2.5 h-2.5 rounded-full" style="background:${backgroundColors.value[index]}"></div>
-      <div class="font-medium">${label}</div>
-    </div>
-    <div class=\"text-[#bbbbbb] mt-1\">USD: $${Number(value).toFixed(2)}</div>
-    <div class="text-[#bbbbbb]">Share: ${pct}%</div>`
+    tooltipEl.innerHTML = `<div class=\"flex items-center gap-2\" style=\"white-space:nowrap\">\n      <div class=\"w-2.5 h-2.5 rounded-full\" style=\"background:${backgroundColors.value[index]}\"></div>\n      <div class=\"font-medium uppercase\">${label}</div>\n    </div>\n    <div class=\"text-[#bbbbbb] mt-1\" style=\"white-space:nowrap\">USD: $${Number(value).toFixed(2)}</div>\n    <div class=\"text-[#bbbbbb]\" style=\"white-space:nowrap\">Share: ${pct}%</div>`
   }
 
   const { offsetLeft: positionX, offsetTop: positionY } = chart.canvas
@@ -184,7 +180,7 @@ const chartOptions = reactive({
       <div class="grid grid-cols-1 md:flex md:items-center">
         <!-- Left: Chart (60%) -->
         <div class="md:basis-6/12 md:shrink-0 flex justify-center md:justify-start">
-          <div class="relative overflow-hidden" :style="{ width: chartSizePx, height: chartSizePx }">
+          <div class="relative overflow-visible" :style="{ width: chartSizePx, height: chartSizePx }">
             <Doughnut
               :data="chartData"
               :options="chartOptions"
