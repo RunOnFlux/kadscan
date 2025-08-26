@@ -63,6 +63,10 @@ defineProps({
     type: String,
     default: '',
   },
+  preventHeaderWrap: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(['update:currentPage', 'update:selectedRows', 'update:loadingPage']);
@@ -74,7 +78,7 @@ const formatTotalItems = (num: number) => {
 
 <template>
   <div class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
-    <div class="flex flex-col md:flex-row gap-y-2 justify-between items-start md:items-center mb-4">
+    <div class="flex justify-between mb-4" :class="preventHeaderWrap ? 'flex-row items-center gap-2 flex-nowrap' : 'flex-col md:flex-row gap-y-2 items-start md:items-center'">
       <div>
         <h2 class="text-[15px] text-normal text-[#f5f5f5]">
           <template v-if="!unknownTotal">
@@ -88,7 +92,7 @@ const formatTotalItems = (num: number) => {
           {{ subtitle }}
         </p>
       </div>
-      <div class="flex items-center gap-2 w-full md:w-fit justify-end">
+      <div class="flex items-center gap-2 justify-end" :class="preventHeaderWrap ? 'w-fit' : 'w-full md:w-fit'">
         <slot name="actions" />
         <PaginationControls
           v-if="showTopPagination"

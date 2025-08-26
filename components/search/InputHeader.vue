@@ -35,20 +35,40 @@ const handleSlashKey = (event: KeyboardEvent) => {
     !data.open
   ) {
     event.preventDefault()
+    // Open modal and load history, then focus input
+    data.open = true
+    loadHistory()
     searchInput.value.focus()
   }
+}
+
+const handleEscapeKey = (event: KeyboardEvent) => {
+  if (event.key !== 'Escape') return
+  let acted = false
+  if (data.open) {
+    event.preventDefault()
+    close()
+    acted = true
+  }
+  if (searchInput.value && document.activeElement === searchInput.value) {
+    ;(searchInput.value as HTMLInputElement).blur()
+    acted = true
+  }
+  if (acted) return
 }
 
 onMounted(() => {
   updatePlaceholder()
   window.addEventListener('resize', updatePlaceholder)
   document.addEventListener('keydown', handleSlashKey)
+  document.addEventListener('keydown', handleEscapeKey)
   loadHistory()
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', updatePlaceholder)
   document.removeEventListener('keydown', handleSlashKey)
+  document.removeEventListener('keydown', handleEscapeKey)
 })
 </script>
 

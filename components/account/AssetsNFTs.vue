@@ -187,6 +187,7 @@ onBeforeUnmount(() => {
       :has-next-page="currentPage < totalPages"
       :has-previous-page="currentPage > 1"
       :showTopPagination="false"
+      :preventHeaderWrap="true"
     >
       <template #actions>
         <button

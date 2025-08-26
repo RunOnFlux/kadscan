@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { staticTokens, unknownToken, unknownNft } from '~/constants/tokens'
+import { useAccountNFTs } from '~/composables/useAccountNFTs'
 
 const props = defineProps<{
   loading: boolean,
@@ -29,9 +30,25 @@ const tokenItems = computed(() => {
   return list
 })
 
-// Placeholder for NFTs (no data source wired here yet)
+// NFTs sourced from composable already used elsewhere on the page
+const { nfts, metadataByKey } = useAccountNFTs()
+
 const nftItems = computed(() => {
-  return [] as Array<{ type: 'nft'; name: string; icon: string; chainId: string; amount: string }>
+  const rows = nfts.value || []
+  return rows.map((h: any) => {
+    const k = `${h.chainId}:${h.tokenId}`
+    const meta = (metadataByKey as any).value?.[k] || null
+    const name = (meta?.name as string) || 'Unknown'
+    const icon = (meta?.image as string) || '/nft/mock.webp'
+    return {
+      type: 'nft',
+      name,
+      icon,
+      chainId: h.chainId,
+      amount: String(h.balance ?? 1),
+      tokenId: h.tokenId,
+    }
+  }) as Array<{ type: 'nft'; name: string; icon: string; chainId: string; amount: string; tokenId: string }>
 })
 
 const nonZeroTokens = computed(() => tokenItems.value.filter(i => Number(i.amount) > 0))
@@ -48,11 +65,12 @@ const filteredTokenItems = computed(() => {
 const filteredNftItems = computed(() => {
   const q = search.value.trim().toLowerCase()
   if (!q) return nftItems.value
-  return nftItems.value.filter(i => i.name.toLowerCase().includes(q))
+  return nftItems.value.filter(i => i.name.toLowerCase().includes(q) || String(i.tokenId).toLowerCase().includes(q))
 })
 
 const tokensCount = computed(() => nonZeroTokens.value.length)
 const nftsCount = computed(() => nftItems.value.length)
+const assetsCount = computed(() => tokensCount.value + nftsCount.value)
 
 const close = () => { open.value = false }
 
@@ -72,7 +90,7 @@ const onViewAll = () => {
     >
       <div class="flex items-center gap-2">
         <span>Assets</span>
-        <span class="text-[#bbbbbb] text-[13px]"> ({{ tokensCount }} Tokens)</span>
+        <span class="text-[#bbbbbb] text-[13px]"> ({{ assetsCount }} Assets)</span>
       </div>
       <svg class="w-4 h-4" fill="none" viewBox="0 0 16 16">
         <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -130,6 +148,24 @@ const onViewAll = () => {
           </div>
         </div>
         <div v-if="filteredNftItems.length === 0" class="px-5 pb-2 text-[13px] text-[#888]">No NFTs</div>
+        <div v-else>
+          <div
+            v-for="(item, idx) in filteredNftItems"
+            :key="`nft-${idx}`"
+            class="px-5 py-2 text-[14px] text-[#fafafa] flex items-center justify-between border-b border-[#1f1f1f] last:border-b-0"
+          >
+            <div class="flex items-center gap-3 min-w-0">
+              <img :src="item.icon" class="w-6 h-6 rounded bg-[#222] object-cover" alt="" />
+              <div class="min-w-0">
+                <div class="text-[14px] text-[#fafafa] truncate">{{ item.name || 'Unknown' }}</div>
+                <div class="text-[13px] text-[#bbbbbb] truncate">Chain <b>{{ item.chainId }}</b> · #{{ item.tokenId }}</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-[12px] text-[#bbbbbb]">{{ item.amount }}</div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Footer CTA (sticky bottom, styled like List.vue) -->
