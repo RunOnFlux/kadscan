@@ -114,7 +114,11 @@ function markBroken(key: string) {
       <template v-else>
         <div class="grid grid-cols-4 gap-2">
           <div v-for="idx in 4" :key="idx" class="aspect-square rounded-lg overflow-hidden bg-[#151515] border border-[#222222]">
-            <div class="w-full h-full animate-pulse bg-[#1a1a1a]"></div>
+            <div class="w-full h-full relative animate-[pulse_0.7s_ease-in-out_infinite] bg-[#1a1a1a]">
+              <div class="absolute inset-0 flex items-center justify-center">
+                <div class="h-5 w-5 rounded-full border-2 border-white/20 border-t-transparent animate-spin"></div>
+              </div>
+            </div>
           </div>
         </div>
       </template>
