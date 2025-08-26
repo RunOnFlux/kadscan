@@ -24,7 +24,7 @@ const QUERY_CHAINS_GAS = `
     networkInfo { 
       countersOfEachChain { 
         chainId 
-        totalGasUsed 
+        totalGasUsedInKda 
       } 
     } 
   }
@@ -78,7 +78,7 @@ export const useBlocksMetrics = (selectedNetwork: NetworkRef) => {
       },
     });
     if (response.errors) throw new Error(response.errors.map((e: any) => e.message).join(', '));
-    return response.data?.networkInfo?.countersOfEachChain as Array<{ chainId: string; totalGasUsed: string }> | undefined;
+    return response.data?.networkInfo?.countersOfEachChain as Array<{ chainId: string; totalGasUsedInKda: string }> | undefined;
   };
 
   const fetchCoinsInCirculation = async (networkId: string) => {
@@ -127,8 +127,8 @@ export const useBlocksMetrics = (selectedNetwork: NetworkRef) => {
       const difficultyEh = (Number(difficulty) / 1e18);
       const formattedDifficulty = `${difficultyEh.toFixed(2)} EH`;
 
-      const totalGasUsed = chainsGas.reduce((acc, item) => acc + (parseFloat(item.totalGasUsed) || 0), 0);
-      const formattedTotalGas = `${formatKda(totalGasUsed, 4)} KDA`;
+      const totalGasUsedInKda = chainsGas.reduce((acc, item) => acc + (parseFloat(item.totalGasUsedInKda) || 0), 0);
+      const formattedTotalGas = `${formatKda(totalGasUsedInKda, 4)} KDA`;
 
       const metrics = [
         { label: 'Est. Network Hash Rate', value: formattedHashRate },

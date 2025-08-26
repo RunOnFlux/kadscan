@@ -11,6 +11,7 @@ const {
   selectHistoryItem,
   loadHistory,
   submit,
+  recordHistory,
 } = useSearch();
 
 const placeholder = ref('Search by Transaction / Address / Block / Token / Code')

@@ -23,6 +23,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  unknownTotal: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(['update:currentPage', 'update:loadingPage']);
@@ -54,14 +58,16 @@ const goToLast = () => {
 };
 
 const goToPrevious = () => {
-  if (!isFirstPage.value) {
+  const canGo = props.unknownTotal ? props.hasPreviousPage : !isFirstPage.value;
+  if (canGo) {
     emit('update:currentPage', props.currentPage - 1);
     emit('update:loadingPage', true);
   }
 };
 
 const goToNext = () => {
-  if (!isLastPage.value) {
+  const canGo = props.unknownTotal ? props.hasNextPage : !isLastPage.value;
+  if (canGo) {
     emit('update:currentPage', props.currentPage + 1);
     emit('update:loadingPage', true);
   }
@@ -71,6 +77,7 @@ const goToNext = () => {
 <template>
   <nav class="flex items-stretch gap-0.5" aria-label="Pagination">
     <button
+      v-if="!unknownTotal"
       :disabled="!hasPreviousPage || loadingPage"
       @click="goToFirst"
       class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#fafafa] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
@@ -85,7 +92,8 @@ const goToNext = () => {
       <IconChevron class="h-4 w-4 transform rotate-180" />
     </button>
     <span class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-normal text-[#888888] cursor-default">
-      Page {{ formatCurrentPage }} of {{ formatTotalPages }}
+      <template v-if="!unknownTotal">Page {{ formatCurrentPage }} of {{ formatTotalPages }}</template>
+      <template v-else>Page {{ formatCurrentPage }}</template>
     </span>
     <button
       :disabled="!hasNextPage || loadingPage"
@@ -95,6 +103,7 @@ const goToNext = () => {
       <IconChevron class="h-4 w-4" />
     </button>
     <button
+      v-if="!unknownTotal"
       :disabled="!hasNextPage || loadingPage"
       @click="goToLast"
       class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#fafafa] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"

@@ -43,6 +43,10 @@ const hasTokens = computed(() => {
   return props.items?.tokens?.length > 0
 });
 
+const hasCode = computed(() => {
+  return props.items?.code?.length > 0
+});
+
 // Computed to detect single result type
 const singleResultType = computed(() => {
   if (!props.items) return null
@@ -52,6 +56,7 @@ const singleResultType = computed(() => {
   if (hasTransactions.value) resultTypes.push('transactions') 
   if (hasAddresses.value) resultTypes.push('address')
   if (hasTokens.value) resultTypes.push('tokens')
+  if (hasCode.value) resultTypes.push('code')
   
   return resultTypes.length === 1 ? resultTypes[0] : null
 })
@@ -65,7 +70,7 @@ const getInitialActiveFilter = () => {
   
   if (props.selectedFilter === 'all') return ''
   if (props.selectedFilter === 'address') return 'address'
-  return props.selectedFilter // 'blocks', 'transactions', 'tokens' stay the same
+  return props.selectedFilter // 'blocks', 'transactions', 'tokens', 'code' stay the same
 }
 
 const activeFilter = ref(getInitialActiveFilter());
@@ -181,6 +186,13 @@ const showHistory = computed(() => {
         />
 
         <SearchViewFilter
+          label="Code"
+          v-if="hasCode"
+          @click.prevent="scrollToView('search-code-view')"
+          :isActive="activeFilter === 'code'"
+        />
+
+        <SearchViewFilter
           label="Transactions"
           v-if="hasTransactions"
           @click.prevent="scrollToView('search-transactions-view')"
@@ -231,6 +243,13 @@ const showHistory = computed(() => {
         @visible="handleSectionVisible('address')"
       >
         <SearchViewAddress id="search-address-view" :addresses="items?.addresses" :onRecordHistory="onRecordHistory" />
+      </SearchViewVisible>
+
+      <SearchViewVisible
+        v-if="hasCode"
+        @visible="handleSectionVisible('code')"
+      >
+        <SearchViewCode id="search-code-view" :items="items?.code" :query="query" :onRecordHistory="onRecordHistory" />
       </SearchViewVisible>
 
       <SearchViewVisible
