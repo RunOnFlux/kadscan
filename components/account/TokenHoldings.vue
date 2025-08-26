@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { staticTokens, unknownToken, unknownNft } from '~/constants/tokens'
 import { useAccountNFTs } from '~/composables/useAccountNFTs'
+import { useAssetUsdPrices } from '~/composables/useAssetUsdPrices'
 
 const props = defineProps<{
   loading: boolean,
@@ -14,6 +15,9 @@ const emit = defineEmits<{
 
 const open = ref(false)
 const search = ref('')
+const { getUsdPerUnit, primeModules } = useAssetUsdPrices()
+const formatUsd = (v: number) => `$${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v || 0)}`
+const formatAmount12 = (v: string | number) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 12 }).format(Number(v || 0))
 
 function deriveNameFromModule(module: string): string {
   const text = module || ''
@@ -28,6 +32,12 @@ const tokenItems = computed(() => {
     const meta = staticTokens.find(t => t.module === n.module) || unknownToken
     const fallbackToModule = !meta?.name || meta.name.toLowerCase() === 'unknown'
     const name = fallbackToModule ? deriveNameFromModule(n.module) : meta.name
+    const unitUsd = getUsdPerUnit(n.module)
+    const amountNum = Number(n.balance || 0)
+    const usd = Number.isFinite(unitUsd) ? parseFloat((unitUsd * amountNum).toFixed(2)) : 0
+    if (process.client) {
+      console.debug('[holdings] item', n.module, 'amount', amountNum, 'unitUSD', unitUsd, 'usd', usd)
+    }
     return {
       type: 'token',
       name,
@@ -35,9 +45,11 @@ const tokenItems = computed(() => {
       icon: meta.icon || '',
       chainId: n.chainId,
       amount: n.balance,
+      usd,
     }
   })
-  return list
+  // sort by USD desc
+  return list.sort((a: any, b: any) => (b.usd || 0) - (a.usd || 0))
 })
 
 // NFTs sourced from composable already used elsewhere on the page
@@ -108,6 +120,12 @@ const onViewAll = () => {
   emit('view-all-assets')
   close()
 }
+
+// Prime prices when dropdown receives balances
+watch(() => props.balances, (arr) => {
+  const mods = (arr || []).map((b: any) => b?.module).filter(Boolean)
+  primeModules(mods)
+}, { immediate: true })
 </script>
 
 <template>
@@ -171,8 +189,8 @@ const onViewAll = () => {
               </div>
             </div>
             <div class="text-right">
-              <div class="text-[14px]">$0.0</div>
-              <div v-if="Number(item.amount) > 0" class="text-[12px] text-[#bbbbbb]">{{ item.amount }}</div>
+              <div class="text-[14px]">{{ formatUsd(item.usd || 0) }}</div>
+              <div v-if="Number(item.amount) > 0" class="text-[12px] text-[#bbbbbb]">{{ formatAmount12(item.amount) }}</div>
             </div>
           </div>
         </div>

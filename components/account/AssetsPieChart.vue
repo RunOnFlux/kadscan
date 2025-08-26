@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { Doughnut } from 'vue-chartjs'
 import { useAccountBalances } from '~/composables/useAccountBalances'
+import { useAssetUsdPrices } from '~/composables/useAssetUsdPrices'
 import { staticTokens } from '~/constants/tokens'
 
 const { balances } = useAccountBalances()
+const { getUsdPerUnit, primeModules } = useAssetUsdPrices()
 
 // Fixed chart size (same on desktop and mobile) to keep the donut perfectly round
 // Slightly reduced to give more space to the legend
@@ -33,40 +35,44 @@ const nameForModule = (module: string) => {
 const PALETTE = ['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#10b981', '#06b6d4', '#3b82f6', '#8b5cf6']
 const OTHERS_COLOR = '#4b5563'
 
-// Group balances by module (specific chain when viewing All chains), sort by amount desc
+// Group balances by USD value; when All Chains selected, aggregate by module across chains.
 const groupedByAsset = computed(() => {
-  const map = new Map<string, { module: string; label: string; amount: number }>()
+  const map = new Map<string, { module: string; label: string; usd: number }>()
   for (const b of (balances.value || [])) {
     const amount = Number(b?.balance || 0)
     if (!amount || amount <= 0) continue
     const baseModule = b.module || 'unknown'
-    const key = isAllChains.value ? `${baseModule}|${b.chainId}` : baseModule
-    const label = isAllChains.value ? `${nameForModule(baseModule)} (c${b.chainId})` : nameForModule(baseModule)
+    const unitUsd = getUsdPerUnit(baseModule)
+    const usd = Number.isFinite(unitUsd) ? unitUsd * amount : 0
+    const key = isAllChains.value ? baseModule : `${baseModule}|${b.chainId}`
+    const label = isAllChains.value ? nameForModule(baseModule) : `${nameForModule(baseModule)} (c${b.chainId})`
     const prev = map.get(key)
     if (prev) {
-      prev.amount += amount
+      prev.usd += usd
     } else {
-      map.set(key, { module: key, label, amount })
+      map.set(key, { module: key, label, usd })
+    }
+    if (process.client) {
+      console.debug('[pie] module', baseModule, 'amount', amount, 'unitUSD', unitUsd, 'usd+', usd, 'key', key)
     }
   }
-  return Array.from(map.values()).sort((a, b) => b.amount - a.amount)
+  return Array.from(map.values()).sort((a, b) => b.usd - a.usd)
 })
 
-// Total based on amounts for now
-// NOTE: In the future, switch to USD value once pricing is available
-const totalBalance = computed(() => groupedByAsset.value.reduce((acc, i) => acc + Number(i.amount || 0), 0))
+// Total USD
+const totalBalance = computed(() => groupedByAsset.value.reduce((acc, i) => acc + Number(i.usd || 0), 0))
 
 // Top 8 slices + aggregate others
 const slices = computed(() => {
   const SLICE_CAP = 8
   const top = groupedByAsset.value.slice(0, SLICE_CAP)
   if (groupedByAsset.value.length <= SLICE_CAP) return top
-  const othersAmount = groupedByAsset.value.slice(SLICE_CAP).reduce((a, i) => a + i.amount, 0)
-  return [...top, { module: 'others', label: 'OTHERS', amount: othersAmount }]
+  const othersAmount = groupedByAsset.value.slice(SLICE_CAP).reduce((a, i) => a + i.usd, 0)
+  return [...top, { module: 'others', label: 'OTHERS', usd: othersAmount }]
 })
 
 const labels = computed(() => slices.value.map(s => s.label))
-const dataValues = computed(() => slices.value.map(s => s.amount))
+const dataValues = computed(() => slices.value.map(s => s.usd))
 const backgroundColors = computed(() => slices.value.map((s, i) => (s.module === 'others' ? OTHERS_COLOR : PALETTE[i % PALETTE.length])))
 
 const chartData = computed(() => ({
@@ -128,6 +134,7 @@ const externalTooltipHandler = (context: any) => {
     tooltipEl.style.padding = '8px 10px'
     tooltipEl.style.color = '#fafafa'
     tooltipEl.style.fontSize = '12px'
+    tooltipEl.style.whiteSpace = 'normal'
     tooltipEl.style.zIndex = '50'
     chart.canvas.parentNode.appendChild(tooltipEl)
   }
@@ -141,14 +148,8 @@ const externalTooltipHandler = (context: any) => {
     const index = tooltip.dataPoints[0].dataIndex
     const label = labels.value[index]
     const value = dataValues.value[index]
-    // Percentage based on amount for now. Change to USD later when prices are available.
     const pct = totalBalance.value > 0 ? ((value / totalBalance.value) * 100).toFixed(2) : '0.00'
-    tooltipEl.innerHTML = `<div class="flex items-center gap-2">
-      <div class="w-2.5 h-2.5 rounded-full" style="background:${backgroundColors.value[index]}"></div>
-      <div class="font-medium">${label}</div>
-    </div>
-    <div class="text-[#bbbbbb] mt-1">Quantity: ${value}</div>
-    <div class="text-[#bbbbbb]">Share: ${pct}%</div>`
+    tooltipEl.innerHTML = `<div class=\"flex items-center gap-2\" style=\"white-space:nowrap\">\n      <div class=\"w-2.5 h-2.5 rounded-full\" style=\"background:${backgroundColors.value[index]}\"></div>\n      <div class=\"font-medium uppercase\">${label}</div>\n    </div>\n    <div class=\"text-[#bbbbbb] mt-1\" style=\"white-space:nowrap\">USD: $${Number(value).toFixed(2)}</div>\n    <div class=\"text-[#bbbbbb]\" style=\"white-space:nowrap\">Share: ${pct}%</div>`
   }
 
   const { offsetLeft: positionX, offsetTop: positionY } = chart.canvas
@@ -175,11 +176,11 @@ const chartOptions = reactive({
 
 <template>
   <div class="w-full">
-    <template v-if="totalBalance > 0">
+    <template v-if="groupedByAsset.length > 0">
       <div class="grid grid-cols-1 md:flex md:items-center">
         <!-- Left: Chart (60%) -->
         <div class="md:basis-6/12 md:shrink-0 flex justify-center md:justify-start">
-          <div class="relative overflow-hidden" :style="{ width: chartSizePx, height: chartSizePx }">
+          <div class="relative overflow-visible" :style="{ width: chartSizePx, height: chartSizePx }">
             <Doughnut
               :data="chartData"
               :options="chartOptions"
@@ -190,7 +191,7 @@ const chartOptions = reactive({
             <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
               <div class="text-center">
                 <div class="text-[12px] text-[#bbbbbb]">Total</div>
-                <div class="text-[16px] text-white font-semibold">{{ totalBalance.toLocaleString() }}</div>
+                <div class="text-[16px] text-white font-semibold">${{ Number(totalBalance).toFixed(2) }}</div>
               </div>
             </div>
           </div>
@@ -203,11 +204,11 @@ const chartOptions = reactive({
               <div class="flex items-center gap-3 min-w-0">
                 <div class="w-3 h-3 rounded-full" :style="{ background: (s.module === 'others' ? '#4b5563' : backgroundColors[idx]) }"></div>
                 <div class="truncate text-[#fafafa] text-[12px]" :ref="el => setLabelRef(el as HTMLElement | null, idx)">
-                  <span class="text-[#bbbbbb] mr-1">{{ ((s.amount / (totalBalance || 1)) * 100).toFixed(2) }}%</span>
+                  <span class="text-[#bbbbbb] mr-1">{{ ((s.usd / (totalBalance || 1)) * 100).toFixed(2) }}%</span>
                   <span class="uppercase">{{ s.label }}</span>
                 </div>
               </div>
-              <div class="text-[#fafafa] text-[12px] font-medium" :class="{ 'basis-full mt-1 text-right': shouldWrapAmount[idx] }">{{ new Intl.NumberFormat('en-US', { maximumFractionDigits: 12 }).format(s.amount) }}</div>
+              <div class="text-[#fafafa] text-[12px] font-medium" :class="{ 'basis-full mt-1 text-right': shouldWrapAmount[idx] }">${{ Number(s.usd).toFixed(2) }}</div>
             </div>
           </div>
         </div>
