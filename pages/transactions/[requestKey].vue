@@ -714,7 +714,7 @@ onUnmounted(() => {
       <!-- Tab Content with Fade Transition -->
       <Transition name="tab-fade" mode="out-in">
         <!-- More Details Section -->
-        <div v-if="activeTab.startsWith('Overview')" class="bg-[#111111] border border-[#222222] rounded-xl p-5 mb-2">
+        <div v-if="activeTab.startsWith('Overview')" class="bg-[#111111] border border-[#222222] rounded-xl p-5 mb-2 shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
           <div 
             ref="contentRef"
             class="overflow-hidden transition-all duration-300 ease-out"

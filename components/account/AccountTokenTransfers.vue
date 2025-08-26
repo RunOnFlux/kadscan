@@ -291,7 +291,7 @@ function downloadData() {
         <div class="flex items-center">
           <span
             :class="[
-              'py-1.5 text-[11px] rounded-md border inline-flex items-center justify-center leading-none w-[48px]',
+              'py-1.5 text-[10px] rounded-md border inline-flex items-center justify-center leading-none w-[48px]',
               item.direction === 'IN' 
                 ? 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]'
                 : 'bg-[#17150d] border-[#fbbf2480] text-[#fbbf24]'
