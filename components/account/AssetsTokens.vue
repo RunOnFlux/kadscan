@@ -160,6 +160,7 @@ function downloadData() {
       :has-next-page="pageInfo?.hasNextPage"
       :has-previous-page="pageInfo?.hasPreviousPage"
       :showTopPagination="false"
+      :preventHeaderWrap="true"
     >
       <template #actions>
         <button
