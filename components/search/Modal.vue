@@ -47,6 +47,16 @@ const hasCode = computed(() => {
   return props.items?.code?.length > 0
 });
 
+// Helper to check if a given filter type currently has results
+const isFilterAvailable = (type: string) => {
+  if (type === 'address') return hasAddresses.value
+  if (type === 'code') return hasCode.value
+  if (type === 'transactions') return hasTransactions.value
+  if (type === 'tokens') return hasTokens.value
+  if (type === 'blocks') return hasBlocks.value
+  return false
+}
+
 // Computed to detect single result type
 const singleResultType = computed(() => {
   if (!props.items) return null
@@ -85,8 +95,26 @@ watch(() => props.selectedFilter, () => {
 
 // Watch for items changes to update activeFilter when results change
 watch(() => props.items, () => {
-  if (props.selectedFilter === 'all') {
-    activeFilter.value = getInitialActiveFilter()
+  if (props.selectedFilter !== 'all') return
+
+  const initial = getInitialActiveFilter()
+
+  // If nothing active yet, use initial selection logic
+  if (!activeFilter.value) {
+    activeFilter.value = initial
+    return
+  }
+
+  // If the current active type disappeared, choose a safe fallback
+  if (!isFilterAvailable(activeFilter.value)) {
+    activeFilter.value =
+      initial ||
+      (hasAddresses.value ? 'address'
+        : hasCode.value ? 'code'
+        : hasTransactions.value ? 'transactions'
+        : hasTokens.value ? 'tokens'
+        : hasBlocks.value ? 'blocks'
+        : '')
   }
 }, { deep: true })
 
