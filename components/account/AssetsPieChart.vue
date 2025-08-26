@@ -82,6 +82,36 @@ const chartData = computed(() => ({
   ]
 }))
 
+// Detect when the legend's label text overflows its container so we can
+// move the numeric amount to the next row on narrow widths.
+const labelRefs = ref<Array<HTMLElement | null>>([])
+const shouldWrapAmount = ref<boolean[]>([])
+
+const setLabelRef = (el: HTMLElement | null, index: number) => {
+  labelRefs.value[index] = el
+}
+
+const measureWraps = () => {
+  shouldWrapAmount.value = labelRefs.value.map((el) => {
+    if (!el) return false
+    return el.scrollWidth > el.clientWidth
+  })
+}
+
+onMounted(() => {
+  nextTick(() => measureWraps())
+  window.addEventListener('resize', measureWraps)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', measureWraps)
+})
+
+watch(slices, async () => {
+  await nextTick()
+  measureWraps()
+})
+
 const externalTooltipHandler = (context: any) => {
   const { chart, tooltip } = context
   let tooltipEl = chart.canvas.parentNode.querySelector('div.chart-tooltip') as HTMLElement | null
@@ -112,7 +142,7 @@ const externalTooltipHandler = (context: any) => {
     const label = labels.value[index]
     const value = dataValues.value[index]
     // Percentage based on amount for now. Change to USD later when prices are available.
-    const pct = totalBalance.value > 0 ? ((value / totalBalance.value) * 100).toFixed(4) : '0.0000'
+    const pct = totalBalance.value > 0 ? ((value / totalBalance.value) * 100).toFixed(2) : '0.00'
     tooltipEl.innerHTML = `<div class="flex items-center gap-2">
       <div class="w-2.5 h-2.5 rounded-full" style="background:${backgroundColors.value[index]}"></div>
       <div class="font-medium">${label}</div>
@@ -167,17 +197,17 @@ const chartOptions = reactive({
         </div>
 
         <!-- Right: Legend (30-40%), vertically centered, closer to chart -->
-        <div class="md:basis-6/12 flex flex-col justify-center">
+        <div class="md:basis-6/12 flex flex-col justify-center md:pt-0 pt-6">
           <div class="space-y-3 max-h-72 overflow-auto pl-4">
-            <div v-for="(s, idx) in slices" :key="idx" class="flex items-center justify-between">
+            <div v-for="(s, idx) in slices" :key="idx" class="flex items-center justify-between flex-wrap">
               <div class="flex items-center gap-3 min-w-0">
                 <div class="w-3 h-3 rounded-full" :style="{ background: (s.module === 'others' ? '#4b5563' : backgroundColors[idx]) }"></div>
-                <div class="truncate text-[#fafafa] text-[12px]">
-                  <span class="text-[#bbbbbb] mr-1">{{ ((s.amount / (totalBalance || 1)) * 100).toFixed(4) }}%</span>
+                <div class="truncate text-[#fafafa] text-[12px]" :ref="el => setLabelRef(el as HTMLElement | null, idx)">
+                  <span class="text-[#bbbbbb] mr-1">{{ ((s.amount / (totalBalance || 1)) * 100).toFixed(2) }}%</span>
                   <span class="uppercase">{{ s.label }}</span>
                 </div>
               </div>
-              <div class="text-[#fafafa] text-[12px] font-medium">{{ new Intl.NumberFormat('en-US', { maximumFractionDigits: 12 }).format(s.amount) }}</div>
+              <div class="text-[#fafafa] text-[12px] font-medium" :class="{ 'basis-full mt-1 text-right': shouldWrapAmount[idx] }">{{ new Intl.NumberFormat('en-US', { maximumFractionDigits: 12 }).format(s.amount) }}</div>
             </div>
           </div>
         </div>
