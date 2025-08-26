@@ -23,6 +23,7 @@ import QrIcon from '~/components/icon/Qr.vue'
 import Tooltip from '~/components/Tooltip.vue'
 import QrModal from '~/components/qr/Modal.vue'
 import Select from '~/components/Select.vue'
+import AddressIdenticon from '~/components/avatar/AddressIdenticon.vue'
 
 definePageMeta({
   layout: 'app',
@@ -407,19 +408,7 @@ watch(
     <div class="pb-5 border-b border-[#222222] mb-6 px-1">
       <div class="flex flex-col gap-1 md:flex-row md:items-center md:gap-3">
         <div class="flex items-center gap-2 mb-1 md:mb-0">
-          <div class="w-6 h-6 rounded-full overflow-hidden bg-gradient-to-br from-[#8B4513] to-[#A0522D] flex items-center justify-center">
-            <div class="w-6 h-6 grid grid-cols-3 grid-rows-3 gap-0.5">
-              <div class="bg-[#0066CC]"></div>
-              <div class="bg-[#8B4513]"></div>
-              <div class="bg-[#8B4513]"></div>
-              <div class="bg-[#8B4513]"></div>
-              <div class="bg-[#0066CC]"></div>
-              <div class="bg-[#8B4513]"></div>
-              <div class="bg-[#8B4513]"></div>
-              <div class="bg-[#0066CC]"></div>
-              <div class="bg-[#8B4513]"></div>
-            </div>
-          </div>
+          <AddressIdenticon :address="address" class="w-6 h-6 rounded-full" />
           <h1 class="text-[19px] font-semibold leading-[150%] text-[#fafafa]">Account</h1>
         </div>
         <div class="flex flex-col md:flex-row md:items-center md:gap-3">
