@@ -194,7 +194,6 @@ export default defineEventHandler(async (event) => {
         return { ok: true, data, finalUrl: res.url || candidate, contentType }
       } catch {
         const recovered = recoverResourceUrlFromText(text)
-        console.log('recovered', recovered)
         if (recovered) {
           return { ok: true, data: { image: recovered }, finalUrl: recovered, contentType }
         }

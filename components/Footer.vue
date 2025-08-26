@@ -42,6 +42,14 @@ const scrollToTop = () => {
           </div>
           <span class="hidden md:block text-sm text-[#f5f5f5] leading-[19.6px]">
             Kadscan is a Block Explorer and Analytics Platform for the Kadena Blockchain.
+            <NuxtLink
+              to="https://forms.gle/f3RB1A8MUAf1Pvgx9"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-[#6ab5db] hover:text-[#9ccee7]"
+            >
+              Provide a Feedback!
+            </NuxtLink>
           </span>
         </div>
 

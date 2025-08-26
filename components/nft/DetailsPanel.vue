@@ -2,12 +2,17 @@
 import Copy from '~/components/Copy.vue'
 const { truncateAddress } = useFormat()
 import { sanitizeDisplayText } from '~/composables/string'
+import { useAccountNFTs } from '~/composables/useAccountNFTs'
 
-const props = defineProps<{
-  holding: any | null,
-  metadata: any | null,
-  errorUrl?: string | null,
-}>()
+const { nfts, selectedHolding, selectedMetadata, selectedError, selectFirstForChain, isSelectionValid } = useAccountNFTs()
+
+const route = useRoute()
+
+const chainFromQuery = computed(() => {
+  const q = route.query.chain as string | undefined
+  const n = q !== undefined ? parseInt(q, 10) : undefined
+  return n !== undefined && !Number.isNaN(n) && n >= 0 && n <= 19 ? `${n}` : null
+})
 
 function sanitize(input: any, maxLen = 800): string { return sanitizeDisplayText(input, maxLen) }
 
@@ -20,9 +25,26 @@ function safeUrl(url: any): string | null {
   } catch (_e) { return null }
 }
 
-const title = computed(() => sanitize(props.metadata?.name || 'Unknown'))
+onMounted(() => {
+  const chain = chainFromQuery.value
+  if (!isSelectionValid(chain)) {
+    selectFirstForChain(chain)
+  }
+})
+
+watch([
+  () => route.query.chain,
+  () => nfts.value,
+], () => {
+  const chain = chainFromQuery.value
+  if (!isSelectionValid(chain)) {
+    selectFirstForChain(chain)
+  }
+})
+
+const title = computed(() => sanitize(selectedMetadata.value?.name || 'Unknown'))
 const collection = computed(() => {
-  const meta: any = props.metadata || null
+  const meta: any = selectedMetadata.value || null
   const attrCollection = Array.isArray(meta?.attributes)
     ? (() => {
         const found = meta.attributes.find((a: any) =>
@@ -42,12 +64,19 @@ const collection = computed(() => {
     : 'Unknown'
   return sanitize(value)
 })
-const description = computed(() => sanitize(props.metadata?.description || ''))
-const imageUrl = computed(() => props.metadata?.image || null)
-const externalUrl = computed(() => safeUrl(props.metadata?.external_url))
+const description = computed(() => sanitize(selectedMetadata.value?.description || ''))
+const imageUrl = computed(() => selectedMetadata.value?.image || null)
+const externalUrl = computed(() => safeUrl(selectedMetadata.value?.external_url))
+const errorUrl = computed(() => selectedError.value?.url || null)
+
+// Track image load failures so we can show the fallback copy instead of a broken icon
+const imageFailed = ref(false)
+
+// Reset failure state when the image URL changes or a load succeeds
+watch(imageUrl, () => { imageFailed.value = false })
 
 const ownerRoute = computed(() => {
-  const keys = props.holding?.guard?.keys
+  const keys = selectedHolding.value?.guard?.keys
   const first = Array.isArray(keys) && keys.length > 0 ? String(keys[0]) : null
   if (!first) return null
   const isHex64 = /^[0-9a-f]{64}$/i.test(first)
@@ -56,14 +85,14 @@ const ownerRoute = computed(() => {
 })
 
 const ownerDisplay = computed(() => {
-  const route = ownerRoute.value as any
-  if (!route?.owner) return ''
-  return truncateAddress(route.owner, 10, 10)
+  const r = ownerRoute.value as any
+  if (!r?.owner) return ''
+  return truncateAddress(r.owner, 10, 10)
 })
 </script>
 
 <template>
-  <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 md:p-5 shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+  <div v-if="selectedHolding" class="bg-[#111111] border border-[#222222] rounded-xl p-4 md:p-5 shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
     <div class="flex items-center justify-between mb-3">
       <div class="text-[#fafafa] font-semibold">NFT Details</div>
       <a
@@ -80,15 +109,15 @@ const ownerDisplay = computed(() => {
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="relative rounded-lg bg-[#151515] border border-[#222222] aspect-square overflow-hidden flex items-center justify-center">
-        <img v-if="imageUrl" :src="imageUrl as any" alt="nft" class="block max-w-full max-h-full object-contain" />
-        <div v-else class="text-[#888888] text-center px-3">
+        <img v-show="imageUrl && !imageFailed" :src="imageUrl as any" alt="nft" class="block max-w-full max-h-full object-contain" @error="imageFailed = true" @load="imageFailed = false" />
+        <div v-if="!imageUrl || imageFailed" class="text-[#888888] text-center px-3">
           <div>No image</div>
-          <div v-if="props.errorUrl" class="text-[#ff6b6b] text-xs mt-1 break-all">
+          <div class="text-[#ff6b6b] text-xs mt-1 break-all">
             This URL is not available
           </div>
         </div>
-        <div v-if="props.holding?.balance && Number(props.holding.balance) > 1" class="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-[2px] rounded">
-          x{{ props.holding.balance }}
+        <div v-if="selectedHolding?.balance && Number(selectedHolding.balance) > 1" class="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-[2px] rounded">
+          x{{ selectedHolding.balance }}
         </div>
       </div>
 
@@ -112,11 +141,11 @@ const ownerDisplay = computed(() => {
         <div class="grid grid-cols-1 gap-3">
           <div>
             <div class="text-xs text-[#bbbbbb] mb-[2px]">Chain</div>
-            <div class="text-[15px] text-[#f5f5f5]">{{ props.holding?.chainId }}</div>
+            <div class="text-[15px] text-[#f5f5f5]">{{ selectedHolding?.chainId }}</div>
           </div>
           <div>
             <div class="text-xs text-[#bbbbbb] mb-[2px]">TokenId</div>
-            <div class="text-[15px] text-[#f5f5f5] break-all">{{ props.holding?.tokenId }}</div>
+            <div class="text-[15px] text-[#f5f5f5] break-all">{{ selectedHolding?.tokenId }}</div>
           </div>
         </div>
         
