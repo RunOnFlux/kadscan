@@ -25,7 +25,7 @@ defineProps<{
     <div
       class="flex gap-2"
       :class="[
-        !row && 'w-full h-fullmin-w-[300px] max-w-[300px]',
+        !row && 'w-full h-full min-w-[300px] max-w-[300px]',
       ]"
     >
       <div class="flex items-center gap-2">
@@ -47,7 +47,7 @@ defineProps<{
 
     <div
       :class="[!value && 'flex-col', value && 'items-center']"
-      class="text-[#f5f5f5] text-[15px] fix flex gap-2 break-words"
+      class="text-[#f5f5f5] text-[15px] fix flex gap-2 break-words flex-1 min-w-0"
     >
       <slot
         name="value"
