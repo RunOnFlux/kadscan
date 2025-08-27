@@ -2,6 +2,7 @@
 import { ref, watch, computed } from 'vue';
 import IconDownload from '~/components/icon/Download.vue';
 import StatsGrid from '~/components/StatsGrid.vue';
+import SkeletonStatsGrid from '~/components/skeleton/StatsGrid.vue';
 import { useBlocksMetrics } from '~/composables/useBlocksMetrics';
 import DataTable from '~/components/DataTable.vue';
 import FilterSelect from '~/components/FilterSelect.vue';
@@ -237,7 +238,8 @@ function downloadData() {
       </h1>
     </div>
 
-    <StatsGrid v-if="!metricsLoading && !metricsError && metricsCards.length" :cards="metricsCards" />
+    <SkeletonStatsGrid v-if="loading" />
+    <StatsGrid v-else-if="!metricsError && metricsCards.length" :cards="metricsCards" />
     
     <SkeletonTable v-if="loading" />
     <DataTable
