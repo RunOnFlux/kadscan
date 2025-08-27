@@ -13,6 +13,8 @@ import TransactionLogs from '~/components/transaction/Logs.vue'
 import TransactionCrossChain from '~/components/transaction/CrossChain.vue'
 import { useStatus } from '~/composables/useStatus'
 import IconHourglass from '~/components/icon/Hourglass.vue'
+import IconCancel from '~/components/icon/Cancel.vue'
+import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue'
 import StatusBadge from '~/components/StatusBadge.vue'
 import Clock from '~/components/icon/Clock.vue'
 import SkeletonTransactionDetails from '~/components/skeleton/TransactionDetails.vue'
@@ -55,6 +57,7 @@ const {
   crossChainTransfers,
   isSourceTransaction,
   hasCrossChainData,
+  transactionExecutionResult,
 } = useTransaction(transactionId, networkId)
 
 // Text content for tooltips and labels
@@ -72,6 +75,7 @@ const textContent = {
   gasPrice: { label: 'Gas Price:', description: 'Cost per unit of gas spent for this transaction.' },
   kadenaPrice: { label: 'Kadena Price:', description: 'Price of KDA on the day this transaction was created.' },
   gasLimit: { label: 'Gas Limit & Usage by Txn:', description: 'Maximum amount of gas allocated for the transaction & the amount eventually used.' },
+  result: { label: 'Result:', description: 'Transaction execution result returned by Pact.' },
   otherAttributes: { label: 'Other Attributes:', description: 'Other data related to this transaction.' },
   inputData: { label: 'Input Data:', description: 'Pact code executed in this transaction.' },
   moreDetails: { label: 'More Details:' },
@@ -321,6 +325,25 @@ const formattedGasInfo = computed(() => {
   const formattedLimit = integer.format(limitNum)
   
   return `${formattedLimit} | ${formattedUsed} (${percentage}%)`
+})
+
+// Execution Result badge mapping (Good/Bad)
+const executionResultBadge = computed(() => {
+  if (!transactionExecutionResult?.value) return null
+  if (transactionExecutionResult.value.type === 'badResult') {
+    return {
+      text: 'Bad',
+      icon: IconCancel,
+      classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]',
+      description: 'Transaction returned a bad result',
+    }
+  }
+  return {
+    text: 'Good',
+    icon: IconCheckmarkFill,
+    classes: 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]',
+    description: 'Transaction returned a good result',
+  }
 })
 
 // Helper function to conditionally truncate only hash-format addresses
@@ -741,6 +764,30 @@ onUnmounted(() => {
                       <template #value>
                         <div class="flex items-center gap-2">
                           <span class="text-[#fafafa]">{{ formattedGasInfo }}</span>
+                        </div>
+                      </template>
+                    </LabelValue>
+                    <!-- Execution Result (Good/Bad) -->
+                    <LabelValue
+                      v-if="executionResultBadge"
+                      :label="textContent.result.label"
+                      :description="textContent.result.description"
+                      tooltipPos="right"
+                      :row="isMobile"
+                    >
+                      <template #value>
+                        <div class="flex items-stretch gap-3 w-full min-w-0">
+                          <div class="shrink-0">
+                            <StatusBadge :status="executionResultBadge" />
+                          </div>
+                          <div class="flex-1 text-[#fafafa]">
+                            {{ transactionExecutionResult.value }}
+                          </div>
+                          <!-- <textarea
+                            readonly
+                            :value="transactionExecutionResult.value"
+                            class="flex-1 w-full min-w-0 bg-[#151515] border border-[#222222] rounded-lg text-[#bbbbbb] text-sm px-[10px] py-[8px] outline-none font-mono whitespace-pre-wrap overflow-auto break-all resize-none"
+                          ></textarea> -->
                         </div>
                       </template>
                     </LabelValue>

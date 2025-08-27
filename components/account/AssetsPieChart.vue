@@ -52,9 +52,6 @@ const groupedByAsset = computed(() => {
     } else {
       map.set(key, { module: key, label, usd })
     }
-    if (process.client) {
-      console.debug('[pie] module', baseModule, 'amount', amount, 'unitUSD', unitUsd, 'usd+', usd, 'key', key)
-    }
   }
   return Array.from(map.values()).sort((a, b) => b.usd - a.usd)
 })

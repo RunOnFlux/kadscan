@@ -99,9 +99,6 @@ const flattenedRows = computed(() => {
       const amountNum = Number(b.balance)
       const unitUsd = unitUsdForModule(b.module)
       const value = unitUsd * amountNum
-      if (process.client) {
-        console.debug('[table] module', b.module, 'amount', amountNum, 'unitUSD', unitUsd, 'value', value)
-      }
       return {
         asset: nameForModule(b.module),
         module: b.module,

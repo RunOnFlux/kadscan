@@ -97,6 +97,7 @@ query Step0($requestKey: String!, $first: Int, $transfersFirst2: Int) {
                   result {
                     ... on TransactionResult {
                       badResult
+                      goodResult
                     }
                   }
                 }
@@ -171,7 +172,6 @@ const kadenaPriceLastDay = ref<Date | null>(null)
 // Cross-chain related transaction state
 const crossChainTransaction = ref<any>(null)
 const loadingCrossChain = ref(false)
-const lastBlockHeight = ref<number | null>(null)
 
 export const useTransaction = (
   transactionId: Ref<string | undefined>,
@@ -235,6 +235,22 @@ export const useTransaction = (
     const gasUsed = parseFloat(transaction.value.result.gas)
     const gasPrice = parseFloat(transaction.value.cmd.meta.gasPrice)
     return (gasUsed * gasPrice).toString()
+  })
+
+  // Normalized execution result (good/bad)
+  const transactionExecutionResult = computed(() => {
+    const bad = transaction.value?.result?.badResult
+    const good = transaction.value?.result?.goodResult
+
+    if (bad !== null && bad !== undefined) {
+      return { type: 'badResult' as const, value: String(bad) }
+    }
+
+    if (good !== null && good !== undefined) {
+      return { type: 'goodResult' as const, value: String(good) }
+    }
+
+    return null
   })
 
   const blockConfirmations = computed(() => {
@@ -471,5 +487,6 @@ export const useTransaction = (
     isSourceTransaction,
     hasCrossChainData,
     fetchCrossChainTransaction,
+    transactionExecutionResult,
   }
 }
