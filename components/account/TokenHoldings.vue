@@ -35,9 +35,6 @@ const tokenItems = computed(() => {
     const unitUsd = getUsdPerUnit(n.module)
     const amountNum = Number(n.balance || 0)
     const usd = Number.isFinite(unitUsd) ? parseFloat((unitUsd * amountNum).toFixed(2)) : 0
-    if (process.client) {
-      console.debug('[holdings] item', n.module, 'amount', amountNum, 'unitUSD', unitUsd, 'usd', usd)
-    }
     return {
       type: 'token',
       name,

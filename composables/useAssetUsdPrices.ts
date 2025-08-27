@@ -119,9 +119,6 @@ export const useAssetUsdPrices = () => {
           const raw = response?.data?.lastTokenPriceInKda
           const kdaQuoted = typeof raw === 'string' ? parseFloat(raw) : Number(raw || 0)
           const usd = Number.isFinite(kdaQuoted) && kdaQuoted > 0 ? kdaQuoted * kda : 0
-          if (process.client) {
-            console.debug('[prices] module', module, 'kda/unit=', kdaQuoted, 'kdaUSD=', kda, 'usd=', usd)
-          }
           moduleUsdPrice.value = { ...moduleUsdPrice.value, [module]: usd }
           storageSet(key, { price: usd, ts: now() })
           return usd
@@ -145,9 +142,6 @@ export const useAssetUsdPrices = () => {
     await getKdaUsd()
     const set = new Set<string>(modules.filter(Boolean))
     const promises: Promise<any>[] = []
-    if (process.client) {
-      console.debug('[prices] prime modules', Array.from(set))
-    }
     for (const m of set) {
       if (moduleUsdPrice.value[m] === undefined) {
         promises.push(fetchModuleUsd(m))
