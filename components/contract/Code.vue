@@ -44,7 +44,7 @@ function toggleEnlarge() {
 </script>
 
 <template>
-  <div class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
+  <div>
     <div class="flex flex-col md:flex-row gap-y-2 justify-between items-start md:items-center mb-4">
       <div>
         <h2 class="text-[15px] text-normal text-[#f5f5f5]">Contract Code</h2>
