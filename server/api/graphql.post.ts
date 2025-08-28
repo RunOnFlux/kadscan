@@ -26,6 +26,8 @@ export default defineEventHandler(async (event) => {
     return response;
   } catch (error: any) {
     // Forward the error from the GraphQL server
+    // eslint-disable-next-line no-console
+    console.error('[API/graphql] upstream error', error?.data || error);
     return error.data;
   }
 }); 

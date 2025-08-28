@@ -5,7 +5,7 @@ import Copy from '~/components/Copy.vue'
 import Coins from '~/components/icon/Coins.vue'
 import TokenTransfers from '~/components/token/TokenTransfers.vue'
 import TokenHolders from '~/components/token/TokenHolders.vue'
-import ContractCode from '~/components/contract/Code.vue'
+import ContractView from '~/components/contract/View.vue'
 
 definePageMeta({
   layout: 'app',
@@ -31,14 +31,14 @@ const activeComponent = computed(() => {
     case 'holders':
       return TokenHolders
     case 'contract':
-      return ContractCode
+      return ContractView
     default:
       return TokenTransfers
   }
 })
 
 const activeProps = computed(() => {
-  return { token: moduleName.value }
+  return { modulename: moduleName.value, chain: route.query.chain as any }
 })
 
 const overviewChainLabel = computed(() => {

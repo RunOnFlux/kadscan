@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import Select from '~/components/Select.vue'
 import Copy from '~/components/Copy.vue'
 import Coins from '~/components/icon/Coins.vue'
 import ContractTransactions from '~/components/contract/Transactions.vue'
 import ContractEvents from '~/components/contract/Events.vue'
-import ContractCode from '~/components/contract/Code.vue'
+import ContractView from '~/components/contract/View.vue'
+import { useContractPact } from '~/composables/useContractPact'
 
 definePageMeta({
   layout: 'app',
@@ -15,6 +16,10 @@ const route = useRoute()
 
 const contractSlug = computed(() => route.params.contract as string)
 const moduleName = computed(() => (contractSlug.value || '').replaceAll('-', '.'))
+const { availableChains, fetchAllChains } = useContractPact(moduleName as any)
+const isSettingChain = ref(false)
+watch([contractSlug, moduleName, () => route.query.chain], () => {
+}, { immediate: true })
 
 const activeTab = ref<'transactions' | 'events' | 'contract'>('transactions')
 
@@ -31,22 +36,21 @@ const activeComponent = computed(() => {
     case 'events':
       return ContractEvents
     case 'contract':
-      return ContractCode
+      return ContractView
     default:
       return ContractTransactions
   }
 })
 
 const activeProps = computed(() => {
-  return { contract: moduleName.value }
+  return { modulename: moduleName.value, chain: route.query.chain as any }
 })
 
 const overviewChainLabel = computed(() => {
   const q = route.query.chain as string | undefined
-  if (q === undefined) return 'Showing All Chains'
-  const n = parseInt(q, 10)
+  const n = parseInt(q ?? '', 10)
   const isValid = !Number.isNaN(n) && n >= 0 && n <= 19
-  return isValid ? `Showing Chain ${n}` : 'Showing All Chains'
+  return isValid ? `Showing Chain ${n}` : 'Showing Chain 0'
 })
 
 const selectedChainSelect = computed({
@@ -54,36 +58,46 @@ const selectedChainSelect = computed({
     const q = route.query.chain as string | undefined
     const n = q !== undefined ? parseInt(q, 10) : undefined
     const isValid = n !== undefined && !Number.isNaN(n) && n >= 0 && n <= 19
-    if (!isValid) {
-      return { label: `All Chains`, value: null }
-    }
-    return { label: `Chain ${n}`, value: `${n}` }
+    const value = isValid ? `${n}` : (availableChains.value?.[0] ?? '0')
+    return { label: `Chain ${value}`, value }
   },
   set(_val: any) {}
 })
 
 const chainSelectOptions = computed(() => {
-  const opts: Array<{ label: string; value: any }> = []
-  opts.push({ label: `All Chains`, value: null })
-  for (let i = 0; i <= 19; i++) {
-    opts.push({ label: `Chain ${i}`, value: `${i}` })
-  }
-  return opts
+  return (availableChains.value || []).map((c) => ({ label: `Chain ${c}`, value: c }))
 })
 
 const onChangeChainSelect = (option: any) => {
   const query = { ...route.query }
-  if (!option || option.value === null) {
-    delete (query as any).chain
-  } else {
-    ;(query as any).chain = option.value
-  }
+  ;(query as any).chain = option?.value ?? (availableChains.value?.[0] ?? '0')
   navigateTo({ query }, { replace: true })
 }
 
 useHead({
   title: `Contract ${moduleName.value} - Kadscan`
 })
+
+// Ensure chains are fetched and chain query defaults correctly
+watch(moduleName, () => {
+  fetchAllChains()
+}, { immediate: true })
+
+watch(availableChains, (chains) => {
+  const list = chains || []
+  if (!Array.isArray(list) || list.length === 0) return
+  const q = route.query.chain as string | undefined
+  const current = q ?? ''
+  const first = list[0]
+  const isValid = current !== '' && list.includes(String(current))
+  if (!isValid) {
+    if (current !== first && !isSettingChain.value) {
+      isSettingChain.value = true
+      const query = { ...route.query, chain: first }
+      navigateTo({ query }, { replace: true }).finally(() => { isSettingChain.value = false })
+    }
+  }
+}, { immediate: true })
 </script>
 
 <template>
@@ -141,9 +155,7 @@ useHead({
             >
               <div class="inline-flex items-center gap-2">
                 <Coins class="w-4 h-4 text-[#fafafa]" />
-                <span class="text-[#fafafa] text-[14px]">
-                  Coming soon... <span class="text-[#bbbbbb] text-[13px]">(All Chains)</span>
-                </span>
+                <span class="text-[#fafafa] text-[14px]">{{ selectedChainSelect.label }}</span>
               </div>
             </Select>
           </div>
@@ -172,7 +184,7 @@ useHead({
 
     <!-- Tab Content -->
     <div class="mb-6">
-      <KeepAlive include="ContractTransactions,ContractEvents,ContractCode">
+      <KeepAlive include="ContractTransactions,ContractEvents,ContractView">
         <component :is="activeComponent" v-bind="activeProps" />
       </KeepAlive>
     </div>
