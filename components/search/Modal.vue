@@ -57,88 +57,40 @@ const isFilterAvailable = (type: string) => {
   return false
 }
 
-// Computed to detect single result type
-const singleResultType = computed(() => {
-  if (!props.items) return null
-  
-  const resultTypes = []
-  if (hasBlocks.value) resultTypes.push('blocks')
-  if (hasTransactions.value) resultTypes.push('transactions') 
-  if (hasAddresses.value) resultTypes.push('address')
-  if (hasTokens.value) resultTypes.push('tokens')
-  if (hasCode.value) resultTypes.push('code')
-  
-  return resultTypes.length === 1 ? resultTypes[0] : null
-})
-
-// Map filter values to activeFilter values
-const getInitialActiveFilter = () => {
-  // If "All Filters" is selected but only one result type exists, activate that filter
-  if (props.selectedFilter === 'all' && singleResultType.value) {
-    return singleResultType.value
-  }
-  
-  if (props.selectedFilter === 'all') return ''
-  if (props.selectedFilter === 'address') return 'address'
-  return props.selectedFilter // 'blocks', 'transactions', 'tokens', 'code' stay the same
+// Return the first available result type for default selection
+const getFirstAvailableFilter = (): string => {
+  return (
+    (hasAddresses.value && 'address') ||
+    (hasCode.value && 'code') ||
+    (hasTransactions.value && 'transactions') ||
+    (hasTokens.value && 'tokens') ||
+    (hasBlocks.value && 'blocks') ||
+    ''
+  ) as string
 }
 
-const activeFilter = ref(getInitialActiveFilter());
+// Active tag; defaults to first available on open
+const activeFilter = ref<string>('')
 
-// Track whether the user has interacted (clicked a filter or scrolled)
-const hasInteracted = ref(false)
-
-// Watch for selectedFilter changes to update activeFilter
-watch(() => props.selectedFilter, () => {
-  activeFilter.value = getInitialActiveFilter()
+// When modal opens, default to the first available tag
+watch(() => props.open, (isOpen) => {
+  if (isOpen) {
+    activeFilter.value = getFirstAvailableFilter()
+  }
 })
 
-// Watch for items changes to update activeFilter when results change
+// If results load later and nothing is selected yet, default once
 watch(() => props.items, () => {
-  if (props.selectedFilter !== 'all') return
-
-  const initial = getInitialActiveFilter()
-
-  // If nothing active yet, use initial selection logic
   if (!activeFilter.value) {
-    activeFilter.value = initial
-    return
-  }
-
-  // If the current active type disappeared, choose a safe fallback
-  if (!isFilterAvailable(activeFilter.value)) {
-    activeFilter.value =
-      initial ||
-      (hasAddresses.value ? 'address'
-        : hasCode.value ? 'code'
-        : hasTransactions.value ? 'transactions'
-        : hasTokens.value ? 'tokens'
-        : hasBlocks.value ? 'blocks'
-        : '')
+    activeFilter.value = getFirstAvailableFilter()
   }
 }, { deep: true })
 
 const modalRef = ref<any>(null);
 
-onMounted(() => {
-  if (modalRef.value) {
-    modalRef.value.addEventListener('scroll', () => {
-      hasInteracted.value = true
-    })
-  }
-})
-
-onUnmounted(() => {
-  if (modalRef.value) {
-    modalRef.value.removeEventListener('scroll', () => {
-      hasInteracted.value = true
-    })
-  }
-})
-
 const scrollToView = (viewId: string) => {
-  hasInteracted.value = true
-  activeFilter.value = viewId;
+  const type = viewId.split('-')[1]
+  activeFilter.value = type
   nextTick(() => {
     const element = document.getElementById(viewId);
 
@@ -149,18 +101,10 @@ const scrollToView = (viewId: string) => {
         top: elementPosition - modalContent.offsetTop - 20,
         behavior: 'smooth'
       });
-      activeFilter.value = viewId.split('-')[1];
     }
   });
 };
 
-// Only update the active filter from visibility events once the user has
-// interacted, or when a single result type exists
-const handleSectionVisible = (type: string) => {
-  if (hasInteracted.value || singleResultType.value === type) {
-    activeFilter.value = type
-  }
-}
 
 // History
 const showHistory = computed(() => {
@@ -268,35 +212,30 @@ const showHistory = computed(() => {
     >
       <SearchViewVisible
         v-if="hasAddresses"
-        @visible="handleSectionVisible('address')"
       >
         <SearchViewAddress id="search-address-view" :addresses="items?.addresses" :onRecordHistory="onRecordHistory" />
       </SearchViewVisible>
 
       <SearchViewVisible
         v-if="hasCode"
-        @visible="handleSectionVisible('code')"
       >
         <SearchViewCode id="search-code-view" :items="items?.code" :query="query" :onRecordHistory="onRecordHistory" />
       </SearchViewVisible>
 
       <SearchViewVisible
         v-if="hasTransactions"
-        @visible="handleSectionVisible('transactions')"
       >
         <SearchViewTransaction id="search-transactions-view" :transactions="items?.transactions" :onRecordHistory="onRecordHistory" />
       </SearchViewVisible>
 
       <SearchViewVisible
         v-if="hasTokens"
-        @visible="handleSectionVisible('tokens')"
       >
         <SearchViewTokens id="search-tokens-view" :tokens="items?.tokens" :onRecordHistory="onRecordHistory" />
       </SearchViewVisible>
 
       <SearchViewVisible
         v-if="hasBlocks"
-        @visible="handleSectionVisible('blocks')"
       >
         <SearchViewBlock id="search-blocks-view" :blocks="items?.blocks" :onRecordHistory="onRecordHistory" />
       </SearchViewVisible>
