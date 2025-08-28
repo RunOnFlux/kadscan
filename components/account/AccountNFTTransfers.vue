@@ -68,7 +68,7 @@ const tableHeaders = [
   { key: 'direction', label: '' },
   { key: 'receiver', label: 'Receiver' },
   { key: 'amount', label: 'Amount' },
-  { key: 'token', label: 'Token' },
+  { key: 'token', label: 'Token ID' },
 ];
 
 const rowOptions = [
@@ -124,6 +124,9 @@ onMounted(async () => {
 
   isInitialized.value = true;
 });
+
+// System address display for mint/burn
+const SYSTEM_ADDRESS = 'k:system';
 
 // Keep selectedChain in sync with the URL
 watch(() => route.query.chain, (q) => {
@@ -263,10 +266,15 @@ function downloadData() {
       <template #sender="{ item }">
         <div class="flex items-center">
           <template v-if="item.sender && item.sender !== 'N/A'">
-            <Tooltip :value="item.sender" variant="hash">
-              <NuxtLink :to="`/account/${item.sender}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.sender, 10, 10) }}</NuxtLink>
-            </Tooltip>
-            <Copy :value="item.sender" tooltipText="Copy Address" />
+            <template v-if="item.sender === SYSTEM_ADDRESS">
+              <span class="text-[#f5f5f5]">{{ item.sender }}</span>
+            </template>
+            <template v-else>
+              <Tooltip :value="item.sender" variant="hash">
+                <NuxtLink :to="`/account/${item.sender}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.sender, 10, 10) }}</NuxtLink>
+              </Tooltip>
+              <Copy :value="item.sender" tooltipText="Copy Address" />
+            </template>
           </template>
           <span v-else class="text-[#f5f5f5]">NaN</span>
         </div>
@@ -279,10 +287,15 @@ function downloadData() {
       <template #receiver="{ item }">
         <div class="flex items-center">
           <template v-if="item.receiver && item.receiver !== 'N/A'">
-            <Tooltip :value="item.receiver" variant="hash">
-              <NuxtLink :to="`/account/${item.receiver}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.receiver, 10, 10) }}</NuxtLink>
-            </Tooltip>
-            <Copy :value="item.receiver" tooltipText="Copy Address" />
+            <template v-if="item.receiver === SYSTEM_ADDRESS">
+              <span class="text-[#f5f5f5]">{{ item.receiver }}</span>
+            </template>
+            <template v-else>
+              <Tooltip :value="item.receiver" variant="hash">
+                <NuxtLink :to="`/account/${item.receiver}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.receiver, 10, 10) }}</NuxtLink>
+              </Tooltip>
+              <Copy :value="item.receiver" tooltipText="Copy Address" />
+            </template>
           </template>
           <span v-else class="text-[#f5f5f5]">NaN</span>
         </div>
@@ -302,8 +315,16 @@ function downloadData() {
         </div>
       </template>
       <template #amount="{ item }">
-        <div class="inline-flex items-center justify-start w-[92px]">
+        <div class="inline-flex items-center justify-start">
           <span class="text-[#f5f5f5]">{{ item.amount }}</span>
+        </div>
+      </template>
+      <template #token="{ item }">
+        <div class="flex items-center">
+          <Tooltip :value="item.token" variant="hash">
+            <span class="text-[#fafafa]">{{ truncateAddress(item.token, 8, 10) }}</span>
+          </Tooltip>
+          <Copy :value="item.token" tooltipText="Copy Token ID" />
         </div>
       </template>
     </DataTable>

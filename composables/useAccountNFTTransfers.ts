@@ -29,6 +29,7 @@ const GQL_QUERY = `
             senderAccount
             receiverAccount
           }
+          tokenId
         }
       }
     }
@@ -44,6 +45,7 @@ const rowsToShow = ref(10);
 const error = ref<any>(null);
 
 export const useAccountNFTTransfers = () => {
+  const SYSTEM_ADDRESS = 'k:system';
   const clearState = () => {
     tokenTransfers.value = [];
     loading.value = true;
@@ -60,15 +62,33 @@ export const useAccountNFTTransfers = () => {
     const block = node.block || {};
     // When crossChainTransfer exists, fill missing sender/receiver
     const cross = node.crossChainTransfer || null;
-    let sender: string | null = node.senderAccount || null;
-    let receiver: string | null = node.receiverAccount || null;
-    if (cross) {
-      if (!sender) sender = cross.senderAccount || null;
-      if (!receiver) receiver = cross.receiverAccount || null;
-    }
+    const originalSender: string | null = node.senderAccount || null;
+    const originalReceiver: string | null = node.receiverAccount || null;
 
+    // Start with raw values
+    let sender: string | null = originalSender;
+    let receiver: string | null = originalReceiver;
+
+    // Cross-chain: fill missing fields from cross, action always Transfer
     const isCross = !!cross;
-    const action = isCross ? 'Cross-Chain' : 'Transfer';
+    let action: 'Mint' | 'Burn' | 'Transfer' = 'Transfer';
+    if (isCross) {
+      if (!sender) sender = (cross && cross.senderAccount) || null;
+      if (!receiver) receiver = (cross && cross.receiverAccount) || null;
+      action = 'Transfer';
+    } else {
+      // Mint: sender empty
+      if (!originalSender) {
+        sender = SYSTEM_ADDRESS;
+        action = 'Mint';
+      // Burn: receiver empty
+      } else if (!originalReceiver) {
+        receiver = SYSTEM_ADDRESS;
+        action = 'Burn';
+      } else {
+        action = 'Transfer';
+      }
+    }
 
     const normalizedSender = sender || '';
     const normalizedReceiver = receiver || '';
@@ -95,7 +115,7 @@ export const useAccountNFTTransfers = () => {
       receiver: normalizedReceiver || 'N/A',
       direction,
       amount: removeTrailingZeros(node.amount ?? ''),
-      token: node.moduleName,
+      token: node.tokenId || '',
       cursor: edge.cursor,
     };
   };
