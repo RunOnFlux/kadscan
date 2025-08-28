@@ -14,7 +14,8 @@ definePageMeta({
 const route = useRoute()
 
 const tokenSlug = computed(() => route.params.token as string)
-const moduleName = computed(() => (tokenSlug.value || '').replaceAll('-', '.'))
+// Preserve hyphens and decode the slug.
+const moduleName = computed(() => decodeURIComponent(tokenSlug.value || ''))
 
 const activeTab = ref<'transfers' | 'holders' | 'contract'>('transfers')
 

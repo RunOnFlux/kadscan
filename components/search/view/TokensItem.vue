@@ -11,7 +11,7 @@ const { recordHistory } = useSearch();
 
 <template>
   <NuxtLink
-    :to="metadata?.id ? `/tokens/${metadata.id}` : `/tokens/${module}`"
+    :to="metadata?.id ? `/tokens/${metadata.id}` : `/tokens/${encodeURIComponent(module)}`"
     @click="recordHistory(module, 'tokens')"
     class="flex items-center justify-between w-full hover:bg-[#1d1d1d] hover:rounded-md"
   >

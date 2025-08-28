@@ -676,7 +676,8 @@ export function useSearch () {
     if (data?.searched?.tokens && data?.searched?.tokens?.length === 1) {
       const token = data?.searched?.tokens[0];
       const staticMetadata = staticTokens.find(({ module }) => module === token.module);
-      router.push(`/tokens/${staticMetadata?.id || token.module}`);
+      const pathId = staticMetadata?.id || token.module;
+      router.push(`/tokens/${encodeURIComponent(pathId)}`);
       return true;
     }
 

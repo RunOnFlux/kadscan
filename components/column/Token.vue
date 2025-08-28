@@ -16,7 +16,7 @@ const props = withDefaults(
 
 <template>
   <NuxtLink
-    :to="(id || module) ? `/tokens/${id || module}` : ''"
+    :to="(id || module) ? `/tokens/${id || encodeURIComponent(module || '')}` : ''"
     :class="!(id || module) && 'opacity-[.6] cursor-not-allowed'"
   >
     <div

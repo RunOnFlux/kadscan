@@ -15,8 +15,9 @@ definePageMeta({
 const route = useRoute()
 
 const contractSlug = computed(() => route.params.contract as string)
-const moduleName = computed(() => (contractSlug.value || '').replaceAll('-', '.'))
-const { availableChains, fetchAllChains } = useContractPact(moduleName as any)
+// Use the slug as-is; modules may legitimately contain hyphens. Decode URI components for safety.
+const moduleName = computed(() => decodeURIComponent(contractSlug.value || ''))
+const { availableChains, fetchAllChains, allChainsLoaded } = useContractPact(moduleName as any)
 const isSettingChain = ref(false)
 watch([contractSlug, moduleName, () => route.query.chain], () => {
 }, { immediate: true })
@@ -44,6 +45,13 @@ const activeComponent = computed(() => {
 
 const activeProps = computed(() => {
   return { modulename: moduleName.value, chain: route.query.chain as any }
+})
+
+// Flag: module not available on any chain (after loading completes)
+const noChains = computed(() => {
+  const loaded = allChainsLoaded.value
+  const list = availableChains.value || []
+  return loaded && list.length === 0
 })
 
 const overviewChainLabel = computed(() => {
@@ -98,6 +106,19 @@ watch(availableChains, (chains) => {
     }
   }
 }, { immediate: true })
+
+// After chains load, if module doesn't exist on any chain, clean `chain` from URL
+watch([allChainsLoaded, availableChains], ([loaded, chains]) => {
+  if (!loaded) return
+  const list = chains || []
+  if (list.length === 0) {
+    const q: any = { ...route.query }
+    if (q.chain !== undefined) {
+      delete q.chain
+      navigateTo({ query: q }, { replace: true })
+    }
+  }
+}, { immediate: true })
 </script>
 
 <template>
@@ -144,20 +165,28 @@ watch(availableChains, (chains) => {
         <h3 class="text-[#fafafa] font-semibold mb-4">Multichain Info</h3>
         <div class="space-y-4">
           <div class="flex items-center justify-between gap-2">
-            <Select
-              :modelValue="selectedChainSelect"
-              @update:modelValue="onChangeChainSelect"
-              :items="chainSelectOptions"
-              position="bottom-left"
-              size="default"
-              variant="filled"
-              :fullWidth="false"
-            >
-              <div class="inline-flex items-center gap-2">
+            <template v-if="!noChains">
+              <Select
+                :modelValue="selectedChainSelect"
+                @update:modelValue="onChangeChainSelect"
+                :items="chainSelectOptions"
+                position="bottom-left"
+                size="default"
+                variant="filled"
+                :fullWidth="false"
+              >
+                <div class="inline-flex items-center gap-2">
+                  <Coins class="w-4 h-4 text-[#fafafa]" />
+                  <span class="text-[#fafafa] text-[14px]">{{ selectedChainSelect.label }}</span>
+                </div>
+              </Select>
+            </template>
+            <template v-else>
+              <div class="inline-flex items-center gap-2 rounded-lg bg-[#222222] border border-[#333333] px-3 py-2 select-none cursor-not-allowed">
                 <Coins class="w-4 h-4 text-[#fafafa]" />
-                <span class="text-[#fafafa] text-[14px]">{{ selectedChainSelect.label }}</span>
+                <span class="text-[#fafafa] text-[14px]">Maybe in Kadena EVM?</span>
               </div>
-            </Select>
+            </template>
           </div>
         </div>
       </div>
