@@ -16,6 +16,7 @@ const GQL_QUERY = `
           canonical
           chainId
           creationTime
+          badResult
           gas
           gasLimit
           gasPrice
@@ -91,12 +92,6 @@ export const useTransactionsByPactCode = () => {
       }
 
       const rawTxs = result.edges;
-      // TEMP: convert unix seconds to ISO until API returns ISO
-      const toIso = (v: any): string => {
-        if (typeof v === 'number') return new Date(v * 1000).toISOString();
-        if (typeof v === 'string' && /^\d+$/.test(v)) return new Date(parseInt(v, 10) * 1000).toISOString();
-        return new Date(v).toISOString();
-      };
 
       transactions.value = rawTxs.map((edge: any) => {
         const n = edge.node;
@@ -104,9 +99,9 @@ export const useTransactionsByPactCode = () => {
           requestKey: n.requestKey,
           height: n.height,
           canonical: n.canonical,
-          badResult: null,
+          badResult: n.badResult,
           chainId: n.chainId,
-          time: formatRelativeTime(toIso(n.creationTime)),
+          time: formatRelativeTime(n.creationTime),
           sender: n.sender,
           gasPrice: formatGasPrice(parseFloat(n.gasPrice)),
           rawGasPrice: n.gasPrice,

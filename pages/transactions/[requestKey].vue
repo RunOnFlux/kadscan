@@ -329,6 +329,7 @@ const formattedGasInfo = computed(() => {
 
 // Execution Result badge mapping (Good/Bad)
 const executionResultBadge = computed(() => {
+  console.log('transactionExecutionResult', transactionExecutionResult.value)
   if (!transactionExecutionResult?.value) return null
   if (transactionExecutionResult.value.type === 'badResult') {
     return {
@@ -783,11 +784,6 @@ onUnmounted(() => {
                           <div class="flex-1 text-[#fafafa]">
                             {{ transactionExecutionResult.value }}
                           </div>
-                          <!-- <textarea
-                            readonly
-                            :value="transactionExecutionResult.value"
-                            class="flex-1 w-full min-w-0 bg-[#151515] border border-[#222222] rounded-lg text-[#bbbbbb] text-sm px-[10px] py-[8px] outline-none font-mono whitespace-pre-wrap overflow-auto break-all resize-none"
-                          ></textarea> -->
                         </div>
                       </template>
                     </LabelValue>

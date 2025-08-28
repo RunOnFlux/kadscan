@@ -87,6 +87,7 @@ const transactionsByPactCodeQuery = `
           canonical
           chainId
           creationTime
+          badResult
           gas
           gasLimit
           gasPrice
@@ -398,21 +399,16 @@ export function useSearch () {
 
             const edges = codeResponse?.data?.transactionsByPactCode?.edges || [];
             if (currentQuery === data.query && edges.length) {
-              // TEMP: convert unix seconds to ISO for creationTime until API returns ISO
-              const toIso = (v: any): string => {
-                if (typeof v === 'number') return new Date(v * 1000).toISOString();
-                if (typeof v === 'string' && /^\d+$/.test(v)) return new Date(parseInt(v, 10) * 1000).toISOString();
-                return new Date(v).toISOString();
-              };
-
               const codeItems = edges.map((edge: any) => {
                 const n = edge.node;
-                const resultString = '{"status":"success","badResult":null}';
+                const resultString = (n?.badResult !== null && n?.badResult !== undefined)
+                  ? `{"status":"error","badResult":${JSON.stringify(n.badResult)}}`
+                  : '{"status":"success","badResult":null}';
                 return {
                   requestkey: n.requestKey,
                   chainId: n.chainId,
                   height: n.height,
-                  creationTime: toIso(n.creationTime),
+                  creationTime: n.creationTime,
                   result: resultString,
                 };
               });
