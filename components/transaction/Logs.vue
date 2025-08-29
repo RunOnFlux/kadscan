@@ -43,7 +43,7 @@ const sortedEvents = computed(() => {
           >
             <template #value>
               <div class="flex items-center gap-2">
-                <span class="text-[#fafafa] text-[15px] break-all">{{ transaction.result.logs }}</span>
+                <span class="text-[#f5f5f5] text-[15px] break-all">{{ transaction.result.logs }}</span>
               </div>
             </template>
           </LabelValue>
@@ -64,7 +64,7 @@ const sortedEvents = computed(() => {
             >
               <template #value>
                 <div class="flex items-center gap-2">
-                  <span class="text-[#fafafa] text-[15px] break-all">{{ eventEdge.node.qualifiedName }}</span>
+                  <span class="text-[#f5f5f5] text-[15px] break-all">{{ eventEdge.node.qualifiedName }}</span>
                   <Copy 
                     :value="eventEdge.node.qualifiedName" 
                     tooltipText="Copy Qualified Name"
@@ -85,15 +85,15 @@ const sortedEvents = computed(() => {
                 <div class="flex items-center gap-2">
                   <span v-if="eventEdge.node.orderIndex !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                     <span class="text-[#bbbbbb]">Order Indexer:</span>
-                    <span class="text-[#fafafa] ml-1">{{ eventEdge.node.orderIndex }}</span>
+                    <span class="text-[#f5f5f5] ml-1">{{ eventEdge.node.orderIndex }}</span>
                   </span>
                   <span v-if="eventEdge.node.moduleName !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                     <span class="text-[#bbbbbb]">Module:</span>
-                    <span class="text-[#fafafa] ml-1">{{ eventEdge.node.moduleName }}</span>
+                    <span class="text-[#f5f5f5] ml-1">{{ eventEdge.node.moduleName }}</span>
                   </span>
                   <span v-if="eventEdge.node.name !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                     <span class="text-[#bbbbbb]">Event:</span>
-                    <span class="text-[#fafafa] ml-1">{{ eventEdge.node.name }}</span>
+                    <span class="text-[#f5f5f5] ml-1">{{ eventEdge.node.name }}</span>
                   </span>
                 </div>
               </template>
@@ -126,7 +126,7 @@ const sortedEvents = computed(() => {
                     class="break-all w-full bg-[#151515] border border-[#222222] rounded-lg text-[#bbbbbb] text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto min-h-[100px]"
                   ></textarea>
                 </div>
-                <span v-else class="text-[#fafafa] text-xs">No parameters</span>
+                <span v-else class="text-[#f5f5f5] text-xs">No parameters</span>
               </div>
             </div>
           </div>

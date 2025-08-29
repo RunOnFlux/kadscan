@@ -436,7 +436,7 @@ onUnmounted(() => {
   <div>
     <!-- Header -->
     <div class="flex items-center pb-5 border-b border-[#222222] mb-6 gap-2">
-      <h1 class="text-[19px] font-semibold leading-[150%] text-[#fafafa]">
+      <h1 class="text-[19px] font-semibold leading-[150%] text-[#f5f5f5]">
         Transaction Details
       </h1>
     </div>
@@ -495,7 +495,7 @@ onUnmounted(() => {
                 >
                   <template #value>
                     <div class="flex items-center gap-2">
-                      <span class="text-[#fafafa] break-all text-[15px]">{{ displayHash }}</span>
+                      <span class="text-[#f5f5f5] break-all text-[15px]">{{ displayHash }}</span>
                       <Copy 
                         v-if="!isMobile"
                         :value="transaction.hash" 
@@ -525,9 +525,9 @@ onUnmounted(() => {
                    <div class="flex items-center gap-2">
                      <IconHourglass v-if="transactionStatus.text === 'Pending'" class="w-3 h-3 text-[#bbbbbb]" />
                      <NuxtLink v-if="transaction?.result?.block?.height" :to="`/blocks/${transaction.result.block.height}/chain/${transaction.result.block.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ transaction.result.block.height }}</NuxtLink>
-                     <span v-else-if="!transaction?.result?.block?.height && transaction?.cmd?.meta?.chainId && (transaction?.cmd?.meta?.creationTime === 0 || new Date(transaction?.cmd?.meta?.creationTime).getTime() < new Date('1970-01-02').getTime())" class="text-[#fafafa]">Genesis</span>
-                     <span v-else class="text-[#fafafa]">-</span>
-                     <span v-if="blockConfirmations !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] text-[#fafafa] font-semibold flex items-center leading-none">
+                     <span v-else-if="!transaction?.result?.block?.height && transaction?.cmd?.meta?.chainId && (transaction?.cmd?.meta?.creationTime === 0 || new Date(transaction?.cmd?.meta?.creationTime).getTime() < new Date('1970-01-02').getTime())" class="text-[#f5f5f5]">Genesis</span>
+                     <span v-else class="text-[#f5f5f5]">-</span>
+                     <span v-if="blockConfirmations !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] text-[#f5f5f5] font-semibold flex items-center leading-none">
                       {{ blockConfirmations }} Block Confirmations
                      </span>
                    </div>
@@ -535,7 +535,7 @@ onUnmounted(() => {
                </LabelValue>
               <LabelValue :row="isMobile" :label="textContent.chainId.label" :description="textContent.chainId.description" tooltipPos="right">
                 <template #value>
-                  <span class="text-[#fafafa] text-[15px]">
+                  <span class="text-[#f5f5f5] text-[15px]">
                     {{ displayChainId }}
                   </span>
                 </template>
@@ -550,13 +550,13 @@ onUnmounted(() => {
                    <div class="flex items-center gap-2">
                      <!-- Show just "Genesis" for Genesis transactions without clock icon -->
                      <template v-if="!transaction?.result?.block?.height && transaction?.cmd?.meta?.chainId && (transaction?.cmd?.meta?.creationTime === 0 || new Date(transaction?.cmd?.meta?.creationTime).getTime() < new Date('1970-01-02').getTime())">
-                       <span class="text-[#fafafa] text-[15px]">Genesis</span>
+                       <span class="text-[#f5f5f5] text-[15px]">Genesis</span>
                      </template>
                      <!-- Normal timestamp display with clock icon -->
                      <template v-else>
                        <Clock class="w-4 h-4 text-[#bbbbbb]" />
-                       <span v-if="age && transaction?.cmd?.meta?.creationTime" class="text-[#fafafa] text-[15px]">{{ age }} ({{ new Date(transaction.cmd.meta.creationTime).toUTCString() }})</span>
-                       <span v-else class="text-[#fafafa] text-[15px]">-</span>
+                       <span v-if="age && transaction?.cmd?.meta?.creationTime" class="text-[#f5f5f5] text-[15px]">{{ age }} ({{ new Date(transaction.cmd.meta.creationTime).toUTCString() }})</span>
+                       <span v-else class="text-[#f5f5f5] text-[15px]">-</span>
                      </template>
                    </div>
                  </template>
@@ -630,7 +630,7 @@ onUnmounted(() => {
                       class="flex flex-wrap items-center gap-1.5 text-[15px]"
                     >
                       <!-- From Address -->
-                      <span class="text-[#fafafa] font-medium">From</span>
+                      <span class="text-[#f5f5f5] font-medium">From</span>
                       <NuxtLink 
                         :to="`/account/${getActualSender(transferEdge.node)}`" 
                         class="text-[#6ab5db] hover:text-[#9ccee7]"
@@ -643,7 +643,7 @@ onUnmounted(() => {
                       />
                       
                       <!-- To Address -->
-                      <span class="text-[#fafafa] font-medium">To</span>
+                      <span class="text-[#f5f5f5] font-medium">To</span>
                       <NuxtLink 
                         :to="`/account/${getActualReceiver(transferEdge.node)}`" 
                         class="text-[#6ab5db] hover:text-[#9ccee7]"
@@ -656,8 +656,8 @@ onUnmounted(() => {
                       />
                       
                       <!-- Amount and Token Info -->
-                      <span class="text-[#fafafa] font-medium">For</span>
-                      <span class="text-[#fafafa]">{{ transferEdge.node.amount }}</span>
+                      <span class="text-[#f5f5f5] font-medium">For</span>
+                      <span class="text-[#f5f5f5]">{{ transferEdge.node.amount }}</span>
                       
                       <!-- USD Value for KDA -->
                       <span 
@@ -683,7 +683,7 @@ onUnmounted(() => {
                         </div>
                         
                         <!-- Token Name -->
-                        <span class="text-[#fafafa] font-medium">
+                        <span class="text-[#f5f5f5] font-medium">
                           {{ getTokenMetadata(transferEdge.node.moduleName).symbol }}
                         </span>
                         
@@ -707,7 +707,7 @@ onUnmounted(() => {
                 <LabelValue :row="isMobile" :label="textContent.value.label" :description="textContent.value.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-2">
-                      <span class="text-[#fafafa]">{{ signerTransferValue }} KDA</span>
+                      <span class="text-[#f5f5f5]">{{ signerTransferValue }} KDA</span>
                       <span v-if="signerTransferValue > 0" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(signerTransferValue, true) }})</span>
                     </div>
                   </template>
@@ -716,7 +716,7 @@ onUnmounted(() => {
                 <LabelValue :row="isMobile" :label="textContent.transactionFee.label" :description="textContent.transactionFee.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-2">
-                      <span class="text-[#fafafa]">{{ transactionFee }} KDA</span>
+                      <span class="text-[#f5f5f5]">{{ transactionFee }} KDA</span>
                       <span v-if="transactionFee > 0" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(transactionFee, true) }})</span>
                     </div>
                   </template>
@@ -725,7 +725,7 @@ onUnmounted(() => {
                 <LabelValue :row="isMobile" :label="textContent.gasPrice.label" :description="textContent.gasPrice.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-2">
-                      <span class="text-[#fafafa]">{{ transaction?.cmd?.meta?.gasPrice || '-' }}</span>
+                      <span class="text-[#f5f5f5]">{{ transaction?.cmd?.meta?.gasPrice || '-' }}</span>
                     </div>
                   </template>
                 </LabelValue>
@@ -752,7 +752,7 @@ onUnmounted(() => {
                     <LabelValue :row="isMobile" :label="textContent.kadenaPrice.label" :description="textContent.kadenaPrice.description" tooltipPos="right">
                       <template #value>
                         <div class="flex items-center gap-2">
-                          <span class="text-[#fafafa]">{{ formattedKadenaPrice || '-' }}</span>
+                          <span class="text-[#f5f5f5]">{{ formattedKadenaPrice || '-' }}</span>
                         </div>
                       </template>
                     </LabelValue>
@@ -764,7 +764,7 @@ onUnmounted(() => {
                     >
                       <template #value>
                         <div class="flex items-center gap-2">
-                          <span class="text-[#fafafa]">{{ formattedGasInfo }}</span>
+                          <span class="text-[#f5f5f5]">{{ formattedGasInfo }}</span>
                         </div>
                       </template>
                     </LabelValue>
@@ -781,7 +781,7 @@ onUnmounted(() => {
                           <div class="shrink-0">
                             <StatusBadge :status="executionResultBadge" />
                           </div>
-                          <div class="flex-1 text-[#fafafa]">
+                          <div class="flex-1 text-[#f5f5f5]">
                             {{ transactionExecutionResult.value }}
                           </div>
                         </div>
@@ -803,15 +803,15 @@ onUnmounted(() => {
                         <div class="flex flex-wrap gap-2">
                           <span v-if="transaction?.cmd?.meta?.ttl !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                             <span class="text-[#bbbbbb]">TTL:</span>
-                            <span class="text-[#fafafa] ml-1">{{ transaction?.cmd?.meta?.ttl }}</span>
+                            <span class="text-[#f5f5f5] ml-1">{{ transaction?.cmd?.meta?.ttl }}</span>
                           </span>
                           <span v-if="transaction?.cmd?.nonce !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                             <span class="text-[#bbbbbb]">Nonce:</span>
-                            <span class="text-[#fafafa] ml-1">{{ transaction?.cmd?.nonce }}</span>
+                            <span class="text-[#f5f5f5] ml-1">{{ transaction?.cmd?.nonce }}</span>
                           </span>
                           <span v-if="transaction?.result?.transactionId !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                             <span class="text-[#bbbbbb]">TXID:</span>
-                            <span class="text-[#fafafa] ml-1">{{ transaction?.result?.transactionId }}</span>
+                            <span class="text-[#f5f5f5] ml-1">{{ transaction?.result?.transactionId }}</span>
                           </span>
                         </div>
                       </template>
@@ -868,7 +868,7 @@ onUnmounted(() => {
                                 :class="[
                                   'px-3 py-1.5 text-xs rounded-md transition-colors bg-[#222222]',
                                   codeView === 'default' 
-                                    ? 'text-[#fafafa] cursor-default' 
+                                    ? 'text-[#f5f5f5] cursor-default' 
                                     : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dadfe3] hover:text-[#000000]'
                                 ]"
                               >
@@ -879,7 +879,7 @@ onUnmounted(() => {
                                 :class="[
                                   'px-3 py-1.5 text-xs rounded-md transition-colors bg-[#222222]',
                                   codeView === 'raw' 
-                                    ? 'text-[#fafafa] cursor-default' 
+                                    ? 'text-[#f5f5f5] cursor-default' 
                                     : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dadfe3] hover:text-[#000000]'
                                 ]"
                               >
@@ -890,7 +890,7 @@ onUnmounted(() => {
                                 :class="[
                                   'px-3 py-1.5 text-xs rounded-md transition-colors bg-[#222222]',
                                   codeView === 'data' 
-                                    ? 'text-[#fafafa] cursor-default' 
+                                    ? 'text-[#f5f5f5] cursor-default' 
                                     : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dadfe3] hover:text-[#000000]'
                                 ]"
                               >
@@ -901,7 +901,7 @@ onUnmounted(() => {
                                 :class="[
                                   'px-3 py-1.5 text-xs rounded-md transition-colors bg-[#222222]',
                                   codeView === 'signatures' 
-                                    ? 'text-[#fafafa] cursor-default' 
+                                    ? 'text-[#f5f5f5] cursor-default' 
                                     : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dadfe3] hover:text-[#000000]'
                                 ]"
                               >

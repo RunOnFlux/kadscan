@@ -101,7 +101,7 @@ function downloadData() {
         />
         <button
           @click="downloadData"
-          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
+          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
         >
           <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
           Download Page Data
@@ -112,7 +112,7 @@ function downloadData() {
     <div v-else class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
       <div class="flex flex-col items-center justify-center py-12">
         <img src="/empty/txs.png" alt="No transactions" class="w-24 h-24 mb-4 opacity-50" />
-        <h3 class="text-[#fafafa] text-lg font-medium mb-2">No transactions yet</h3>
+        <h3 class="text-[#f5f5f5] text-lg font-medium mb-2">No transactions yet</h3>
         <p class="text-[#bbbbbb] text-sm text-center">
           Coming soon...
         </p>

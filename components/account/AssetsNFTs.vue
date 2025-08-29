@@ -192,7 +192,7 @@ onBeforeUnmount(() => {
       <template #actions>
         <button
           @click="downloadData"
-          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
+          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
         >
           <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
           {{ isMobile ? 'Download' : 'Download Page Data' }}
@@ -218,13 +218,13 @@ onBeforeUnmount(() => {
               x{{ item._holding.balance }}
             </div>
           </div>
-          <span class="text-[#fafafa]">{{ item.name }}</span>
+          <span class="text-[#f5f5f5]">{{ item.name }}</span>
         </div>
       </template>
       <template #tokenId="{ item }">
         <div class="flex items-center gap-1">
           <Tooltip :value="item.tokenId" variant="hash">
-            <span class="text-[#fafafa]">{{ shortenString(item.tokenId, 10, 10) }}</span>
+            <span class="text-[#f5f5f5]">{{ shortenString(item.tokenId, 10, 10) }}</span>
           </Tooltip>
           <Copy :value="item.tokenId" tooltipText="Copy Token ID" />
         </div>
@@ -234,7 +234,7 @@ onBeforeUnmount(() => {
     <div v-else class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
       <div class="flex flex-col items-center justify-center py-12">
         <img src="/empty/nft.png" alt="No NFTs" class="w-24 h-24 mb-4 opacity-50" />
-        <div class="text-[#fafafa] text-lg font-medium mb-2">No NFTs yet</div>
+        <div class="text-[#f5f5f5] text-lg font-medium mb-2">No NFTs yet</div>
         <p class="text-[#bbbbbb] text-sm text-center">
           This account doesn’t hold any NFTs on this chain.
         </p>

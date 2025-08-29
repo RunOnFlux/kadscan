@@ -108,7 +108,7 @@ onUnmounted(() => {
         class="flex items-center justify-center bg-[#009367] hover:bg-[#00805b] rounded-lg w-[36px] h-[34px] shrink-0 cursor-pointer"
       >
         <IconSearch
-          class="w-5 h-5 text-[#fafafa]"
+          class="w-5 h-5 text-[#f5f5f5]"
         />
         
       </div>

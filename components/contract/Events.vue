@@ -19,7 +19,7 @@ const events = ref<Array<any>>([])
       <div v-else>
         <!-- Events list (mock) -->
         <div v-for="(ev, idx) in events" :key="idx" class="mb-4">
-          <div class="text-[#fafafa] text-[15px] font-mono break-all">{{ ev.qualifiedName }}</div>
+          <div class="text-[#f5f5f5] text-[15px] font-mono break-all">{{ ev.qualifiedName }}</div>
           <textarea
             readonly
             :value="ev.parameterText"

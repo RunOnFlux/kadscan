@@ -70,7 +70,7 @@ const positionClasses = computed(() => {
       as="template"
     >
       <li
-        class="group flex w-full items-center hover:bg-[#222222] text-[#fafafa] hover:text-[#6ab5db] justify-start rounded-md px-3 py-2 text-sm"
+        class="group flex w-full items-center hover:bg-[#222222] text-[#f5f5f5] hover:text-[#6ab5db] justify-start rounded-md px-3 py-2 text-sm"
       >
         <span
           class="

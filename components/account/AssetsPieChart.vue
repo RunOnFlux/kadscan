@@ -129,7 +129,7 @@ const externalTooltipHandler = (context: any) => {
     tooltipEl.style.border = '1px solid #333333'
     tooltipEl.style.borderRadius = '8px'
     tooltipEl.style.padding = '8px 10px'
-    tooltipEl.style.color = '#fafafa'
+    tooltipEl.style.color = '#f5f5f5'
     tooltipEl.style.fontSize = '12px'
     tooltipEl.style.whiteSpace = 'normal'
     tooltipEl.style.zIndex = '50'
@@ -200,12 +200,12 @@ const chartOptions = reactive({
             <div v-for="(s, idx) in slices" :key="idx" class="flex items-center justify-between flex-wrap">
               <div class="flex items-center gap-3 min-w-0">
                 <div class="w-3 h-3 rounded-full" :style="{ background: (s.module === 'others' ? '#4b5563' : backgroundColors[idx]) }"></div>
-                <div class="truncate text-[#fafafa] text-[12px]" :ref="el => setLabelRef(el as HTMLElement | null, idx)">
+                <div class="truncate text-[#f5f5f5] text-[12px]" :ref="el => setLabelRef(el as HTMLElement | null, idx)">
                   <span class="text-[#bbbbbb] mr-1">{{ ((s.usd / (totalBalance || 1)) * 100).toFixed(2) }}%</span>
                   <span class="uppercase">{{ s.label }}</span>
                 </div>
               </div>
-              <div class="text-[#fafafa] text-[12px] font-medium" :class="{ 'basis-full mt-1 text-right': shouldWrapAmount[idx] }">${{ Number(s.usd).toFixed(2) }}</div>
+              <div class="text-[#f5f5f5] text-[12px] font-medium" :class="{ 'basis-full mt-1 text-right': shouldWrapAmount[idx] }">${{ Number(s.usd).toFixed(2) }}</div>
             </div>
           </div>
         </div>

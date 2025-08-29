@@ -36,7 +36,7 @@ const { recordHistory } = useSearch();
       class="flex flex-col truncate flex-1"
     >
       <span
-        class="text-[#fafafa] text-sm truncate block"
+        class="text-[#f5f5f5] text-sm truncate block"
       >
         {{ requestkey }}
       </span>

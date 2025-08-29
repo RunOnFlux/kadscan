@@ -40,7 +40,7 @@ const scrollToTop = () => {
           <div class="flex items-end gap-3">
             <IconLogoColor class="h-[38px] md:h-[42px] w-max" />
           </div>
-          <span class="hidden md:block text-sm text-[#fafafa] leading-[19.6px]">
+          <span class="hidden md:block text-sm text-[#f5f5f5] leading-[19.6px]">
             Kadscan is a Block Explorer and Analytics Platform for the Kadena Blockchain.
             <NuxtLink
               to="https://forms.gle/f3RB1A8MUAf1Pvgx9"

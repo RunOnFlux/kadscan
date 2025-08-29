@@ -59,7 +59,7 @@ async function onCall() {
           @click="selected = fn.name"
           :class="[
             'px-3 py-1 rounded-lg text-[13px] transition-colors whitespace-nowrap',
-            selected === fn.name ? 'bg-[#009367] text-[#fafafa]' : 'bg-[#252525] text-[#fafafa] hover:bg-[#333333]'
+            selected === fn.name ? 'bg-[#009367] text-[#f5f5f5]' : 'bg-[#252525] text-[#f5f5f5] hover:bg-[#333333]'
           ]"
         >
           {{ fn.name }}
@@ -83,7 +83,7 @@ async function onCall() {
         <div class="flex items-center gap-2">
           <button
             @click="onCall"
-            class="px-3 py-1 rounded-lg bg-[#009367] text-[#fafafa] text-[13px]"
+            class="px-3 py-1 rounded-lg bg-[#009367] text-[#f5f5f5] text-[13px]"
             :disabled="loading"
           >
             {{ 'Query' }}

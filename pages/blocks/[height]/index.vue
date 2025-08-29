@@ -98,7 +98,7 @@ function downloadData() {
 <template>
   <div>
     <div class="flex items-center justify-between pb-5 border-b border-[#222222] mb-6">
-      <h1 class="text-[19px] font-semibold leading-[150%] text-[#fafafa]">
+      <h1 class="text-[19px] font-semibold leading-[150%] text-[#f5f5f5]">
         Blocks
       </h1>
     </div>
@@ -123,7 +123,7 @@ function downloadData() {
       <template #actions>
         <button
           @click="downloadData"
-          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
+          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
         >
           <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
           {{ isMobile ? 'Download' : 'Download Page Data' }}
