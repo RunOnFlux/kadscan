@@ -95,13 +95,16 @@ const declarationInfo = computed<DeclarationInfo | null>(() => {
 
 <template>
   <div>
-    <div class="flex flex-col md:flex-row gap-y-2 justify-between items-start md:items-center mb-4">
-      <div>
-        <h2 class="text-[15px] text-normal text-[#f5f5f5]">Contract Code</h2>
-        <p class="text-[13px] text-[#bbbbbb]">Pact source code of the module</p>
-        <div v-if="docString || declarationInfo" class="mt-2 flex flex-col gap-2">
-          <p v-if="docString" class="text-[13px] text-[#dddddd]">{{ docString }}</p>
-          <div class="flex flex-wrap gap-2">
+    <div class="mb-4">
+      <div class="divide-y divide-[#222222]">
+        <div class="pb-3 md:pb-4">
+          <h2 class="text-[15px] text-normal text-[#f5f5f5]">Contract Code</h2>
+          <p class="text-[13px] text-[#bbbbbb]">Pact source code of the module</p>
+        </div>
+        <div class="pt-3 md:pt-4 flex flex-col gap-2">
+          <p v-if="docString" class="text-[15px] text-[#fafafa]">{{ docString }}</p>
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+            <div v-if="declarationInfo" class="flex flex-wrap gap-2">
             <span v-if="declarationInfo?.type" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
               <span class="text-[#bbbbbb]">Type:</span>
               <span class="text-[#fafafa] ml-1">{{ declarationInfo?.type }}</span>
@@ -114,31 +117,32 @@ const declarationInfo = computed<DeclarationInfo | null>(() => {
               <span class="text-[#bbbbbb]">Capability:</span>
               <span class="text-[#fafafa] ml-1">{{ declarationInfo?.capability }}</span>
             </span>
+            </div>
+            <div v-if="!loading && !error" class="flex items-center gap-2 w-full md:w-fit justify-end mt-2 md:mt-0">
+            <button
+              @click="onDownload"
+              class="flex items-center justify-center w-8 h-8 text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525]"
+              aria-label="Download code"
+            >
+              <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
+            </button>
+            <button
+              @click="onCopy"
+              class="flex items-center justify-center w-8 h-8 text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525]"
+              aria-label="Copy code"
+            >
+              <IconCopy class="w-4 h-4 text-[#bbbbbb]" />
+            </button>
+            <button
+              @click="toggleEnlarge"
+              class="flex items-center justify-center w-8 h-8 text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525]"
+              aria-label="Enlarge editor"
+            >
+              <IconEnlarge class="w-4 h-4 text-[#bbbbbb]" />
+            </button>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="flex items-center gap-2 w-full md:w-fit justify-end">
-        <button
-          @click="onDownload"
-          class="flex items-center justify-center w-8 h-8 text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525]"
-          aria-label="Download code"
-        >
-          <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
-        </button>
-        <button
-          @click="onCopy"
-          class="flex items-center justify-center w-8 h-8 text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525]"
-          aria-label="Copy code"
-        >
-          <IconCopy class="w-4 h-4 text-[#bbbbbb]" />
-        </button>
-        <button
-          @click="toggleEnlarge"
-          class="flex items-center justify-center w-8 h-8 text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525]"
-          aria-label="Enlarge editor"
-        >
-          <IconEnlarge class="w-4 h-4 text-[#bbbbbb]" />
-        </button>
       </div>
     </div>
 

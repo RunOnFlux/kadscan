@@ -59,7 +59,7 @@ async function onCall() {
           @click="selected = fn.name"
           :class="[
             'px-3 py-1 rounded-lg text-[13px] transition-colors whitespace-nowrap',
-            selected === fn.name ? 'bg-[#009367] text-[#fafafa]' : 'bg-[#222222] text-[#fafafa] hover:bg-[#333333]'
+            selected === fn.name ? 'bg-[#009367] text-[#fafafa]' : 'bg-[#252525] text-[#fafafa] hover:bg-[#333333]'
           ]"
         >
           {{ fn.name }}
