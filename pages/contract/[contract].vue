@@ -167,7 +167,7 @@ const showOverviewLoading = computed(() => !isHydrated.value || loading.value)
     <div class="pb-5 border-b border-[#222222] mb-6 px-1">
       <div class="flex flex-col gap-1 md:flex-row md:items-center md:gap-3">
         <div class="flex items-center gap-2 mb-1 md:mb-0">
-          <h1 class="text-[19px] font-semibold leading-[150%] text-[#f5f5f5]">Contract</h1>
+          <h1 class="text-[19px] font-semibold leading-[150%] text-[#f5f5f5]">Module</h1>
         </div>
         <div class="flex flex-col md:flex-row md:items-center md:gap-3">
           <div class="text-[15px] text-[#f5f5f5] break-all">{{ moduleName }}</div>
