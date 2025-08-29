@@ -370,7 +370,9 @@ const getActualSender = (transfer: any) => {
 
 const getActualReceiver = (transfer: any) => {
   // Try regular receiverAccount first, then crossChainTransfer.receiverAccount
-  return transfer.receiverAccount || transfer.crossChainTransfer?.receiverAccount || ''
+  const receiver = transfer.receiverAccount || transfer.crossChainTransfer?.receiverAccount
+  if (receiver) return receiver
+  return 'k:system'
 }
 
 // Fetch transaction data
@@ -645,15 +647,18 @@ onUnmounted(() => {
                       <!-- To Address -->
                       <span class="text-[#f5f5f5] font-medium">To</span>
                       <NuxtLink 
+                        v-if="getActualReceiver(transferEdge.node) !== 'k:system'"
                         :to="`/account/${getActualReceiver(transferEdge.node)}`" 
                         class="text-[#6ab5db] hover:text-[#9ccee7]"
                       >{{ smartTruncateAddress(getActualReceiver(transferEdge.node)) }}</NuxtLink>
                       <Copy 
+                        v-if="getActualReceiver(transferEdge.node) !== 'k:system'"
                         :value="getActualReceiver(transferEdge.node)" 
                         tooltipText="Copy receiver address"
                         iconSize="h-5 w-5"
                         buttonClass="w-5 h-5 hover:opacity-100"
                       />
+                      <span v-else class="text-[#f5f5f5]">{{ getActualReceiver(transferEdge.node) }}</span>
                       
                       <!-- Amount and Token Info -->
                       <span class="text-[#f5f5f5] font-medium">For</span>
