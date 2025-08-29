@@ -2,12 +2,17 @@
 import { ref, computed } from 'vue'
 import ContractCode from '~/components/contract/Code.vue'
 import ContractRead from '~/components/contract/Read.vue'
+import { useContractPact } from '~/composables/useContractPact'
+import type { PactModuleInfo } from '~/composables/useContractPact'
 
 defineOptions({ name: 'ContractView' })
 
 const props = defineProps<{
   modulename: string
   chain?: string | number | undefined
+  moduleInfo?: PactModuleInfo | null
+  loading?: boolean
+  error?: any
 }>()
 
 const activeTab = ref<'code' | 'read'>('code')
@@ -21,7 +26,23 @@ const activeComponent = computed(() => {
   return activeTab.value === 'code' ? ContractCode : ContractRead
 })
 
-const activeProps = computed(() => ({ modulename: props.modulename, chain: props.chain }))
+// Fetch pact info here only if not provided by parent
+const usingExternal = props.moduleInfo !== undefined || props.loading !== undefined || props.error !== undefined
+let loadingRef = ref(false)
+let errorRef = ref<any>(null)
+let moduleInfoRef = ref<PactModuleInfo | null>(null)
+if (!usingExternal) {
+  const hook = useContractPact(computed(() => props.modulename), computed(() => props.chain))
+  loadingRef = hook.loading
+  errorRef = hook.error
+  moduleInfoRef = hook.moduleInfo
+}
+
+const effectiveLoading = computed(() => (props.loading ?? loadingRef.value))
+const effectiveError = computed(() => (props.error ?? errorRef.value))
+const effectiveModuleInfo = computed(() => (props.moduleInfo ?? moduleInfoRef.value))
+
+const activeProps = computed(() => ({ modulename: props.modulename, chain: props.chain, moduleInfo: effectiveModuleInfo.value, loading: effectiveLoading.value, error: effectiveError.value }))
 </script>
 
 <template>

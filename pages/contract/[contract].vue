@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import Select from '~/components/Select.vue'
 import Copy from '~/components/Copy.vue'
 import Coins from '~/components/icon/Coins.vue'
@@ -17,7 +17,8 @@ const route = useRoute()
 const contractSlug = computed(() => route.params.contract as string)
 // Use the slug as-is; modules may legitimately contain hyphens. Decode URI components for safety.
 const moduleName = computed(() => decodeURIComponent(contractSlug.value || ''))
-const { availableChains, fetchAllChains, allChainsLoaded } = useContractPact(moduleName as any)
+const pact = useContractPact(moduleName as any)
+const { availableChains, fetchAllChains, allChainsLoaded, moduleInfo, loading, error } = pact
 const isSettingChain = ref(false)
 watch([contractSlug, moduleName, () => route.query.chain], () => {
 }, { immediate: true })
@@ -44,7 +45,13 @@ const activeComponent = computed(() => {
 })
 
 const activeProps = computed(() => {
-  return { modulename: moduleName.value, chain: route.query.chain as any }
+  return {
+    modulename: moduleName.value,
+    chain: route.query.chain as any,
+    moduleInfo: moduleInfo.value,
+    loading: loading.value,
+    error: error.value,
+  }
 })
 
 // Flag: module not available on any chain (after loading completes)
@@ -119,6 +126,31 @@ watch([allChainsLoaded, availableChains], ([loaded, chains]) => {
     }
   }
 }, { immediate: true })
+// Overview parsing from code
+type DeclarationInfo = {
+  type: 'Module' | 'Interface'
+  name: string
+  capability?: string
+}
+
+const codeContent = computed(() => (moduleInfo.value?.code || '').trim())
+
+const declarationInfo = computed<DeclarationInfo | null>(() => {
+  const code = codeContent.value
+  if (!code) return null
+  const match = code.match(/\(\s*(module|interface)\s+([^\s()]+)(?:\s+([^\s()]+))?/i)
+  if (!match) return null
+  const type = match[1].toLowerCase() === 'interface' ? 'Interface' : 'Module'
+  const name = match[2]
+  const capability = match[3]
+  return { type, name, capability }
+})
+
+// SSR-friendly Loading gate like address page
+const isHydrated = ref(false)
+onMounted(() => { isHydrated.value = true })
+const showOverviewLoading = computed(() => !isHydrated.value || loading.value)
+
 </script>
 
 <template>
@@ -151,13 +183,90 @@ watch([allChainsLoaded, availableChains], ([loaded, chains]) => {
         <h3 class="text-[#f5f5f5] font-semibold mb-4">
           Overview <span class="text-[#bbbbbb] font-normal">— {{ overviewChainLabel }}</span>
         </h3>
-        <div class="flex-1 flex items-center justify-center text-[#888888] text-[14px]">Coming soon...</div>
+        <div class="flex-1 flex flex-col gap-4">
+          <!-- Row 1: Namespace + Module Name -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">NAMESPACE</div>
+              <div class="text-[14px]">
+                <span v-if="showOverviewLoading" class="text-[#888888] animate-pulse">Loading...</span>
+                <span v-else class="text-[#f5f5f5]">{{ (moduleName.split('.')[0] || 'N/A') }}</span>
+              </div>
+            </div>
+            <div>
+              <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">MODULE NAME</div>
+              <div class="text-[14px]">
+                <span v-if="showOverviewLoading" class="text-[#888888] animate-pulse">Loading...</span>
+                <span v-else class="text-[#f5f5f5]">{{ declarationInfo?.name || moduleInfo?.name || 'N/A' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 2: Full Hash + Copy -->
+          <div>
+            <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">HASH</div>
+            <div class="text-[14px]">
+              <span v-if="showOverviewLoading" class="text-[#888888] animate-pulse">Loading...</span>
+              <template v-else>
+                <template v-if="moduleInfo?.hash">
+                  <div class="inline-flex items-center gap-2">
+                    <span class="text-[#f5f5f5]">{{ moduleInfo.hash }}</span>
+                    <Copy 
+                      :value="moduleInfo.hash" 
+                      tooltipText="Copy Hash"
+                      iconSize="h-4 w-4"
+                      buttonClass="w-4 h-4"
+                      placement="bottom"
+                    />
+                  </div>
+                </template>
+                <span v-else class="text-[#f5f5f5]">N/A</span>
+              </template>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- More Info -->
       <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
         <h3 class="text-[#f5f5f5] font-semibold mb-4">More Info</h3>
-        <div class="flex-1 flex items-center justify-center text-[#888888] text-[14px]">Coming soon...</div>
+        <div class="space-y-4">
+          <!-- Row: Type + Capability -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">TYPE</div>
+              <div class="text-[14px]">
+                <span v-if="showOverviewLoading" class="text-[#888888] animate-pulse">Loading...</span>
+                <span v-else class="text-[#f5f5f5]">{{ declarationInfo?.type || 'N/A' }}</span>
+              </div>
+            </div>
+            <div>
+              <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">CAPABILITY</div>
+              <div class="text-[14px]">
+                <span v-if="showOverviewLoading" class="text-[#888888] animate-pulse">Loading...</span>
+                <span v-else class="text-[#f5f5f5]">{{ declarationInfo?.capability || 'N/A' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interfaces block (like guards UI) -->
+          <div>
+            <div class="text-[13px] text-[#bbbbbb] font-medium mb-2">INTERFACES</div>
+            <div class="bg-[#222222] border border-[#333333] rounded-lg p-3">
+              <div v-if="showOverviewLoading" class="text-[14px] text-[#888888] animate-pulse">Loading...</div>
+              <div v-else-if="moduleInfo?.interfaces && moduleInfo.interfaces.length > 0" class="space-y-1">
+                <div 
+                  v-for="(iface, index) in moduleInfo.interfaces" 
+                  :key="index" 
+                  class="text-[14px] text-[#f5f5f5] font-mono break-all"
+                >
+                  {{ iface }}
+                </div>
+              </div>
+              <div v-else class="text-[14px] text-[#bbbbbb]">N/A</div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Multichain Info -->

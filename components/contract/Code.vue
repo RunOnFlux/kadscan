@@ -3,6 +3,7 @@ import IconDownload from '~/components/icon/Download.vue'
 import IconCopy from '~/components/icon/Copy.vue'
 import IconEnlarge from '~/components/icon/Enlarge.vue'
 import { useContractPact } from '~/composables/useContractPact'
+import type { PactModuleInfo } from '~/composables/useContractPact'
 import { ref, computed, watch, defineAsyncComponent } from 'vue'
 const editorOptions = {
   readOnly: true,
@@ -23,13 +24,33 @@ const props = defineProps<{
   contract?: string
   token?: string
   chain?: string | number
+  moduleInfo?: PactModuleInfo | null
+  loading?: boolean
+  error?: any
 }>()
 
 const moduleName = computed(() => (props.modulename || props.contract || props.token || '').trim())
-const { loading, error, moduleInfo } = useContractPact(moduleName as any, computed(() => props.chain))
+
+// Use external data when provided to avoid duplicate fetching
+const usingExternal = props.moduleInfo !== undefined || props.loading !== undefined || props.error !== undefined
+
+let internalLoading = ref(false)
+let internalError = ref<any>(null)
+let internalModuleInfo = ref<PactModuleInfo | null>(null)
+
+if (!usingExternal) {
+  const hook = useContractPact(moduleName as any, computed(() => props.chain))
+  internalLoading = hook.loading
+  internalError = hook.error
+  internalModuleInfo = hook.moduleInfo
+}
+
+const effectiveLoading = computed(() => (props.loading ?? internalLoading.value))
+const effectiveError = computed(() => (props.error ?? internalError.value))
+const effectiveModuleInfo = computed(() => (props.moduleInfo ?? internalModuleInfo.value))
 
 const codeContent = ref<string>('')
-watch(moduleInfo, (m) => {
+watch(effectiveModuleInfo, (m) => {
   codeContent.value = (m?.code || '').trim() || ';; No code available or module not found'
 }, { immediate: true })
 const isEnlarged = ref(false)
@@ -111,14 +132,14 @@ const declarationInfo = computed<DeclarationInfo | null>(() => {
             </span>
             <span v-if="(declarationInfo?.name || moduleInfo?.name)" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
               <span class="text-[#bbbbbb]">Module Name:</span>
-              <span class="text-[#f5f5f5] ml-1">{{ declarationInfo?.name || moduleInfo?.name }}</span>
+              <span class="text-[#f5f5f5] ml-1">{{ declarationInfo?.name || effectiveModuleInfo?.name }}</span>
             </span>
             <span v-if="declarationInfo?.capability" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
               <span class="text-[#bbbbbb]">Capability:</span>
               <span class="text-[#f5f5f5] ml-1">{{ declarationInfo?.capability }}</span>
             </span>
             </div>
-            <div v-if="!loading && !error" class="flex items-center gap-2 w-full md:w-fit justify-end mt-2 md:mt-0">
+            <div v-if="!effectiveLoading && !effectiveError" class="flex items-center gap-2 w-full md:w-fit justify-end mt-2 md:mt-0">
             <button
               @click="onDownload"
               class="flex items-center justify-center w-8 h-8 text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-[#151515] active:text-[#f5f5f5]"
@@ -146,13 +167,13 @@ const declarationInfo = computed<DeclarationInfo | null>(() => {
       </div>
     </div>
 
-    <div v-if="loading" class="w-full bg-[#151515] border border-[#222222] rounded-lg px-[10px] py-[40px]">
+    <div v-if="effectiveLoading" class="w-full bg-[#151515] border border-[#222222] rounded-lg px-[10px] py-[40px]">
       <div class="flex items-center justify-center">
         <div class="h-8 w-8 rounded-full border-2 border-[#333333] border-t-[#009367] animate-spin"></div>
       </div>
     </div>
 
-    <div v-else-if="error" class="w-full bg-[#151515] border border-[#402222] rounded-lg text-[#ffaaaa] text-sm px-[10px] py-[10px] font-mono">
+    <div v-else-if="effectiveError" class="w-full bg-[#151515] border border-[#402222] rounded-lg text-[#ffaaaa] text-sm px-[10px] py-[10px] font-mono">
       Failed to load module code
     </div>
 
