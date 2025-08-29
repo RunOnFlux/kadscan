@@ -83,7 +83,7 @@ async function onCall() {
         <div class="flex items-center gap-2">
           <button
             @click="onCall"
-            class="px-3 py-1 rounded-lg bg-[#009367] text-[#fafafa] text-[14px]"
+            class="px-3 py-1 rounded-lg bg-[#009367] text-[#fafafa] text-[13px]"
             :disabled="loading"
           >
             {{ 'Query' }}

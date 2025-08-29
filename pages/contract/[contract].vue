@@ -200,7 +200,7 @@ watch([allChainsLoaded, availableChains], ([loaded, chains]) => {
           :key="tab.id"
           @click="activeTab = tab.id as any"
           :class="[
-            'px-3 py-1 rounded-lg text-[14px] font-medium transition-colors whitespace-nowrap relative',
+            'px-3 py-1 rounded-lg text-[13px] font-medium transition-colors whitespace-nowrap relative',
             activeTab === tab.id 
               ? 'bg-[#009367] text-[#fafafa]' 
               : 'bg-[#252525] text-[#fafafa] hover:bg-[#333333]'

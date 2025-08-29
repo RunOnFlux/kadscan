@@ -98,7 +98,7 @@ const declarationInfo = computed<DeclarationInfo | null>(() => {
     <div class="mb-4">
       <div class="divide-y divide-[#222222]">
         <div class="pb-3 md:pb-4">
-          <h2 class="text-[15px] text-normal text-[#f5f5f5]">Contract Code</h2>
+          <h2 class="text-[15px] text-normal text-[#fafafa]">Contract Code</h2>
           <p class="text-[13px] text-[#bbbbbb]">Pact source code of the module</p>
         </div>
         <div class="pt-3 md:pt-4 flex flex-col gap-2">
@@ -121,7 +121,7 @@ const declarationInfo = computed<DeclarationInfo | null>(() => {
             <div v-if="!loading && !error" class="flex items-center gap-2 w-full md:w-fit justify-end mt-2 md:mt-0">
             <button
               @click="onDownload"
-              class="flex items-center justify-center w-8 h-8 text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors"
+              class="flex items-center justify-center w-8 h-8 text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#dadfe3] hover:text-[#000000]"
               aria-label="Download code"
             >
               <IconDownload class="w-4 h-4" />
