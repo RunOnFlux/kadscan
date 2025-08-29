@@ -161,6 +161,8 @@ watch(
     const chainChanged = !!oldChain && selectedChain.value.value !== oldChain.value;
 
     if (networkChanged || chainChanged) {
+      clearTransactionsState();
+      clearBlocksState();
       await fetchLastBlockHeight({ networkId: network.id });
       currentPage.value = 1;
       const params: { networkId: string; accountName: string; chainId?: string } = {

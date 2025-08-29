@@ -160,6 +160,8 @@ watch(
     const moduleChanged = props.modulename !== oldModule
 
     if (networkChanged || chainChanged || moduleChanged) {
+      clearTransactionsState()
+      clearBlocksState()
       await fetchLastBlockHeight({ networkId: network.id })
       currentPage.value = 1
       const params: { networkId: string; fungibleName: string; chainId?: string } = {
