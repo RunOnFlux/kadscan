@@ -53,6 +53,44 @@ function onDownload() {
 function toggleEnlarge() {
   isEnlarged.value = !isEnlarged.value
 }
+
+// Extract `@doc "..."` content and top-level declaration details
+function decodePactString(raw: string): string {
+  // Basic unescape for common sequences used inside Pact strings
+  return raw
+    .replace(/\\n/g, '\n')
+    .replace(/\\r/g, '\r')
+    .replace(/\\t/g, '\t')
+    .replace(/\\\"/g, '"')
+    .replace(/\\\\/g, '\\')
+}
+
+type DeclarationInfo = {
+  type: 'Module' | 'Interface'
+  name: string
+  capability?: string
+}
+
+const docString = computed<string | null>(() => {
+  const code = codeContent.value
+  if (!code) return null
+  // Supports multi-line and escaped quotes
+  const match = code.match(/@doc\s+"((?:[^"\\]|\\.)*)"/s)
+  if (!match) return null
+  return decodePactString(match[1]).trim() || null
+})
+
+const declarationInfo = computed<DeclarationInfo | null>(() => {
+  const code = codeContent.value
+  if (!code) return null
+  // Capture: (module|interface) <name> <capability?>  — capability is optional
+  const match = code.match(/\(\s*(module|interface)\s+([^\s()]+)(?:\s+([^\s()]+))?/i)
+  if (!match) return null
+  const type = match[1].toLowerCase() === 'interface' ? 'Interface' : 'Module'
+  const name = match[2]
+  const capability = match[3]
+  return { type, name, capability }
+})
 </script>
 
 <template>
@@ -61,6 +99,23 @@ function toggleEnlarge() {
       <div>
         <h2 class="text-[15px] text-normal text-[#f5f5f5]">Contract Code</h2>
         <p class="text-[13px] text-[#bbbbbb]">Pact source code of the module</p>
+        <div v-if="docString || declarationInfo" class="mt-2 flex flex-col gap-2">
+          <p v-if="docString" class="text-[13px] text-[#dddddd]">{{ docString }}</p>
+          <div class="flex flex-wrap gap-2">
+            <span v-if="declarationInfo?.type" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+              <span class="text-[#bbbbbb]">Type:</span>
+              <span class="text-[#fafafa] ml-1">{{ declarationInfo?.type }}</span>
+            </span>
+            <span v-if="(declarationInfo?.name || moduleInfo?.name)" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+              <span class="text-[#bbbbbb]">Module Name:</span>
+              <span class="text-[#fafafa] ml-1">{{ declarationInfo?.name || moduleInfo?.name }}</span>
+            </span>
+            <span v-if="declarationInfo?.capability" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+              <span class="text-[#bbbbbb]">Capability:</span>
+              <span class="text-[#fafafa] ml-1">{{ declarationInfo?.capability }}</span>
+            </span>
+          </div>
+        </div>
       </div>
       <div class="flex items-center gap-2 w-full md:w-fit justify-end">
         <button
