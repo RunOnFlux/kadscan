@@ -237,7 +237,7 @@ useHead({
           class="px-[10px] py-[5px] text-[13px] rounded-lg font-medium transition-colors"
           :class="{
             'bg-[#009367] text-[#f5f5f5]': activeView === 'overview',
-            'bg-[#252525] text-[#bbbbbb] hover:bg-[#222222]':
+            'bg-[#252525] text-[#bbbbbb] hover:bg-[#333333]':
               activeView !== 'overview',
           }"
           @click="activeView = 'overview'"
