@@ -3,7 +3,8 @@ import { ref, watch, computed } from 'vue'
 import { useContractPact } from '~/composables/useContractPact'
 import { useContractPactParser } from '~/composables/useContractPactParser'
 import { useContractPactRead } from '~/composables/useContractPactRead'
-import Code from '~/components/Code.vue'
+import { formatJsonPretty } from '~/composables/string'
+import IconEnlarge from '~/components/icon/Enlarge.vue'
 
 defineOptions({ name: 'ContractRead' })
 
@@ -33,6 +34,7 @@ watch(selectedFn, (fn) => {
 }, { immediate: true })
 
 const { loading, error, result, call } = useContractPactRead()
+const resultExpanded = ref(false)
 
 async function onCall() {
   if (!selectedFn.value) return
@@ -91,16 +93,58 @@ async function onCall() {
         <div class="flex-1 min-w-0" v-if="selectedFn">
           <div class="space-y-2">
             <div class="text-[13px] text-[#bbbbbb]">Result</div>
-            <div class="flex items-center">
+            <div class="flex items-center justify-between">
+              <div>
+                <button
+                  @click="onCall"
+                  class="px-3 py-1 rounded-lg bg-[#009367] text-[#f5f5f5] text-[13px]"
+                  :disabled="loading"
+                >
+                  {{ 'Query' }}
+                </button>
+              </div>
               <button
-                @click="onCall"
-                class="px-3 py-1 rounded-lg bg-[#009367] text-[#f5f5f5] text-[13px]"
-                :disabled="loading"
+                @click="resultExpanded = !resultExpanded"
+                class="flex items-center justify-center w-8 h-8 text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-[#151515] active:text-[#f5f5f5]"
+                aria-label="Toggle result size"
+                :title="resultExpanded ? 'Collapse' : 'Expand'"
               >
-                {{ 'Query' }}
+                <IconEnlarge class="w-4 h-4" />
               </button>
             </div>
-            <Code :value="result" />
+            <div class="text-[#f5f5f5] text-[15px] fix w-full md:flex-1 overflow-hidden">
+              <div v-if="!resultExpanded"
+                class="grid w-full text-sm text-[#bbbbbb]
+                       [&>textarea]:text-inherit
+                       [&>textarea]:resize-none
+                       [&>textarea]:[grid-area:1/1/2/2]"
+              >
+                <textarea
+                  readonly
+                  :value="formatJsonPretty(result)"
+                  class="break-all w-full bg-[#151515] border border-[#222222] rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-auto h-[40px] m-0"
+                ></textarea>
+              </div>
+              <div v-else
+                class="grid w-full text-sm text-[#bbbbbb]
+                       [&>textarea]:text-inherit
+                       [&>textarea]:resize-none
+                       [&>textarea]:overflow-hidden
+                       [&>textarea]:[grid-area:1/1/2/2]
+                       after:[grid-area:1/1/2/2]
+                       after:whitespace-pre-wrap
+                       after:invisible
+                       after:content-[attr(data-cloned-val)_'_']
+                       after:pb-2"
+                :data-cloned-val="formatJsonPretty(result)"
+              >
+                <textarea
+                  readonly
+                  :value="formatJsonPretty(result)"
+                  class="break-all w-full bg-[#151515] border border-[#222222] rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-hidden min-h-[200px]"
+                ></textarea>
+              </div>
+            </div>
             <div v-if="error" class="text-[#ffaaaa] text-[12px]">Error: {{ String(error) }}</div>
           </div>
         </div>
@@ -109,4 +153,8 @@ async function onCall() {
   </div>
 </template>
 
-
+<style>
+.fix {
+  overflow-wrap: anywhere
+}
+</style>
