@@ -258,7 +258,7 @@ const showOverviewLoading = computed(() => !isHydrated.value || loading.value)
           </div>
 
           <!-- Interfaces block (like guards UI) -->
-          <div>
+          <div v-if="declarationInfo?.type !== 'Interface' && !showOverviewLoading">
             <div class="text-[13px] text-[#bbbbbb] font-medium mb-2">INTERFACES</div>
             <div class="bg-[#222222] border border-[#333333] rounded-lg p-3">
               <div v-if="showOverviewLoading" class="text-[14px] text-[#888888] animate-pulse">Loading...</div>
