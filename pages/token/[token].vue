@@ -5,7 +5,7 @@ import Copy from '~/components/Copy.vue'
 import Coins from '~/components/icon/Coins.vue'
 import TokenTransfers from '~/components/token/TokenTransfers.vue'
 import TokenHolders from '~/components/token/TokenHolders.vue'
-import ContractView from '~/components/contract/View.vue'
+import ContractView from '~/components/module/View.vue'
 
 definePageMeta({
   layout: 'app',

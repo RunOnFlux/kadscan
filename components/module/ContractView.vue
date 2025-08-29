@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import ContractCode from '~/components/contract/Code.vue'
-import ContractRead from '~/components/contract/Read.vue'
+import ContractCode from '~/components/module/ContractCode.vue'
+import ContractRead from '~/components/module/ContractRead.vue'
 import { useContractPact } from '~/composables/useContractPact'
 import type { PactModuleInfo } from '~/composables/useContractPact'
 

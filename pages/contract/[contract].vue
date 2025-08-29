@@ -3,9 +3,9 @@ import { ref, computed, watch, onMounted } from 'vue'
 import Select from '~/components/Select.vue'
 import Copy from '~/components/Copy.vue'
 import Coins from '~/components/icon/Coins.vue'
-import ContractTransactions from '~/components/contract/ContractTransactions.vue'
-import ContractEvents from '~/components/contract/Events.vue'
-import ContractView from '~/components/contract/View.vue'
+import ContractTransactions from '~/components/module/ContractTransactions.vue'
+import ContractEvents from '~/components/module/ContractEvents.vue'
+import ContractView from '~/components/module/ContractView.vue'
 import { useContractPact } from '~/composables/useContractPact'
 
 definePageMeta({
