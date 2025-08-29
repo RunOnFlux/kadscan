@@ -3,6 +3,16 @@ import IconDownload from '~/components/icon/Download.vue'
 import IconCopy from '~/components/icon/Copy.vue'
 import IconEnlarge from '~/components/icon/Enlarge.vue'
 import { useContractPact } from '~/composables/useContractPact'
+import { ref, computed, watch, defineAsyncComponent } from 'vue'
+const editorOptions = {
+  readOnly: true,
+  minimap: { enabled: true },
+  lineNumbers: 'on',
+  scrollBeyondLastLine: false,
+}
+const MonacoEditor = process.client
+  ? defineAsyncComponent(() => import('monaco-editor-vue3'))
+  : undefined
 
 defineOptions({ name: 'ContractCode' })
 
@@ -85,12 +95,28 @@ function toggleEnlarge() {
       Failed to load module code
     </div>
 
-    <textarea
-      v-else
-      v-model="codeContent"
-      class="w-full bg-[#151515] border border-[#222222] rounded-lg text-[#bbbbbb] text-sm px-[10px] py-[10px] outline-none font-mono whitespace-pre resize-y overflow-auto"
-      :class="isEnlarged ? 'min-h-[700px]' : 'min-h-[500px]'"
-    />
+    <ClientOnly v-else>
+      <div
+        class="w-full bg-[#151515] border border-[#222222] rounded-lg text-[#bbbbbb] text-sm overflow-hidden"
+      >
+        <component
+          :is="MonacoEditor"
+          v-model:value="codeContent"
+          language="pact"
+          theme="vs-dark"
+          :options="editorOptions"
+          @editorWillMount="async (m:any) => {
+            try {
+              const mod = await import('~/syntaxes/pact-language')
+              m.languages.register({ id: 'pact' })
+              m.languages.setMonarchTokensProvider('pact', mod.pactLanguage)
+            } catch (e) { /* noop */ }
+          }"
+          :height="isEnlarged ? 700 : 500"
+          :width="'100%'"
+        />
+      </div>
+    </ClientOnly>
   </div>
 </template>
 
