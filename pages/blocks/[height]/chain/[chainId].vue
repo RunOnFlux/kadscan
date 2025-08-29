@@ -234,10 +234,10 @@ useHead({
     <div v-else-if="block && !error">
       <div class="flex items-center gap-2 pb-3">
         <button
-          class="px-[10px] py-[5px] text-[13px] rounded-lg border font-medium transition-colors bg-[#009367] border-[#222222] text-[#f5f5f5]"
+          class="px-[10px] py-[5px] text-[13px] rounded-lg font-medium transition-colors"
           :class="{
             'bg-[#009367] text-[#f5f5f5]': activeView === 'overview',
-            'bg-transparent text-[#bbbbbb] hover:bg-[#222222]':
+            'bg-[#252525] text-[#bbbbbb] hover:bg-[#222222]':
               activeView !== 'overview',
           }"
           @click="activeView = 'overview'"

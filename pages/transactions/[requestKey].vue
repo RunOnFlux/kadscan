@@ -455,10 +455,10 @@ onUnmounted(() => {
             v-for="label in tabLabels"
             :key="label"
             :class="[
-              'px-[10px] py-[5px] text-[13px] rounded-lg border font-medium transition-colors',
+              'px-[10px] py-[5px] text-[13px] rounded-lg font-medium transition-colors',
               activeTab === label
-                ? 'bg-[#009367] border-[#222222] text-[#f5f5f5]'
-                : 'bg-transparent border-[#222222] text-[#bbbbbb] hover:bg-[#222222]'
+                ? 'bg-[#009367] text-[#f5f5f5]'
+                : 'bg-[#252525] text-[#bbbbbb] hover:bg-[#222222]'
             ]"
             @click="activeTab = label"
           >

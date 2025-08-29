@@ -45,55 +45,64 @@ async function onCall() {
   <div>
     <div class="flex flex-col md:flex-row gap-y-2 justify-between items-start md:items-center mb-4">
       <div>
-        <h2 class="text-[15px] text-normal text-[#f5f5f5]">Interact with this Module</h2>
+        <h2 class="text-[15px] text-normal text-[#f5f5f5]">Interact with this Contract</h2>
         <p class="text-[13px] text-[#bbbbbb]">Call read-only functions.</p>
       </div>
     </div>
 
     <div v-if="loadingModule" class="text-[#bbbbbb] text-sm">Loading module...</div>
     <div v-else>
-      <div class="flex items-center gap-2 mb-3 overflow-x-auto">
-        <button
-          v-for="fn in readFunctions"
-          :key="fn.name"
-          @click="selected = fn.name"
-          :class="[
-            'px-3 py-1 rounded-lg text-[13px] transition-colors whitespace-nowrap',
-            selected === fn.name ? 'bg-[#009367] text-[#f5f5f5]' : 'bg-[#252525] text-[#f5f5f5] hover:bg-[#333333]'
-          ]"
-        >
-          {{ fn.name }}
-        </button>
-      </div>
+      <div class="flex flex-col md:flex-row gap-6">
+        <!-- Left column: functions, inputs, query -->
+        <div class="w-[600px] shrink-0">
+          <div class="text-[13px] text-[#bbbbbb] mb-2">Functions</div>
+          <div class="flex flex-wrap items-center gap-2 mb-3">
+            <button
+              v-for="fn in readFunctions"
+              :key="fn.name"
+              @click="selected = fn.name"
+              :class="[
+                'px-3 py-1 rounded-lg text-[13px] transition-colors whitespace-nowrap overflow-hidden text-ellipsis',
+                selected === fn.name ? 'bg-[#009367] text-[#f5f5f5]' : 'bg-[#252525] text-[#f5f5f5] hover:bg-[#333333]'
+              ]"
+            >
+              {{ fn.name }}
+            </button>
+          </div>
 
-      <div v-if="selectedFn" class="space-y-3">
-        <div class="grid md:grid-cols-2 gap-3">
-          <div v-for="p in selectedFn.params" :key="p.name" class="space-y-1">
-            <div class="text-[12px] text-[#bbbbbb]">
-              {{ p.name }}<span v-if="p.type" class="text-[#888888]">: {{ p.type }}</span>
+          <div v-if="selectedFn" class="space-y-3">
+            <div class="grid grid-cols-1 gap-3 w-[600px]">
+              <div v-for="p in selectedFn.params" :key="p.name" class="space-y-1 w-[600px]">
+                <div class="text-[12px] text-[#bbbbbb] whitespace-normal break-words">
+                  {{ p.name }}<span v-if="p.type" class="text-[#888888]">: {{ p.type }}</span>
+                </div>
+                <input
+                  v-model="paramValues[p.name]"
+                  class="w-[600px] bg-[#151515] border border-[#222222] rounded-md text-[#bbbbbb] text-sm px-2 py-1 outline-none font-mono"
+                  placeholder='Enter Pact literal (eg "k:addr", 1.0, true, {"k":1})'
+                />
+              </div>
             </div>
-            <input
-              v-model="paramValues[p.name]"
-              class="w-full bg-[#151515] border border-[#222222] rounded-md text-[#bbbbbb] text-sm px-2 py-1 outline-none font-mono"
-              placeholder='Enter Pact literal (eg "k:addr", 1.0, true, {"k":1})'
-            />
+
           </div>
         </div>
 
-        <div class="flex items-center gap-2">
-          <button
-            @click="onCall"
-            class="px-3 py-1 rounded-lg bg-[#009367] text-[#f5f5f5] text-[13px]"
-            :disabled="loading"
-          >
-            {{ 'Query' }}
-          </button>
-        </div>
-
-        <div class="space-y-2">
-          <div class="text-[13px] text-[#bbbbbb]">Result</div>
-          <Code :value="result" />
-          <div v-if="error" class="text-[#ffaaaa] text-[12px]">Error: {{ String(error) }}</div>
+        <!-- Right column: result (stacks below on mobile) -->
+        <div class="flex-1 min-w-0" v-if="selectedFn">
+          <div class="space-y-2">
+            <div class="text-[13px] text-[#bbbbbb]">Result</div>
+            <div class="flex items-center">
+              <button
+                @click="onCall"
+                class="px-3 py-1 rounded-lg bg-[#009367] text-[#f5f5f5] text-[13px]"
+                :disabled="loading"
+              >
+                {{ 'Query' }}
+              </button>
+            </div>
+            <Code :value="result" />
+            <div v-if="error" class="text-[#ffaaaa] text-[12px]">Error: {{ String(error) }}</div>
+          </div>
         </div>
       </div>
     </div>
