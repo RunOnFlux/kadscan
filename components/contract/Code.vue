@@ -9,6 +9,8 @@ const editorOptions = {
   minimap: { enabled: true },
   lineNumbers: 'on',
   scrollBeyondLastLine: false,
+  automaticLayout: true,
+  contextmenu: false,
 }
 const MonacoEditor = process.client
   ? defineAsyncComponent(() => import('monaco-editor-vue3'))
@@ -97,7 +99,9 @@ function toggleEnlarge() {
 
     <ClientOnly v-else>
       <div
-        class="w-full bg-[#151515] border border-[#222222] rounded-lg text-[#bbbbbb] text-sm overflow-hidden"
+        class="w-full bg-[#151515] border border-[#222222] rounded-lg text-[#bbbbbb] text-sm overflow-auto resize-y"
+        :style="{ height: (isEnlarged ? 700 : 500) + 'px' }"
+        @contextmenu.prevent
       >
         <component
           :is="MonacoEditor"
@@ -112,7 +116,7 @@ function toggleEnlarge() {
               m.languages.setMonarchTokensProvider('pact', mod.pactLanguage)
             } catch (e) { /* noop */ }
           }"
-          :height="isEnlarged ? 700 : 500"
+          :height="'100%'"
           :width="'100%'"
         />
       </div>
