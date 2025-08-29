@@ -86,7 +86,7 @@ async function onCall() {
             class="px-3 py-1 rounded-lg bg-[#009367] text-[#fafafa] text-[14px]"
             :disabled="loading"
           >
-            {{ loading ? 'Calling...' : 'Call' }}
+            {{ 'Query' }}
           </button>
         </div>
 

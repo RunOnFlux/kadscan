@@ -869,7 +869,7 @@ onUnmounted(() => {
                                   'px-3 py-1.5 text-xs rounded-md transition-colors bg-[#222222]',
                                   codeView === 'default' 
                                     ? 'text-[#fafafa] cursor-default' 
-                                    : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dee2e6] hover:text-[#000000]'
+                                    : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dadfe3] hover:text-[#000000]'
                                 ]"
                               >
                                 Default View
@@ -880,7 +880,7 @@ onUnmounted(() => {
                                   'px-3 py-1.5 text-xs rounded-md transition-colors bg-[#222222]',
                                   codeView === 'raw' 
                                     ? 'text-[#fafafa] cursor-default' 
-                                    : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dee2e6] hover:text-[#000000]'
+                                    : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dadfe3] hover:text-[#000000]'
                                 ]"
                               >
                                 Original
@@ -891,7 +891,7 @@ onUnmounted(() => {
                                   'px-3 py-1.5 text-xs rounded-md transition-colors bg-[#222222]',
                                   codeView === 'data' 
                                     ? 'text-[#fafafa] cursor-default' 
-                                    : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dee2e6] hover:text-[#000000]'
+                                    : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dadfe3] hover:text-[#000000]'
                                 ]"
                               >
                                 Data
@@ -902,7 +902,7 @@ onUnmounted(() => {
                                   'px-3 py-1.5 text-xs rounded-md transition-colors bg-[#222222]',
                                   codeView === 'signatures' 
                                     ? 'text-[#fafafa] cursor-default' 
-                                    : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dee2e6] hover:text-[#000000]'
+                                    : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dadfe3] hover:text-[#000000]'
                                 ]"
                               >
                                 Signatures
