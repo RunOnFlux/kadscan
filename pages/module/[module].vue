@@ -14,7 +14,7 @@ definePageMeta({
 
 const route = useRoute()
 
-const contractSlug = computed(() => route.params.contract as string)
+const contractSlug = computed(() => route.params.module as string)
 // Use the slug as-is; modules may legitimately contain hyphens. Decode URI components for safety.
 const moduleName = computed(() => decodeURIComponent(contractSlug.value || ''))
 const pact = useContractPact(moduleName as any)

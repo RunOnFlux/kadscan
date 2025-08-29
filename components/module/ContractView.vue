@@ -19,7 +19,7 @@ const activeTab = ref<'code' | 'read'>('code')
 
 const tabs = computed(() => [
   { id: 'code', label: 'Code' },
-  { id: 'read', label: 'Read Contract' },
+  { id: 'read', label: 'Interact' },
 ])
 
 const activeComponent = computed(() => {

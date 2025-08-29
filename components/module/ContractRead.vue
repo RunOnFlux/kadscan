@@ -45,8 +45,8 @@ async function onCall() {
   <div>
     <div class="flex flex-col md:flex-row gap-y-2 justify-between items-start md:items-center mb-4">
       <div>
-        <h2 class="text-[15px] text-normal text-[#f5f5f5]">Read Contract</h2>
-        <p class="text-[13px] text-[#bbbbbb]">Call read-only functions</p>
+        <h2 class="text-[15px] text-normal text-[#f5f5f5]">Interact with this Module</h2>
+        <p class="text-[13px] text-[#bbbbbb]">Call read-only functions.</p>
       </div>
     </div>
 
