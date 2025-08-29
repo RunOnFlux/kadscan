@@ -68,6 +68,14 @@ const overviewChainLabel = computed(() => {
   return isValid ? `Showing Chain ${n}` : 'Showing Chain 0'
 })
 
+// Namespace label: if module has no explicit namespace (no dot), show "System"
+const namespaceLabel = computed(() => {
+  const name = moduleName.value || ''
+  if (!name) return 'N/A'
+  const hasDot = name.includes('.')
+  return hasDot ? (name.split('.')[0] || 'N/A') : '-'
+})
+
 const selectedChainSelect = computed({
   get() {
     const q = route.query.chain as string | undefined
@@ -190,7 +198,7 @@ const showOverviewLoading = computed(() => !isHydrated.value || loading.value)
               <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">NAMESPACE</div>
               <div class="text-[14px]">
                 <span v-if="showOverviewLoading" class="text-[#888888] animate-pulse">Loading...</span>
-                <span v-else class="text-[#f5f5f5]">{{ (moduleName.split('.')[0] || 'N/A') }}</span>
+                <span v-else class="text-[#f5f5f5]">{{ namespaceLabel }}</span>
               </div>
             </div>
             <div>
