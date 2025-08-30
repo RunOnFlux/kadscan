@@ -501,7 +501,7 @@ onUnmounted(() => {
                       <Copy 
                         v-if="!isMobile"
                         :value="transaction.hash" 
-                        tooltipText="Copy Transaction Hash"
+                        tooltipText="Copy Transaction Request Key"
                         iconSize="h-5 w-5"
                         buttonClass="w-5 h-5"
                       />
