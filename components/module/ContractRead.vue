@@ -17,6 +17,11 @@ const moduleName = computed(() => (props.modulename || '').trim())
 const { moduleInfo, loading: loadingModule } = useContractPact(moduleName as any, computed(() => props.chain))
 const { functions } = useContractPactParser(computed(() => moduleInfo.value?.code || ''))
 
+// Chain display helpers
+const chainDisplay = computed(() => (props.chain ?? '') + '')
+const chainUpperLabel = computed(() => (chainDisplay.value ? `CHAIN ${chainDisplay.value}` : ''))
+const resultLabel = computed(() => (chainDisplay.value ? `Results shown on ${chainUpperLabel.value}` : 'Result'))
+
 // Heuristic: consider only lowercase/underscore names as read functions (no defpact/defcap here)
 const readFunctions = computed(() => functions.value.filter(f => /^[a-z0-9_\-]+$/.test(f.name)))
 
@@ -47,7 +52,7 @@ async function onCall() {
   <div>
     <div class="flex flex-col md:flex-row gap-y-2 justify-between items-start md:items-center mb-4">
       <div>
-        <h2 class="text-[15px] text-normal text-[#f5f5f5]">Interact with this Contract</h2>
+        <h2 class="text-[15px] text-normal text-[#f5f5f5]">Interacting with this Contract<span v-if="chainDisplay"> on chain {{ chainDisplay }}</span></h2>
         <p class="text-[13px] text-[#bbbbbb]">Call read-only functions of this module.</p>
       </div>
     </div>
@@ -106,7 +111,7 @@ async function onCall() {
         <!-- Right column: result (stacks below on mobile) -->
         <div class="flex-1 min-w-0" v-if="selectedFn">
           <div class="space-y-2">
-            <div class="text-[13px] text-[#bbbbbb]">Result</div>
+            <div class="text-[13px] text-[#bbbbbb]">{{ resultLabel }}</div>
             <div class="flex items-center justify-between">
               <div>
                 <button
