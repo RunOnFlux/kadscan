@@ -49,11 +49,14 @@ watch(readFunctions, () => { valuesByFunction.value = {} })
 
 const { loading, error, result, call } = useContractPactRead()
 const resultExpanded = ref(false)
+const hasQueried = ref(false)
 
 async function onCall() {
   if (!selectedFn.value) return
   const args = selectedFn.value.params.map(p => paramValues.value[p.name])
+  hasQueried.value = false
   await call(moduleName as any, selectedFn.value.name, args, props.chain)
+  hasQueried.value = true
 }
 </script>
 
@@ -128,10 +131,14 @@ async function onCall() {
               <div>
                 <button
                   @click="onCall"
-                  class="px-3 py-1 rounded-lg bg-[#009367] text-[#f5f5f5] text-[13px]"
+                  class="px-3 py-1 rounded-lg bg-[#009367] text-[#f5f5f5] text-[13px] disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
                   :disabled="loading"
                 >
-                  {{ 'Query' }}
+                  <svg v-if="loading" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                  </svg>
+                  {{ loading ? 'Querying…' : 'Query' }}
                 </button>
               </div>
               <button
@@ -144,7 +151,12 @@ async function onCall() {
               </button>
             </div>
             <div class="text-[#f5f5f5] text-[15px] fix w-full md:flex-1 overflow-hidden">
-              <div v-if="!resultExpanded"
+              <div v-if="loading" class="w-full">
+                <div class="relative overflow-hidden rounded-lg border border-[#222222] bg-[#151515] h-[40px] md:h-[120px]">
+                  <div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-[#2a2a2a] to-transparent animate-shimmer"></div>
+                </div>
+              </div>
+              <div v-else-if="!resultExpanded"
                 class="grid w-full text-sm text-[#bbbbbb]
                        [&>textarea]:text-inherit
                        [&>textarea]:resize-none
@@ -152,7 +164,7 @@ async function onCall() {
               >
                 <textarea
                   readonly
-                  :value="formatJsonPretty(result)"
+                  :value="error ? 'Error: ' + String(error) : result === null && hasQueried ? 'No result returned for this query.' : formatJsonPretty(result)"
                   class="break-all w-full bg-[#151515] border border-[#222222] rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-auto h-[40px] m-0"
                 ></textarea>
               </div>
@@ -167,16 +179,16 @@ async function onCall() {
                        after:invisible
                        after:content-[attr(data-cloned-val)_'_']
                        after:pb-2"
-                :data-cloned-val="formatJsonPretty(result)"
+                :data-cloned-val="error ? 'Error: ' + String(error) : result === null && hasQueried ? 'No result returned for this query.' : formatJsonPretty(result)"
               >
                 <textarea
                   readonly
-                  :value="formatJsonPretty(result)"
+                  :value="error ? 'Error: ' + String(error) : result === null && hasQueried ? 'No result returned for this query.' : formatJsonPretty(result)"
                   class="break-all w-full bg-[#151515] border border-[#222222] rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-hidden min-h-[200px]"
                 ></textarea>
               </div>
             </div>
-            <div v-if="error" class="text-[#ffaaaa] text-[12px]">Error: {{ String(error) }}</div>
+            <div v-if="error" class="text-[#ffaaaa] text-[12px]">Request failed. Please verify your inputs and try again.</div>
           </div>
         </div>
       </div>
@@ -187,5 +199,13 @@ async function onCall() {
 <style>
 .fix {
   overflow-wrap: anywhere
+}
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+.animate-shimmer {
+  animation: shimmer 1.2s infinite;
 }
 </style>
