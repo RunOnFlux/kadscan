@@ -221,7 +221,7 @@ useHead({
 <template>
   <div>
     <div class="flex items-center pb-5 border-b border-[#222222] mb-6 gap-2">
-      <h1 class="text-[19px] font-semibold leading-[150%] text-[#fafafa]">
+      <h1 class="text-[19px] font-semibold leading-[150%] text-[#f5f5f5]">
         Block
       </h1>
       <span v-if="block" class="text-[15px] text-[#bbbbbb]"
@@ -234,10 +234,10 @@ useHead({
     <div v-else-if="block && !error">
       <div class="flex items-center gap-2 pb-3">
         <button
-          class="px-[10px] py-[5px] text-[13px] rounded-lg border font-medium transition-colors bg-[#009367] border-[#222222] text-[#f5f5f5]"
+          class="px-[10px] py-[5px] text-[13px] rounded-lg font-medium transition-colors"
           :class="{
             'bg-[#009367] text-[#f5f5f5]': activeView === 'overview',
-            'bg-transparent text-[#bbbbbb] hover:bg-[#222222]':
+            'bg-[#252525] text-[#bbbbbb] hover:bg-[#333333]':
               activeView !== 'overview',
           }"
           @click="activeView = 'overview'"
@@ -271,7 +271,7 @@ useHead({
                           <button
                             @click="goToBlock(height - 1, chainId)"
                             :disabled="height === 0"
-                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#fafafa] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
+                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3 transform rotate-180" />
                           </button>
@@ -284,7 +284,7 @@ useHead({
                           <button
                             @click="goToBlock(height + 1, chainId)"
                             :disabled="isLastBlock"
-                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#fafafa] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
+                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3" />
                           </button>
@@ -309,7 +309,7 @@ useHead({
                           <button
                             @click="goToBlock(height, chainId - 1)"
                             :disabled="chainId === 0"
-                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#fafafa] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
+                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3 transform rotate-180" />
                           </button>
@@ -318,7 +318,7 @@ useHead({
                           <button
                             @click="goToBlock(height, chainId + 1)"
                             :disabled="chainId === 19"
-                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#fafafa] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
+                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3" />
                           </button>

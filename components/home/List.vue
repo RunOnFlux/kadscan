@@ -18,7 +18,7 @@ const emit = defineEmits(['customize'])
       class="flex items-center justify-between p-4 border-b border-[#222222]"
     >
       <span
-        class="text-[15px] font-semibold text-[#fafafa]"
+        class="text-[15px] font-semibold text-[#f5f5f5]"
       >
         {{ label }}
       </span>
@@ -28,8 +28,8 @@ const emit = defineEmits(['customize'])
         class="flex items-start gap-1 px-[6px] pb-[4px] pt-[3px] text-sm border border-[#222222] rounded-lg bg-[#151515] hover:bg-[#222222]"
         @click="emit('customize')"
       >
-        <CustomizeIcon class="mt-[1px] text-[#fafafa] w-4 h-4" />
-        <span class="text-[0.75rem] text-[#fafafa]">Customize</span>
+        <CustomizeIcon class="mt-[1px] text-[#f5f5f5] w-4 h-4" />
+        <span class="text-[0.75rem] text-[#f5f5f5]">Customize</span>
       </button>
     </div>
 

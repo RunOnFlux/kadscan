@@ -56,7 +56,7 @@ provideUseId(() => useId())
           </template>
           <template v-else>
             <div class="flex items-center gap-2 w-full">
-              <span class="whitespace-nowrap block text-[#fafafa]">
+              <span class="whitespace-nowrap block text-[#f5f5f5]">
                 {{ modelValue.label }}
               </span>
               <IconArrow

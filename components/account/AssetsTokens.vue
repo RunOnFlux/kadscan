@@ -179,17 +179,17 @@ function downloadData() {
       <template #actions>
         <button
           @click="downloadData"
-          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#fafafa] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
+          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
         >
           <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
-          {{ isMobile ? 'Download' : 'Download Page Data' }}
+          <span class="hidden md:inline">Download Page Data</span>
         </button>
       </template>
       <template #asset="{ item }">
         <div class="flex items-center gap-2">
           <div class="w-6 h-6 rounded-full bg-[#222222] overflow-hidden grid place-items-center">
             <img v-if="item._icon" :src="item._icon" alt="icon" class="w-6 h-6 object-contain" />
-            <span v-else class="text-[11px] text-[#fafafa]">
+            <span v-else class="text-[11px] text-[#f5f5f5]">
               {{ (item.module?.split('.')?.[1] || item.module || 'U')[0]?.toUpperCase() }}
             </span>
           </div>
@@ -206,7 +206,7 @@ function downloadData() {
     <div v-else class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
       <div class="flex flex-col items-center justify-center py-12">
         <img src="/empty/nft.png" alt="No assets" class="w-24 h-24 mb-4 opacity-50" />
-        <div class="text-[#fafafa] text-lg font-medium mb-2">No tokens yet</div>
+        <div class="text-[#f5f5f5] text-lg font-medium mb-2">No tokens yet</div>
         <p class="text-[#bbbbbb] text-sm text-center">
           This account doesn’t hold any tokens on this chain.
         </p>

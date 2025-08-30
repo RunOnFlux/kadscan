@@ -505,3 +505,14 @@ export function formatSignatures(sigs: Array<{sig: string}> | null | undefined):
 
   return result.trim();
 }
+
+// Minimal argument coercion helper: leaves Pact literals/raw JSON untouched, quotes plain strings
+export function coercePactArg(input: string): string {
+  if (input === undefined || input === null) return 'null'
+  const trimmed = String(input).trim()
+  if (trimmed === '') return '""'
+  if (trimmed === 'true' || trimmed === 'false') return trimmed
+  if (/^-?\d+(\.\d+)?$/.test(trimmed)) return trimmed
+  if (trimmed.startsWith('[') || trimmed.startsWith('{') || trimmed.startsWith('(')) return trimmed
+  return `"${trimmed.replace(/\\"/g, '"')}"`
+}

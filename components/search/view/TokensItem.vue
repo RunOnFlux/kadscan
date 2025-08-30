@@ -11,7 +11,7 @@ const { recordHistory } = useSearch();
 
 <template>
   <NuxtLink
-    :to="metadata?.id ? `/tokens/${metadata.id}` : `/tokens/${module}`"
+    :to="metadata?.id ? `/tokens/${metadata.id}` : `/tokens/${encodeURIComponent(module)}`"
     @click="recordHistory(module, 'tokens')"
     class="flex items-center justify-between w-full hover:bg-[#1d1d1d] hover:rounded-md"
   >
@@ -37,14 +37,14 @@ const { recordHistory } = useSearch();
         class="flex gap-2 items-end w-full truncate"
       >
         <span
-          class="text-sm text-[#fafafa] truncate block"
+          class="text-sm text-[#f5f5f5] truncate block"
         >
           {{ metadata.name }}
         </span>
 
         <span
           v-if="metadata.symbol"
-          class="text-[#fafafa] text-sm font-medium uppercase"
+          class="text-[#f5f5f5] text-sm font-medium uppercase"
         >
           ({{ metadata.symbol }})
         </span>
@@ -53,7 +53,7 @@ const { recordHistory } = useSearch();
 
     <div>
       <span
-        class="text-[#fafafa] text-sm font-medium"
+        class="text-[#f5f5f5] text-sm font-medium"
       >
         {{ module }}
       </span>

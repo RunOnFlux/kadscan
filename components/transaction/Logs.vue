@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, reactive } from 'vue'
 import { formatJsonPretty } from '~/composables/string'
 import { useScreenSize } from '~/composables/useScreenSize'
 import Informational from '~/components/icon/Informational.vue'
 import Tooltip from '~/components/Tooltip.vue'
+import IconEnlarge from '~/components/icon/Enlarge.vue'
 
 const props = defineProps<{
   transaction: any
@@ -27,6 +28,22 @@ const sortedEvents = computed(() => {
     a.node.orderIndex - b.node.orderIndex
   )
 })
+
+const expandedById = reactive<Record<string, boolean>>({})
+
+function isExpanded(id: string): boolean {
+  return !!expandedById[id]
+}
+
+function toggleExpand(id: string) {
+  expandedById[id] = !expandedById[id]
+}
+
+function makeEventKey(edge: any, index: number): string {
+  const qn = edge?.node?.qualifiedName ?? ''
+  const oi = edge?.node?.orderIndex
+  return `${qn}:${oi ?? index}`
+}
 </script>
 
 <template>
@@ -43,7 +60,7 @@ const sortedEvents = computed(() => {
           >
             <template #value>
               <div class="flex items-center gap-2">
-                <span class="text-[#fafafa] text-[15px] break-all">{{ transaction.result.logs }}</span>
+                <span class="text-[#f5f5f5] text-[15px] break-all">{{ transaction.result.logs }}</span>
               </div>
             </template>
           </LabelValue>
@@ -52,7 +69,7 @@ const sortedEvents = computed(() => {
         <!-- Events Section -->
         <DivideItem 
           v-for="(eventEdge, index) in sortedEvents" 
-          :key="eventEdge.node.id"
+          :key="makeEventKey(eventEdge, index)"
         >
           <div class="flex flex-col gap-4">
 
@@ -64,7 +81,7 @@ const sortedEvents = computed(() => {
             >
               <template #value>
                 <div class="flex items-center gap-2">
-                  <span class="text-[#fafafa] text-[15px] break-all">{{ eventEdge.node.qualifiedName }}</span>
+                  <span class="text-[#f5f5f5] text-[15px] break-all">{{ eventEdge.node.qualifiedName }}</span>
                   <Copy 
                     :value="eventEdge.node.qualifiedName" 
                     tooltipText="Copy Qualified Name"
@@ -82,19 +99,26 @@ const sortedEvents = computed(() => {
               topAlign="true"
             >
               <template #value>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 w-full">
                   <span v-if="eventEdge.node.orderIndex !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                     <span class="text-[#bbbbbb]">Order Indexer:</span>
-                    <span class="text-[#fafafa] ml-1">{{ eventEdge.node.orderIndex }}</span>
+                    <span class="text-[#f5f5f5] ml-1">{{ eventEdge.node.orderIndex }}</span>
                   </span>
                   <span v-if="eventEdge.node.moduleName !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                     <span class="text-[#bbbbbb]">Module:</span>
-                    <span class="text-[#fafafa] ml-1">{{ eventEdge.node.moduleName }}</span>
+                    <span class="text-[#f5f5f5] ml-1">{{ eventEdge.node.moduleName }}</span>
                   </span>
                   <span v-if="eventEdge.node.name !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                     <span class="text-[#bbbbbb]">Event:</span>
-                    <span class="text-[#fafafa] ml-1">{{ eventEdge.node.name }}</span>
+                    <span class="text-[#f5f5f5] ml-1">{{ eventEdge.node.name }}</span>
                   </span>
+                  <button
+                    @click="toggleExpand(makeEventKey(eventEdge, index))"
+                    class="ml-auto flex items-center justify-center w-8 h-8 text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-[#151515] active:text-[#f5f5f5]"
+                    aria-label="Enlarge parameters"
+                  >
+                    <IconEnlarge class="w-4 h-4" />
+                  </button>
                 </div>
               </template>
             </LabelValue>
@@ -120,13 +144,40 @@ const sortedEvents = computed(() => {
               <!-- Parameters Container with proper boundaries -->
               <div class="text-[#f5f5f5] text-[15px] fix w-full md:flex-1 overflow-hidden">
                 <div v-if="eventEdge.node.parameterText" class="w-full">
-                  <textarea
-                    readonly
-                    :value="formatJsonPretty(eventEdge.node.parameterText)"
-                    class="break-all w-full bg-[#151515] border border-[#222222] rounded-lg text-[#bbbbbb] text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto min-h-[100px]"
-                  ></textarea>
+                  <div v-if="!isExpanded(makeEventKey(eventEdge, index))"
+                    class="grid w-full text-sm text-[#bbbbbb]
+                           [&>textarea]:text-inherit
+                           [&>textarea]:resize-none
+                           [&>textarea]:[grid-area:1/1/2/2]"
+                    >
+                    <textarea
+                      readonly
+                      :value="formatJsonPretty(eventEdge.node.parameterText)"
+                      class="break-all w-full bg-[#151515] border border-[#222222] rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-auto h-[110px] m-0"
+                    ></textarea>
+                  </div>
+                  <div
+                    v-else
+                    class="grid w-full text-sm text-[#bbbbbb]
+                           [&>textarea]:text-inherit
+                           [&>textarea]:resize-none
+                           [&>textarea]:overflow-hidden
+                           [&>textarea]:[grid-area:1/1/2/2]
+                           after:[grid-area:1/1/2/2]
+                           after:whitespace-pre-wrap
+                           after:invisible
+                           after:content-[attr(data-cloned-val)_'_']
+                           after:pb-2"
+                    :data-cloned-val="formatJsonPretty(eventEdge.node.parameterText)"
+                  >
+                    <textarea
+                      readonly
+                      :value="formatJsonPretty(eventEdge.node.parameterText)"
+                      class="break-all w-full bg-[#151515] border border-[#222222] rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-hidden min-h-[110px]"
+                    ></textarea>
+                  </div>
                 </div>
-                <span v-else class="text-[#fafafa] text-xs">No parameters</span>
+                <span v-else class="text-[#f5f5f5] text-xs">No parameters</span>
               </div>
             </div>
           </div>

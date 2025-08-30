@@ -140,8 +140,8 @@ const formatTotalItems = (num: number) => {
       </table>
     </div>
 
-    <div class="pt-4 flex items-center justify-between">
-      <div class="flex items-center gap-2">
+    <div class="pt-4 flex items-center justify-end md:justify-between">
+      <div class="hidden md:flex items-center gap-2">
         <span class="text-[15px] text-[#bbbbbb]">Show rows:</span>
         <div class="border border-[#222222] rounded-md">
           <Select

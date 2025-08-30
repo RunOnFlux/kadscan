@@ -100,7 +100,7 @@ const attrs = {
   height: 40px !important;
   justify-content: center !important;
   align-items: center !important;
-  color: var(--Font-Color-1, #FAFAFA);
+  color: var(--Font-Color-1, #f5f5f5);
   text-align: center !important;
   font-family: Inter !important;
   font-size: 16px !important;

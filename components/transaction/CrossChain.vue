@@ -356,17 +356,17 @@ const destinationIndicatorColor = computed(() => {
                   <div class="flex flex-wrap items-center gap-2">
                     <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                       <span class="text-[#bbbbbb]">Chain:</span>
-                      <span class="text-[#fafafa] ml-1">{{ sourceTransaction.cmd.meta.chainId }}</span>
+                      <span class="text-[#f5f5f5] ml-1">{{ sourceTransaction.cmd.meta.chainId }}</span>
                     </span>
 
                     <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                       <span class="text-[#bbbbbb]">Block:</span>
-                      <span class="text-[#fafafa] ml-1">{{ sourceTransaction.result.block.height }}</span>
+                      <span class="text-[#f5f5f5] ml-1">{{ sourceTransaction.result.block.height }}</span>
                     </span>
 
                     <span v-if="sourceTransaction.cmd.meta.creationTime" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                       <span class="text-[#bbbbbb]">Time:</span>
-                      <span class="text-[#fafafa] ml-1">{{ formatRelativeTime(sourceTransaction.cmd.meta.creationTime) }} ({{ new Date(sourceTransaction.cmd.meta.creationTime).toUTCString() }})</span>
+                      <span class="text-[#f5f5f5] ml-1">{{ formatRelativeTime(sourceTransaction.cmd.meta.creationTime) }} ({{ new Date(sourceTransaction.cmd.meta.creationTime).toUTCString() }})</span>
                     </span>               
                   </div>
                 </div>
@@ -425,17 +425,17 @@ const destinationIndicatorColor = computed(() => {
                   <div class="flex flex-wrap items-center gap-2">
                     <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                       <span class="text-[#bbbbbb]">Chain:</span>
-                      <span class="text-[#fafafa] ml-1">{{ destinationTransaction.cmd.meta.chainId }}</span>
+                      <span class="text-[#f5f5f5] ml-1">{{ destinationTransaction.cmd.meta.chainId }}</span>
                     </span>
 
                     <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                       <span class="text-[#bbbbbb]">Block:</span>
-                      <span class="text-[#fafafa] ml-1">{{ destinationTransaction.result.block.height }}</span>
+                      <span class="text-[#f5f5f5] ml-1">{{ destinationTransaction.result.block.height }}</span>
                     </span>
                     
                     <span v-if="destinationTransaction.cmd.meta.creationTime" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                       <span class="text-[#bbbbbb]">Time:</span>
-                      <span class="text-[#fafafa] ml-1">{{ formatRelativeTime(destinationTransaction.cmd.meta.creationTime) }} ({{ new Date(destinationTransaction.cmd.meta.creationTime).toUTCString() }})</span>
+                      <span class="text-[#f5f5f5] ml-1">{{ formatRelativeTime(destinationTransaction.cmd.meta.creationTime) }} ({{ new Date(destinationTransaction.cmd.meta.creationTime).toUTCString() }})</span>
                     </span>
                   </div>
                 </div>
@@ -455,7 +455,7 @@ const destinationIndicatorColor = computed(() => {
             >
               <template #value>
                 <div class="flex items-center gap-2">
-                  <span class="text-[#fafafa] text-[15px] break-all">{{ destinationTransaction.cmd.payload.pactId }}</span>
+                  <span class="text-[#f5f5f5] text-[15px] break-all">{{ destinationTransaction.cmd.payload.pactId }}</span>
                 </div>
               </template>
             </LabelValue>
@@ -470,11 +470,11 @@ const destinationIndicatorColor = computed(() => {
                 <div class="flex items-center gap-2">
                   <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                     <span class="text-[#bbbbbb]">Step:</span>
-                    <span class="text-[#fafafa] ml-1">{{ destinationTransaction.cmd.payload.step }}</span>
+                    <span class="text-[#f5f5f5] ml-1">{{ destinationTransaction.cmd.payload.step }}</span>
                   </span>
                   <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                     <span class="text-[#bbbbbb]">Rollback:</span>
-                    <span class="text-[#fafafa] ml-1">{{ destinationTransaction.cmd.payload.rollback ? 'Yes' : 'No' }}</span>
+                    <span class="text-[#f5f5f5] ml-1">{{ destinationTransaction.cmd.payload.rollback ? 'Yes' : 'No' }}</span>
                   </span>
                 </div>
               </template>

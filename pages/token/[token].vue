@@ -5,7 +5,7 @@ import Copy from '~/components/Copy.vue'
 import Coins from '~/components/icon/Coins.vue'
 import TokenTransfers from '~/components/token/TokenTransfers.vue'
 import TokenHolders from '~/components/token/TokenHolders.vue'
-import ContractCode from '~/components/contract/Code.vue'
+import ContractView from '~/components/module/ContractView.vue'
 
 definePageMeta({
   layout: 'app',
@@ -14,7 +14,8 @@ definePageMeta({
 const route = useRoute()
 
 const tokenSlug = computed(() => route.params.token as string)
-const moduleName = computed(() => (tokenSlug.value || '').replaceAll('-', '.'))
+// Preserve hyphens and decode the slug.
+const moduleName = computed(() => decodeURIComponent(tokenSlug.value || ''))
 
 const activeTab = ref<'transfers' | 'holders' | 'contract'>('transfers')
 
@@ -31,14 +32,14 @@ const activeComponent = computed(() => {
     case 'holders':
       return TokenHolders
     case 'contract':
-      return ContractCode
+      return ContractView
     default:
       return TokenTransfers
   }
 })
 
 const activeProps = computed(() => {
-  return { token: moduleName.value }
+  return { modulename: moduleName.value, chain: route.query.chain as any }
 })
 
 const overviewChainLabel = computed(() => {
@@ -92,7 +93,7 @@ useHead({
     <div class="pb-5 border-b border-[#222222] mb-6 px-1">
       <div class="flex flex-col gap-1 md:flex-row md:items-center md:gap-3">
         <div class="flex items-center gap-2 mb-1 md:mb-0">
-          <h1 class="text-[19px] font-semibold leading-[150%] text-[#fafafa]">Token</h1>
+          <h1 class="text-[19px] font-semibold leading-[150%] text-[#f5f5f5]">Token</h1>
         </div>
         <div class="flex flex-col md:flex-row md:items-center md:gap-3">
           <div class="text-[15px] text-[#f5f5f5] break-all">{{ moduleName }}</div>
@@ -113,7 +114,7 @@ useHead({
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6 items-stretch">
       <!-- Overview -->
       <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
-        <h3 class="text-[#fafafa] font-semibold mb-4">
+        <h3 class="text-[#f5f5f5] font-semibold mb-4">
           Overview <span class="text-[#bbbbbb] font-normal">— {{ overviewChainLabel }}</span>
         </h3>
         <div class="flex-1 flex items-center justify-center text-[#888888] text-[14px]">Coming soon...</div>
@@ -121,13 +122,13 @@ useHead({
 
       <!-- More Info -->
       <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
-        <h3 class="text-[#fafafa] font-semibold mb-4">More Info</h3>
+        <h3 class="text-[#f5f5f5] font-semibold mb-4">More Info</h3>
         <div class="flex-1 flex items-center justify-center text-[#888888] text-[14px]">Coming soon...</div>
       </div>
 
       <!-- Multichain Info -->
       <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
-        <h3 class="text-[#fafafa] font-semibold mb-4">Multichain Info</h3>
+        <h3 class="text-[#f5f5f5] font-semibold mb-4">Multichain Info</h3>
         <div class="space-y-4">
           <div class="flex items-center justify-between gap-2">
             <Select
@@ -140,8 +141,8 @@ useHead({
               :fullWidth="false"
             >
               <div class="inline-flex items-center gap-2">
-                <Coins class="w-4 h-4 text-[#fafafa]" />
-                <span class="text-[#fafafa] text-[14px]">
+                <Coins class="w-4 h-4 text-[#f5f5f5]" />
+                <span class="text-[#f5f5f5] text-[14px]">
                   Coming soon... <span class="text-[#bbbbbb] text-[13px]">(All Chains)</span>
                 </span>
               </div>
@@ -161,8 +162,8 @@ useHead({
           :class="[
             'px-3 py-1 rounded-lg text-[14px] font-medium transition-colors whitespace-nowrap relative',
             activeTab === tab.id 
-              ? 'bg-[#009367] text-[#fafafa]' 
-              : 'bg-[#222222] text-[#fafafa] hover:bg-[#333333]'
+              ? 'bg-[#009367] text-[#f5f5f5]' 
+              : 'bg-[#252525] text-[#f5f5f5] hover:bg-[#333333]'
           ]"
         >
           {{ tab.label }}
@@ -172,7 +173,7 @@ useHead({
 
     <!-- Tab Content -->
     <div class="mb-6">
-      <KeepAlive include="TokenTransfers,TokenHolders,ContractCode">
+      <KeepAlive include="TokenTransfers,TokenHolders,ContractView">
         <component :is="activeComponent" v-bind="activeProps" />
       </KeepAlive>
     </div>

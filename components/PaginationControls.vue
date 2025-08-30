@@ -80,14 +80,14 @@ const goToNext = () => {
       v-if="!unknownTotal"
       :disabled="!hasPreviousPage || loadingPage"
       @click="goToFirst"
-      class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#fafafa] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
+      class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
     >
       First
     </button>
     <button
       :disabled="!hasPreviousPage || loadingPage"
       @click="goToPrevious"
-      class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#fafafa] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
+      class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
     >
       <IconChevron class="h-4 w-4 transform rotate-180" />
     </button>
@@ -98,7 +98,7 @@ const goToNext = () => {
     <button
       :disabled="!hasNextPage || loadingPage"
       @click="goToNext"
-      class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#fafafa] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
+      class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
     >
       <IconChevron class="h-4 w-4" />
     </button>
@@ -106,7 +106,7 @@ const goToNext = () => {
       v-if="!unknownTotal"
       :disabled="!hasNextPage || loadingPage"
       @click="goToLast"
-      class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#fafafa] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
+      class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
     >
       Last
     </button>
