@@ -209,7 +209,10 @@ function downloadData() {
     <!-- Header (DataTable-like) -->
     <div class="flex justify-between mb-4 flex-col md:flex-row gap-y-2 items-start md:items-center">
       <div>
-        <h2 class="text-[15px] text-normal text-[#f5f5f5]">
+        <h2 v-if="loading" class="text-[15px] text-normal text-[#f5f5f5]">
+          Loading...
+        </h2>
+        <h2 v-else class="text-[15px] text-normal text-[#f5f5f5]">
           Total of {{ new Intl.NumberFormat('en-US').format(totalCount || 0) }} events in chain {{ route.query.chain }}
         </h2>
         <p class="text-[13px] text-[#bbbbbb]">{{ subtitle }}</p>
