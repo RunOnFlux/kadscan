@@ -398,12 +398,13 @@ watch(
   ([currentTransaction, newLastBlockHeight]) => {
     if (!currentTransaction) return;
 
-    const isFinalized = currentTransaction?.result?.block?.canonical;
     const hasFailed = currentTransaction?.result?.badResult !== null;
-    const isOldEnough = currentTransaction?.result?.block?.height && 
-    newLastBlockHeight - currentTransaction.result.block.height >= 10;
+    const isOldEnough = currentTransaction?.result?.block?.height &&
+      (newLastBlockHeight - currentTransaction.result.block.height) > 6;
 
-    if (isFinalized || hasFailed || isOldEnough) {
+    // Keep polling until the transaction's block is old enough (>= 6 confirmations)
+    // or the transaction has failed. Canonical flag may flip later; do not stop based on it.
+    if (hasFailed || isOldEnough) {
       stopPolling();
     } else {
       startPolling();

@@ -183,10 +183,11 @@ watch(loading, (newLoading) => {
 watch(
   [() => block.value, lastBlockHeight],
   ([currentBlock, newLastBlockHeight]) => {
-    const isCanonical = currentBlock?.canonical;
-    const isOldEnough = newLastBlockHeight - height.value >= 10;
+    const isOldEnough = (newLastBlockHeight - height.value) > 6;
 
-    if (isCanonical || isOldEnough) {
+    // Keep polling until the block is old enough, regardless of canonical flag,
+    // so the status can transition from Pending to Finalized automatically.
+    if (isOldEnough) {
       stopPolling();
     } else {
       startPolling();
