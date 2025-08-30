@@ -5,7 +5,7 @@ import Copy from '~/components/Copy.vue'
 import Coins from '~/components/icon/Coins.vue'
 import TokenTransfers from '~/components/token/TokenTransfers.vue'
 import TokenHolders from '~/components/token/TokenHolders.vue'
-import ContractView from '~/components/module/View.vue'
+import ContractView from '~/components/module/ContractView.vue'
 
 definePageMeta({
   layout: 'app',
@@ -173,7 +173,7 @@ useHead({
 
     <!-- Tab Content -->
     <div class="mb-6">
-      <KeepAlive include="TokenTransfers,TokenHolders,ContractCode">
+      <KeepAlive include="TokenTransfers,TokenHolders,ContractView">
         <component :is="activeComponent" v-bind="activeProps" />
       </KeepAlive>
     </div>
