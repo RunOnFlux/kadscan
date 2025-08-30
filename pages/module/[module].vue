@@ -7,12 +7,14 @@ import ContractTransactions from '~/components/module/ContractTransactions.vue'
 import ContractEvents from '~/components/module/ContractEvents.vue'
 import ContractView from '~/components/module/ContractView.vue'
 import { useContractPact } from '~/composables/useContractPact'
+import { useScreenSize } from '~/composables/useScreenSize'
 
 definePageMeta({
   layout: 'app',
 })
 
 const route = useRoute()
+const { isMobile } = useScreenSize()
 
 const contractSlug = computed(() => route.params.module as string)
 // Use the slug as-is; modules may legitimately contain hyphens. Decode URI components for safety.
@@ -173,6 +175,7 @@ const showOverviewLoading = computed(() => !isHydrated.value || loading.value)
           <div class="text-[15px] text-[#f5f5f5] break-all">{{ moduleName }}</div>
           <div class="flex items-center gap-3 pt-2 md:pt-0">
             <Copy 
+              v-if="!isMobile"
               :value="moduleName" 
               tooltipText="Copy Module Name"
               iconSize="h-5 w-5"
@@ -220,6 +223,7 @@ const showOverviewLoading = computed(() => !isHydrated.value || loading.value)
                   <div class="inline-flex items-center gap-2">
                     <span class="text-[#f5f5f5]">{{ moduleInfo.hash }}</span>
                     <Copy 
+                      v-if="!isMobile"
                       :value="moduleInfo.hash" 
                       tooltipText="Copy Hash"
                       iconSize="h-4 w-4"

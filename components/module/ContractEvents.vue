@@ -16,6 +16,7 @@ import { useStatus } from '~/composables/useStatus'
 import { useBlocks } from '~/composables/useBlocks'
 import StatusBadge from '~/components/StatusBadge.vue'
 import IconHourglass from '~/components/icon/Hourglass.vue'
+import { useScreenSize } from '~/composables/useScreenSize'
 
 defineOptions({ name: 'ContractEvents' })
 
@@ -25,6 +26,7 @@ const props = defineProps<{
 
 const route = useRoute()
 const { selectedNetwork } = useSharedData()
+const { isMobile } = useScreenSize()
 
 const {
   events,
@@ -223,7 +225,7 @@ function downloadData() {
           class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
         >
           <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
-          Download Page Data
+          <span class="hidden md:inline">Download Page Data</span>
         </button>
         <PaginationControls
           :currentPage="currentPage"
@@ -346,8 +348,8 @@ function downloadData() {
         </div>
 
         <!-- Footer controls -->
-        <div class="pt-1 flex items-center justify-between">
-          <div class="flex items-center gap-2">
+        <div class="pt-1 flex items-center justify-end md:justify-between">
+          <div class="hidden md:flex items-center gap-2">
             <span class="text-[15px] text-[#bbbbbb]">Show rows:</span>
             <div class="border border-[#222222] rounded-md">
               <Select
