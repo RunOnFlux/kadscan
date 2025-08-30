@@ -3,8 +3,9 @@ import { Doughnut } from 'vue-chartjs'
 import { useAccountBalances } from '~/composables/useAccountBalances'
 import { useAssetUsdPrices } from '~/composables/useAssetUsdPrices'
 import { staticTokens } from '~/constants/tokens'
+import AssetsPieChartSkeleton from '~/components/skeleton/AssetsPieChart.vue'
 
-const { balances } = useAccountBalances()
+const { balances, loading } = useAccountBalances()
 const { getUsdPerUnit, primeModules } = useAssetUsdPrices()
 
 // Fixed chart size (same on desktop and mobile) to keep the donut perfectly round
@@ -173,7 +174,10 @@ const chartOptions = reactive({
 
 <template>
   <div class="w-full">
-    <template v-if="groupedByAsset.length > 0">
+    <template v-if="loading">
+      <AssetsPieChartSkeleton />
+    </template>
+    <template v-else-if="groupedByAsset.length > 0">
       <div class="grid grid-cols-1 md:flex md:items-center">
         <!-- Left: Chart (60%) -->
         <div class="md:basis-6/12 md:shrink-0 flex justify-center md:justify-start">
