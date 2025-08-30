@@ -23,7 +23,6 @@ const props = defineProps<{
 }>()
 
 const route = useRoute()
-const router = useRouter()
 const { truncateAddress } = useFormat()
 const { selectedNetwork } = useSharedData()
 const { isMobile } = useScreenSize()
@@ -47,6 +46,7 @@ const {
 } = useBlocks()
 
 const selectedChain = ref({ label: 'All', value: null as string | null })
+const isChainParamResolved = ref(false)
 const chainOptions = computed(() => {
   const options = [{ label: 'All', value: null as string | null }]
   for (let i = 0; i <= 19; i++) {
@@ -57,16 +57,17 @@ const chainOptions = computed(() => {
 
 const initChainFromUrl = () => {
   const q = route.query.chain as string | undefined
-  if (q === undefined) return
+  if (q === undefined) {
+    isChainParamResolved.value = false
+    return
+  }
   const n = parseInt(q, 10)
   const isValid = !Number.isNaN(n) && n >= 0 && n <= 19
   if (isValid) {
     selectedChain.value = { label: n.toString(), value: n.toString() }
+    isChainParamResolved.value = true
   } else {
-    const newQuery: Record<string, any> = { ...route.query }
-    delete newQuery.chain
-    router.replace({ query: newQuery })
-    selectedChain.value = { label: 'All', value: null }
+    isChainParamResolved.value = false
   }
 }
 
@@ -140,19 +141,23 @@ onMounted(() => {
 watch(() => route.query.chain, (q) => {
   const str = typeof q === 'string' ? q : undefined
   if (str === undefined) {
-    selectedChain.value = { label: 'All', value: null }
+    isChainParamResolved.value = false
     return
   }
   const n = parseInt(str, 10)
   const isValid = !Number.isNaN(n) && n >= 0 && n <= 19
-  selectedChain.value = isValid
-    ? { label: n.toString(), value: n.toString() }
-    : { label: 'All', value: null }
+  if (!isValid) {
+    isChainParamResolved.value = false
+    return
+  }
+  selectedChain.value = { label: n.toString(), value: n.toString() }
+  isChainParamResolved.value = true
 })
 
 watch(
-  [selectedNetwork, selectedChain, () => props.modulename],
+  [selectedNetwork, selectedChain, () => props.modulename, isChainParamResolved],
   async ([network], [oldNetwork, oldChain, oldModule]) => {
+    if (!isChainParamResolved.value) return
     if (!network || !props.modulename) return
 
     const networkChanged = !oldNetwork || network.id !== oldNetwork.id
@@ -179,6 +184,7 @@ watch(
 watch(rowsToShow, async (newRows, oldRows) => {
   const network = selectedNetwork.value
   if (!network || !props.modulename) return
+  if (!isChainParamResolved.value) return
   if (newRows === oldRows) return
   currentPage.value = 1
   const params: { networkId: string; fungibleName: string; chainId?: string } = {
@@ -193,6 +199,7 @@ watch(rowsToShow, async (newRows, oldRows) => {
 watch(currentPage, async (newPage, oldPage) => {
   const network = selectedNetwork.value
   if (!network || !props.modulename) return
+  if (!isChainParamResolved.value) return
   if (!newPage || newPage === oldPage) return
 
   const params: { networkId: string; fungibleName: string; after?: string; before?: string; toLastPage?: boolean; chainId?: string } = {
@@ -225,10 +232,10 @@ function downloadData() {
 
 <template>
   <div>
-    <SkeletonTable v-if="loading" />
+    <SkeletonTable v-if="!isChainParamResolved || loading" />
 
     <DataTable
-      v-else-if="filteredTransactions && filteredTransactions.length > 0"
+      v-else-if="isChainParamResolved && filteredTransactions && filteredTransactions.length > 0"
       :headers="tableHeaders"
       :items="filteredTransactions"
       :totalItems="totalCount"
