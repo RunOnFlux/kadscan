@@ -208,10 +208,10 @@ const displayedCode = computed(() => {
     }
 
     return {
-      text: 'Pending',
+      text: 'Cross Chain Transfer',
       icon: IconHourglass,
       classes: 'bg-[#17150d] border-[#44464980] text-[#989898]',
-      description: 'Cross-chain transaction is pending to be finalized',
+      description: 'Cross-chain transaction is pending to be finalized or failed',
     };
   });
 
@@ -511,13 +511,12 @@ onUnmounted(() => {
                 <LabelValue :row="isMobile" :label="textContent.status.label" :description="textContent.status.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-2">
-                        <div class="w-fit">
-                          <StatusBadge :status="transactionStatus" />
-                        </div>
+                      <div class="w-fit">
+                        <StatusBadge :status="transactionStatus" />
+                      </div>
                       <!-- Cross Chain Transfer Badge with Status -->
-                      <div v-if="crossChainStatus" :class="['flex items-center px-2 py-1 rounded-lg border text-[11px] w-fit gap-2', crossChainStatus.classes]">
-                        <component :is="crossChainStatus.icon" class="w-3 h-3" />
-                        <span>Cross Chain Transfer</span>
+                      <div v-if="crossChainStatus" class="w-fit">
+                        <StatusBadge :status="crossChainStatus" />
                       </div>
                     </div>
                   </template>
