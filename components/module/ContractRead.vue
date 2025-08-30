@@ -109,6 +109,9 @@ async function onCall() {
                     v-model="paramValues[p.name]"
                     class="w-full bg-[#151515] border border-[#222222] rounded-md text-[#bbbbbb] text-sm px-2 py-1 outline-none font-mono whitespace-pre-wrap min-h-[40px]"
                     placeholder='Enter Pact literal (eg "k:addr", 1.0, true, {"k":1})'
+                    data-gramm="false"
+                    data-gramm_editor="false"
+                    spellcheck="false"
                   ></textarea>
                 </div>
               </div>
