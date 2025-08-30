@@ -56,6 +56,7 @@ const height = computed(() => Number(route.params.height));
 const chainId = computed(() => Number(route.params.chainId));
 const networkId = computed(() => selectedNetwork.value?.id);
 const selectedBlockIndex = ref(0);
+const isNavigating = ref(false);
 
 // More details animation variables
 const contentHeight = ref(0);
@@ -135,6 +136,8 @@ const isLastBlock = computed(() => lastBlockHeight.value === height.value);
 
 const goToBlock = (newHeight: number, newChainId: number) => {
   if (newHeight < 0) return;
+  if (isNavigating.value || loading.value) return;
+  isNavigating.value = true;
   router.push(`/blocks/${newHeight}/chain/${newChainId}`);
 };
 
@@ -170,6 +173,12 @@ watch(
   },
   { immediate: true }
 );
+
+watch(loading, (newLoading) => {
+  if (!newLoading) {
+    isNavigating.value = false;
+  }
+});
 
 watch(
   [() => block.value, lastBlockHeight],
@@ -266,11 +275,11 @@ useHead({
                         <Tooltip
                           value="View previous Block"
                           :offset-distance="8"
-                          :disabled="height === 0"
+                          :disabled="height === 0 || isNavigating || loading"
                         >
                           <button
                             @click="goToBlock(height - 1, chainId)"
-                            :disabled="height === 0"
+                            :disabled="height === 0 || isNavigating || loading"
                             class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3 transform rotate-180" />
@@ -279,11 +288,11 @@ useHead({
                         <Tooltip
                           value="View next Block"
                           :offset-distance="8"
-                          :disabled="isLastBlock"
+                          :disabled="isLastBlock || isNavigating || loading"
                         >
                           <button
                             @click="goToBlock(height + 1, chainId)"
-                            :disabled="isLastBlock"
+                            :disabled="isLastBlock || isNavigating || loading"
                             class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3" />
@@ -305,19 +314,19 @@ useHead({
                         </NuxtLink>
                       </Tooltip>
                       <div class="flex gap-1">
-                        <Tooltip value="View previous Chain" :offset-distance="8">
+                        <Tooltip value="View previous Chain" :offset-distance="8" :disabled="isNavigating || loading">
                           <button
                             @click="goToBlock(height, chainId - 1)"
-                            :disabled="chainId === 0"
+                            :disabled="chainId === 0 || isNavigating || loading"
                             class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3 transform rotate-180" />
                           </button>
                         </Tooltip>
-                        <Tooltip value="View next Chain" :offset-distance="8">
+                        <Tooltip value="View next Chain" :offset-distance="8" :disabled="isNavigating || loading">
                           <button
                             @click="goToBlock(height, chainId + 1)"
-                            :disabled="chainId === 19"
+                            :disabled="chainId === 19 || isNavigating || loading"
                             class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3" />
