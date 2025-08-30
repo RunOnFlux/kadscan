@@ -110,7 +110,7 @@ async function onCall() {
                 >
                   <textarea
                     v-model="paramValues[p.name]"
-                    class="w-full bg-[#151515] border border-[#222222] rounded-md text-[#bbbbbb] text-sm px-2 py-1 outline-none font-mono whitespace-pre-wrap min-h-[40px]"
+                    class="w-full bg-[#151515] border border-[#222222] rounded-md text-[#bbbbbb] text-sm px-2 py-1 outline-none font-mono whitespace-pre-wrap min-h-[110px]"
                     placeholder='Enter Pact literal (eg "k:addr", 1.0, true, {"k":1})'
                     data-gramm="false"
                     data-gramm_editor="false"
@@ -152,7 +152,7 @@ async function onCall() {
             </div>
             <div class="text-[#f5f5f5] text-[15px] fix w-full md:flex-1 overflow-hidden">
               <div v-if="loading" class="w-full">
-                <div class="relative overflow-hidden rounded-lg border border-[#222222] bg-[#151515] h-[40px] md:h-[120px]">
+                <div class="relative overflow-hidden rounded-lg border border-[#222222] bg-[#151515] h-[110px] md:h-[120px]">
                   <div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-[#2a2a2a] to-transparent animate-shimmer"></div>
                 </div>
               </div>
@@ -165,7 +165,7 @@ async function onCall() {
                 <textarea
                   readonly
                   :value="error ? 'Error: ' + String(error) : result === null && hasQueried ? 'No result returned for this query.' : formatJsonPretty(result)"
-                  class="break-all w-full bg-[#151515] border border-[#222222] rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-auto h-[40px] m-0"
+                  class="break-all w-full bg-[#151515] border border-[#222222] rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-auto h-[110px] m-0"
                 ></textarea>
               </div>
               <div v-else
