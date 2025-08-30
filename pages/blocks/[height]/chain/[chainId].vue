@@ -56,6 +56,7 @@ const height = computed(() => Number(route.params.height));
 const chainId = computed(() => Number(route.params.chainId));
 const networkId = computed(() => selectedNetwork.value?.id);
 const selectedBlockIndex = ref(0);
+const isNavigating = ref(false);
 
 // More details animation variables
 const contentHeight = ref(0);
@@ -88,6 +89,8 @@ const {
   totalGasPrice,
   gasLoading,
   kadenaPrice,
+  neighborAvailability,
+  fetchNeighborAvailability,
 } = useBlock(height, chainId, networkId);
 
 const block = computed(() => {
@@ -133,8 +136,21 @@ const minerAccount = computed(() => coinbaseData.value?.events?.[0]?.params?.[1]
 const blockReward = computed(() => coinbaseData.value?.events?.[0]?.params?.[2]);
 const isLastBlock = computed(() => lastBlockHeight.value === height.value);
 
+// Navigation availability and tooltips
+const disablePrevBlock = computed(() => height.value === 0 || isNavigating.value || loading.value || !neighborAvailability.value.prevOnSameChain);
+const disableNextBlock = computed(() => isLastBlock.value || isNavigating.value || loading.value || !neighborAvailability.value.nextOnSameChain);
+const disablePrevChain = computed(() => chainId.value === 0 || isNavigating.value || loading.value || !neighborAvailability.value.prevChainSameHeight);
+const disableNextChain = computed(() => chainId.value === 19 || isNavigating.value || loading.value || !neighborAvailability.value.nextChainSameHeight);
+
+const prevBlockTooltip = computed(() => neighborAvailability.value.prevOnSameChain ? 'View previous Block' : 'Not available yet');
+const nextBlockTooltip = computed(() => neighborAvailability.value.nextOnSameChain ? 'View next Block' : 'Not available yet');
+const prevChainTooltip = computed(() => neighborAvailability.value.prevChainSameHeight ? 'View previous Chain' : 'Not available yet');
+const nextChainTooltip = computed(() => neighborAvailability.value.nextChainSameHeight ? 'View next Chain' : 'Not available yet');
+
 const goToBlock = (newHeight: number, newChainId: number) => {
   if (newHeight < 0) return;
+  if (isNavigating.value || loading.value) return;
+  isNavigating.value = true;
   router.push(`/blocks/${newHeight}/chain/${newChainId}`);
 };
 
@@ -166,18 +182,26 @@ watch(
   () => {
     if (networkId.value) {
       fetchBlock();
+      fetchNeighborAvailability();
     }
   },
   { immediate: true }
 );
 
+watch(loading, (newLoading) => {
+  if (!newLoading) {
+    isNavigating.value = false;
+  }
+});
+
 watch(
   [() => block.value, lastBlockHeight],
   ([currentBlock, newLastBlockHeight]) => {
-    const isCanonical = currentBlock?.canonical;
-    const isOldEnough = newLastBlockHeight - height.value >= 10;
+    const isOldEnough = (newLastBlockHeight - height.value) > 6;
 
-    if (isCanonical || isOldEnough) {
+    // Keep polling until the block is old enough, regardless of canonical flag,
+    // so the status can transition from Pending to Finalized automatically.
+    if (isOldEnough) {
       stopPolling();
     } else {
       startPolling();
@@ -264,26 +288,24 @@ useHead({
                       </Tooltip>
                       <div class="flex gap-1">
                         <Tooltip
-                          value="View previous Block"
+                          :value="prevBlockTooltip"
                           :offset-distance="8"
-                          :disabled="height === 0"
                         >
                           <button
                             @click="goToBlock(height - 1, chainId)"
-                            :disabled="height === 0"
+                            :disabled="disablePrevBlock"
                             class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3 transform rotate-180" />
                           </button>
                         </Tooltip>
                         <Tooltip
-                          value="View next Block"
+                          :value="nextBlockTooltip"
                           :offset-distance="8"
-                          :disabled="isLastBlock"
                         >
                           <button
                             @click="goToBlock(height + 1, chainId)"
-                            :disabled="isLastBlock"
+                            :disabled="disableNextBlock"
                             class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3" />
@@ -305,19 +327,19 @@ useHead({
                         </NuxtLink>
                       </Tooltip>
                       <div class="flex gap-1">
-                        <Tooltip value="View previous Chain" :offset-distance="8">
+                        <Tooltip :value="prevChainTooltip" :offset-distance="8">
                           <button
                             @click="goToBlock(height, chainId - 1)"
-                            :disabled="chainId === 0"
+                            :disabled="disablePrevChain"
                             class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3 transform rotate-180" />
                           </button>
                         </Tooltip>
-                        <Tooltip value="View next Chain" :offset-distance="8">
+                        <Tooltip :value="nextChainTooltip" :offset-distance="8">
                           <button
                             @click="goToBlock(height, chainId + 1)"
-                            :disabled="chainId === 19"
+                            :disabled="disableNextChain"
                             class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3" />

@@ -43,6 +43,7 @@ const GQL_QUERY = `
 
 // Module-scope state so multiple components on the page share it
 const loading = ref(false)
+const hasFetched = ref(false)
 const error = ref<any>(null)
 const nfts = ref<NftHolding[]>([])
 const metadataByKey = ref<MetadataRecord>({})
@@ -161,6 +162,7 @@ export const useAccountNFTs = () => {
       abortController.abort()
       abortController = null
     }
+    hasFetched.value = false
   }
 
   const fetchAccountNFTs = async ({
@@ -182,6 +184,7 @@ export const useAccountNFTs = () => {
       metadataByKey.value = { ...cached.metadataByKey }
       loading.value = false
       error.value = null
+      hasFetched.value = true
       return
     }
 
@@ -218,6 +221,7 @@ export const useAccountNFTs = () => {
         error.value = e
       } finally {
         loading.value = false
+        hasFetched.value = true
         inflight.delete(cacheKey)
       }
     }
@@ -292,6 +296,7 @@ export const useAccountNFTs = () => {
 
   return {
     loading: readonly(loading),
+    hasFetched: readonly(hasFetched),
     error: readonly(error),
     nfts: readonly(nfts),
     metadataByKey: readonly(metadataByKey),

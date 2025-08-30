@@ -106,7 +106,7 @@ function makeEventKey(edge: any, index: number): string {
                   </span>
                   <span v-if="eventEdge.node.moduleName !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                     <span class="text-[#bbbbbb]">Module:</span>
-                    <span class="text-[#f5f5f5] ml-1">{{ eventEdge.node.moduleName }}</span>
+                    <NuxtLink :to="`/module/${eventEdge.node.moduleName}`" class="text-[#6ab5db] ml-1 hover:text-[#9ccee7]">{{ eventEdge.node.moduleName }}</NuxtLink>
                   </span>
                   <span v-if="eventEdge.node.name !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                     <span class="text-[#bbbbbb]">Event:</span>

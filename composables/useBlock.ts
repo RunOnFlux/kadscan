@@ -73,6 +73,19 @@ const BLOCK_TRANSACTIONS_QUERY = `
   }
 `;
 
+const NEIGHBOR_EXISTENCE_QUERY = `
+  query BlocksFromHeight($startHeight: Int!, $endHeight: Int, $chainIds: [String!]) {
+    blocksFromHeight(startHeight: $startHeight, endHeight: $endHeight, chainIds: $chainIds) {
+      edges {
+        node {
+          chainId
+          height
+        }
+      }
+    }
+  }
+`;
+
 const block = ref<any>(null);
 const competingBlocks = ref<any[]>([]);
 const canonicalIndex = ref(-1);
@@ -83,6 +96,12 @@ const kadenaPriceLastDay = ref<Date | null>(null);
 const totalGasUsed = ref<number | null>(null);
 const totalGasPrice = ref<string | null>(null);
 const gasLoading = ref(false);
+const neighborAvailability = ref({
+  prevOnSameChain: false,
+  nextOnSameChain: false,
+  prevChainSameHeight: false,
+  nextChainSameHeight: false,
+});
 
 export const useBlock = (
   height: Ref<number>,
@@ -179,6 +198,62 @@ export const useBlock = (
     }
   };
 
+  const fetchNeighborAvailability = async () => {
+    if (height.value === undefined || chainId.value === undefined || !networkId.value) {
+      return;
+    }
+
+    try {
+      const currentHeight = Number(height.value);
+      const currentChain = Number(chainId.value);
+
+      const chainIds: number[] = [currentChain];
+      if (currentChain > 0) chainIds.push(currentChain - 1);
+      if (currentChain < 19) chainIds.push(currentChain + 1);
+
+      const response: any = await $fetch('/api/graphql', {
+        method: 'POST',
+        body: {
+          query: NEIGHBOR_EXISTENCE_QUERY,
+          variables: {
+            startHeight: Math.max(0, currentHeight - 1),
+            endHeight: currentHeight + 1,
+            chainIds: chainIds.map((c) => String(c)),
+          },
+          networkId: networkId.value,
+        },
+      });
+
+      const edges = response?.data?.blocksFromHeight?.edges || [];
+      const exists = new Set<string>();
+      for (const edge of edges) {
+        const node = edge?.node;
+        if (node?.height !== undefined && node?.chainId !== undefined) {
+          exists.add(`${node.height}:${node.chainId}`);
+        }
+      }
+
+      const prevOnSameChain = currentHeight > 0 && exists.has(`${currentHeight - 1}:${currentChain}`);
+      const nextOnSameChain = exists.has(`${currentHeight + 1}:${currentChain}`);
+      const prevChainSameHeight = currentChain > 0 && exists.has(`${currentHeight}:${currentChain - 1}`);
+      const nextChainSameHeight = currentChain < 19 && exists.has(`${currentHeight}:${currentChain + 1}`);
+
+      neighborAvailability.value = {
+        prevOnSameChain,
+        nextOnSameChain,
+        prevChainSameHeight,
+        nextChainSameHeight,
+      };
+    } catch (e) {
+      neighborAvailability.value = {
+        prevOnSameChain: false,
+        nextOnSameChain: false,
+        prevChainSameHeight: false,
+        nextChainSameHeight: false,
+      };
+    }
+  };
+
   const fetchBlock = async () => {
     if (height.value === undefined || chainId.value === undefined || !networkId.value) {
       return;
@@ -227,6 +302,7 @@ export const useBlock = (
       if (block.value) {
         calculateTotalGas();
         fetchKadenaPrice(block.value.creationTime);
+        fetchNeighborAvailability();
       }
     } catch (e) {
       error.value = e;
@@ -249,5 +325,7 @@ export const useBlock = (
     totalGasUsed,
     totalGasPrice,
     gasLoading,
+    neighborAvailability,
+    fetchNeighborAvailability,
   };
 }; 

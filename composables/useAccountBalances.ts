@@ -23,6 +23,7 @@ const GQL_QUERY = `
 `
 
 const loading = ref(false)
+const hasFetched = ref(false)
 const error = ref<any>(null)
 const pageInfo = ref<any>(null)
 const lastBlockHeight = ref<number | null>(null)
@@ -43,6 +44,7 @@ export const useAccountBalances = () => {
     pageInfo.value = null
     lastBlockHeight.value = null
     balances.value = []
+    hasFetched.value = false
     balancesCache.clear()
   }
 
@@ -78,6 +80,7 @@ export const useAccountBalances = () => {
       balances.value = cached.balances
       loading.value = false
       error.value = null
+      hasFetched.value = true
       return
     }
 
@@ -118,11 +121,13 @@ export const useAccountBalances = () => {
       error.value = e
     } finally {
       loading.value = false
+      hasFetched.value = true
     }
   }
 
   return {
     loading: readonly(loading),
+    hasFetched: readonly(hasFetched),
     error: readonly(error),
     pageInfo: readonly(pageInfo),
     lastBlockHeight: readonly(lastBlockHeight),

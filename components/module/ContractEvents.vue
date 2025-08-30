@@ -207,7 +207,9 @@ function downloadData() {
 </script>
 
 <template>
-  <div class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
+  <!-- Show only the skeleton while loading -->
+  <SkeletonTable v-if="loading" />
+  <div v-else class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
     <!-- Header (DataTable-like) -->
     <div class="flex justify-between mb-4 flex-col md:flex-row gap-y-2 items-start md:items-center">
       <div>
@@ -240,9 +242,7 @@ function downloadData() {
     </div>
 
     <!-- Body -->
-    <SkeletonTable v-if="loading" />
-    <template v-else>
-      <div v-if="events && events.length > 0" class="flex flex-col gap-3">
+    <div v-if="events && events.length > 0" class="flex flex-col gap-3">
         <div v-for="(ev, index) in events" :key="makeEventKey(ev, index)" class="bg-transparent border border-[#222222] rounded-lg p-3 flex flex-col gap-2">
           <!-- Row 1: Request Key -->
           <LabelValue :label="textContent.requestKey.label" :description="textContent.requestKey.description"
@@ -372,8 +372,6 @@ function downloadData() {
           />
         </div>
       </div>
-
-      <!-- Empty state -->
       <div v-else class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
         <div class="flex flex-col items-center justify-center py-12">
           <img src="/empty/txs.png" alt="No events" class="w-24 h-24 mb-4 opacity-50" />
@@ -381,7 +379,7 @@ function downloadData() {
           <p class="text-[#bbbbbb] text-sm text-center">No events found for this contract.</p>
         </div>
       </div>
-    </template>
+    
   </div>
 </template>
 
