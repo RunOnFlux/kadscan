@@ -51,6 +51,7 @@ onUnmounted(() => {
           fontSize="15"
           v-model="data.filter"
           :items="data.filters"
+          :maxVisible="data.filters.length"
           @click="close"
           @update:model-value="search(data.query as any)"
         />

@@ -59,6 +59,7 @@ const isFilterAvailable = (type: string) => {
   if (type === 'transactions') return hasTransactions.value
   if (type === 'tokens') return hasTokens.value
   if (type === 'blocks') return hasBlocks.value
+  if (type === 'modules') return hasModule.value
   return false
 }
 
@@ -70,6 +71,7 @@ const getFirstAvailableFilter = (): string => {
     (hasTransactions.value && 'transactions') ||
     (hasTokens.value && 'tokens') ||
     (hasBlocks.value && 'blocks') ||
+    (hasModule.value && 'modules') ||
     (hasModule.value && 'module') ||
     ''
   ) as string

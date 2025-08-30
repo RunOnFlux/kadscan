@@ -133,6 +133,10 @@ const filters = [
     value: 'tokens',
     label: 'Tokens',
   },
+  {
+    value: 'modules',
+    label: 'Modules',
+  },
 ];
 
 export function useSearch () {
@@ -165,7 +169,6 @@ export function useSearch () {
   const { selectedNetwork } = useSharedData();
 
   // Updated regex patterns - more flexible
-  const strictKadenaAddressRegex = /^k:[a-fA-F0-9]{64}$/;
   const likelyRequestKeyRegex = /^[A-Za-z0-9\-_]{20,}$/; // More flexible length
   const numericRegex = /^\d+$/;
 
@@ -226,7 +229,7 @@ export function useSearch () {
               }
             }
           } catch (error) {
-            console.warn('Block height search failed:', error);
+            console.warn('[SEARCH] Block height search failed:', error);
           }
         }
         
@@ -270,7 +273,7 @@ export function useSearch () {
                 }];
               }
             } catch (error) {
-              console.warn('Block hash search failed:', error);
+              console.warn('[SEARCH] Block hash search failed:', error);
             }
           }
         }
@@ -314,7 +317,7 @@ export function useSearch () {
             }];
           }
         } catch (error) {
-          console.warn('Transaction search failed:', error);
+          console.warn('[SEARCH] Transaction search failed:', error);
         }
       }
 
@@ -351,7 +354,7 @@ export function useSearch () {
             }
           }
         } catch (error) {
-          console.warn('Token search failed:', error);
+          console.warn('[SEARCH] Token search failed:', error);
         }
       }
 
@@ -380,7 +383,7 @@ export function useSearch () {
               }];
             }
           } catch (error) {
-            console.warn('Address search failed:', error);
+            console.warn('[SEARCH] Address search failed:', error);
           }
         }
       }
@@ -434,7 +437,7 @@ export function useSearch () {
               data.searched = current;
             }
           } catch (error) {
-            console.warn('Code search failed:', error);
+            console.warn('[SEARCH] Code search failed:', error);
           } finally {
             data._bgPending = Math.max(0, (data._bgPending || 0) - 1);
             // if no more background tasks, clear bg flag
@@ -454,7 +457,7 @@ export function useSearch () {
         const parts = (value || '').split('.')
         return parts.length === 2 && parts[0].trim().length > 0 && parts[1].trim().length > 0
       })();
-      if (looksLikeModule) {
+      if ((shouldSearchAll || data.filter.value === 'modules') && looksLikeModule) {
         // mark background pending and flag items
         data._bgPending++;
         if (value === data.query) {
@@ -511,7 +514,7 @@ export function useSearch () {
               data.searched = current
             }
           } catch (error) {
-            console.warn('Module search failed:', error);
+            console.warn('[SEARCH] Module search failed:', error);
           } finally {
             data._bgPending = Math.max(0, (data._bgPending || 0) - 1);
             if (data._bgPending === 0) {
@@ -526,7 +529,7 @@ export function useSearch () {
       }
 
     } catch (error) {
-      console.error('Search error:', error);
+      console.error('[SEARCH] Search error:', error);
       data.error = 'An error occurred while searching. Please try again.';
     } finally {
       data.loading = false;
