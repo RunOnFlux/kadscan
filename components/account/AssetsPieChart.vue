@@ -5,7 +5,7 @@ import { useAssetUsdPrices } from '~/composables/useAssetUsdPrices'
 import { staticTokens } from '~/constants/tokens'
 import AssetsPieChartSkeleton from '~/components/skeleton/AssetsPieChart.vue'
 
-const { balances, loading } = useAccountBalances()
+const { balances, loading, hasFetched } = useAccountBalances()
 const { getUsdPerUnit, primeModules } = useAssetUsdPrices()
 
 // Fixed chart size (same on desktop and mobile) to keep the donut perfectly round
@@ -174,7 +174,7 @@ const chartOptions = reactive({
 
 <template>
   <div class="w-full">
-    <template v-if="loading">
+    <template v-if="!hasFetched || loading">
       <AssetsPieChartSkeleton />
     </template>
     <template v-else-if="groupedByAsset.length > 0">

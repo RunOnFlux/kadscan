@@ -24,7 +24,7 @@ const headers = [
 ]
 
 const { selectedNetwork } = useSharedData()
-const { loading, nfts, metadataByKey, metadataErrors, fetchAccountNFTs, startMetadataQueue, clearState, setSelected } = useAccountNFTs()
+const { loading, hasFetched, nfts, metadataByKey, metadataErrors, fetchAccountNFTs, startMetadataQueue, clearState, setSelected } = useAccountNFTs()
 
 // Track thumbnails that failed to load so we can show the IPFS label
 const miniBroken = ref<Record<string, boolean>>({})
@@ -172,7 +172,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div>
-    <SkeletonTable v-if="loading" />
+    <SkeletonTable v-if="!hasFetched || loading" />
     <DataTable
       v-else-if="pageSlice && pageSlice.length > 0"
       :headers="headers"

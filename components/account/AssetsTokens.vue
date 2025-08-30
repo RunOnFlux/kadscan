@@ -17,7 +17,7 @@ const props = defineProps<{
 
 const route = useRoute()
 const { selectedNetwork } = useSharedData()
-const { balances, loading, pageInfo } = useAccountBalances()
+const { balances, loading, hasFetched, pageInfo } = useAccountBalances()
 const { truncateAddress } = useFormat()
 const { getUsdPerUnit, primeModules } = useAssetUsdPrices()
 // Prime pricing when balances change
@@ -159,7 +159,7 @@ function downloadData() {
 
 <template>
   <div>
-    <SkeletonTable v-if="loading" />
+    <SkeletonTable v-if="!hasFetched || loading" />
     <DataTable
       v-else-if="pageSlice && pageSlice.length > 0"
       :headers="headers"

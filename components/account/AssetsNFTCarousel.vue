@@ -10,7 +10,7 @@ import InfoIcon from '~/components/icon/Information.vue'
 const props = defineProps<{ address: string }>()
 
 const { selectedNetwork } = useSharedData()
-const { nfts, metadataByKey, metadataErrors, fetchAccountNFTs, startMetadataQueue } = useAccountNFTs()
+const { hasFetched, nfts, metadataByKey, metadataErrors, fetchAccountNFTs, startMetadataQueue } = useAccountNFTs()
 
 const broken: any = ref<Record<string, boolean>>({})
 
@@ -82,7 +82,7 @@ function markBroken(key: string) {
     </div>
 
     <div class="relative">
-      <template v-if="allProcessed">
+      <template v-if="hasFetched && allProcessed">
         <ClientOnly v-if="shouldAutoScroll && displayable.length > 0">
           <Splide :options="splideOptions" :extensions="{ AutoScroll }">
             <SplideSlide v-for="(item, idx) in displayable" :key="`${item.key}-${idx}`">
