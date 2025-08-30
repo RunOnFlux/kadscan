@@ -48,7 +48,7 @@ async function onCall() {
     <div class="flex flex-col md:flex-row gap-y-2 justify-between items-start md:items-center mb-4">
       <div>
         <h2 class="text-[15px] text-normal text-[#f5f5f5]">Interact with this Contract</h2>
-        <p class="text-[13px] text-[#bbbbbb]">Call read-only functions.</p>
+        <p class="text-[13px] text-[#bbbbbb]">Call read-only functions of this module.</p>
       </div>
     </div>
 
@@ -56,7 +56,7 @@ async function onCall() {
     <div v-else>
       <div class="flex flex-col md:flex-row gap-6">
         <!-- Left column: functions, inputs, query -->
-        <div class="w-[600px] shrink-0">
+        <div class="w-full md:flex-1 md:min-w-0">
           <div class="text-[13px] text-[#bbbbbb] mb-2">Functions</div>
           <div class="flex flex-wrap items-center gap-2 mb-3">
             <button
@@ -64,7 +64,7 @@ async function onCall() {
               :key="fn.name"
               @click="selected = fn.name"
               :class="[
-                'px-3 py-1 rounded-lg text-[13px] transition-colors whitespace-nowrap overflow-hidden text-ellipsis',
+                'px-3 py-1 rounded-lg text-[13px] transition-colors whitespace-normal break-words text-left max-w-full',
                 selected === fn.name ? 'bg-[#009367] text-[#f5f5f5]' : 'bg-[#252525] text-[#f5f5f5] hover:bg-[#333333]'
               ]"
             >
@@ -73,16 +73,30 @@ async function onCall() {
           </div>
 
           <div v-if="selectedFn" class="space-y-3">
-            <div class="grid grid-cols-1 gap-3 w-[600px]">
-              <div v-for="p in selectedFn.params" :key="p.name" class="space-y-1 w-[600px]">
+            <div class="grid grid-cols-1 gap-3 w-full">
+              <div v-for="p in selectedFn.params" :key="p.name" class="space-y-1 w-full">
                 <div class="text-[12px] text-[#bbbbbb] whitespace-normal break-words">
                   {{ p.name }}<span v-if="p.type" class="text-[#888888]">: {{ p.type }}</span>
                 </div>
-                <input
-                  v-model="paramValues[p.name]"
-                  class="w-[600px] bg-[#151515] border border-[#222222] rounded-md text-[#bbbbbb] text-sm px-2 py-1 outline-none font-mono"
-                  placeholder='Enter Pact literal (eg "k:addr", 1.0, true, {"k":1})'
-                />
+                <div
+                  class="grid w-full text-sm text-[#bbbbbb]
+                         [&>textarea]:text-inherit
+                         [&>textarea]:resize-none
+                         [&>textarea]:overflow-hidden
+                         [&>textarea]:[grid-area:1/1/2/2]
+                         after:[grid-area:1/1/2/2]
+                         after:whitespace-pre-wrap
+                         after:invisible
+                         after:content-[attr(data-cloned-val)_'_']
+                         after:pb-2"
+                  :data-cloned-val="paramValues[p.name]"
+                >
+                  <textarea
+                    v-model="paramValues[p.name]"
+                    class="w-full bg-[#151515] border border-[#222222] rounded-md text-[#bbbbbb] text-sm px-2 py-1 outline-none font-mono whitespace-pre-wrap min-h-[40px]"
+                    placeholder='Enter Pact literal (eg "k:addr", 1.0, true, {"k":1})'
+                  ></textarea>
+                </div>
               </div>
             </div>
 
