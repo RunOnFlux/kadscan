@@ -31,12 +31,21 @@ watch(readFunctions, (list) => {
 }, { immediate: true })
 
 const selectedFn = computed(() => readFunctions.value.find(f => f.name === selected.value))
+const valuesByFunction = ref<Record<string, Record<string, string>>>({})
 const paramValues = ref<Record<string, string>>({})
-watch(selectedFn, (fn) => {
+watch(selectedFn, (fn, prevFn) => {
+  if (prevFn) {
+    // save current values before switching away
+    valuesByFunction.value[prevFn.name] = { ...paramValues.value }
+  }
   const seed: Record<string, string> = {}
-  fn?.params.forEach(p => { seed[p.name] = '' })
+  const cached = fn ? valuesByFunction.value[fn.name] : undefined
+  fn?.params.forEach(p => { seed[p.name] = cached?.[p.name] ?? '' })
   paramValues.value = seed
 }, { immediate: true })
+
+// Clear cache when the list of functions changes (e.g., module changed)
+watch(readFunctions, () => { valuesByFunction.value = {} })
 
 const { loading, error, result, call } = useContractPactRead()
 const resultExpanded = ref(false)
