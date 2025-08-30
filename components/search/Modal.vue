@@ -24,7 +24,8 @@ const isEmpty = computed(() => {
   if (props.items === null) {
     return true
   }
-  return Object.values(props.items).every((item: any) => item?.length === 0)
+  const entries = Object.entries(props.items || {}).filter(([k]) => !k.startsWith('__'))
+  return entries.every(([, item]: any) => item?.length === 0)
 });
 
 const hasBlocks = computed(() => {
@@ -47,6 +48,10 @@ const hasCode = computed(() => {
   return props.items?.code?.length > 0
 });
 
+const hasModule = computed(() => {
+  return props.items?.modules?.length > 0
+});
+
 // Helper to check if a given filter type currently has results
 const isFilterAvailable = (type: string) => {
   if (type === 'address') return hasAddresses.value
@@ -65,6 +70,7 @@ const getFirstAvailableFilter = (): string => {
     (hasTransactions.value && 'transactions') ||
     (hasTokens.value && 'tokens') ||
     (hasBlocks.value && 'blocks') ||
+    (hasModule.value && 'module') ||
     ''
   ) as string
 }
@@ -125,19 +131,17 @@ const showHistory = computed(() => {
         <span class="text-white text-sm">Recent searches</span>
       </div>
       <div
-        v-if="loading"
+        v-if="loading || (items && items.__bgLoading)"
         class="pb-4"
       >
-        <span
-          class="text-sm text-white"
-        >
-          Loading...
-        </span>
+        <div class="flex flex-col gap-1">
+          <span class="text-sm text-white">Loading...</span>
+        </div>
       </div>
 
       <div
         class="pb-4"
-        v-else-if="isEmpty && !showHistory"
+        v-else-if="isEmpty && !showHistory && !(items && items.__bgLoading)"
       >
         <span
           class="text-white text-sm"
@@ -183,6 +187,13 @@ const showHistory = computed(() => {
           v-if="hasBlocks"
           @click.prevent="scrollToView('search-blocks-view')"
           :isActive="activeFilter === 'blocks'"
+        />
+
+        <SearchViewFilter
+          label="Module"
+          v-if="hasModule"
+          @click.prevent="scrollToView('search-module-view')"
+          :isActive="activeFilter === 'module'"
         />
       </div>
     </div>
@@ -238,6 +249,12 @@ const showHistory = computed(() => {
         v-if="hasBlocks"
       >
         <SearchViewBlock id="search-blocks-view" :blocks="items?.blocks" :onRecordHistory="onRecordHistory" />
+      </SearchViewVisible>
+
+      <SearchViewVisible
+        v-if="hasModule"
+      >
+        <SearchViewModule id="search-module-view" :items="items?.modules" :onRecordHistory="onRecordHistory" />
       </SearchViewVisible>
     </div>
   </div>

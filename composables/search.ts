@@ -105,6 +105,13 @@ const transactionsByPactCodeQuery = `
   }
 `;
 
+// Pact module describe query used to discover module presence across chains
+const pactModuleQuery = `
+  query PactContract($pactQuery: [PactQuery!]!) {
+    pactQuery(pactQuery: $pactQuery) { result }
+  }
+`;
+
 const filters = [
   {
     value: 'all',
@@ -134,6 +141,7 @@ export function useSearch () {
     open: false,
     error: null,
     loading: false,
+    _bgPending: 0 as number,
     searched: null,
     filters,
     filter: filters[0],
@@ -178,7 +186,8 @@ export function useSearch () {
         addresses: [] as any[],
         transactions: [] as any[],
         tokens: [] as any[],
-        code: [] as any[]
+        code: [] as any[],
+        modules: [] as any[],
       };
 
       // Search based on filter or search all types
@@ -383,6 +392,13 @@ export function useSearch () {
 
       // Fire code search in background and pop it in first when ready (min 4 chars)
       if ((shouldSearchAll || data.filter.value === 'transactions') && value.length >= 4) {
+        // mark background pending and flag items
+        data._bgPending++;
+        if (value === data.query) {
+          const curr = { ...(data.searched || results) } as any;
+          curr.__bgLoading = true;
+          data.searched = curr;
+        }
         (async (currentQuery: string) => {
           try {
             const codeResponse: any = await $fetch('/api/graphql', {
@@ -419,8 +435,94 @@ export function useSearch () {
             }
           } catch (error) {
             console.warn('Code search failed:', error);
+          } finally {
+            data._bgPending = Math.max(0, (data._bgPending || 0) - 1);
+            // if no more background tasks, clear bg flag
+            if (data._bgPending === 0) {
+              const curr = { ...(data.searched || {}) } as any;
+              if (curr.__bgLoading) {
+                delete curr.__bgLoading;
+                data.searched = curr;
+              }
+            }
           }
         })(value);
+      }
+
+      // Fire module search in background if the query matches exact namespace.module heuristic
+      const looksLikeModule = (() => {
+        const parts = (value || '').split('.')
+        return parts.length === 2 && parts[0].trim().length > 0 && parts[1].trim().length > 0
+      })();
+      if (looksLikeModule) {
+        // mark background pending and flag items
+        data._bgPending++;
+        if (value === data.query) {
+          const curr = { ...(data.searched || results) } as any;
+          curr.__bgLoading = true;
+          data.searched = curr;
+        }
+        (async (currentQuery: string) => {
+          try {
+            const pactQuery: Array<{ code: string; chainId: string }> = []
+            for (let i = 0; i <= 19; i++) {
+              pactQuery.push({ code: `(describe-module \"${currentQuery}\")`, chainId: String(i) })
+            }
+
+            const moduleResp: any = await $fetch('/api/graphql', {
+              method: 'POST',
+              body: {
+                query: pactModuleQuery,
+                variables: { pactQuery },
+                networkId: selectedNetwork.value?.id,
+              },
+            });
+
+            const edges: any[] = moduleResp?.data?.pactQuery || []
+            const chains: string[] = []
+            let resolvedName: string = currentQuery
+            let anyFound = false
+            edges.forEach((entry: any, idx: number) => {
+              try {
+                const raw = entry?.result
+                if (!raw) return
+                let parsed: any
+                try { parsed = JSON.parse(raw) } catch { parsed = raw }
+                const codeStr = typeof parsed?.code === 'string' ? parsed.code : ''
+                if (codeStr && codeStr.trim().length > 0) {
+                  anyFound = true
+                  chains.push(String(idx))
+                  if (parsed?.name && typeof parsed.name === 'string') {
+                    resolvedName = parsed.name
+                  }
+                }
+              } catch {}
+            })
+
+            if (anyFound && currentQuery === data.query) {
+              const moduleItem = {
+                name: resolvedName,
+                chains,
+                chainsCount: chains.length,
+                allChains: chains.length === 20,
+              }
+              const current = { ...(data.searched || results) } as any
+              current.modules = [moduleItem]
+              data.searched = current
+            }
+          } catch (error) {
+            console.warn('Module search failed:', error);
+          } finally {
+            data._bgPending = Math.max(0, (data._bgPending || 0) - 1);
+            if (data._bgPending === 0) {
+              const curr = { ...(data.searched || {}) } as any;
+              if (curr.__bgLoading) {
+                delete curr.__bgLoading;
+                data.searched = curr;
+              }
+            }
+          }
+        })(value)
       }
 
     } catch (error) {
@@ -559,7 +661,7 @@ export function useSearch () {
           }
           data.precheck.blockHeightInfo = { exists: false } as any;
         } catch (error) {
-          console.warn('Block height verification failed:', error);
+          console.warn('[SEARCH] Block height verification failed:', error);
         }
         // If no block at that height, fall through to other checks (it could be an account like "1234567")
       }
@@ -584,11 +686,49 @@ export function useSearch () {
           return { type: "transactions" } as any;
         }
       } catch (error) {
-        console.warn('Transaction verification failed:', error);
+        console.warn('[SEARCH] Transaction verification failed:', error);
       }
     }
 
-    // 3. Block Hash - Third Priority (query to verify it exists)
+    // 3. Module exact match (namespace.module) - Next Priority
+    const looksLikeModule = (() => {
+      const parts = (searchTerm || '').split('.')
+      return parts.length === 2 && parts[0].trim().length > 0 && parts[1].trim().length > 0
+    })();
+    if (looksLikeModule) {
+      try {
+        const pactQuery: Array<{ code: string; chainId: string }> = []
+        for (let i = 0; i <= 19; i++) {
+          pactQuery.push({ code: `(describe-module \"${searchTerm}\")`, chainId: String(i) })
+        }
+        const moduleResp: any = await $fetch('/api/graphql', {
+          method: 'POST',
+          body: {
+            query: pactModuleQuery,
+            variables: { pactQuery },
+            networkId: selectedNetwork.value?.id,
+          },
+        });
+        const edges: any[] = moduleResp?.data?.pactQuery || []
+        const found = edges.some((entry: any) => {
+          try {
+            const raw = entry?.result
+            if (!raw) return false
+            let parsed: any
+            try { parsed = JSON.parse(raw) } catch { parsed = raw }
+            const codeStr = typeof parsed?.code === 'string' ? parsed.code : ''
+            return codeStr && codeStr.trim().length > 0
+          } catch { return false }
+        })
+        if (found) {
+          return { type: 'module' } as any
+        }
+      } catch (error) {
+        console.warn('[SEARCH] Module verification failed:', error);
+      }
+    }
+
+    // 4. Block Hash - Next Priority (query to verify it exists)
     try {
       const blockHashResponse: any = await $fetch('/api/graphql', {
         method: 'POST',
@@ -607,10 +747,10 @@ export function useSearch () {
       }
       data.precheck.blockHashData = false as any;
     } catch (error) {
-      console.warn('Block hash verification failed:', error);
+      console.warn('[SEARCH] Block hash verification failed:', error);
     }
 
-    // 4. Account - Next (verify existence via fungibleAccount)
+    // 5. Account - Next (verify existence via fungibleAccount)
     try {
       const fungibleResponse: any = await $fetch('/api/graphql', {
         method: 'POST',
@@ -629,10 +769,10 @@ export function useSearch () {
       }
       data.precheck.accountExists = false;
     } catch (error) {
-      console.warn('Fungible account verification failed:', error);
+      console.warn('[SEARCH] Fungible account verification failed:', error);
     }
 
-    // 5. Code search - Last attempt (min 4 chars)
+    // 6. Code search - Last attempt (min 4 chars)
     if ((searchTerm || '').length >= 4) {
       try {
         const codeCheck: any = await $fetch('/api/graphql', {
@@ -651,7 +791,7 @@ export function useSearch () {
           return { type: 'code' } as any;
         }
       } catch (error) {
-        console.warn('Code verification failed:', error);
+        console.warn('[SEARCH] Code verification failed:', error);
       }
     }
 
@@ -697,6 +837,13 @@ export function useSearch () {
       // Add canonical parameter if block is not canonical
       const url = block.canonical === false ? `${blockUrl}?canonical=false` : blockUrl;
       router.push(url);
+      return true;
+    }
+
+    // Module - auto-redirect when there is exactly one module hit
+    if (data?.searched?.modules && data?.searched?.modules?.length === 1) {
+      const mod = data?.searched?.modules[0];
+      router.push(`/module/${mod.name}`);
       return true;
     }
 
@@ -765,6 +912,10 @@ export function useSearch () {
         router.push({ path: '/transactions', query: { code: data.query } });
         cleanup();
         return;
+      } else if (redirectInfo.type === 'module') {
+        router.push(`/module/${data.query}`);
+        cleanup();
+        return;
       } else {
         router.push(`/${redirectInfo.type}/${data.query}`);
         cleanup();
@@ -817,6 +968,10 @@ export function useSearch () {
         // Need to resolve block data first
       } else if (redirectInfo.type === 'code') {
         router.push({ path: '/transactions', query: { code: q } });
+        cleanup();
+        return;
+      } else if (redirectInfo.type === 'module') {
+        router.push(`/module/${q}`);
         cleanup();
         return;
       } else {
