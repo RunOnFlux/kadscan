@@ -44,6 +44,7 @@ const {
   loading,
   error,
   fetchTransaction,
+  clearState,
   primaryTransfer,
   transactionFee,
   gasPriceFormatted,
@@ -368,8 +369,12 @@ const getActualReceiver = (transfer: any) => {
 }
 
 // Fetch transaction data
-watch([transactionId, networkId], () => {
-  if (transactionId.value && networkId.value) {
+watch([transactionId, networkId], ([newTxId, newNetworkId], [oldTxId, oldNetworkId]) => {
+  // If network changes while on the page, clear state to show skeleton
+  if (newNetworkId !== oldNetworkId) {
+    clearState()
+  }
+  if (newTxId && newNetworkId) {
     fetchTransaction()
   }
 }, { immediate: true })
@@ -413,6 +418,8 @@ watch(error, (newError) => {
 })
 
 onMounted(() => {
+  // Fresh page mount: clear shared composable state to show skeleton
+  clearState()
   if (transactionId.value && networkId.value) {
     fetchTransaction()
   }

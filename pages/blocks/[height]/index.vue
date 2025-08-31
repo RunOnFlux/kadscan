@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
 import IconDownload from '~/components/icon/Download.vue';
 import StatsGrid from '~/components/StatsGrid.vue';
 import DataTable from '~/components/DataTable.vue';
@@ -32,10 +32,16 @@ const {
   fetchBlocksByHeight,
   lastBlockHeight,
   fetchLastBlockHeight,
+  clearState,
 } = useBlocks();
 
 useHead({
   title: `Blocks at Height #${height.value}`
+});
+
+onMounted(() => {
+  // Fresh page mount: clear state so skeleton shows correctly
+  clearState();
 });
 
 const subtitle = computed(() => {
@@ -68,6 +74,8 @@ watch(
 
     const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
     if (networkChanged) {
+      // Fresh mount or network switch: clear state so skeleton shows
+      clearState();
       await fetchLastBlockHeight({ networkId: network.id });
     }
 

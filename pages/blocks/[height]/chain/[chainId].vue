@@ -91,6 +91,7 @@ const {
   kadenaPrice,
   neighborAvailability,
   fetchNeighborAvailability,
+  clearState,
 } = useBlock(height, chainId, networkId);
 
 const block = computed(() => {
@@ -179,7 +180,11 @@ onUnmounted(() => {
 
 watch(
   [height, chainId, networkId],
-  () => {
+  ([newHeight, newChain, newNetwork], [oldHeight, oldChain, oldNetwork]) => {
+    // If network changes while on the page, clear state so skeleton shows
+    if (newNetwork !== oldNetwork) {
+      clearState();
+    }
     if (networkId.value) {
       fetchBlock();
       fetchNeighborAvailability();
@@ -239,6 +244,11 @@ watch(error, (newError) => {
 
 useHead({
   title: `Block #${height.value} - Details`,
+});
+
+onMounted(() => {
+  // Fresh page mount: clear state so skeleton shows correctly
+  clearState();
 });
 </script>
 
