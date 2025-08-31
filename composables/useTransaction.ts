@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
 import { useBinance } from '~/composables/useBinance'
+import { useFormat } from '~/composables/useFormat'
 
 // Helper: determine if a pubkey can be mapped to a Kadena k:<pubkey> account
 const isKAccountPubKey = (value: string | undefined | null) => {
@@ -185,6 +186,7 @@ export const useTransaction = (
 ) => {
   const { fetchKadenaPriceAtDate } = useBinance()
   const { lastBlockHeight, fetchLastBlockHeight } = useBlocks();
+  const { formatGasPrice, formatKda } = useFormat()
 
   const fetchKadenaPrice = async (creationTime: string) => {
     if (!creationTime) return
@@ -237,10 +239,21 @@ export const useTransaction = (
   })
 
   const transactionFee = computed(() => {
-    if (!transaction.value?.result?.gas || !transaction.value?.cmd?.meta?.gasPrice) return '0'
-    const gasUsed = parseFloat(transaction.value.result.gas)
-    const gasPrice = parseFloat(transaction.value.cmd.meta.gasPrice)
-    return (gasUsed * gasPrice).toString()
+    const gas = transaction.value?.result?.gas
+    const price = transaction.value?.cmd?.meta?.gasPrice
+    if (!gas || !price) return '0.0'
+    const gasUsed = parseFloat(gas)
+    const gasPriceNumber = parseFloat(price)
+    const fee = gasUsed * gasPriceNumber
+    return formatKda(fee, 12)
+  })
+
+  const gasPriceFormatted = computed(() => {
+    const price = transaction.value?.cmd?.meta?.gasPrice
+    if (!price) return ''
+    const num = parseFloat(price)
+    if (Number.isNaN(num)) return String(price)
+    return formatGasPrice(num, 10)
   })
 
   // Normalized execution result (good/bad)
@@ -489,6 +502,7 @@ export const useTransaction = (
     lastBlockHeight,
     primaryTransfer,
     transactionFee,
+    gasPriceFormatted,
     blockConfirmations,
     signerTransferValue,
     transactionSigners,
