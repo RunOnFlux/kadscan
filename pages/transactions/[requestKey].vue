@@ -46,6 +46,7 @@ const {
   fetchTransaction,
   primaryTransfer,
   transactionFee,
+  gasPriceFormatted,
   blockConfirmations,
   kadenaPrice,
   signerTransferValue,
@@ -740,7 +741,7 @@ onUnmounted(() => {
                 <LabelValue :row="isMobile" :label="textContent.gasPrice.label" :description="textContent.gasPrice.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-2">
-                      <span class="text-[#f5f5f5]">{{ transaction?.cmd?.meta?.gasPrice || '-' }}</span>
+                      <span class="text-[#f5f5f5]">{{ gasPriceFormatted || '-' }}</span>
                     </div>
                   </template>
                 </LabelValue>
