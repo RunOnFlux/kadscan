@@ -180,6 +180,15 @@ const kadenaPriceLastDay = ref<Date | null>(null)
 const crossChainTransaction = ref<any>(null)
 const loadingCrossChain = ref(false)
 
+// Clear state for fresh page mounts (do not use for in-page param changes)
+const clearState = () => {
+  transaction.value = null
+  loading.value = true
+  error.value = null
+  crossChainTransaction.value = null
+  loadingCrossChain.value = false
+}
+
 export const useTransaction = (
   transactionId: Ref<string | undefined>,
   networkId: Ref<string | undefined>
@@ -496,6 +505,7 @@ export const useTransaction = (
     loading,
     error,
     fetchTransaction,
+    clearState,
     fetchKadenaPrice,
     kadenaPrice,
     kadenaPriceLastDay,
