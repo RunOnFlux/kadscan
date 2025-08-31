@@ -262,14 +262,6 @@ watch(tabLabels, (newLabels) => {
   }
 }, { immediate: true })
 
-const method = computed(() => {
-  // Extract method from the transaction code or use a default
-  if (transaction.value?.cmd?.payload?.code?.includes?.('close-send-receive')) {
-    return 'Close Send Receive'
-  }
-  return 'Transfer'
-})
-
 // Token metadata helper function
 const getTokenMetadata = (moduleName: string) => {
   const tokenData = staticTokens.find(token => token.module === moduleName)
