@@ -65,8 +65,20 @@ const {
   clearState: clearCodeState,
 } = useTransactionsByPactCode();
 
-// Chain filter state - initialize from URL parameters (commented due to query glitch)
-const selectedChain = ref({ label: 'All', value: null });
+const initChainFromUrl = (q: string) => {
+  if (q === undefined) return null;
+  const n = parseInt(q, 10);
+  if (isNaN(n) || n < 0 || n > 19) {
+    const q: Record<string, any> = { ...route.query };
+    delete q.chain;
+    router.replace({ query: q });
+    return null;
+  }
+  return n.toString();
+}
+
+// Chain filter state
+const selectedChain = ref(route.query.chain ? { label: initChainFromUrl(route.query.chain), value: initChainFromUrl(route.query.chain) } : { label: 'All', value: null });
 const selectedBlock = ref<number | null>(route.query.block ? Number(route.query.block) : null);
 
 // Clear global state on mount to show skeleton on page navigation
@@ -210,6 +222,7 @@ watch(() => route.query.page, (page) => {
 watch(
   [selectedNetwork, selectedChain, selectedBlock, () => route.query.code],
   async ([network]) => {
+    console.log("chain on query",selectedChain.value)
     if (!network) return;
     // Clear previous errors to avoid sticky skeleton after back navigation
     if (transactionsError.value) transactionsError.value = null as any;
