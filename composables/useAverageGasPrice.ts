@@ -17,7 +17,7 @@ export const resetGasPriceStats = () => {
 };
 
 const homeTransactionsQuery = `
-query HomeTxListInit($first: Int) {
+query AverageGasPrice($first: Int) {
   transactions(first: $first) {
     edges {
       node {
