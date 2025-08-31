@@ -62,7 +62,7 @@ const timeAgo = computed(() => {
             </Tooltip>
             <div>
               <Tooltip value="Transactions in this block">
-                <NuxtLink to="#" class="text-[#6ab5db] hover:text-[#9ccee7]">
+                <NuxtLink :to="`/transactions?block=${props.height}`" class="text-[#6ab5db] hover:text-[#9ccee7]">
                   {{ props.totalTransactions }} {{ props.totalTransactions === 1 ? 'Transaction' : 'Transactions' }}
                 </NuxtLink>
               </Tooltip>

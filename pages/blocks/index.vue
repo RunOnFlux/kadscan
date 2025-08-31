@@ -2,6 +2,7 @@
 import { ref, watch, computed } from 'vue';
 import IconDownload from '~/components/icon/Download.vue';
 import StatsGrid from '~/components/StatsGrid.vue';
+import ErrorOverlay from '~/components/error/Overlay.vue';
 import SkeletonStatsGrid from '~/components/skeleton/StatsGrid.vue';
 import { useBlocksMetrics } from '~/composables/useBlocksMetrics';
 import DataTable from '~/components/DataTable.vue';
@@ -158,7 +159,7 @@ watch(
   [selectedNetwork, selectedChain],
   async ([network], [oldNetwork, oldChain]) => {
     if (!network) return;
-    if (error.value) return;
+    if (error.value) error.value = null as any;
 
     const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
     const chainChanged = !!oldChain && selectedChain.value.value !== oldChain.value;
@@ -179,7 +180,7 @@ watch(
 watch(rowsToShow, async (newRows, oldRows) => {
   const network = selectedNetwork.value;
   if (!network) return;
-  if (error.value) return;
+  if (error.value) error.value = null as any;
   if (newRows === oldRows) return;
   currentPage.value = 1;
   const params: { networkId: string; chainIds?: string[] } = { networkId: network.id };
@@ -192,7 +193,7 @@ watch(rowsToShow, async (newRows, oldRows) => {
 watch(currentPage, async (newPage, oldPage) => {
   const network = selectedNetwork.value;
   if (!network) return;
-  if (error.value) return;
+  if (error.value) error.value = null as any;
   if (!newPage || newPage === oldPage) return;
 
   const params: { networkId: string; after?: string; before?: string; toLastPage?: boolean; chainIds?: string[] } = {
@@ -217,13 +218,6 @@ watch(currentPage, async (newPage, oldPage) => {
   loadingPage.value = false;
 });
 
-// Redirect to error page when blocks are not found
-watch(error, (newError) => {
-  if (newError) {
-    navigateTo('/error', { replace: true })
-  }
-})
-
 function downloadData() {
   const csv = exportableToCsv(filteredBlocks.value, tableHeaders);
   downloadCSV(csv, `kadena-blocks-page-${currentPage.value}.csv`);
@@ -231,7 +225,8 @@ function downloadData() {
 </script>
 
 <template>
-  <div>
+  <ErrorOverlay v-if="error" :message="error?.message" />
+  <div v-else>
     <div class="flex items-center justify-between pb-5 border-b border-[#222222] mb-6">
       <h1 class="text-[19px] font-semibold leading-[150%] text-[#f5f5f5]">
         Blocks
@@ -242,6 +237,7 @@ function downloadData() {
     <StatsGrid v-else-if="!metricsError && metricsCards.length" :cards="metricsCards" />
     
     <SkeletonTable v-if="loading" />
+
     <DataTable
       v-else
       :headers="tableHeaders"

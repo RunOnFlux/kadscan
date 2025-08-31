@@ -103,6 +103,26 @@ const neighborAvailability = ref({
   nextChainSameHeight: false,
 });
 
+// Clear state for fresh page mounts or network changes
+const clearState = () => {
+  block.value = null;
+  competingBlocks.value = [];
+  canonicalIndex.value = -1;
+  loading.value = true;
+  error.value = null;
+  kadenaPrice.value = null;
+  kadenaPriceLastDay.value = null;
+  totalGasUsed.value = null;
+  totalGasPrice.value = null;
+  gasLoading.value = false;
+  neighborAvailability.value = {
+    prevOnSameChain: false,
+    nextOnSameChain: false,
+    prevChainSameHeight: false,
+    nextChainSameHeight: false,
+  };
+};
+
 export const useBlock = (
   height: Ref<number>,
   chainId: Ref<number>,
@@ -319,6 +339,7 @@ export const useBlock = (
     loading,
     error,
     fetchBlock,
+    clearState,
     fetchKadenaPrice,
     kadenaPrice,
     kadenaPriceLastDay,

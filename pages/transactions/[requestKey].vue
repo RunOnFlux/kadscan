@@ -18,6 +18,7 @@ import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue'
 import StatusBadge from '~/components/StatusBadge.vue'
 import Clock from '~/components/icon/Clock.vue'
 import SkeletonTransactionDetails from '~/components/skeleton/TransactionDetails.vue'
+import ErrorOverlay from '~/components/error/Overlay.vue'
 import Tooltip from '~/components/Tooltip.vue'
 import Informational from '~/components/icon/Informational.vue'
 
@@ -44,6 +45,7 @@ const {
   loading,
   error,
   fetchTransaction,
+  clearState,
   primaryTransfer,
   transactionFee,
   gasPriceFormatted,
@@ -262,14 +264,6 @@ watch(tabLabels, (newLabels) => {
   }
 }, { immediate: true })
 
-const method = computed(() => {
-  // Extract method from the transaction code or use a default
-  if (transaction.value?.cmd?.payload?.code?.includes?.('close-send-receive')) {
-    return 'Close Send Receive'
-  }
-  return 'Transfer'
-})
-
 // Token metadata helper function
 const getTokenMetadata = (moduleName: string) => {
   const tokenData = staticTokens.find(token => token.module === moduleName)
@@ -376,8 +370,12 @@ const getActualReceiver = (transfer: any) => {
 }
 
 // Fetch transaction data
-watch([transactionId, networkId], () => {
-  if (transactionId.value && networkId.value) {
+watch([transactionId, networkId], ([newTxId, newNetworkId], [oldTxId, oldNetworkId]) => {
+  // If network changes while on the page, clear state to show skeleton
+  if (newNetworkId !== oldNetworkId) {
+    clearState()
+  }
+  if (newTxId && newNetworkId) {
     fetchTransaction()
   }
 }, { immediate: true })
@@ -413,14 +411,9 @@ watch(
   { deep: true }
 );
 
-// Redirect to error page when transaction is not found
-watch(error, (newError) => {
-  if (newError) {
-    navigateTo('/error', { replace: true })
-  }
-})
-
 onMounted(() => {
+  // Fresh page mount: clear shared composable state to show skeleton
+  clearState()
   if (transactionId.value && networkId.value) {
     fetchTransaction()
   }
@@ -436,7 +429,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div>
+  <ErrorOverlay v-if="error" :message="error?.message" />
+  <div v-else>
     <!-- Header -->
     <div class="flex items-center pb-5 border-b border-[#222222] mb-6 gap-2">
       <h1 class="text-[19px] font-semibold leading-[150%] text-[#f5f5f5]">

@@ -8,6 +8,7 @@ import FilterSelect from '~/components/FilterSelect.vue';
 import Tooltip from '~/components/Tooltip.vue';
 import Copy from '~/components/Copy.vue';
 import SkeletonTable from '~/components/skeleton/Table.vue';
+import ErrorOverlay from '~/components/error/Overlay.vue';
 import ColumnGas from '~/components/column/Gas.vue';
 import { useTransactions } from '~/composables/useTransactions';
 import { useTransactionsByPactCode } from '~/composables/useTransactionsByPactCode';
@@ -210,7 +211,9 @@ watch(
   [selectedNetwork, selectedChain, selectedBlock, () => route.query.code],
   async ([network]) => {
     if (!network) return;
-    if (transactionsError.value || blocksError.value) return;
+    // Clear previous errors to avoid sticky skeleton after back navigation
+    if (transactionsError.value) transactionsError.value = null as any;
+    if (blocksError.value) blocksError.value = null as any;
 
     await fetchLastBlockHeight({ networkId: network.id });
     currentPage.value = 1;
@@ -245,7 +248,8 @@ watch(
 watch([rowsToShow, codeRowsToShow], async () => {
   const network = selectedNetwork.value;
   if (!network) return;
-  if (transactionsError.value || blocksError.value) return;
+  if (transactionsError.value) transactionsError.value = null as any;
+  if (blocksError.value) blocksError.value = null as any;
   currentPage.value = 1;
   if (codeMode.value) {
     await fetchTransactionsByCode({ networkId: network.id, pactCode: String(route.query.code) });
@@ -267,7 +271,8 @@ watch([rowsToShow, codeRowsToShow], async () => {
 watch(currentPage, async (newPage, oldPage) => {
   const network = selectedNetwork.value;
   if (!network) return;
-  if (transactionsError.value || blocksError.value) return;
+  if (transactionsError.value) transactionsError.value = null as any;
+  if (blocksError.value) blocksError.value = null as any;
   if (!newPage || newPage === oldPage) return;
 
   if (codeMode.value) {
@@ -325,12 +330,6 @@ watch(() => route.query.code, (code) => {
   }
 });
 
-// Redirect to error page when transaction is not found
-watch([transactionsError, blocksError, codeError], ([transactionsError, blocksError, codeErrorVal]) => {
-  if (transactionsError || blocksError || codeErrorVal) {
-    navigateTo('/error', { replace: true })
-  }
-})
 
 function downloadData() {
   const csv = exportableToCsv(filteredTransactions.value, tableHeaders);
@@ -339,7 +338,8 @@ function downloadData() {
 </script>
 
 <template>
-  <div>
+  <ErrorOverlay v-if="transactionsError || blocksError || codeError" :message="(transactionsError || blocksError || codeError)?.message" />
+  <div v-else>
     <div class="flex items-center justify-between pb-5 border-b border-[#222222] mb-6">
       <h1 class="text-[19px] font-semibold leading-[150%] text-[#f5f5f5]">
         Transactions
