@@ -393,64 +393,69 @@ export function useSearch () {
         data.searched = results;
       }
 
-      // Fire code search in background and pop it in first when ready (min 4 chars)
-      if ((shouldSearchAll || data.filter.value === 'transactions') && value.length >= 4) {
-        // mark background pending and flag items
-        data._bgPending++;
-        if (value === data.query) {
-          const curr = { ...(data.searched || results) } as any;
-          curr.__bgLoading = true;
-          data.searched = curr;
-        }
-        (async (currentQuery: string) => {
-          try {
-            const codeResponse: any = await $fetch('/api/graphql', {
-              method: 'POST',
-              body: {
-                query: transactionsByPactCodeQuery,
-                variables: {
-                  pactCode: currentQuery,
-                  first: 6,
-                },
-                networkId: selectedNetwork.value?.id,
-              },
-            });
-
-            const edges = codeResponse?.data?.transactionsByPactCode?.edges || [];
-            if (currentQuery === data.query && edges.length) {
-              const codeItems = edges.map((edge: any) => {
-                const n = edge.node;
-                const resultString = (n?.badResult !== null && n?.badResult !== undefined)
-                  ? `{"status":"error","badResult":${JSON.stringify(n.badResult)}}`
-                  : '{"status":"success","badResult":null}';
-                return {
-                  requestkey: n.requestKey,
-                  chainId: n.chainId,
-                  height: n.height,
-                  creationTime: n.creationTime,
-                  result: resultString,
-                };
-              });
-
-              const current = { ...(data.searched || results) } as any;
-              current.code = codeItems;
-              data.searched = current;
-            }
-          } catch (error) {
-            console.warn('[SEARCH] Code search failed:', error);
-          } finally {
-            data._bgPending = Math.max(0, (data._bgPending || 0) - 1);
-            // if no more background tasks, clear bg flag
-            if (data._bgPending === 0) {
-              const curr = { ...(data.searched || {}) } as any;
-              if (curr.__bgLoading) {
-                delete curr.__bgLoading;
-                data.searched = curr;
-              }
-            }
-          }
-        })(value);
-      }
+      /*
+       * Disabled: live debounced code search to prevent GraphQL overload.
+       * The following block intentionally commented so code search runs only via Enter flow.
+       *
+       * // Fire code search in background and pop it in first when ready (min 4 chars)
+       * if ((shouldSearchAll || data.filter.value === 'transactions') && value.length >= 4) {
+       *   // mark background pending and flag items
+       *   data._bgPending++;
+       *   if (value === data.query) {
+       *     const curr = { ...(data.searched || results) } as any;
+       *     curr.__bgLoading = true;
+       *     data.searched = curr;
+       *   }
+       *   (async (currentQuery: string) => {
+       *     try {
+       *       const codeResponse: any = await $fetch('/api/graphql', {
+       *         method: 'POST',
+       *         body: {
+       *           query: transactionsByPactCodeQuery,
+       *           variables: {
+       *             pactCode: currentQuery,
+       *             first: 6,
+       *           },
+       *           networkId: selectedNetwork.value?.id,
+       *         },
+       *       });
+       *
+       *       const edges = codeResponse?.data?.transactionsByPactCode?.edges || [];
+       *       if (currentQuery === data.query && edges.length) {
+       *         const codeItems = edges.map((edge: any) => {
+       *           const n = edge.node;
+       *           const resultString = (n?.badResult !== null && n?.badResult !== undefined)
+       *             ? `{"status":"error","badResult":${JSON.stringify(n.badResult)}}`
+       *             : '{"status":"success","badResult":null}';
+       *           return {
+       *             requestkey: n.requestKey,
+       *             chainId: n.chainId,
+       *             height: n.height,
+       *             creationTime: n.creationTime,
+       *             result: resultString,
+       *           };
+       *         });
+       *
+       *         const current = { ...(data.searched || results) } as any;
+       *         current.code = codeItems;
+       *         data.searched = current;
+       *       }
+       *     } catch (error) {
+       *       console.warn('[SEARCH] Code search failed:', error);
+       *     } finally {
+       *       data._bgPending = Math.max(0, (data._bgPending || 0) - 1);
+       *       // if no more background tasks, clear bg flag
+       *       if (data._bgPending === 0) {
+       *         const curr = { ...(data.searched || {}) } as any;
+       *         if (curr.__bgLoading) {
+       *           delete curr.__bgLoading;
+       *           data.searched = curr;
+       *         }
+       *       }
+       *     }
+       *   })(value);
+       * }
+       */
 
       // Fire module search in background if the query matches exact namespace.module heuristic
       const looksLikeModule = (() => {
@@ -775,8 +780,8 @@ export function useSearch () {
       console.warn('[SEARCH] Fungible account verification failed:', error);
     }
 
-    // 6. Code search - Last attempt (min 4 chars)
-    if ((searchTerm || '').length >= 4) {
+    // 6. Code search - Last attempt (min 4 chars), but skip when > 12 chars
+    if ((searchTerm || '').length >= 4 && (searchTerm || '').length <= 15) {
       try {
         const codeCheck: any = await $fetch('/api/graphql', {
           method: 'POST',
