@@ -389,14 +389,15 @@ onMounted(() => {
                 >
                   <template #value>
                     <div class="flex items-center gap-2">
-                      <Tooltip value="Click to view Transactions">
+                      <Tooltip v-if="block.transactions.totalCount > 0" value="Click to view Transactions">
                         <NuxtLink
                           :to="`/transactions?block=${block.height}&chain=${block.chainId}`"
                           class="text-[#6ab5db] hover:text-[#9ccee7]"
                         >
-                          {{ block.transactions.totalCount }} transactions in this block
+                          {{ block.transactions.totalCount }} {{ block.transactions.totalCount === 1 ? 'transaction' : 'transactions' }} in this block
                         </NuxtLink>
                       </Tooltip>
+                      <span v-else class="text-[#f5f5f5]">0 transactions in this block</span>
                     </div>
                   </template>
                 </LabelValue>
