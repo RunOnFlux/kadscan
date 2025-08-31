@@ -20,10 +20,8 @@ const showDropdown = ref(false)
 const currentChain = ref<number | null>(null)
 const currentBlock = ref<number | null>(null)
 
-// Debounce configuration for propagating filter changes
-const DEBOUNCE_MS = 1500
+// Debounce removed for explicit user submission
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
-let blockDebounceTimer: ReturnType<typeof setTimeout> | null = null
 
 const cancelDebounce = () => {
   if (debounceTimer) {
@@ -32,12 +30,7 @@ const cancelDebounce = () => {
   }
 }
 
-const cancelBlockDebounce = () => {
-  if (blockDebounceTimer) {
-    clearTimeout(blockDebounceTimer)
-    blockDebounceTimer = null
-  }
-}
+const cancelBlockDebounce = () => {}
 
 const scheduleUpdate = (chainValue: number | null) => {
   cancelDebounce()
@@ -162,13 +155,7 @@ const updateBlockUrl = (blockValue: number | null) => {
   router.push({ query });
 }
 
-const scheduleBlockUpdate = (blockValue: number | null) => {
-  cancelBlockDebounce()
-  blockDebounceTimer = setTimeout(() => {
-    updateBlockUrl(blockValue)
-    blockDebounceTimer = null
-  }, DEBOUNCE_MS)
-}
+const scheduleBlockUpdate = (_blockValue: number | null) => {}
 
 watch(() => route.query[props.blockUrlParamName || 'block'], () => {
   if (!props.enableBlockFilter) return;
@@ -178,16 +165,14 @@ watch(() => route.query[props.blockUrlParamName || 'block'], () => {
   }
 });
 
-// Debounced URL updates when the block input changes via v-model
-watch(currentBlock, (val) => {
-  if (!props.enableBlockFilter) return;
-  scheduleBlockUpdate(val ?? null);
-});
+// No auto submit on typing
 
-// Handle "All" button click
+// Handle "All" button click (immediate)
 const selectAll = () => {
   currentChain.value = null
-  scheduleUpdate(null)
+  const modelValue = { label: 'All', value: null }
+  emit('update:modelValue', modelValue)
+  updateUrl(null)
 }
 
 // Handle direct input change
@@ -213,7 +198,9 @@ const decrementChain = () => {
   } else {
     return // Don't go below 0
   }
-  scheduleUpdate(currentChain.value)
+  const modelValue = { label: currentChain.value.toString(), value: currentChain.value.toString() }
+  emit('update:modelValue', modelValue)
+  updateUrl(currentChain.value)
 }
 
 const incrementChain = () => {
@@ -224,7 +211,9 @@ const incrementChain = () => {
   } else {
     return // Don't go above 19
   }
-  scheduleUpdate(currentChain.value)
+  const modelValue = { label: currentChain.value.toString(), value: currentChain.value.toString() }
+  emit('update:modelValue', modelValue)
+  updateUrl(currentChain.value)
 }
 
 // Toggle dropdown
@@ -239,7 +228,6 @@ const closeDropdown = () => {
 
 onBeforeUnmount(() => {
   cancelDebounce()
-  cancelBlockDebounce()
 })
 </script>
 
@@ -325,21 +313,28 @@ onBeforeUnmount(() => {
           <!-- Block filter row (optional) -->
           <div v-if="enableBlockFilter" class="flex gap-2 items-center">
             <button
-              @click="() => { cancelBlockDebounce(); currentBlock = null; updateBlockUrl(null); }"
+              @click="() => { currentBlock = null; updateBlockUrl(null); }"
               class="px-2 py-1 text-[12px] font-normal text-[#6ab5db] bg-[#151515] border border-[#222222] rounded-md hover:text-[#f5f5f5] hover:bg-[#0784c3] whitespace-nowrap transition-colors duration-300"
             >
               All Blocks
             </button>
-            <input
-              v-model.number="currentBlock"
-              type="number"
-              min="0"
-              @keyup.enter="() => { cancelBlockDebounce(); updateBlockUrl(currentBlock ?? null); }"
-              @blur="() => { cancelBlockDebounce(); updateBlockUrl(currentBlock ?? null); }"
-              @focus="$event.target.select()"
-              class="w-full h-8 px-2 text-sm bg-[#151515] border border-[#222222] rounded-md text-[#f5f5f5] focus:outline-none transition-colors duration-300 hover:border-[#0784c3] focus:border-[#0784c3] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              placeholder="Block height"
-            />
+            <div class="grid grid-cols-[1fr_auto] items-center gap-1 w-full">
+              <input
+                v-model.number="currentBlock"
+                type="number"
+                min="0"
+                @keyup.enter="() => { updateBlockUrl(currentBlock ?? null); }"
+                @focus="$event.target.select()"
+                class="w-full h-8 px-2 text-sm bg-[#151515] border border-[#222222] rounded-md text-[#f5f5f5] focus:outline-none transition-colors duration-300 hover:border-[#0784c3] focus:border-[#0784c3] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                placeholder="Height"
+              />
+              <button
+                @click="() => { updateBlockUrl(currentBlock ?? null); }"
+                class="flex items-center justify-center w-8 h-8 border border-[#222222] bg-[#151515] rounded-md text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
+              >
+                <IconChevron class="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -238,7 +238,8 @@ watch(
 // Redirect to error page when block is not found
 watch(error, (newError) => {
   if (newError) {
-    navigateTo('/error', { replace: true })
+    const err = createError({ statusCode: 404, statusMessage: 'Block not found' })
+    showError(err)
   }
 })
 
@@ -361,9 +362,9 @@ onMounted(() => {
                 </LabelValue>
                 <LabelValue :row="isMobile" :label="textContent.status.label" :description="textContent.status.description" tooltipPos="right">
                   <template #value>
-                    <Tooltip :value="blockStatus.description" :offset-distance="8">
+                    <div class="flex items-center gap-2">
                       <StatusBadge v-if="blockStatus" :status="blockStatus" />
-                    </Tooltip>
+                    </div>
                   </template>
                 </LabelValue>
                 <LabelValue 
@@ -387,14 +388,16 @@ onMounted(() => {
                   topAlign="true"
                 >
                   <template #value>
-                    <Tooltip value="Click to view Transactions">
-                      <NuxtLink
-                        :to="`/transactions?block=${block.height}&chain=${block.chainId}`"
-                        class="text-[#6ab5db] hover:text-[#9ccee7]"
-                      >
-                        {{ block.transactions.totalCount }} transactions in this block
-                      </NuxtLink>
-                    </Tooltip>
+                    <div class="flex items-center gap-2">
+                      <Tooltip value="Click to view Transactions">
+                        <NuxtLink
+                          :to="`/transactions?block=${block.height}&chain=${block.chainId}`"
+                          class="text-[#6ab5db] hover:text-[#9ccee7]"
+                        >
+                          {{ block.transactions.totalCount }} transactions in this block
+                        </NuxtLink>
+                      </Tooltip>
+                    </div>
                   </template>
                 </LabelValue>
                 <LabelValue

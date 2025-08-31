@@ -6,6 +6,7 @@ import DataTable from '~/components/DataTable.vue';
 import Tooltip from '~/components/Tooltip.vue';
 import Copy from '~/components/Copy.vue';
 import SkeletonTable from '~/components/skeleton/Table.vue';
+import ErrorOverlay from '~/components/error/Overlay.vue';
 import { useStatus } from '~/composables/useStatus';
 import StatusBadge from '~/components/StatusBadge.vue';
 import { useBlocks } from '~/composables/useBlocks';
@@ -90,12 +91,6 @@ watch(
   }
 );
 
-// Redirect to error page when transaction is not found
-watch(error, (newError) => {
-  if (newError) {
-    navigateTo('/error', { replace: true })
-  }
-})
 
 function downloadData() {
   const csv = exportableToCsv(blocks.value, tableHeaders);
@@ -104,7 +99,8 @@ function downloadData() {
 </script>
 
 <template>
-  <div>
+  <ErrorOverlay v-if="error" :message="error?.message" />
+  <div v-else>
     <div class="flex items-center justify-between pb-5 border-b border-[#222222] mb-6">
       <h1 class="text-[19px] font-semibold leading-[150%] text-[#f5f5f5]">
         Blocks
@@ -112,7 +108,7 @@ function downloadData() {
     </div>
 
     <SkeletonTable v-if="loading" />
-    
+
     <DataTable
       v-else
       :headers="tableHeaders"

@@ -18,6 +18,7 @@ import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue'
 import StatusBadge from '~/components/StatusBadge.vue'
 import Clock from '~/components/icon/Clock.vue'
 import SkeletonTransactionDetails from '~/components/skeleton/TransactionDetails.vue'
+import ErrorOverlay from '~/components/error/Overlay.vue'
 import Tooltip from '~/components/Tooltip.vue'
 import Informational from '~/components/icon/Informational.vue'
 
@@ -410,13 +411,6 @@ watch(
   { deep: true }
 );
 
-// Redirect to error page when transaction is not found
-watch(error, (newError) => {
-  if (newError) {
-    navigateTo('/error', { replace: true })
-  }
-})
-
 onMounted(() => {
   // Fresh page mount: clear shared composable state to show skeleton
   clearState()
@@ -435,7 +429,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div>
+  <ErrorOverlay v-if="error" :message="error?.message" />
+  <div v-else>
     <!-- Header -->
     <div class="flex items-center pb-5 border-b border-[#222222] mb-6 gap-2">
       <h1 class="text-[19px] font-semibold leading-[150%] text-[#f5f5f5]">
