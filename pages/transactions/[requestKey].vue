@@ -329,7 +329,6 @@ const formattedGasInfo = computed(() => {
 
 // Execution Result badge mapping (Good/Bad)
 const executionResultBadge = computed(() => {
-  console.log('transactionExecutionResult', transactionExecutionResult.value)
   if (!transactionExecutionResult?.value) return null
   if (transactionExecutionResult.value.type === 'badResult') {
     return {
@@ -352,7 +351,7 @@ const smartTruncateAddress = (address: string) => {
   if (!address) return address
   
   // Check if it's a long hash format address (k: followed by a long hex string)
-  const isHashFormat = address.startsWith('k:') || address.length > 20
+  const isHashFormat = address.startsWith('k:') || address.length > 25
   
   if (isHashFormat) {
     return truncateAddress(address, 10, 10)
@@ -573,7 +572,7 @@ onUnmounted(() => {
                   v-if="transactionSigners.length > 0" 
                   :topAlign="true"
                   :label="transactionSigners.length === 1 ? 'Signer:' : textContent.signers.label" 
-                  :description="transactionSigners.length === 1 ? 'Account that authorized this transaction.' : textContent.signers.description" 
+                  :description="transactionSigners.length === 1 ? 'Key/account that authorized this transaction.' : 'Keys/accounts that authorized this transaction.'" 
                   tooltipPos="right"
                 >
                   <template #value>
@@ -583,13 +582,24 @@ onUnmounted(() => {
                         :key="signer.pubkey"
                         class="flex items-center gap-2"
                       >
-                        <NuxtLink :to="`/account/${signer.address}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ signer.address }}</NuxtLink>
-                        <Copy 
-                          :value="signer.address" 
-                          tooltipText="Copy Signer Address"
-                          iconSize="h-5 w-5"
-                          buttonClass="w-5 h-5 lg:block hidden"
-                        />
+                        <template v-if="signer.address">
+                          <NuxtLink :to="`/account/${signer.address}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ signer.address }}</NuxtLink>
+                          <Copy 
+                            :value="signer.address" 
+                            tooltipText="Copy Signer Address"
+                            iconSize="h-5 w-5"
+                            buttonClass="w-5 h-5 lg:block hidden"
+                          />
+                        </template>
+                        <template v-else>
+                          <span class="text-[#f5f5f5] break-all">{{ smartTruncateAddress(signer.pubkey) }}</span>
+                          <Copy 
+                            :value="signer.pubkey" 
+                            tooltipText="Copy Signer Pubkey"
+                            iconSize="h-5 w-5"
+                            buttonClass="w-5 h-5 lg:block hidden"
+                          />
+                        </template>
                       </div>
                     </div>
                   </template>

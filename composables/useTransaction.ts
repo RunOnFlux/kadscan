@@ -1,8 +1,14 @@
 import { ref, computed } from 'vue'
 import { useBinance } from '~/composables/useBinance'
 
+// Helper: determine if a pubkey can be mapped to a Kadena k:<pubkey> account
+const isKAccountPubKey = (value: string | undefined | null) => {
+  if (!value) return false
+  return /^[0-9a-f]{64}$/i.test(String(value))
+}
+
 const TRANSACTION_QUERY = `
-query Step0($requestKey: String!, $first: Int, $transfersFirst2: Int) {
+query Transaction($requestKey: String!, $first: Int, $transfersFirst2: Int) {
   transaction(requestKey: $requestKey) {
     hash
     cmd {
@@ -284,10 +290,14 @@ export const useTransaction = (
         // Keep signers that either don't have gas capability OR have other capabilities besides gas
         return !hasGasCapability || hasOtherCapabilities
       })
-      .map((signer: any) => ({
-        address: signer.pubkey ? `k:${signer.pubkey}` : '',
-        pubkey: signer.pubkey
-      }))
+      .map((signer: any) => {
+        const pubkey: string = String(signer.pubkey || '')
+        const address = isKAccountPubKey(pubkey) ? `k:${pubkey.toLowerCase()}` : ''
+        return {
+          address,
+          pubkey
+        }
+      })
   })
 
   // Cross-chain transaction status detection
@@ -347,20 +357,23 @@ export const useTransaction = (
     if (!transaction.value?.cmd?.signers?.length || !transaction.value?.result?.transfers?.edges?.length) {
       return '0'
     }
-    
-    // Use pubkey with k: prefix just like the "From" field does
-    const pubkey = transaction.value.cmd.signers[0].pubkey
-    const signerAddress = pubkey ? `k:${pubkey}` : ''
+
+    // Collect all valid k: addresses derived from 64-hex pubkeys
+    const signerAddresses: string[] = (transactionSigners.value || [])
+      .map((s: any) => s.address)
+      .filter((addr: string) => Boolean(addr))
+
+    if (signerAddresses.length === 0) return '0'
+
     let totalValue = 0
-    
-    // Loop through all transfers and sum KDA transfers from the signer
+
     transaction.value.result.transfers.edges.forEach((edge: any) => {
       const transfer = edge.node
-      if (transfer.senderAccount === signerAddress && transfer.moduleName === 'coin') {
+      if (transfer.moduleName === 'coin' && signerAddresses.includes(transfer.senderAccount)) {
         totalValue += parseFloat(transfer.amount || '0')
       }
     })
-    
+
     return totalValue.toString()
   })
 
