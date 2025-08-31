@@ -560,7 +560,7 @@ export function useSearch () {
 
   const debouncedSearch = debounce((value: string) => {
     searchImpl(value);
-  }, 250);
+  }, 500);
 
   type SearchFunction = ((value: string) => void) & { cancel: () => void };
   const search: SearchFunction = Object.assign(
