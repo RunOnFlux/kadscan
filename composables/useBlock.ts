@@ -279,10 +279,36 @@ export const useBlock = (
       return;
     }
 
+    // Normalize and validate params before querying
+    const h = Number(height.value);
+    const c = Number(chainId.value);
+
     loading.value = block.value === null;
     error.value = null;
     competingBlocks.value = [];
     canonicalIndex.value = -1;
+
+    // Height validation
+    if (Number.isNaN(h) || h < 0) {
+      error.value = new Error('Block height is not valid.');
+      block.value = null;
+      loading.value = false;
+      return;
+    }
+
+    // ChainId validation
+    if (Number.isNaN(c)) {
+      error.value = new Error('Chain Id provided is not a valid chain.');
+      block.value = null;
+      loading.value = false;
+      return;
+    }
+    if (!Number.isInteger(c) || c < 0 || c > 19) {
+      error.value = new Error(`Chain Id ${c} doesn't exist.`);
+      block.value = null;
+      loading.value = false;
+      return;
+    }
 
     try {
       const response: any = await $fetch('/api/graphql', {
@@ -290,21 +316,22 @@ export const useBlock = (
         body: {
           query: BLOCK_QUERY,
           variables: {
-            startHeight: height.value,
-            endHeight: height.value,
-            chainIds: [String(chainId.value)],
+            startHeight: h,
+            endHeight: h,
+            chainIds: [String(c)],
           },
           networkId: networkId.value,
         },
       });
 
       if (response.errors) {
-        throw new Error(response.errors.map((e: any) => e.message).join(', '));
+        // Hide low-level GraphQL messages
+        throw new Error('Unable to load block. Please try again.');
       }
 
       const edges = response?.data?.blocksFromHeight?.edges || [];
       if (edges.length === 0) {
-        throw new Error('Block not found');
+        throw new Error('Block Height not found');
       }
 
       let nodes = edges.map((edge: any) => edge.node);
@@ -324,8 +351,10 @@ export const useBlock = (
         fetchKadenaPrice(block.value.creationTime);
         fetchNeighborAvailability();
       }
-    } catch (e) {
-      error.value = e;
+    } catch (e: any) {
+      // Normalize any thrown error to a user-friendly message
+      const message = typeof e?.message === 'string' ? e.message : 'Unable to load block. Please try again.';
+      error.value = new Error(message);
       block.value = null;
     } finally {
       loading.value = false;

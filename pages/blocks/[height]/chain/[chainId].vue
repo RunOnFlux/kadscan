@@ -167,7 +167,7 @@ const stopPolling = () => {
 const startPolling = () => {
   stopPolling();
   pollingInterval = setInterval(() => {
-    if (networkId.value) {
+    if (networkId.value && !error.value) {
       fetchBlock();
       fetchLastBlockHeight({ networkId: networkId.value });
     }
@@ -200,12 +200,13 @@ watch(loading, (newLoading) => {
 });
 
 watch(
-  [() => block.value, lastBlockHeight],
-  ([currentBlock, newLastBlockHeight]) => {
+  [() => block.value, lastBlockHeight, error],
+  ([currentBlock, newLastBlockHeight, currentError]) => {
+    if (currentError) {
+      stopPolling();
+      return;
+    }
     const isOldEnough = (newLastBlockHeight - height.value) > 6;
-
-    // Keep polling until the block is old enough, regardless of canonical flag,
-    // so the status can transition from Pending to Finalized automatically.
     if (isOldEnough) {
       stopPolling();
     } else {
