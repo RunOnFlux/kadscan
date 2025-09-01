@@ -5,7 +5,7 @@ const useTransactionCount = () => useState<{ transactionCount: number, averageTr
   averageTransactionPerSecond: 0,
 }));
 const transactionCountProcessed = ref(new Map());
-const MAX_KEY_LIMIT = 100;
+const MAX_KEY_LIMIT = 10;
 
 const resetTransactionCount = () => {
   const stats = useTransactionCount();
@@ -23,27 +23,6 @@ const updateTransactionCount = (height: number, chainId: number, transactionsInB
 
   const stats = useTransactionCount();
   stats.value.transactionCount += transactionsInBlock;
-
-  // Provisional TPS logging (without changing UI behavior):
-  // Compute TPS using the current window even if it's < MAX_KEY_LIMIT.
-  try {
-    const entries = Array.from(transactionCountProcessed.value.values());
-    if (entries.length >= 2) {
-      const sortedByTime = entries.sort(
-        (a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      );
-      const first = sortedByTime[0];
-      const last = sortedByTime[sortedByTime.length - 1];
-      const windowSeconds = (new Date(last.createdAt).getTime() - new Date(first.createdAt).getTime()) / 1000;
-      const totalTxInWindow = entries.reduce((sum: number, entry: any) => sum + entry.count, 0);
-      const provisionalTps = windowSeconds > 0 ? totalTxInWindow / windowSeconds : 0;
-      // eslint-disable-next-line no-console
-      console.debug('[TPS] windowSize=', entries.length, 'totalTx=', totalTxInWindow, 'windowSeconds=', windowSeconds.toFixed(1), 'provisionalTPS=', provisionalTps.toFixed(2));
-    }
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error('[TPS] provisional computation failed', err);
-  }
 
   if (transactionCountProcessed.value.size > MAX_KEY_LIMIT) {
     // Sort the map by creation time
