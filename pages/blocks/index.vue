@@ -213,7 +213,11 @@ watch(currentPage, async (newPage, oldPage) => {
   };
   if (selectedChain.value.value !== null) params.chainIds = [selectedChain.value.value as string];
 
-  if (newPage > oldPage) {
+  if (newPage === 1) {
+    // Explicit jump to FIRST page
+    params.after = undefined;
+    params.before = undefined;
+  } else if (newPage > oldPage) {
     params.after = pageInfo.value?.endCursor as string | undefined;
   } else if (newPage < oldPage) {
     params.before = pageInfo.value?.startCursor as string | undefined;

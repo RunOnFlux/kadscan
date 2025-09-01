@@ -222,7 +222,6 @@ watch(() => route.query.page, (page) => {
 watch(
   [selectedNetwork, selectedChain, selectedBlock, () => route.query.code],
   async ([network]) => {
-    console.log("chain on query",selectedChain.value)
     if (!network) return;
     // Clear previous errors to avoid sticky skeleton after back navigation
     if (transactionsError.value) transactionsError.value = null as any;
@@ -290,6 +289,12 @@ watch(currentPage, async (newPage, oldPage) => {
 
   if (codeMode.value) {
     const params: { networkId: string; after?: string; before?: string } = { networkId: network.id };
+    if (newPage === 1) {
+      // Explicit jump to FIRST page in code mode
+      await fetchTransactionsByCode({ ...params, pactCode: String(route.query.code) });
+      loadingPage.value = false;
+      return;
+    }
     if (newPage > oldPage) params.after = codePageInfo.value?.endCursor as string | undefined;
     else if (newPage < oldPage) params.before = codePageInfo.value?.startCursor as string | undefined;
     await fetchTransactionsByCode({ ...params, pactCode: String(route.query.code) });
@@ -308,7 +313,11 @@ watch(currentPage, async (newPage, oldPage) => {
     if (params.chainId) params.isCoinbase = true;
   }
 
-  if (newPage > oldPage) {
+  if (newPage === 1) {
+    // Explicit jump to FIRST page
+    params.after = undefined;
+    params.before = undefined;
+  } else if (newPage > oldPage) {
     params.after = pageInfo.value?.endCursor as string | undefined;
   } else if (newPage < oldPage) {
     params.before = pageInfo.value?.startCursor as string | undefined;
