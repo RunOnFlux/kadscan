@@ -6,7 +6,7 @@ import { staticTokens } from '~/constants/tokens'
 import AssetsPieChartSkeleton from '~/components/skeleton/AssetsPieChart.vue'
 
 const { balances, loading, hasFetched } = useAccountBalances()
-const { getUsdPerUnit, primeModules } = useAssetUsdPrices()
+const { getUsdPerUnit } = useAssetUsdPrices()
 
 // Fixed chart size (same on desktop and mobile) to keep the donut perfectly round
 // Slightly reduced to give more space to the legend
