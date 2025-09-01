@@ -82,7 +82,7 @@ onUnmounted(() => {
       ref="searchInput"
       class="
         pl-10 md:pl-[38px]
-        pr-12 md:pr-20
+        pr-16 md:pr-20
         py-[6px]
         text-[15px]
         font-normal
@@ -111,7 +111,7 @@ onUnmounted(() => {
     <div
       v-if="!!data.query"
       @click="cleanup()"
-      class="absolute right-12 md:right-16 top-1/2 -translate-y-1/2 cursor-pointer"
+      class="absolute right-[52px] md:right-[60px] top-1/2 -translate-y-1/2 cursor-pointer"
     >
       <IconSearchClose class="w-5 h-5 text-[#bbbbbb] hover:text-[#f5f5f5]" />
     </div>
