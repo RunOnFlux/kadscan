@@ -67,6 +67,9 @@ const groupedByAsset = computed(() => {
 // Total USD
 const totalBalance = computed(() => groupedByAsset.value.reduce((acc, i) => acc + Number(i.usd || 0), 0))
 
+// Visibility guard: show chart only when total >= $0.01 and there is data
+const shouldShowChart = computed(() => groupedByAsset.value.length > 0 && totalBalance.value >= 0.01)
+
 // Top 8 slices + aggregate others
 const slices = computed(() => {
   const SLICE_CAP = 8
@@ -184,7 +187,7 @@ const chartOptions = reactive({
     <template v-if="!hasFetched || loading">
       <AssetsPieChartSkeleton />
     </template>
-    <template v-else-if="groupedByAsset.length > 0">
+    <template v-else-if="shouldShowChart">
       <div class="grid grid-cols-1 md:flex md:items-center">
         <!-- Left: Chart (60%) -->
         <div class="md:basis-6/12 md:shrink-0 flex justify-center md:justify-start">
