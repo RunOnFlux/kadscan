@@ -27,6 +27,7 @@ import AddressIdenticon from '~/components/avatar/AddressIdenticon.vue'
 
 definePageMeta({
   layout: 'app',
+  middleware: ['sanitize-chain'],
 })
 
 const { isMobile } = useScreenSize()
