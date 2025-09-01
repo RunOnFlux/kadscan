@@ -393,15 +393,12 @@ const overviewAssetsList = computed(() => {
 
 const showAssetsMenu = ref(false)
 
+// Fetch balances once for all chains; do not refetch on chain filter changes
 watch(
-  [selectedNetwork, address, () => route.query.chain],
-  async ([network, addr, chainId]) => {
+  [selectedNetwork, address],
+  async ([network, addr]) => {
     if (!network || !addr) return
-    const q = typeof chainId === 'string' ? chainId : undefined
-    const n = q !== undefined ? parseInt(q, 10) : undefined
-    const isValid = n !== undefined && !Number.isNaN(n) && n >= 0 && n <= 19
-    const chainIds = isValid ? [q as string] : undefined
-    await fetchAccountBalances({ networkId: network.id, accountName: addr, chainIds })
+    await fetchAccountBalances({ networkId: network.id, accountName: addr })
   },
   { immediate: true }
 )
