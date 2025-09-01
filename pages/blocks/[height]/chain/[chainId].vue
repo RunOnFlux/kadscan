@@ -235,26 +235,18 @@ watch(
   { immediate: true }
 );
 
-// Redirect to error page when block is not found
-watch(error, (newError) => {
-  if (newError) {
-    const err = createError({ statusCode: 404, statusMessage: 'Block not found' })
-    showError(err)
-  }
-})
-
 useHead({
   title: `Block #${height.value} - Details`,
 });
 
 onMounted(() => {
-  // Fresh page mount: clear state so skeleton shows correctly
   clearState();
 });
 </script>
 
 <template>
-  <div>
+  <ErrorOverlay v-if="error" :message="error?.message" />
+  <div v-else>
     <div class="flex items-center pb-5 border-b border-[#222222] mb-6 gap-2">
       <h1 class="text-[19px] font-semibold leading-[150%] text-[#f5f5f5]">
         Block
