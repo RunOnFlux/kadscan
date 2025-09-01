@@ -82,13 +82,16 @@ export const useTransactionsByPactCode = () => {
         }
       });
 
+      if (response?.errors) {
+        throw new Error('Unable to load transactions for this code. Please try again.');
+      }
+
       const result = response?.data?.transactionsByPactCode;
       pageInfo.value = result?.pageInfo || null;
       totalCount.value = null; // unknown
 
       if (!result || result.edges.length === 0) {
-        transactions.value = [];
-        return;
+        throw new Error('No transactions found for the provided code.');
       }
 
       const rawTxs = result.edges;
@@ -111,9 +114,9 @@ export const useTransactionsByPactCode = () => {
           cursor: edge.cursor,
         };
       });
-    } catch (e) {
-      console.error('Error fetching code transactions:', e);
-      error.value = e;
+    } catch (e: any) {
+      const message = typeof e?.message === 'string' ? e.message : 'Unable to load transactions for this code. Please try again.';
+      error.value = new Error(message);
       transactions.value = [];
     } finally {
       loading.value = false;
