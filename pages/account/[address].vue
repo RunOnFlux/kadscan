@@ -101,7 +101,9 @@ const account = computed(() => {
   const allGuards = (data.chainAccounts?.map((chainAccount: any) => ({
     chainId: chainAccount.chainId,
     predicate: chainAccount.guard?.predicate || 'N/A',
-    keys: chainAccount.guard?.keys || []
+    keys: (Array.isArray(chainAccount.guard?.keys) && chainAccount.guard?.keys.length > 0)
+      ? chainAccount.guard.keys
+      : ["N/A"]
   })) || []) as Array<{ chainId: number | string; predicate: string; keys: string[] }>
 
   // Select chain-specific balance and guard if a valid chain is present
@@ -117,7 +119,9 @@ const account = computed(() => {
       guardsForView = [{
         chainId: chainAccount.chainId,
         predicate: chainAccount.guard?.predicate || 'N/A',
-        keys: chainAccount.guard?.keys || []
+        keys: (Array.isArray(chainAccount.guard?.keys) && chainAccount.guard?.keys.length > 0)
+          ? chainAccount.guard.keys
+          : ["N/A"]
       }]
       displayChainId = `${chainAccount.chainId}`
     } else {
