@@ -20,6 +20,7 @@ import { exportableToCsv, downloadCSV } from '~/composables/csv';
 
 definePageMeta({
   layout: 'app',
+  middleware: ['sanitize-chain'],
 });
 
 useHead({
@@ -46,20 +47,8 @@ const {
   clearState,
 } = useBlocks();
 
-const initChainFromUrl = (q: string) => {
-  if (q === undefined) return null;
-  const n = parseInt(q, 10);
-  if (isNaN(n) || n < 0 || n > 19) {
-    const q: Record<string, any> = { ...route.query };
-    delete q.chain;
-    router.replace({ query: q });
-    return null;
-  }
-  return n.toString();
-}
-
-// Chain filter state
-const selectedChain = ref(route.query.chain ? { label: initChainFromUrl(route.query.chain), value: initChainFromUrl(route.query.chain) } : { label: 'All', value: null });
+// Chain filter state (middleware ensures query.chain is valid or absent)
+const selectedChain = ref(route.query.chain ? { label: String(route.query.chain), value: String(route.query.chain) } : { label: 'All', value: null });
 
 // Initialize chain filter from URL parameter on component mount
 onMounted(() => {

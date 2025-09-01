@@ -21,6 +21,7 @@ import { useBlocks } from '~/composables/useBlocks';
 
 definePageMeta({
   layout: 'app',
+  middleware: ['sanitize-chain'],
 });
 
 useHead({
@@ -65,20 +66,8 @@ const {
   clearState: clearCodeState,
 } = useTransactionsByPactCode();
 
-const initChainFromUrl = (q: string) => {
-  if (q === undefined) return null;
-  const n = parseInt(q, 10);
-  if (isNaN(n) || n < 0 || n > 19) {
-    const q: Record<string, any> = { ...route.query };
-    delete q.chain;
-    router.replace({ query: q });
-    return null;
-  }
-  return n.toString();
-}
-
-// Chain filter state
-const selectedChain = ref(route.query.chain ? { label: initChainFromUrl(route.query.chain), value: initChainFromUrl(route.query.chain) } : { label: 'All', value: null });
+// Chain filter state (middleware ensures query.chain is valid or absent)
+const selectedChain = ref(route.query.chain ? { label: String(route.query.chain), value: String(route.query.chain) } : { label: 'All', value: null });
 const selectedBlock = ref<number | null>(route.query.block ? Number(route.query.block) : null);
 
 // Clear global state on mount to show skeleton on page navigation
