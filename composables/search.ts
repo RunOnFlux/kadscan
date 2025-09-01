@@ -548,13 +548,6 @@ export function useSearch () {
         }
       };
       data.lastSearchWasEmpty = isEmptyResults(data.searched);
-      // If there were no results, keep Enter locked for this query until it changes
-      if (data.lastSearchWasEmpty) {
-        data.enterLockedForQuery = value;
-      } else if (data.enterLockedForQuery === value) {
-        // If we previously locked for this value but now have results, unlock
-        data.enterLockedForQuery = null;
-      }
     }
   };
 
@@ -824,7 +817,7 @@ export function useSearch () {
     if (data?.searched?.tokens && data?.searched?.tokens?.length === 1) {
       const token = data?.searched?.tokens[0];
       const staticMetadata = staticTokens.find(({ module }) => module === token.module);
-      const pathId = staticMetadata?.id || token.module;
+      const pathId = (staticMetadata as any)?.id || token.module;
       router.push(`/tokens/${encodeURIComponent(pathId)}`);
       return true;
     }
@@ -884,12 +877,6 @@ export function useSearch () {
     }
     
 
-    // Block Enter if already locked for this exact query
-    if (data.enterLockedForQuery && data.enterLockedForQuery === data.query) {
-      event.preventDefault();
-      return;
-    }
-
     event.preventDefault();
     search.cancel();
 
@@ -897,9 +884,6 @@ export function useSearch () {
     data.open = true;
     data.loading = true;
     data.error = null;
-
-    // Lock Enter for this query while the rest of this handler runs
-    data.enterLockedForQuery = data.query;
 
     const redirectInfo: any = await shouldRedirectBeforeSearch(data.query);
 
@@ -943,10 +927,6 @@ export function useSearch () {
     if (shouldRedirect()) {
       cleanup();
     }
-    // If results are not empty, unlock to allow another Enter for the same query
-    if (!data.lastSearchWasEmpty && data.enterLockedForQuery === data.query) {
-      data.enterLockedForQuery = null;
-    }
   };
 
   // Trigger a search programmatically (used by search button and history click)
@@ -959,7 +939,6 @@ export function useSearch () {
     data.open = true;
     data.loading = true;
     data.error = null;
-    data.enterLockedForQuery = q;
 
     const redirectInfo: any = await shouldRedirectBeforeSearch(q);
     
@@ -997,9 +976,6 @@ export function useSearch () {
       return;
     }
 
-    if (!data.lastSearchWasEmpty && data.enterLockedForQuery === q) {
-      data.enterLockedForQuery = null;
-    }
   };
 
   const close = () => {

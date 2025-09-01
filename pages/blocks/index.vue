@@ -20,6 +20,7 @@ import { exportableToCsv, downloadCSV } from '~/composables/csv';
 
 definePageMeta({
   layout: 'app',
+  middleware: ['sanitize-chain'],
 });
 
 useHead({
@@ -46,8 +47,8 @@ const {
   clearState,
 } = useBlocks();
 
-// Chain filter state - initialize from URL parameters
-const selectedChain = ref({ label: 'All', value: null });
+// Chain filter state (middleware ensures query.chain is valid or absent)
+const selectedChain = ref(route.query.chain ? { label: String(route.query.chain), value: String(route.query.chain) } : { label: 'All', value: null });
 
 // Initialize chain filter from URL parameter on component mount
 onMounted(() => {
@@ -201,7 +202,11 @@ watch(currentPage, async (newPage, oldPage) => {
   };
   if (selectedChain.value.value !== null) params.chainIds = [selectedChain.value.value as string];
 
-  if (newPage > oldPage) {
+  if (newPage === 1) {
+    // Explicit jump to FIRST page
+    params.after = undefined;
+    params.before = undefined;
+  } else if (newPage > oldPage) {
     params.after = pageInfo.value?.endCursor as string | undefined;
   } else if (newPage < oldPage) {
     params.before = pageInfo.value?.startCursor as string | undefined;

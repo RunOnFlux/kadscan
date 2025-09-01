@@ -6,7 +6,7 @@ import { staticTokens } from '~/constants/tokens'
 import AssetsPieChartSkeleton from '~/components/skeleton/AssetsPieChart.vue'
 
 const { balances, loading, hasFetched } = useAccountBalances()
-const { getUsdPerUnit, primeModules } = useAssetUsdPrices()
+const { getUsdPerUnit } = useAssetUsdPrices()
 
 // Fixed chart size (same on desktop and mobile) to keep the donut perfectly round
 // Slightly reduced to give more space to the legend
@@ -36,10 +36,17 @@ const nameForModule = (module: string) => {
 const PALETTE = ['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#10b981', '#06b6d4', '#3b82f6', '#8b5cf6']
 const OTHERS_COLOR = '#4b5563'
 
+// When a specific chain is selected, only include that chain's balances; otherwise include all.
+const filteredBalances = computed(() => {
+  const chain = chainFromQuery.value
+  const arr = balances.value || []
+  return chain === null ? arr : arr.filter((b: any) => `${b.chainId}` === chain)
+})
+
 // Group balances by USD value; when All Chains selected, aggregate by module across chains.
 const groupedByAsset = computed(() => {
   const map = new Map<string, { module: string; label: string; usd: number }>()
-  for (const b of (balances.value || [])) {
+  for (const b of (filteredBalances.value || [])) {
     const amount = Number(b?.balance || 0)
     if (!amount || amount <= 0) continue
     const baseModule = b.module || 'unknown'

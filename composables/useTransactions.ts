@@ -104,6 +104,31 @@ export const useTransactions = () => {
     error.value = null;
     
     try {
+      // Validate optional filters
+      if (chainId !== undefined && chainId !== null) {
+        const n = Number(chainId);
+        if (Number.isNaN(n)) {
+          throw new Error('Chain Id provided is not a valid chain.');
+        }
+        if (!Number.isInteger(n) || n < 0 || n > 19) {
+          throw new Error(`Chain Id ${n} doesn't exist.`);
+        }
+      }
+      if (minHeight !== undefined) {
+        const h = Number(minHeight);
+        if (Number.isNaN(h) || h < 0) {
+          throw new Error('Minimum block height is not valid.');
+        }
+      }
+      if (maxHeight !== undefined) {
+        const h = Number(maxHeight);
+        if (Number.isNaN(h) || h < 0) {
+          throw new Error('Maximum block height is not valid.');
+        }
+      }
+      if (minHeight !== undefined && maxHeight !== undefined && Number(minHeight) > Number(maxHeight)) {
+        throw new Error('Minimum height cannot be greater than maximum height.');
+      }
       const isForward = !!after || (!after && !before);
       // Compute the correct page size for the last page when requested
       const lastPageSize = (() => {
@@ -130,14 +155,17 @@ export const useTransactions = () => {
         }
       });
 
+      if (response?.errors) {
+        throw new Error('Unable to load transactions. Please try again.');
+      }
+
       const result = response?.data?.transactions;
       pageInfo.value = result?.pageInfo || null;
       totalCount.value = result?.totalCount || 0;
 
       // If transaction is null, it means the transaction doesn't exist
       if (result === undefined || result.edges.length === 0) {
-        error.value = true;
-        return;
+        throw new Error('No transactions found for the selected filters.');
       }
 
       const rawTxs = result?.edges || [];
@@ -158,9 +186,9 @@ export const useTransactions = () => {
           cursor: edge.cursor,
         };
       });
-    } catch (e) {
-      console.error('Error fetching or processing transactions:', e);
-      error.value = e;
+    } catch (e: any) {
+      const message = typeof e?.message === 'string' ? e.message : 'Unable to load transactions. Please try again.';
+      error.value = new Error(message);
       transactions.value = [];
     } finally {
       loading.value = false;

@@ -166,15 +166,19 @@ export const useBlocks = () => {
         },
       });
 
-      if (response?.data?.lastBlockHeight) {
+      if (response?.errors) {
+        throw new Error('Unable to load latest block height.');
+      }
+
+      if (typeof response?.data?.lastBlockHeight === 'number') {
         lastBlockHeight.value = response?.data?.lastBlockHeight;
       } else {
-        error.value = true;
+        error.value = new Error('Unable to load latest block height.');
       }
 
     } catch (e) {
-      console.error('Error fetching total block count:', e);
-      error.value = true;
+      const message = (e as any)?.message || 'Unable to load latest block height.';
+      error.value = new Error(message);
     }
   };
 
@@ -197,6 +201,18 @@ export const useBlocks = () => {
     // Reset error state at the beginning of each fetch
     error.value = null;
     try {
+      // Validate chainIds if provided
+      if (chainIds && chainIds.length > 0) {
+        for (const raw of chainIds) {
+          const n = Number(raw);
+          if (Number.isNaN(n)) {
+            throw new Error('Chain Id provided is not a valid chain.');
+          }
+          if (!Number.isInteger(n) || n < 0 || n > 19) {
+            throw new Error(`Chain Id ${n} doesn't exist.`);
+          }
+        }
+      }
       const isForward = !!after || (!after && !before);
       const response: any = await $fetch('/api/graphql', {
         method: 'POST',
@@ -214,8 +230,12 @@ export const useBlocks = () => {
         }
       });
 
+      if (response?.errors) {
+        throw new Error('Unable to load blocks. Please try again.');
+      }
+
       if (!response) {
-        throw new Error('No response from server');
+        throw new Error('Unable to load blocks. Please try again.');
       }
 
       const result = response.data?.blocksFromDepth;
@@ -225,7 +245,7 @@ export const useBlocks = () => {
       
       // Check if no blocks found - this should trigger error state
       if (rawBlocks.length === 0) {
-        throw new Error('No blocks found');
+        throw new Error('No blocks found for the selected filters.');
       }
 
       totalCount.value = result?.totalCount;
@@ -244,8 +264,8 @@ export const useBlocks = () => {
       });
       blocks.value = blocksMap;
     } catch (e) {
-      console.error('Error fetching or processing blocks:', e);
-      error.value = true;
+      const message = (e as any)?.message || 'Unable to load blocks. Please try again.';
+      error.value = new Error(message);
       blocks.value = [];
     } finally {
       loading.value = false;
@@ -259,33 +279,40 @@ export const useBlocks = () => {
     networkId: string,
     height: number,
   }) => {
-    if (!networkId || !height) return;
+    if (!networkId) return;
     loadingByHeight.value = blocksByHeight.value.length === 0;
     
     // Reset error state at the beginning of each fetch
     error.value = null;
 
     try {
+      // Validate height
+      const h = Number(height);
+      if (Number.isNaN(h) || h < 0) {
+        throw new Error('Block height is not valid.');
+      }
       const response: any = await $fetch('/api/graphql', {
         method: 'POST',
         body: {
           query: BLOCKS_BY_HEIGHT_QUERY,
           variables: {
-            startHeight: height,
-            endHeight: height,
+            startHeight: h,
+            endHeight: h,
           },
           networkId,
         }
       });
+
+      if (response?.errors) {
+        throw new Error('Unable to load blocks for this height. Please try again.');
+      }
 
       const result = response?.data?.blocksFromHeight;
       const rawBlocks = result?.edges || [];
       
       // Check if no blocks found for this height
       if (rawBlocks.length === 0) {
-        error.value = true;
-        blocksByHeight.value = [];
-        return;
+        throw new Error('Block Height not found');
       }
       
       const blocksMap = rawBlocks.map((edge: any) => {
@@ -303,7 +330,8 @@ export const useBlocks = () => {
       // Sort by chainId in ascending order (0-19)
       blocksByHeight.value = blocksMap.sort((a: any, b: any) => a.chainId - b.chainId);
     } catch (e) {
-      console.error('Error fetching or processing blocks by height:', e);
+      const message = (e as any)?.message || 'Unable to load blocks for this height. Please try again.';
+      error.value = new Error(message);
       blocksByHeight.value = [];
     } finally {
       loadingByHeight.value = false;

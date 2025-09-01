@@ -5,7 +5,7 @@ const useTransactionCount = () => useState<{ transactionCount: number, averageTr
   averageTransactionPerSecond: 0,
 }));
 const transactionCountProcessed = ref(new Map());
-const MAX_KEY_LIMIT = 100;
+const MAX_KEY_LIMIT = 10;
 
 const resetTransactionCount = () => {
   const stats = useTransactionCount();

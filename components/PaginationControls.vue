@@ -34,6 +34,12 @@ const emit = defineEmits(['update:currentPage', 'update:loadingPage']);
 const isFirstPage = computed(() => props.currentPage === 1);
 const isLastPage = computed(() => props.currentPage === props.totalPages);
 
+// Unified navigation capability (cursor mode vs known totals)
+const canGoPrev = computed(() => props.unknownTotal ? props.hasPreviousPage : !isFirstPage.value);
+const canGoNext = computed(() => props.unknownTotal ? props.hasNextPage : !isLastPage.value);
+const canGoFirst = computed(() => !props.unknownTotal && !isFirstPage.value);
+const canGoLast = computed(() => !props.unknownTotal && !isLastPage.value);
+
 const formatTotalPages = computed(() => {
   if (!props.totalPages) return '...';
   return new Intl.NumberFormat('en-US').format(props.totalPages);
@@ -44,30 +50,28 @@ const formatCurrentPage = computed(() => {
 });
 
 const goToFirst = () => {
-  if (!isFirstPage.value) {
+  if (canGoFirst.value) {
     emit('update:currentPage', 1);
     emit('update:loadingPage', true);
   }
 };
 
 const goToLast = () => {
-  if (!isLastPage.value) {
+  if (canGoLast.value) {
     emit('update:currentPage', props.totalPages);
     emit('update:loadingPage', true); 
   }
 };
 
 const goToPrevious = () => {
-  const canGo = props.unknownTotal ? props.hasPreviousPage : !isFirstPage.value;
-  if (canGo) {
+  if (canGoPrev.value) {
     emit('update:currentPage', props.currentPage - 1);
     emit('update:loadingPage', true);
   }
 };
 
 const goToNext = () => {
-  const canGo = props.unknownTotal ? props.hasNextPage : !isLastPage.value;
-  if (canGo) {
+  if (canGoNext.value) {
     emit('update:currentPage', props.currentPage + 1);
     emit('update:loadingPage', true);
   }
@@ -78,14 +82,14 @@ const goToNext = () => {
   <nav class="flex items-stretch gap-0.5" aria-label="Pagination">
     <button
       v-if="!unknownTotal"
-      :disabled="!hasPreviousPage || loadingPage"
+      :disabled="!canGoFirst || loadingPage"
       @click="goToFirst"
       class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
     >
       First
     </button>
     <button
-      :disabled="!hasPreviousPage || loadingPage"
+      :disabled="!canGoPrev || loadingPage"
       @click="goToPrevious"
       class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
     >
@@ -96,7 +100,7 @@ const goToNext = () => {
       <template v-else>Page {{ formatCurrentPage }}</template>
     </span>
     <button
-      :disabled="!hasNextPage || loadingPage"
+      :disabled="!canGoNext || loadingPage"
       @click="goToNext"
       class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
     >
@@ -104,7 +108,7 @@ const goToNext = () => {
     </button>
     <button
       v-if="!unknownTotal"
-      :disabled="!hasNextPage || loadingPage"
+      :disabled="!canGoLast || loadingPage"
       @click="goToLast"
       class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
     >

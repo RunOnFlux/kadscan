@@ -21,6 +21,7 @@ import { useBlocks } from '~/composables/useBlocks';
 
 definePageMeta({
   layout: 'app',
+  middleware: ['sanitize-chain'],
 });
 
 useHead({
@@ -65,8 +66,8 @@ const {
   clearState: clearCodeState,
 } = useTransactionsByPactCode();
 
-// Chain filter state - initialize from URL parameters (commented due to query glitch)
-const selectedChain = ref({ label: 'All', value: null });
+// Chain filter state (middleware ensures query.chain is valid or absent)
+const selectedChain = ref(route.query.chain ? { label: String(route.query.chain), value: String(route.query.chain) } : { label: 'All', value: null });
 const selectedBlock = ref<number | null>(route.query.block ? Number(route.query.block) : null);
 
 // Clear global state on mount to show skeleton on page navigation
@@ -277,6 +278,12 @@ watch(currentPage, async (newPage, oldPage) => {
 
   if (codeMode.value) {
     const params: { networkId: string; after?: string; before?: string } = { networkId: network.id };
+    if (newPage === 1) {
+      // Explicit jump to FIRST page in code mode
+      await fetchTransactionsByCode({ ...params, pactCode: String(route.query.code) });
+      loadingPage.value = false;
+      return;
+    }
     if (newPage > oldPage) params.after = codePageInfo.value?.endCursor as string | undefined;
     else if (newPage < oldPage) params.before = codePageInfo.value?.startCursor as string | undefined;
     await fetchTransactionsByCode({ ...params, pactCode: String(route.query.code) });
@@ -295,7 +302,11 @@ watch(currentPage, async (newPage, oldPage) => {
     if (params.chainId) params.isCoinbase = true;
   }
 
-  if (newPage > oldPage) {
+  if (newPage === 1) {
+    // Explicit jump to FIRST page
+    params.after = undefined;
+    params.before = undefined;
+  } else if (newPage > oldPage) {
     params.after = pageInfo.value?.endCursor as string | undefined;
   } else if (newPage < oldPage) {
     params.before = pageInfo.value?.startCursor as string | undefined;

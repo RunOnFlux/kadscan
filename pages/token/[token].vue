@@ -6,6 +6,7 @@ import Coins from '~/components/icon/Coins.vue'
 import TokenTransfers from '~/components/token/TokenTransfers.vue'
 import TokenHolders from '~/components/token/TokenHolders.vue'
 import ContractView from '~/components/module/ContractView.vue'
+import ErrorOverlay from '~/components/error/Overlay.vue'
 
 definePageMeta({
   layout: 'app',
@@ -88,7 +89,8 @@ useHead({
 </script>
 
 <template>
-  <div>
+  <ErrorOverlay v-if="isInvalidChainQuery" :message="`Invalid chain parameter: ${String($route.query.chain)}`" />
+  <div v-else>
     <!-- Header -->
     <div class="pb-5 border-b border-[#222222] mb-6 px-1">
       <div class="flex flex-col gap-1 md:flex-row md:items-center md:gap-3">

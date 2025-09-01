@@ -167,7 +167,7 @@ const stopPolling = () => {
 const startPolling = () => {
   stopPolling();
   pollingInterval = setInterval(() => {
-    if (networkId.value) {
+    if (networkId.value && !error.value) {
       fetchBlock();
       fetchLastBlockHeight({ networkId: networkId.value });
     }
@@ -200,12 +200,13 @@ watch(loading, (newLoading) => {
 });
 
 watch(
-  [() => block.value, lastBlockHeight],
-  ([currentBlock, newLastBlockHeight]) => {
+  [() => block.value, lastBlockHeight, error],
+  ([currentBlock, newLastBlockHeight, currentError]) => {
+    if (currentError) {
+      stopPolling();
+      return;
+    }
     const isOldEnough = (newLastBlockHeight - height.value) > 6;
-
-    // Keep polling until the block is old enough, regardless of canonical flag,
-    // so the status can transition from Pending to Finalized automatically.
     if (isOldEnough) {
       stopPolling();
     } else {
@@ -235,26 +236,18 @@ watch(
   { immediate: true }
 );
 
-// Redirect to error page when block is not found
-watch(error, (newError) => {
-  if (newError) {
-    const err = createError({ statusCode: 404, statusMessage: 'Block not found' })
-    showError(err)
-  }
-})
-
 useHead({
   title: `Block #${height.value} - Details`,
 });
 
 onMounted(() => {
-  // Fresh page mount: clear state so skeleton shows correctly
   clearState();
 });
 </script>
 
 <template>
-  <div>
+  <ErrorOverlay v-if="error" :message="error?.message" />
+  <div v-else>
     <div class="flex items-center pb-5 border-b border-[#222222] mb-6 gap-2">
       <h1 class="text-[19px] font-semibold leading-[150%] text-[#f5f5f5]">
         Block
@@ -389,14 +382,15 @@ onMounted(() => {
                 >
                   <template #value>
                     <div class="flex items-center gap-2">
-                      <Tooltip value="Click to view Transactions">
+                      <Tooltip v-if="block.transactions.totalCount > 0" value="Click to view Transactions">
                         <NuxtLink
                           :to="`/transactions?block=${block.height}&chain=${block.chainId}`"
                           class="text-[#6ab5db] hover:text-[#9ccee7]"
                         >
-                          {{ block.transactions.totalCount }} transactions in this block
+                          {{ block.transactions.totalCount }} {{ block.transactions.totalCount === 1 ? 'transaction' : 'transactions' }} in this block
                         </NuxtLink>
                       </Tooltip>
+                      <span v-else class="text-[#f5f5f5]">0 transactions in this block</span>
                     </div>
                   </template>
                 </LabelValue>

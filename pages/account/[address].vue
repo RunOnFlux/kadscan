@@ -27,6 +27,7 @@ import AddressIdenticon from '~/components/avatar/AddressIdenticon.vue'
 
 definePageMeta({
   layout: 'app',
+  middleware: ['sanitize-chain'],
 })
 
 const { isMobile } = useScreenSize()
@@ -101,7 +102,9 @@ const account = computed(() => {
   const allGuards = (data.chainAccounts?.map((chainAccount: any) => ({
     chainId: chainAccount.chainId,
     predicate: chainAccount.guard?.predicate || 'N/A',
-    keys: chainAccount.guard?.keys || []
+    keys: (Array.isArray(chainAccount.guard?.keys) && chainAccount.guard?.keys.length > 0)
+      ? chainAccount.guard.keys
+      : ["N/A"]
   })) || []) as Array<{ chainId: number | string; predicate: string; keys: string[] }>
 
   // Select chain-specific balance and guard if a valid chain is present
@@ -117,7 +120,9 @@ const account = computed(() => {
       guardsForView = [{
         chainId: chainAccount.chainId,
         predicate: chainAccount.guard?.predicate || 'N/A',
-        keys: chainAccount.guard?.keys || []
+        keys: (Array.isArray(chainAccount.guard?.keys) && chainAccount.guard?.keys.length > 0)
+          ? chainAccount.guard.keys
+          : ["N/A"]
       }]
       displayChainId = `${chainAccount.chainId}`
     } else {
@@ -388,15 +393,12 @@ const overviewAssetsList = computed(() => {
 
 const showAssetsMenu = ref(false)
 
+// Fetch balances once for all chains; do not refetch on chain filter changes
 watch(
-  [selectedNetwork, address, () => route.query.chain],
-  async ([network, addr, chainId]) => {
+  [selectedNetwork, address],
+  async ([network, addr]) => {
     if (!network || !addr) return
-    const q = typeof chainId === 'string' ? chainId : undefined
-    const n = q !== undefined ? parseInt(q, 10) : undefined
-    const isValid = n !== undefined && !Number.isNaN(n) && n >= 0 && n <= 19
-    const chainIds = isValid ? [q as string] : undefined
-    await fetchAccountBalances({ networkId: network.id, accountName: addr, chainIds })
+    await fetchAccountBalances({ networkId: network.id, accountName: addr })
   },
   { immediate: true }
 )
