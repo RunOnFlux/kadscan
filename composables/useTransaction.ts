@@ -228,10 +228,11 @@ export const useTransaction = (
           networkId: networkId
         }
       })
-      
+      if (response?.errors) {
+        throw new Error('Unable to load related transaction. Please try again.')
+      }
       crossChainTransaction.value = response?.data?.transaction
     } catch (error) {
-      console.error('Error fetching cross-chain related transaction:', error)
       crossChainTransaction.value = null
     } finally {
       loadingCrossChain.value = false
@@ -464,16 +465,15 @@ export const useTransaction = (
         fetchLastBlockHeight({ networkId: networkId.value })
       ]);
 
-      if (transactionResponse.errors) {
-        throw new Error(transactionResponse.errors.map((e: any) => e.message).join(', '));
+      if (transactionResponse?.errors) {
+        throw new Error('Unable to load transaction. Please try again.');
       }
 
       transaction.value = transactionResponse?.data?.transaction;
       
       // If transaction is null, it means the transaction doesn't exist
       if (transaction.value === null) {
-        error.value = true;
-        return;
+        throw new Error('Transaction not found');
       }
       
       if (transaction.value && transaction.value.cmd?.meta?.creationTime) {
@@ -492,8 +492,9 @@ export const useTransaction = (
           )
         }
       }
-    } catch (e) {
-      error.value = e
+    } catch (e: any) {
+      const message = typeof e?.message === 'string' ? e.message : 'Unable to load transaction. Please try again.'
+      error.value = new Error(message)
       transaction.value = null
     } finally {
       loading.value = false
