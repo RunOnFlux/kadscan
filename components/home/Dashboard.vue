@@ -100,7 +100,7 @@ const marketCapInKda = computed(() => {
               <div class="text-xs text-[#bbbbbb] mb-[1px]">TRANSACTIONS</div>
               <div class="text-[15px] text-[#f5f5f5]">
                 <template v-if="transactionsCountRef.transactionCount">
-                  <Tooltip value="Total transactions and Average TPS of last 100 blocks">
+                  <Tooltip value="Total transactions and Average cummulative TPS of last 100 transactions">
                     <NuxtLink
                       to="/transactions"
                       class="hover:text-[#0879b2]"
