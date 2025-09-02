@@ -92,6 +92,15 @@ const nftItems = computed(() => {
 
 const nonZeroTokens = computed(() => tokenItems.value.filter(i => Number(i.amount) > 0))
 
+// Sum USD across visible token items (non-zero balances)
+const totalUsd = computed(() => {
+  try {
+    return nonZeroTokens.value.reduce((acc: number, it: any) => acc + (Number(it.usd) || 0), 0)
+  } catch {
+    return 0
+  }
+})
+
 const filteredTokenItems = computed(() => {
   const q = search.value.trim().toLowerCase()
   const base = nonZeroTokens.value
@@ -134,7 +143,7 @@ watch(() => props.balances, (arr) => {
       :aria-expanded="open ? 'true' : 'false'"
     >
       <div class="flex items-center gap-2">
-        <span>Assets</span>
+        <span>{{ formatUsd(totalUsd || 0) }}</span>
         <span class="text-[#bbbbbb] text-[13px]"> ({{ assetsCount }} Assets)</span>
       </div>
       <svg class="w-4 h-4" fill="none" viewBox="0 0 16 16">
@@ -168,10 +177,11 @@ watch(() => props.balances, (arr) => {
         <div v-if="loading" class="px-3 py-2 text-[14px] text-[#888888]">Loading...</div>
         <div v-else-if="filteredTokenItems.length === 0" class="px-5 pb-2 text-[13px] text-[#888]">No Tokens</div>
         <div v-else>
-          <div 
+          <NuxtLink 
             v-for="(item, idx) in filteredTokenItems" 
             :key="`token-${idx}`"
-            class="px-5 py-2 text-[14px] text-[#f5f5f5] flex items-center justify-between border-b border-[#1f1f1f] last:border-b-0"
+            :to="`/token/${item.module}`"
+            class="px-5 py-2 text-[14px] text-[#f5f5f5] flex items-center justify-between border-b border-[#1f1f1f] last:border-b-0 hover:bg-[#151515]"
           >
             <div class="flex items-center gap-3 min-w-0">
               <div class="w-7 h-7 rounded-full bg-[#222222] overflow-hidden grid place-items-center">
@@ -181,7 +191,7 @@ watch(() => props.balances, (arr) => {
                 </span>
               </div>
               <div class="min-w-0">
-                <div class="text-[14px] text-[#f5f5f5] truncate">{{ item.name }}</div>
+                <div class="text-[14px] text-[#6ab5db] truncate">{{ item.name }}</div>
                 <div class="text-[13px] text-[#bbbbbb] truncate">Chain <b>{{ item.chainId }}</b></div>
               </div>
             </div>
@@ -189,7 +199,7 @@ watch(() => props.balances, (arr) => {
               <div class="text-[14px]">{{ formatUsd(item.usd || 0) }}</div>
               <div v-if="Number(item.amount) > 0" class="text-[12px] text-[#bbbbbb]">{{ formatAmount12(item.amount) }}</div>
             </div>
-          </div>
+          </NuxtLink>
         </div>
 
         <!-- NFTs Group -->

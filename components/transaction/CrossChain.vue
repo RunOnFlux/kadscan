@@ -239,8 +239,12 @@ const destinationIndicatorColor = computed(() => {
                       <div class="flex flex-col items-center gap-2 px-4">
                         <!-- Animated Flow Arrow -->
                         <div class="relative flex flex-col items-center">
-                          <!-- Flow dots animation -->
-                          <div class="flex items-center justify-center gap-1 mb-1">
+                          <!-- Success checkmark replaces blinking dots to avoid implying pending state -->
+                          <div v-if="crossChainStatus.text === 'Success'" class="flex items-center justify-center mb-1">
+                            <IconCheckmarkFill class="w-4 h-4" :style="{ color: sourceIndicatorColor }" />
+                          </div>
+                          <!-- Flow dots animation (for Pending/Failed states) -->
+                          <div v-else class="flex items-center justify-center gap-1 mb-1">
                             <div class="w-1 h-1 rounded-full animate-ping" :style="{ backgroundColor: sourceIndicatorColor }" style="animation-delay: 0ms"></div>
                             <div class="w-1 h-1 rounded-full animate-ping" :style="{ backgroundColor: sourceIndicatorColor }" style="animation-delay: 200ms"></div>
                             <div class="w-1 h-1 rounded-full animate-ping" :style="{ backgroundColor: sourceIndicatorColor }" style="animation-delay: 400ms"></div>
