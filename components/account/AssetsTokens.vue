@@ -187,7 +187,7 @@ function downloadData() {
         </button>
       </template>
       <template #asset="{ item }">
-        <NuxtLink :to="`/token/${item.module || 'coin'}`" class="flex items-center gap-2 hover:opacity-90">
+        <NuxtLink :to="`/token/${item.module}`" class="flex items-center gap-2 hover:opacity-90">
           <div class="w-6 h-6 rounded-full bg-[#222222] overflow-hidden grid place-items-center">
             <img v-if="item._icon" :src="item._icon" alt="icon" class="w-6 h-6 object-contain" />
             <span v-else class="text-[11px] text-[#f5f5f5]">
@@ -199,7 +199,7 @@ function downloadData() {
       </template>
       <template #module="{ item }">
         <Tooltip :value="item.module" :variant="'hash'" :disabled="!isLongModule(item.module)">
-          <NuxtLink :to="`/module/${item.module || 'coin'}`" class="text-[#6ab5db] hover:text-[#9ccee7]">
+          <NuxtLink :to="`/module/${item.module}`" class="text-[#6ab5db] hover:text-[#9ccee7]">
             {{ displayModule(item.module) }}
           </NuxtLink>
         </Tooltip>
