@@ -73,6 +73,7 @@ const initChainFromUrl = () => {
 
 const tableHeaders = [
   { key: 'requestKey', label: 'Request Key' },
+  { key: 'method', label: 'Method' },
   { key: 'height', label: 'Block' },
   { key: 'chainId', label: 'Chain' },
   { key: 'status', label: 'Status' },
@@ -80,7 +81,6 @@ const tableHeaders = [
   { key: 'sender', label: 'Sender' },
   { key: 'gas', label: 'Gas' },
   { key: 'gasLimit', label: 'Gas Limit' },
-  { key: 'gasPrice', label: 'Gas Price' },
   { key: 'fee', label: 'Fee' },
 ]
 
@@ -121,7 +121,7 @@ const { transactionStatus } = useStatus(lastBlockHeight)
 
 const filteredTransactions = computed(() => {
   if (!transactions.value || !lastBlockHeight || !lastBlockHeight.value) return [] as any[]
-  return transactions.value.filter((tx: any) => !(lastBlockHeight.value - 10 >= tx.height && !tx.canonical))
+  return transactions.value.filter((tx: any) => !(lastBlockHeight.value - 6 >= tx.height && !tx.canonical))
 })
 
 function getFeeInKda(item: any) {
@@ -131,6 +131,20 @@ function getFeeInKda(item: any) {
   const formattedFee = new Intl.NumberFormat('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 12 }).format(feeInKda)
   return `${formattedFee} KDA`
 }
+
+// Method formatters (same as transactions list)
+const formatMethod = computed(() => (val?: string) => {
+  if (!val || val === '-') return 'Transaction'
+  const replaced = String(val).replace(/-/g, ' ')
+  const titleCased = replaced.replace(/\b([a-zA-Z])/g, (m) => m.toUpperCase())
+  return titleCased.length > 15 ? titleCased.slice(0, 15) + '...' : titleCased
+})
+
+const formatMethodFull = computed(() => (val?: string) => {
+  if (!val || val === '-') return 'Transaction'
+  const replaced = String(val).replace(/-/g, ' ')
+  return replaced.replace(/\b([a-zA-Z])/g, (m) => m.toUpperCase())
+})
 
 onMounted(() => {
   initChainFromUrl()
@@ -288,6 +302,15 @@ function downloadData() {
       </template>
       <template #gas="{ item }">
         <ColumnGas :gas="item.gas" :gas-limit="item.rawGasLimit" />
+      </template>
+      <template #method="{ item }">
+        <div class="flex items-center">
+          <Tooltip :value="formatMethodFull(item.method)">
+            <span class="px-2 py-1.5 bg-[#151515] rounded-md border border-[#292929] text-[11px] text-[#f5f5f5] font-normal inline-flex items-center justify-center leading-none w-[120px]">
+              {{ formatMethod(item.method) }}
+            </span>
+          </Tooltip>
+        </div>
       </template>
       <template #fee="{ item }">
         <span class="text-[#f5f5f5]">{{ getFeeInKda(item) }}</span>

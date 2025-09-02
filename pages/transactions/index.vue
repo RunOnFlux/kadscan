@@ -123,8 +123,24 @@ const getFeeInKda = (item: any) => {
   return `${formattedFee} KDA`;
 };
 
+// Format method helper (hyphens to spaces, Title Case each word, trim to 15 chars)
+const formatMethod = computed(() => (val?: string) => {
+  if (!val || val === '-') return 'Transaction'
+  const replaced = String(val).replace(/-/g, ' ')
+  const titleCased = replaced.replace(/\b([a-zA-Z])/g, (m) => m.toUpperCase())
+  return titleCased.length > 15 ? titleCased.slice(0, 15) + '...' : titleCased
+})
+
+// Full formatted method for tooltip (Title Case, no trimming)
+const formatMethodFull = computed(() => (val?: string) => {
+  if (!val || val === '-') return 'Transaction'
+  const replaced = String(val).replace(/-/g, ' ')
+  return replaced.replace(/\b([a-zA-Z])/g, (m) => m.toUpperCase())
+})
+
 const tableHeaders = [
   { key: 'requestKey', label: 'Request Key' },
+  { key: 'method', label: 'Method' },
   { key: 'height', label: 'Block' },
   { key: 'chainId', label: 'Chain' },
   { key: 'status', label: 'Status' },
@@ -132,7 +148,6 @@ const tableHeaders = [
   { key: 'sender', label: 'Sender' },
   { key: 'gas', label: 'Gas' },
   { key: 'gasLimit', label: 'Gas Limit' },
-  { key: 'gasPrice', label: 'Gas Price' },
   { key: 'fee', label: 'Fee' },
 ];
 
@@ -176,7 +191,7 @@ const filteredTransactions = computed(() => {
   
   return list.filter((transaction: any) => {
     // Remove transactions from orphaned blocks (same logic as blockStatus function)
-    const isFromOrphanedBlock = lastBlockHeight.value - 10 >= transaction.height && !transaction.canonical;
+    const isFromOrphanedBlock = lastBlockHeight.value - 6 >= transaction.height && !transaction.canonical;
     return !isFromOrphanedBlock;
   });
 });
@@ -216,7 +231,6 @@ watch(
     if (transactionsError.value) transactionsError.value = null as any;
     if (blocksError.value) blocksError.value = null as any;
 
-    await fetchLastBlockHeight({ networkId: network.id });
     currentPage.value = 1;
 
     if (codeMode.value) {
@@ -239,6 +253,8 @@ watch(
       params.maxHeight = selectedBlock.value;
       if (params.chainId) params.isCoinbase = true;
     }
+
+    await fetchLastBlockHeight({ networkId: network.id });
     await fetchTransactions(params);
     loadingPage.value = false;
   },
@@ -263,6 +279,7 @@ watch([rowsToShow, codeRowsToShow], async () => {
       params.maxHeight = selectedBlock.value;
       if (params.chainId) params.isCoinbase = true;
     }
+    await fetchLastBlockHeight({ networkId: network.id });
     await fetchTransactions(params);
   }
   loadingPage.value = false;
@@ -319,6 +336,7 @@ watch(currentPage, async (newPage, oldPage) => {
     params.toLastPage = true;
   }
 
+  await fetchLastBlockHeight({ networkId: network.id });
   await fetchTransactions(params);
   loadingPage.value = false;
 });
@@ -425,6 +443,16 @@ function downloadData() {
       </template>
       <template #gas="{ item }">
         <ColumnGas :gas="item.gas" :gas-limit="item.rawGasLimit" />
+      </template>
+       
+      <template #method="{ item }">
+        <div class="flex items-center">
+          <Tooltip :value="formatMethodFull(item.method)">
+            <span class="px-2 py-1.5 bg-[#151515] rounded-md border border-[#292929] text-[11px] text-[#f5f5f5] font-normal inline-flex items-center justify-center leading-none w-[120px]">
+              {{ formatMethod(item.method) }}
+            </span>
+          </Tooltip>
+        </div>
       </template>
       <template #fee="{ item }">
         <span class="text-[#f5f5f5]">{{ getFeeInKda(item) }}</span>

@@ -455,6 +455,46 @@ export function parsePactCode(input: string | any): string {
 }
 
 /**
+ * Extracts the first top-level Pact call's module (namespace.module) and method from code
+ * - Returns { module, method } when the function token is in the form namespace.module.method
+ * - If the prefix before the last dot does not itself contain a dot (e.g., coin.transfer),
+ *   we treat it as not a namespaced module and return an empty object
+ * - Intended for lightweight classification in lists (Type/Method)
+ */
+export function extractPactCall(raw: any): { module?: string; method?: string } {
+  try {
+    const src = unescapeCodeString(typeof raw === 'string' ? raw : String(raw ?? ''))
+    const code = (src || '').trim()
+    if (!code) return {}
+
+    // Find the first function token: between the first '(' and the first space or ')'
+    let start = 0
+    if (code[start] === '(') start = 1
+    let end = start
+    while (end < code.length && code[end] !== ' ' && code[end] !== ')') end++
+    if (end <= start) return {}
+
+    const functionToken = code.slice(start, end).trim()
+    if (!functionToken) return {}
+
+    const lastDotIndex = functionToken.lastIndexOf('.')
+    if (lastDotIndex === -1) return {}
+
+    const prefix = functionToken.substring(0, lastDotIndex)
+    const method = functionToken.substring(lastDotIndex + 1)
+
+    // Require namespace.module in the prefix (i.e., at least one dot present there)
+    if (!prefix.includes('.')) return {}
+
+    const module = prefix
+    if (!module || !method) return {}
+    return { module, method }
+  } catch {
+    return {}
+  }
+}
+
+/**
  * Formats JSON data with proper indentation for display
  * @param data - JSON data (object, array, or string)
  * @param indentSize - Number of spaces for indentation (default: 2)

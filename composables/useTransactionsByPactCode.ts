@@ -1,5 +1,6 @@
 import { ref } from 'vue';
 import { useFormat } from './useFormat';
+import { extractPactCall, unescapeCodeString } from '~/composables/string'
 
 const GQL_QUERY = `
   query TransactionsByPactCode($pactCode: String!, $after: String, $before: String, $first: Int, $last: Int) {
@@ -16,6 +17,7 @@ const GQL_QUERY = `
           canonical
           chainId
           creationTime
+          code
           badResult
           gas
           gasLimit
@@ -35,7 +37,7 @@ const pageInfo = ref<any>(null);
 const rowsToShow = ref(25);
 const error = ref<any>(null);
 const totalCount = ref<number | null>(null);
-const { formatRelativeTime, formatGasPrice } = useFormat();
+const { formatRelativeTime } = useFormat();
 
 export const useTransactionsByPactCode = () => {
   const clearState = () => {
@@ -98,6 +100,8 @@ export const useTransactionsByPactCode = () => {
 
       transactions.value = rawTxs.map((edge: any) => {
         const n = edge.node;
+        const rawCode = typeof n.code === 'string' ? unescapeCodeString(n.code) : ''
+        const parsed = extractPactCall(rawCode)
         return {
           requestKey: n.requestKey,
           height: n.height,
@@ -106,11 +110,11 @@ export const useTransactionsByPactCode = () => {
           chainId: n.chainId,
           time: formatRelativeTime(n.creationTime),
           sender: n.sender,
-          gasPrice: formatGasPrice(parseFloat(n.gasPrice)),
           rawGasPrice: n.gasPrice,
           gas: n.gas,
           gasLimit: new Intl.NumberFormat().format(n.gasLimit),
           rawGasLimit: n.gasLimit,
+          method: parsed.method || '-',
           cursor: edge.cursor,
         };
       });
