@@ -302,7 +302,7 @@ function downloadData() {
         </div>
       </template>
       <template #amount="{ item }">
-        <div class="inline-flex items-center justify-start w-[92px]">
+        <div class="inline-flex items-center">
           <span class="text-[#f5f5f5]">{{ item.amount }}</span>
         </div>
       </template>

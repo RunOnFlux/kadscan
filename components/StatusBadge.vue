@@ -6,6 +6,7 @@ type Status = {
   icon: any
   classes: string
   description: string
+  placement: 'top' | 'right' | 'bottom' | 'left'
 }
 
 defineProps<{
@@ -14,13 +15,13 @@ defineProps<{
 </script>
 
 <template>
-  <Tooltip :value="status.description" :offset-distance="8">
+  <Tooltip :value="status.description" :offset-distance="8" :placement="status.placement">
     <div
       class="px-2 py-1.5 text-[11px] rounded-md border flex items-center gap-1 leading-none"
       :class="status.classes"
     >
       <component :is="status.icon" class="w-2.5 h-2.5" />
-      <span>{{ status.text }}</span>
+      <span v-if="status.text">{{ status.text }}</span>
     </div>
   </Tooltip>
   

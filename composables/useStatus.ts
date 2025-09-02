@@ -9,6 +9,7 @@ export interface StatusDescriptor {
   icon: any
   classes: string
   description: string
+  placement: 'top' | 'right' | 'bottom' | 'left'
 }
 
 export const SAFE_CONFIRMATIONS = 6
@@ -32,6 +33,7 @@ export function useStatus(providedLastBlockHeight?: Ref<number | null>) {
     if (badResult !== null) {
       return {
         text: 'Failed',
+        placement: 'top',
         icon: IconCancel,
         classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]',
         description: 'Transaction failed to execute',
@@ -41,6 +43,7 @@ export function useStatus(providedLastBlockHeight?: Ref<number | null>) {
     if (safeBlock && !canonical) {
       return {
         text: 'Failed',
+        placement: 'top',
         icon: IconCancel,
         classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]',
         description: 'Transaction failed to execute',
@@ -50,6 +53,7 @@ export function useStatus(providedLastBlockHeight?: Ref<number | null>) {
     if (safeBlock && !!canonical) {
       return {
         text: 'Success',
+        placement: 'top',
         icon: IconCheckmarkFill,
         classes: 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]',
         description: 'Transaction executed successfully',
@@ -58,6 +62,7 @@ export function useStatus(providedLastBlockHeight?: Ref<number | null>) {
 
     return {
       text: 'Pending',
+      placement: 'top',
       icon: IconHourglass,
       classes: 'bg-[#17150d] border-[#44464980] text-[#989898]',
       description: 'Transaction is pending to be finalized',
@@ -73,6 +78,7 @@ export function useStatus(providedLastBlockHeight?: Ref<number | null>) {
     if (safeBlock && !canonical) {
       return {
         text: 'Orphaned',
+        placement: 'top',
         icon: IconCancel,
         classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]',
         description: 'Block is not part of the canonical chain and is orphaned',
@@ -82,6 +88,7 @@ export function useStatus(providedLastBlockHeight?: Ref<number | null>) {
     if (safeBlock && !!canonical) {
       return {
         text: 'Finalized',
+        placement: 'top',
         icon: IconCheckmarkFill,
         classes: 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]',
         description: 'Block is part of the canonical chain and safe to use',
@@ -90,6 +97,7 @@ export function useStatus(providedLastBlockHeight?: Ref<number | null>) {
 
     return {
       text: 'Pending',
+      placement: 'top',
       icon: IconHourglass,
       classes: 'bg-[#17150d] border-[#44464980] text-[#989898]',
       description: 'Block is not part of the canonical chain and is pending to be finalized or orphaned',

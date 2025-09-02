@@ -1,5 +1,6 @@
 import { ref } from 'vue';
 import { useFormat } from './useFormat';
+import { extractPactCall, unescapeCodeString } from '~/composables/string'
 
 const GQL_QUERY = `
   query Transactions(
@@ -40,6 +41,11 @@ const GQL_QUERY = `
               gasPrice
               sender
             }
+            payload {
+              ... on ExecutionPayload {
+                code
+              }
+            }
           }
           result {
             ... on TransactionResult {
@@ -60,7 +66,7 @@ const GQL_QUERY = `
 
 const transactions = ref<any[]>([]);
 const loading = ref(true);
-const { formatRelativeTime, formatGasPrice } = useFormat();
+const { formatRelativeTime } = useFormat();
 const pageInfo = ref<any>(null);
 const totalCount = ref(0);
 const rowsToShow = ref(25);
@@ -170,6 +176,8 @@ export const useTransactions = () => {
 
       const rawTxs = result?.edges || [];
       transactions.value = rawTxs.map((edge: any) => {
+        const rawCode = edge?.node?.cmd?.payload?.code ? unescapeCodeString(edge.node.cmd.payload.code) : ''
+        const parsed = extractPactCall(rawCode)
         return {
           requestKey: edge.node.hash,
           height: edge.node.result.block?.height,
@@ -178,11 +186,11 @@ export const useTransactions = () => {
           chainId: edge.node.cmd.meta.chainId,
           time: formatRelativeTime(edge.node.cmd.meta.creationTime),
           sender: edge.node.cmd.meta.sender,
-          gasPrice: formatGasPrice(parseFloat(edge.node.cmd.meta.gasPrice)),
           rawGasPrice: edge.node.cmd.meta.gasPrice,
           gas: edge.node.result.gas,
           gasLimit: new Intl.NumberFormat().format(edge.node.cmd.meta.gasLimit),
           rawGasLimit: edge.node.cmd.meta.gasLimit,
+          method: parsed.method || '-',
           cursor: edge.cursor,
         };
       });
