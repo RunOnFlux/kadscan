@@ -693,9 +693,12 @@ onUnmounted(() => {
                         </div>
                         
                         <!-- Token Name -->
-                        <span class="text-[#f5f5f5] font-medium">
+                        <NuxtLink 
+                          :to="`/token/${transferEdge.node.moduleName || 'coin'}`" 
+                          class="text-[#6ab5db] hover:text-[#9ccee7] font-medium"
+                        >
                           {{ getTokenMetadata(transferEdge.node.moduleName).symbol }}
-                        </span>
+                        </NuxtLink>
                         
                         <!-- Copy Token Address -->
                         <Copy 

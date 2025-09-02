@@ -187,19 +187,21 @@ function downloadData() {
         </button>
       </template>
       <template #asset="{ item }">
-        <div class="flex items-center gap-2">
+        <NuxtLink :to="`/token/${item.module || 'coin'}`" class="flex items-center gap-2 hover:opacity-90">
           <div class="w-6 h-6 rounded-full bg-[#222222] overflow-hidden grid place-items-center">
             <img v-if="item._icon" :src="item._icon" alt="icon" class="w-6 h-6 object-contain" />
             <span v-else class="text-[11px] text-[#f5f5f5]">
               {{ (item.module?.split('.')?.[1] || item.module || 'U')[0]?.toUpperCase() }}
             </span>
           </div>
-          <span class="text-[#f5f5f5]">{{ item.asset }}</span>
-        </div>
+          <span class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.asset }}</span>
+        </NuxtLink>
       </template>
       <template #module="{ item }">
         <Tooltip :value="item.module" :variant="'hash'" :disabled="!isLongModule(item.module)">
-          <span class="text-[#f5f5f5]">{{ displayModule(item.module) }}</span>
+          <NuxtLink :to="`/module/${item.module || 'coin'}`" class="text-[#6ab5db] hover:text-[#9ccee7]">
+            {{ displayModule(item.module) }}
+          </NuxtLink>
         </Tooltip>
       </template>
     </DataTable>

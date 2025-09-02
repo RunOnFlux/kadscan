@@ -310,6 +310,11 @@ function downloadData() {
           <span class="text-[#f5f5f5]">{{ item.amount }}</span>
         </div>
       </template>
+      <template #token="{ item }">
+        <NuxtLink :to="`/token/${item.token || 'coin'}`" class="text-[#6ab5db] hover:text-[#9ccee7]">
+          {{ item.token || 'coin' }}
+        </NuxtLink>
+      </template>
     </DataTable>
 
     <!-- Empty state -->
