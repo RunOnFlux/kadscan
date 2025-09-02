@@ -187,7 +187,7 @@ function downloadData() {
         </button>
       </template>
       <template #asset="{ item }">
-        <NuxtLink :to="`/token/${item.module}`" class="flex items-center gap-2 hover:opacity-90">
+        <NuxtLink :to="`/token/${item.module}`" class="flex items-center gap-2">
           <div class="w-6 h-6 rounded-full bg-[#222222] overflow-hidden grid place-items-center">
             <img v-if="item._icon" :src="item._icon" alt="icon" class="w-6 h-6 object-contain" />
             <span v-else class="text-[11px] text-[#f5f5f5]">
