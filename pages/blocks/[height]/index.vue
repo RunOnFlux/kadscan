@@ -93,7 +93,12 @@ watch(
 
 
 function downloadData() {
-  const csv = exportableToCsv(blocks.value, tableHeaders);
+  const exportRows = (blocks.value || []).map((item: any) => ({
+    ...item,
+    age: item?.timeUtc || item?.age,
+    status: blockStatus(item.height, item.canonical).text,
+  }))
+  const csv = exportableToCsv(exportRows, tableHeaders);
   downloadCSV(csv, `kadena-blocks-height-${height.value}.csv`);
 }
 </script>

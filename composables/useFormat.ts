@@ -107,6 +107,53 @@ export const useFormat = () => {
     return num.toString();
   };
 
+  // Integer-safe decimal helpers (for 12-decimal KDA amounts/fees)
+  const toScaledBigInt = (value: any, scale: number): bigint => {
+    const s = String(value);
+    if (s.trim() === '') return 0n;
+    const negative = s.startsWith('-');
+    const unsigned = negative ? s.slice(1) : s;
+    const [intPartRaw, fracRaw = ''] = unsigned.split('.');
+    const intPart = intPartRaw.replace(/^0+/, '') || '0';
+    const fracPadded = (fracRaw + '0'.repeat(scale)).slice(0, scale);
+    let bi = (BigInt(intPart) * (10n ** BigInt(scale))) + BigInt(fracPadded || '0');
+    if (negative) bi = -bi;
+    return bi;
+  };
+
+  const formatScaledBigInt = (amount: bigint, scale: number): string => {
+    const negative = amount < 0n;
+    let abs = negative ? -amount : amount;
+    const base = 10n ** BigInt(scale);
+    const intPart = (abs / base).toString();
+    const fracPart = (abs % base).toString().padStart(scale, '0');
+    return `${negative ? '-' : ''}${intPart}.${fracPart}`;
+  };
+
+  const trimTrailingZerosDecimal = (value: string): string => {
+    if (!value.includes('.')) return value;
+    return value.replace(/\.0+$/, '').replace(/(\.\d*?[1-9])0+$/, '$1');
+  };
+
+  const formatKdaFee = (
+    gas: number | string | bigint | null | undefined,
+    rawGasPrice: number | string | null | undefined,
+    options?: { decimals?: number; trimTrailingZeros?: boolean }
+  ): string => {
+    const decimals = options?.decimals ?? 12;
+    const trim = options?.trimTrailingZeros ?? true;
+    if (!gas || !rawGasPrice) return `0.${'0'.repeat(decimals)}`;
+    try {
+      const gasBig = typeof gas === 'bigint' ? gas : BigInt(gas);
+      const priceScaled = toScaledBigInt(rawGasPrice, decimals);
+      const feeScaled = gasBig * priceScaled;
+      const formatted = formatScaledBigInt(feeScaled, decimals);
+      return trim ? trimTrailingZerosDecimal(formatted) : formatted;
+    } catch (_e) {
+      return `0.${'0'.repeat(decimals)}`;
+    }
+  };
+
   return {
     truncateAddress,
     formatRelativeTime,
@@ -114,5 +161,7 @@ export const useFormat = () => {
     formatGasPrice,
     formatKda,
     removeTrailingZeros,
+    // precise KDA helpers
+    formatKdaFee,
   };
 }; 

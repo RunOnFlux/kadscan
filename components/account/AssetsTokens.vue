@@ -151,7 +151,8 @@ const subtitle = computed(() => {
 })
 
 function downloadData() {
-  const csv = exportableToCsv(pageSlice.value, headers)
+  const rows = (pageSlice.value || []).map((it: any) => ({ ...it }))
+  const csv = exportableToCsv(rows, headers)
   const ts = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')
   downloadCSV(csv, `assets-page-${currentPage.value}-${ts}.csv`)
 }

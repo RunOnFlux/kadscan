@@ -201,7 +201,11 @@ const tableHeaders = [
 ]
 
 function downloadData() {
-  const csv = exportableToCsv(events.value || [], tableHeaders)
+  const rows = (events.value || []).map((it: any) => ({
+    ...it,
+    time: it?.timeUtc || it?.time,
+  }))
+  const csv = exportableToCsv(rows, tableHeaders)
   downloadCSV(csv, `kadena-contract-events-page-${currentPage.value}.csv`)
 }
 </script>

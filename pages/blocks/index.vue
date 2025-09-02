@@ -224,7 +224,12 @@ watch(currentPage, async (newPage, oldPage) => {
 });
 
 function downloadData() {
-  const csv = exportableToCsv(filteredBlocks.value, tableHeaders);
+  const exportData = filteredBlocks.value.map((item: any) => ({
+    ...item,
+    age: item?.timeUtc || item?.age,
+    status: blockStatus(item.height, item.canonical).text,
+  }));
+  const csv = exportableToCsv(exportData, tableHeaders);
   downloadCSV(csv, `kadena-blocks-page-${currentPage.value}.csv`);
 }
 </script>
