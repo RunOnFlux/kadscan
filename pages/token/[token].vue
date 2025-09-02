@@ -1,22 +1,33 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import Select from '~/components/Select.vue'
 import Copy from '~/components/Copy.vue'
 import Coins from '~/components/icon/Coins.vue'
 import TokenTransfers from '~/components/token/TokenTransfers.vue'
 import TokenHolders from '~/components/token/TokenHolders.vue'
 import ContractView from '~/components/module/ContractView.vue'
-import ErrorOverlay from '~/components/error/Overlay.vue'
+import { useContractPact } from '~/composables/useContractPact'
+import UpperRightArrow from '~/components/icon/UpperRightArrow.vue'
+import { staticTokens } from '~/constants/tokens'
+import { useAssetUsdPrices } from '~/composables/useAssetUsdPrices'
+import { useTokenTransfers } from '~/composables/useTokenTransfers'
+import { useSharedData } from '~/composables/useSharedData'
 
 definePageMeta({
   layout: 'app',
+  middleware: ['sanitize-chain'],
 })
 
 const route = useRoute()
+const { selectedNetwork } = useSharedData()
 
 const tokenSlug = computed(() => route.params.token as string)
 // Preserve hyphens and decode the slug.
 const moduleName = computed(() => decodeURIComponent(tokenSlug.value || ''))
+
+// Load module info across chains so we can derive a fallback chain when "All Chains" is selected
+const pact = useContractPact(moduleName as any)
+const { availableChains, moduleInfo, loading, error } = pact
 
 const activeTab = ref<'transfers' | 'holders' | 'contract'>('transfers')
 
@@ -39,8 +50,23 @@ const activeComponent = computed(() => {
   }
 })
 
+// When chain is not specified (All Chains), use the first available chain for contract views
+const effectiveChain = computed(() => {
+  const q = route.query.chain as string | undefined
+  const n = q !== undefined ? parseInt(q, 10) : undefined
+  const isValid = n !== undefined && !Number.isNaN(n) && n >= 0 && n <= 19
+  if (isValid) return String(n)
+  return availableChains.value?.[0]
+})
+
 const activeProps = computed(() => {
-  return { modulename: moduleName.value, chain: route.query.chain as any }
+  return { 
+    modulename: moduleName.value,
+    chain: effectiveChain.value as any,
+    moduleInfo: moduleInfo.value,
+    loading: loading.value,
+    error: error.value,
+  }
 })
 
 const overviewChainLabel = computed(() => {
@@ -86,28 +112,64 @@ const onChangeChainSelect = (option: any) => {
 useHead({
   title: `Token ${moduleName.value} - Kadscan`
 })
+
+// Static token icon (if available)
+const tokenStaticMeta = computed(() => (staticTokens || []).find((t: any) => t.module === moduleName.value) || null)
+const tokenIconSrc = computed(() => tokenStaticMeta.value?.icon || '')
+
+// Price handling (USD per unit), 6 decimals
+const { getUsdPerUnit, primeModules } = useAssetUsdPrices()
+const unitUsd = computed(() => (moduleName.value ? getUsdPerUnit(moduleName.value) : 0))
+
+watch(() => moduleName.value, (m) => { if (m) primeModules([m]) }, { immediate: true })
+
+// Total transfers count (chain-aware)
+const { totalCount: transfersTotalCount, loading: transfersLoading, fetchTokenTransfers, clearState: clearTransfersState } = useTokenTransfers()
+
+function validChainParam(): string | undefined {
+  const q = route.query.chain as string | undefined
+  const n = q !== undefined ? parseInt(q, 10) : undefined
+  const isValid = n !== undefined && !Number.isNaN(n) && n >= 0 && n <= 19
+  return isValid ? `${n}` : undefined
+}
+
+async function refreshTransfersCount() {
+  const network = selectedNetwork.value
+  const mod = moduleName.value
+  if (!network || !mod) return
+  const params: { networkId: string; fungibleName: string; chainId?: string } = {
+    networkId: network.id,
+    fungibleName: mod,
+  }
+  const chainId = validChainParam()
+  if (chainId !== undefined) params.chainId = chainId
+  await fetchTokenTransfers(params)
+}
+
+watch([selectedNetwork, () => route.query.chain, () => moduleName.value], async () => {
+  clearTransfersState()
+  await refreshTransfersCount()
+}, { immediate: true })
 </script>
 
 <template>
-  <ErrorOverlay v-if="isInvalidChainQuery" :message="`Invalid chain parameter: ${String($route.query.chain)}`" />
-  <div v-else>
+  <div>
     <!-- Header -->
     <div class="pb-5 border-b border-[#222222] mb-6 px-1">
       <div class="flex flex-col gap-1 md:flex-row md:items-center md:gap-3">
         <div class="flex items-center gap-2 mb-1 md:mb-0">
+          <img v-if="tokenIconSrc" :src="tokenIconSrc" alt="Token icon" class="w-8 h-8 rounded-full" />
           <h1 class="text-[19px] font-semibold leading-[150%] text-[#f5f5f5]">Token</h1>
-        </div>
-        <div class="flex flex-col md:flex-row md:items-center md:gap-3">
           <div class="text-[15px] text-[#f5f5f5] break-all">{{ moduleName }}</div>
-          <div class="flex items-center gap-3 pt-2 md:pt-0">
-            <Copy 
-              :value="moduleName" 
-              tooltipText="Copy Module Name"
-              iconSize="h-5 w-5"
-              buttonClass="w-5 h-5"
-              placement="bottom"
-            />
-          </div>
+        </div>
+        <div class="flex items-center gap-3 pt-2 md:pt-0">
+          <Copy 
+            :value="moduleName" 
+            tooltipText="Copy Module Name"
+            iconSize="h-5 w-5"
+            buttonClass="w-5 h-5"
+            placement="bottom"
+          />
         </div>
       </div>
     </div>
@@ -119,13 +181,48 @@ useHead({
         <h3 class="text-[#f5f5f5] font-semibold mb-4">
           Overview <span class="text-[#bbbbbb] font-normal">— {{ overviewChainLabel }}</span>
         </h3>
-        <div class="flex-1 flex items-center justify-center text-[#888888] text-[14px]">Coming soon...</div>
+        <div class="flex-1 flex flex-col justify-between gap-4">
+          <div>
+            <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">TOTAL SUPPLY</div>
+            <div class="text-[14px] text-[#888888]">Coming soon...</div>
+          </div>
+          <div>
+            <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">HOLDERS</div>
+            <div class="text-[14px] text-[#888888]">Coming soon...</div>
+          </div>
+          <div>
+            <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">PRICE</div>
+            <div class="text-[14px] text-[#f5f5f5]">
+              <template v-if="unitUsd && unitUsd > 0">
+                ${{ Number(unitUsd).toFixed(6) }}
+              </template>
+              <template v-else>
+                N/A
+              </template>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- More Info -->
       <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
         <h3 class="text-[#f5f5f5] font-semibold mb-4">More Info</h3>
-        <div class="flex-1 flex items-center justify-center text-[#888888] text-[14px]">Coming soon...</div>
+        <div class="space-y-4">
+          <div>
+            <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">TOKEN MODULE</div>
+            <NuxtLink :to="`/module/${moduleName}`" class="inline-flex items-center gap-1 text-[#6AB5DB] hover:text-[#9ccee7] break-all text-[14px]">
+              <span>{{ moduleName }}</span>
+              <UpperRightArrow class="w-4 h-4" />
+            </NuxtLink>
+          </div>
+          <div>
+            <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">TOTAL TRANSFERS</div>
+            <div class="text-[14px] text-[#f5f5f5]">
+              <template v-if="transfersLoading"> <span class="text-[#888888] animate-pulse">Loading...</span> </template>
+              <template v-else>{{ new Intl.NumberFormat().format(transfersTotalCount || 0) }}</template>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Multichain Info -->
@@ -145,7 +242,7 @@ useHead({
               <div class="inline-flex items-center gap-2">
                 <Coins class="w-4 h-4 text-[#f5f5f5]" />
                 <span class="text-[#f5f5f5] text-[14px]">
-                  Coming soon... <span class="text-[#bbbbbb] text-[13px]">(All Chains)</span>
+                  {{ selectedChainSelect.label }}
                 </span>
               </div>
             </Select>
