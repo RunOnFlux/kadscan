@@ -12,6 +12,7 @@ import { exportableToCsv, downloadCSV } from '~/composables/csv'
 import { useTokenTransfers } from '~/composables/useTokenTransfers'
 import { useSharedData } from '~/composables/useSharedData'
 import { useFormat } from '~/composables/useFormat'
+import { useAssetUsdPrices } from '~/composables/useAssetUsdPrices'
 
 const props = defineProps<{
   modulename?: string
@@ -20,6 +21,13 @@ const props = defineProps<{
 const route = useRoute()
 const { selectedNetwork } = useSharedData()
 const { truncateAddress } = useFormat()
+const { getUsdPerUnit, primeModules } = useAssetUsdPrices()
+
+// USD price per token unit for current modulename
+const unitUsd = computed(() => (props.modulename ? getUsdPerUnit(props.modulename) : 0))
+
+// Ensure price is primed when modulename changes
+watch(() => props.modulename, (m) => { if (m) primeModules([m]) }, { immediate: true })
 
 const {
   tokenTransfers,
@@ -43,6 +51,7 @@ const tableHeaders = [
   { key: 'direction', label: '' },
   { key: 'receiver', label: 'Receiver' },
   { key: 'amount', label: 'Amount' },
+  { key: 'usdValue', label: 'Value (USD)' },
 ]
 
 const rowOptions = [
@@ -179,7 +188,12 @@ watch(currentPage, async (newPage, oldPage) => {
 })
 
 function downloadData() {
-  const csv = exportableToCsv(tokenTransfers.value, tableHeaders)
+  const withUsd = (tokenTransfers.value || []).map((it: any) => {
+    const amt = Number(it?.amount || 0)
+    const val = Number.isFinite(amt) && unitUsd.value > 0 ? amt * unitUsd.value : 0
+    return { ...it, usdValue: val > 0 ? `$${val}` : '' }
+  })
+  const csv = exportableToCsv(withUsd, tableHeaders)
   downloadCSV(csv, `kadena-token-transfers-page-${currentPage.value}.csv`)
 }
 </script>
@@ -266,6 +280,18 @@ function downloadData() {
       <template #amount="{ item }">
         <div class="inline-flex items-center">
           <span class="text-[#f5f5f5]">{{ item.amount }}</span>
+        </div>
+      </template>
+      <template #usdValue="{ item }">
+        <div class="inline-flex items-center">
+          <span class="text-[#f5f5f5]">
+            <template v-if="unitUsd && Number(unitUsd) > 0">
+              {{ `$${(Number(item.amount) * Number(unitUsd)).toLocaleString(undefined, { maximumFractionDigits: 2 })}` }}
+            </template>
+            <template v-else>
+              N/A
+            </template>
+          </span>
         </div>
       </template>
     </DataTable>
