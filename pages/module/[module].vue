@@ -7,6 +7,9 @@ import ContractTransactions from '~/components/module/ContractTransactions.vue'
 import ContractEvents from '~/components/module/ContractEvents.vue'
 import ContractView from '~/components/module/ContractView.vue'
 import { useContractPact } from '~/composables/useContractPact'
+import UpperRightArrow from '~/components/icon/UpperRightArrow.vue'
+import { staticTokens } from '~/constants/tokens'
+import { useSharedData } from '~/composables/useSharedData'
 import { useScreenSize } from '~/composables/useScreenSize'
 
 definePageMeta({
@@ -14,6 +17,7 @@ definePageMeta({
 })
 
 const route = useRoute()
+const { selectedNetwork } = useSharedData()
 const { isMobile } = useScreenSize()
 
 const contractSlug = computed(() => route.params.module as string)
@@ -161,6 +165,41 @@ const isHydrated = ref(false)
 onMounted(() => { isHydrated.value = true })
 const showOverviewLoading = computed(() => !isHydrated.value || loading.value)
 
+// Token link support (show only if this module has token transfers)
+const hasToken = ref(false)
+const tokenStaticMeta = computed(() => (staticTokens || []).find((t: any) => t.module === moduleName.value) || null)
+const tokenIconSrc = computed(() => tokenStaticMeta.value?.icon || '')
+
+const TRANSFER_CHECK_GQL = `
+  query Transfers($fungibleName: String, $first: Int) {
+    transfers(fungibleName: $fungibleName, first: $first) {
+      edges { node { amount } }
+    }
+  }
+`
+
+async function checkHasToken() {
+  try {
+    const net = selectedNetwork.value?.id
+    const mod = moduleName.value
+    if (!net || !mod) { hasToken.value = false; return }
+    const res: any = await $fetch('/api/graphql', {
+      method: 'POST',
+      body: {
+        query: TRANSFER_CHECK_GQL,
+        variables: { fungibleName: mod, first: 1 },
+        networkId: net,
+      },
+    })
+    const edges = res?.data?.transfers?.edges || []
+    hasToken.value = Array.isArray(edges) && edges.length > 0
+  } catch {
+    hasToken.value = false
+  }
+}
+
+watch([moduleName, () => selectedNetwork.value?.id], () => { checkHasToken() }, { immediate: true })
+
 </script>
 
 <template>
@@ -234,6 +273,15 @@ const showOverviewLoading = computed(() => !isHydrated.value || loading.value)
                 </template>
                 <span v-else class="text-[#f5f5f5]">N/A</span>
               </template>
+            </div>
+            <!-- Token backlink (only if module is a token) -->
+            <div v-if="hasToken" class="mt-3">
+              <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">TOKEN</div>
+              <NuxtLink :to="`/token/${moduleName}`" class="inline-flex items-center gap-2 text-[#6AB5DB] hover:text-[#9ccee7]">
+                <img v-if="tokenIconSrc" :src="tokenIconSrc" alt="Token icon" class="w-7 h-7 rounded-full" />
+                <span class="text-[14px]">{{ moduleName }}</span>
+                <UpperRightArrow class="w-4 h-4" />
+              </NuxtLink>
             </div>
           </div>
         </div>

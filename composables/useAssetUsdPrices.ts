@@ -52,11 +52,6 @@ export const useAssetUsdPrices = () => {
     inflightKda = null
   }
 
-  // Reset prices whenever the selected network changes
-  watch(() => selectedNetwork.value?.id, () => {
-    reset()
-  })
-
   async function getKdaUsd(): Promise<number> {
     if (kdaUsdPrice.value > 0) return kdaUsdPrice.value
 

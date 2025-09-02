@@ -252,7 +252,10 @@ function downloadData() {
       </template>
       <template #sender="{ item }">
         <div class="flex items-center">
-          <template v-if="item.sender && item.sender !== 'N/A'">
+          <template v-if="item.sender === 'k:system'">
+            <span class="text-[#f5f5f5]">k:system</span>
+          </template>
+          <template v-else-if="item.sender && item.sender !== 'N/A'">
             <Tooltip :value="item.sender" variant="hash">
               <NuxtLink :to="`/account/${item.sender}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.sender, 10, 10) }}</NuxtLink>
             </Tooltip>
@@ -268,7 +271,10 @@ function downloadData() {
       </template>
       <template #receiver="{ item }">
         <div class="flex items-center">
-          <template v-if="item.receiver && item.receiver !== 'N/A'">
+          <template v-if="item.receiver === 'k:system'">
+            <span class="text-[#f5f5f5]">k:system</span>
+          </template>
+          <template v-else-if="item.receiver && item.receiver !== 'N/A'">
             <Tooltip :value="item.receiver" variant="hash">
               <NuxtLink :to="`/account/${item.receiver}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.receiver, 10, 10) }}</NuxtLink>
             </Tooltip>

@@ -59,16 +59,28 @@ export function useTokenTransfers() {
     const node = edge.node || {}
     const block = node.block || {}
     const cross = node.crossChainTransfer || null
-    let sender: string | null = node.senderAccount || null
-    let receiver: string | null = node.receiverAccount || null
+    const isEmpty = (v: any) => v === undefined || v === null || v === ''
+    let sender: string | null = node.senderAccount ?? null
+    let receiver: string | null = node.receiverAccount ?? null
+
+    // Infer cross-chain when either endpoint is missing
+    const inferredCross = isEmpty(sender) || isEmpty(receiver)
+
+    // Use crossChainTransfer payload to fill missing endpoints when available
     if (cross) {
-      if (!sender) sender = cross.senderAccount || null
-      if (!receiver) receiver = cross.receiverAccount || null
+      if (isEmpty(sender)) sender = cross.senderAccount ?? null
+      if (isEmpty(receiver)) receiver = cross.receiverAccount ?? null
+    }
+
+    // For cross-chain (explicit or inferred), default any remaining empty endpoint to k:system
+    if (cross || inferredCross) {
+      if (isEmpty(sender)) sender = 'k:system'
+      if (isEmpty(receiver)) receiver = 'k:system'
     }
 
     return {
       requestKey: node.requestKey,
-      action: cross ? 'Cross-Chain' : 'Transfer',
+      action: (cross || inferredCross) ? 'Cross-Chain' : 'Transfer',
       height: block.height,
       chainId: block.chainId,
       time: formatRelativeTime(node.creationTime),
