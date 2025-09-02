@@ -111,6 +111,7 @@ export const useAccountNFTTransfers = () => {
       height: block.height,
       chainId: block.chainId,
       time: formatRelativeTime(node.creationTime),
+      timeUtc: new Date(node.creationTime).toISOString(),
       sender: normalizedSender || 'N/A',
       receiver: normalizedReceiver || 'N/A',
       direction,

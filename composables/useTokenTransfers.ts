@@ -84,6 +84,7 @@ export function useTokenTransfers() {
       height: block.height,
       chainId: block.chainId,
       time: formatRelativeTime(node.creationTime),
+      timeUtc: new Date(node.creationTime).toISOString(),
       sender: sender || 'N/A',
       receiver: receiver || 'N/A',
       amount: removeTrailingZeros(node.amount ?? ''),

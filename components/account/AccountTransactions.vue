@@ -115,11 +115,11 @@ const subtitle = computed(() => {
 });
 
 function getFeeInKda(item: any) {
-  if (!item.gas || !item.rawGasPrice) return '0.0 KDA';
+  if (!item.gas || !item.rawGasPrice) return '0.0';
   const feeInKda = item.gas * item.rawGasPrice;
-  if (feeInKda === 0) return '0.0 KDA';
+  if (feeInKda === 0) return '0.0';
   const formattedFee = new Intl.NumberFormat('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 12 }).format(feeInKda);
-  return `${formattedFee} KDA`;
+  return `${formattedFee}`;
 }
 
 // Method formatters (same as transactions list)
@@ -236,7 +236,25 @@ watch(currentPage, async (newPage, oldPage) => {
 
 // CSV download
 function downloadData() {
-  const csv = exportableToCsv(filteredTransactions.value, tableHeaders);
+  const rows = (filteredTransactions.value || []).map((item: any) => {
+    const statusText = transactionStatus(item.height, item.canonical, item.badResult)?.text || ''
+    const feeInKda = (() => {
+      if (!item?.gas || !item?.rawGasPrice) return '0.0'
+      const fee = item.gas * item.rawGasPrice
+      if (!Number.isFinite(fee) || fee === 0) return '0.0'
+      const formatted = new Intl.NumberFormat('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 12 }).format(fee)
+      return `${formatted}`
+    })()
+    return {
+      ...item,
+      time: item?.timeUtc || item?.time,
+      method: formatMethodFull.value(item.method),
+      status: statusText,
+      fee: feeInKda,
+      gasLimit: item?.rawGasLimit ?? item?.gasLimit ?? '',
+    }
+  })
+  const csv = exportableToCsv(rows, tableHeaders);
   downloadCSV(csv, `kadena-account-transactions-page-${currentPage.value}.csv`);
 }
 </script>

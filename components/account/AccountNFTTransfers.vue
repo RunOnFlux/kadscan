@@ -211,7 +211,11 @@ watch(currentPage, async (newPage, oldPage) => {
 
 // CSV download
 function downloadData() {
-  const csv = exportableToCsv(tokenTransfers.value, tableHeaders);
+  const rows = (tokenTransfers.value || []).map((it: any) => ({
+    ...it,
+    time: it?.timeUtc || it?.time,
+  }))
+  const csv = exportableToCsv(rows, tableHeaders);
   downloadCSV(csv, `kadena-account-token-transfers-page-${currentPage.value}.csv`);
 }
 </script>

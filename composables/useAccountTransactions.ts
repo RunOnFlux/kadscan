@@ -132,6 +132,7 @@ export const useAccountTransactions = () => {
           badResult: edge.node.result.badResult,
           chainId: edge.node.cmd.meta.chainId,
           time: formatRelativeTime(edge.node.cmd.meta.creationTime),
+          timeUtc: new Date(edge.node.cmd.meta.creationTime).toISOString(),
           sender: edge.node.cmd.meta.sender,
           rawGasPrice: edge.node.cmd.meta.gasPrice,
           gas: edge.node.result.gas,

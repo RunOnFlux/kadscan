@@ -125,6 +125,7 @@ export const useContractEvents = () => {
           canonical: node.block?.canonical,
           badResult: node?.transaction?.result?.badResult ?? null,
           time: creationTime ? formatRelativeTime(creationTime) : 'N/A',
+          timeUtc: creationTime ? new Date(creationTime).toISOString() : 'N/A',
           cursor: edge.cursor,
         }
       })

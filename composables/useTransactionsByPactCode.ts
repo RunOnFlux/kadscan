@@ -109,6 +109,7 @@ export const useTransactionsByPactCode = () => {
           badResult: n.badResult,
           chainId: n.chainId,
           time: formatRelativeTime(n.creationTime),
+          timeUtc: new Date(n.creationTime).toISOString(),
           sender: n.sender,
           rawGasPrice: n.gasPrice,
           gas: n.gas,

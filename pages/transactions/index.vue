@@ -30,7 +30,7 @@ useHead({
 
 const route = useRoute();
 const router = useRouter();
-const { truncateAddress } = useFormat();
+const { truncateAddress, formatKdaFee } = useFormat();
 const { selectedNetwork } = useSharedData();
 const { isMobile } = useScreenSize();
 
@@ -105,23 +105,9 @@ const subtitle = computed(() => {
   return `(Showing transactions between #${formattedOldest} to #${formattedNewest})`;
 });
 
-const getFeeInKda = (item: any) => {
-  if (!item.gas || !item.rawGasPrice) {
-    return '0.0 KDA';
-  }
-  const feeInKda = item.gas * item.rawGasPrice;
-  
-  // If fee is 0, show simplified format
-  if (feeInKda === 0) {
-    return '0.0 KDA';
-  }
-  
-  const formattedFee = new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 4,
-    maximumFractionDigits: 12,
-  }).format(feeInKda);
-  return `${formattedFee} KDA`;
-};
+// Use shared formatter from useFormat composable
+const FEE_DECIMALS = 12
+const getFeeInKda = (item: any) => formatKdaFee(item?.gas, item?.rawGasPrice, { decimals: FEE_DECIMALS, trimTrailingZeros: true })
 
 // Format method helper (hyphens to spaces, Title Case each word, trim to 15 chars)
 const formatMethod = computed(() => (val?: string) => {
@@ -361,8 +347,21 @@ watch(() => route.query.code, (code) => {
 
 
 function downloadData() {
-  const csv = exportableToCsv(filteredTransactions.value, tableHeaders);
-  downloadCSV(csv, `kadena-transactions-page-${currentPage.value}.csv`);
+  // Map items to include export-friendly fields for Status and Fee (12-decimal string)
+  const rows = (filteredTransactions.value || []).map((item: any) => {
+    const statusText = transactionStatus(item.height, item.canonical, item.badResult)?.text || ''
+    const feeStr = getFeeInKda(item)
+    return {
+      ...item,
+      time: item?.timeUtc || item?.time,
+      status: statusText,
+      fee: feeStr,
+      gasLimit: item?.rawGasLimit ?? item?.gasLimit ?? '',
+    }
+  })
+
+  const csv = exportableToCsv(rows, tableHeaders)
+  downloadCSV(csv, `kadena-transactions-page-${currentPage.value}.csv`)
 }
 </script>
 

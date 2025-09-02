@@ -191,7 +191,7 @@ function downloadData() {
   const withUsd = (tokenTransfers.value || []).map((it: any) => {
     const amt = Number(it?.amount || 0)
     const val = Number.isFinite(amt) && unitUsd.value > 0 ? amt * unitUsd.value : 0
-    return { ...it, usdValue: val > 0 ? `$${val}` : '' }
+    return { ...it, usdValue: val > 0 ? `$${val}` : '', time: it?.timeUtc || it?.time }
   })
   const csv = exportableToCsv(withUsd, tableHeaders)
   downloadCSV(csv, `kadena-token-transfers-page-${currentPage.value}.csv`)
