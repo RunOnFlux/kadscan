@@ -6,10 +6,11 @@ import Coins from '~/components/icon/Coins.vue'
 import TokenTransfers from '~/components/token/TokenTransfers.vue'
 import TokenHolders from '~/components/token/TokenHolders.vue'
 import ContractView from '~/components/module/ContractView.vue'
-import ErrorOverlay from '~/components/error/Overlay.vue'
+import { useContractPact } from '~/composables/useContractPact'
 
 definePageMeta({
   layout: 'app',
+  middleware: ['sanitize-chain'],
 })
 
 const route = useRoute()
@@ -17,6 +18,10 @@ const route = useRoute()
 const tokenSlug = computed(() => route.params.token as string)
 // Preserve hyphens and decode the slug.
 const moduleName = computed(() => decodeURIComponent(tokenSlug.value || ''))
+
+// Load module info across chains so we can derive a fallback chain when "All Chains" is selected
+const pact = useContractPact(moduleName as any)
+const { availableChains, moduleInfo, loading, error } = pact
 
 const activeTab = ref<'transfers' | 'holders' | 'contract'>('transfers')
 
@@ -39,8 +44,23 @@ const activeComponent = computed(() => {
   }
 })
 
+// When chain is not specified (All Chains), use the first available chain for contract views
+const effectiveChain = computed(() => {
+  const q = route.query.chain as string | undefined
+  const n = q !== undefined ? parseInt(q, 10) : undefined
+  const isValid = n !== undefined && !Number.isNaN(n) && n >= 0 && n <= 19
+  if (isValid) return String(n)
+  return availableChains.value?.[0]
+})
+
 const activeProps = computed(() => {
-  return { modulename: moduleName.value, chain: route.query.chain as any }
+  return { 
+    modulename: moduleName.value,
+    chain: effectiveChain.value as any,
+    moduleInfo: moduleInfo.value,
+    loading: loading.value,
+    error: error.value,
+  }
 })
 
 const overviewChainLabel = computed(() => {
@@ -89,8 +109,7 @@ useHead({
 </script>
 
 <template>
-  <ErrorOverlay v-if="isInvalidChainQuery" :message="`Invalid chain parameter: ${String($route.query.chain)}`" />
-  <div v-else>
+  <div>
     <!-- Header -->
     <div class="pb-5 border-b border-[#222222] mb-6 px-1">
       <div class="flex flex-col gap-1 md:flex-row md:items-center md:gap-3">
