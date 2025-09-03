@@ -889,6 +889,52 @@ export function useSearch () {
     data.loading = true;
     data.error = null;
 
+    // If results are already visible, immediately open the first visible item
+    const redirectToFirstResult = () => {
+      const items: any = data.searched || {};
+      if (!items) return false;
+      // Render order in modal: addresses → code → transactions → tokens → blocks → modules
+      if (items.addresses && items.addresses.length > 0) {
+        const a = items.addresses[0];
+        router.push(`/account/${a.account}`);
+        return true;
+      }
+      if (items.code && items.code.length > 0) {
+        router.push({ path: '/transactions', query: { code: data.query } });
+        return true;
+      }
+      if (items.transactions && items.transactions.length > 0) {
+        const t = items.transactions[0];
+        router.push(`/transactions/${t.requestkey}`);
+        return true;
+      }
+      if (items.tokens && items.tokens.length > 0) {
+        const tk = items.tokens[0];
+        router.push(`/token/${encodeURIComponent(tk.module)}`);
+        return true;
+      }
+      if (items.blocks && items.blocks.length > 0) {
+        const b = items.blocks[0];
+        const baseUrl = `/blocks/${b.height}/chain/${b.chainId}`;
+        const url = b.canonical === false ? `${baseUrl}?canonical=false` : baseUrl;
+        router.push(url);
+        return true;
+      }
+      if (items.modules && items.modules.length > 0) {
+        const m = items.modules[0];
+        router.push(`/module/${m.name}`);
+        return true;
+      }
+      return false;
+    };
+
+    if (data.open && data.searched && !data.lastSearchWasEmpty) {
+      if (redirectToFirstResult()) {
+        cleanup();
+        return;
+      }
+    }
+
     const redirectInfo: any = await shouldRedirectBeforeSearch(data.query);
 
     // Record this search attempt in history regardless of redirect
