@@ -60,6 +60,7 @@ const {
   crossChainTransfers,
   isSourceTransaction,
   hasCrossChainData,
+  isCrossChain,
   transactionExecutionResult,
 } = useTransaction(transactionId, networkId)
 
@@ -250,7 +251,7 @@ const eventsCount = computed(() => {
 const tabLabels = computed(() => {
   const labels = ['Overview', `Logs (${eventsCount.value})`]
   
-  if (hasCrossChainData.value) {
+  if (isCrossChain.value) {
     labels.push('Cross Chain')
   }
   
@@ -476,6 +477,7 @@ onUnmounted(() => {
           :cross-chain-transfers="crossChainTransfers"
           :is-source-transaction="isSourceTransaction"
           :loading-cross-chain="loadingCrossChain"
+          :is-cross-chain="isCrossChain"
         />
 
         <!-- Transaction Details -->

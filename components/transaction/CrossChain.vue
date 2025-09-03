@@ -14,40 +14,69 @@ const props = defineProps<{
   crossChainTransfers: any[]
   isSourceTransaction: boolean
   loadingCrossChain: boolean
+  isCrossChain?: boolean
 }>()
 
 const { isMobile } = useScreenSize()
 const { formatRelativeTime } = useFormat()
 
-// Add computed properties to correctly extract sender and receiver accounts
+// Locate a likely pending cross-chain transfer edge from the current transaction
+const pendingTransferEdge = computed(() => {
+  const edges = props.transaction?.result?.transfers?.edges || []
+  // Prefer coin transfer with a missing sender or receiver
+  const edge = edges.find((e: any) => {
+    const n = e?.node
+    if (!n) return false
+    const hasBlank = !n.senderAccount || n.senderAccount === '' || !n.receiverAccount || n.receiverAccount === ''
+    return hasBlank
+  })
+  return edge?.node || null
+})
+
+// Extract source/destination chain ids and amount with fallbacks for pending state
+const sourceChainId = computed(() => {
+  if (props.crossChainTransfers.length > 0) {
+    return props.crossChainTransfers[0].sourceChainId
+  }
+  return props.transaction?.cmd?.meta?.chainId ?? '-'
+})
+
+const destinationChainId = computed(() => {
+  if (props.crossChainTransfers.length > 0) {
+    return props.crossChainTransfers[0].destinationChainId
+  }
+  return null
+})
+
+const transferAmount = computed(() => {
+  if (props.crossChainTransfers.length > 0) {
+    return props.crossChainTransfers[0].amount
+  }
+  return pendingTransferEdge.value?.amount || null
+})
+
+// Add computed properties to correctly extract sender and receiver accounts with pending fallbacks
 const actualSender = computed(() => {
-  if (props.crossChainTransfers.length === 0) return ''
+  if (props.crossChainTransfers.length === 0) {
+    return pendingTransferEdge.value?.senderAccount || ''
+  }
   
   const transfer = props.crossChainTransfers[0]
-  
-  // For source transaction (step0): sender is in transfer.senderAccount
-  // For destination transaction (step1): sender is in transfer.crossChainTransfer.senderAccount
   if (props.isSourceTransaction) {
-    // This is the source transaction, sender is in senderAccount
     return transfer.senderAccount || transfer.crossChainTransfer?.senderAccount || ''
   } else {
-    // This is the destination transaction, sender is in crossChainTransfer.senderAccount
     return transfer.crossChainTransfer?.senderAccount || transfer.senderAccount || ''
   }
 })
 
 const actualReceiver = computed(() => {
-  if (props.crossChainTransfers.length === 0) return ''
-  
+  if (props.crossChainTransfers.length === 0) {
+    return pendingTransferEdge.value?.receiverAccount || ''
+  }
   const transfer = props.crossChainTransfers[0]
-  
-  // For source transaction (step0): receiver is in transfer.crossChainTransfer.receiverAccount
-  // For destination transaction (step1): receiver is in transfer.receiverAccount
   if (props.isSourceTransaction) {
-    // This is the source transaction, receiver is in crossChainTransfer.receiverAccount
     return transfer.crossChainTransfer?.receiverAccount || transfer.receiverAccount || ''
   } else {
-    // This is the destination transaction, receiver is in receiverAccount
     return transfer.receiverAccount || transfer.crossChainTransfer?.receiverAccount || ''
   }
 })
@@ -138,17 +167,76 @@ const formatContinuationData = (continuation: string) => {
 
 // Status-based indicator colors
 const sourceIndicatorColor = computed(() => {
-  const status = crossChainStatus.value.text
+  const status = getTransactionStatus(sourceTransaction.value).text
   if (status === 'Success') return '#00a186'  // Green for success
   if (status === 'Failed') return '#f87171'   // Red for failed  
   return '#fbbf24' // Yellow/amber for pending
 })
 
 const destinationIndicatorColor = computed(() => {
-  const status = crossChainStatus.value.text
+  const status = getTransactionStatus(destinationTransaction.value).text
   if (status === 'Success') return '#00a186'  // Green for success
   if (status === 'Failed') return '#f87171'   // Red for failed
   return '#bbbbbb' // Gray for pending (destination not reached yet)
+})
+
+// Flow dots color: red if any leg failed, green if both succeeded, else yellow
+const flowDotsColor = computed(() => {
+  const sourceStatus = getTransactionStatus(sourceTransaction.value).text
+  const destStatus = getTransactionStatus(destinationTransaction.value).text
+  if (sourceStatus === 'Failed' || destStatus === 'Failed') return '#f87171'
+  if (sourceStatus === 'Success' && destStatus === 'Success') return '#00a186'
+  return '#fbbf24'
+})
+
+// Metadata source should reflect the side we are currently viewing
+// - If current page is the source tx: use source transaction data
+// - If current page is the destination tx: prefer destination (related) tx, fallback to current
+const metadataSource = computed(() => {
+  if (props.isSourceTransaction) {
+    return sourceTransaction.value
+  }
+  return destinationTransaction.value || props.transaction
+})
+
+const metadataPactId = computed(() => {
+  const payloadPactId = metadataSource.value?.cmd?.payload?.pactId
+  if (payloadPactId) return payloadPactId
+  // Try parse from continuation JSON
+  const cont = metadataSource.value?.result?.continuation
+  if (!cont) return null
+  try {
+    const parsed = JSON.parse(cont)
+    return parsed?.pactId || null
+  } catch {
+    return null
+  }
+})
+
+const metadataStep = computed(() => {
+  const payloadStep = metadataSource.value?.cmd?.payload?.step
+  if (payloadStep !== undefined && payloadStep !== null) return payloadStep
+  const cont = metadataSource.value?.result?.continuation
+  if (!cont) return null
+  try {
+    const parsed = JSON.parse(cont)
+    return parsed?.step ?? null
+  } catch {
+    return null
+  }
+})
+
+const metadataRollback = computed(() => {
+  const payloadRollback = metadataSource.value?.cmd?.payload?.rollback
+  if (payloadRollback !== undefined && payloadRollback !== null) return payloadRollback
+  const cont = metadataSource.value?.result?.continuation
+  if (!cont) return null
+  try {
+    const parsed = JSON.parse(cont)
+    return parsed?.stepHasRollback ?? null
+  } catch {
+    return null
+  }
 })
 
 
@@ -156,7 +244,7 @@ const destinationIndicatorColor = computed(() => {
 
 <template>
   <div class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
-    <div v-if="props.crossChainTransfers.length > 0">
+    <div v-if="props.crossChainTransfers.length > 0 || props.isCrossChain">
       <Divide>
         <!-- Cross Chain Transfer Overview -->
         <DivideItem>
@@ -213,7 +301,7 @@ const destinationIndicatorColor = computed(() => {
                               <div class="px-4 py-2 bg-gradient-to-r from-[#2a2a2a] to-[#1f1f1f] border border-[#444444] rounded-lg shadow-lg">
                                 <div class="flex items-center gap-2">
                                   <div class="w-2 h-2 rounded-full animate-pulse" :style="{ backgroundColor: sourceIndicatorColor }"></div>
-                                  <span class="text-[#e5e5e5] text-sm font-bold tracking-wide">Chain {{ props.crossChainTransfers[0].sourceChainId }}</span>
+                                  <span class="text-[#e5e5e5] text-sm font-bold tracking-wide">Chain {{ sourceChainId }}</span>
                                 </div>
                               </div>
                             </div>
@@ -245,9 +333,9 @@ const destinationIndicatorColor = computed(() => {
                           </div>
                           <!-- Flow dots animation (for Pending/Failed states) -->
                           <div v-else class="flex items-center justify-center gap-1 mb-1">
-                            <div class="w-1 h-1 rounded-full animate-ping" :style="{ backgroundColor: sourceIndicatorColor }" style="animation-delay: 0ms"></div>
-                            <div class="w-1 h-1 rounded-full animate-ping" :style="{ backgroundColor: sourceIndicatorColor }" style="animation-delay: 200ms"></div>
-                            <div class="w-1 h-1 rounded-full animate-ping" :style="{ backgroundColor: sourceIndicatorColor }" style="animation-delay: 400ms"></div>
+                            <div class="w-1 h-1 rounded-full animate-ping" :style="{ backgroundColor: flowDotsColor }" style="animation-delay: 0ms"></div>
+                            <div class="w-1 h-1 rounded-full animate-ping" :style="{ backgroundColor: flowDotsColor }" style="animation-delay: 200ms"></div>
+                            <div class="w-1 h-1 rounded-full animate-ping" :style="{ backgroundColor: flowDotsColor }" style="animation-delay: 400ms"></div>
                           </div>
                         </div>
                         
@@ -260,9 +348,10 @@ const destinationIndicatorColor = computed(() => {
                           <div class="relative px-4 py-2 bg-gradient-to-br from-[#1a1a1a]/80 via-[#111111]/60 to-[#0a0a0a]/80 backdrop-blur-sm border border-[#333333]/50 rounded-xl shadow-lg transform group-hover:scale-[1.05] transition-all duration-300">
                             <div class="flex items-center gap-2">
                                 <!-- Amount text -->
-                                <span class="text-white text-sm font-bold tracking-wide">
-                                  {{ props.crossChainTransfers[0].amount }} KDA
+                                <span class="text-white text-sm font-bold tracking-wide" v-if="transferAmount">
+                                  {{ transferAmount }} KDA
                                 </span>
+                                <span class="text-[#bbbbbb] text-sm" v-else>-</span>
                             </div>
                           </div>
                         </div>
@@ -281,7 +370,8 @@ const destinationIndicatorColor = computed(() => {
                               <div class="px-4 py-2 bg-gradient-to-r from-[#2a2a2a] to-[#1f1f1f] border border-[#444444] rounded-lg shadow-lg">
                                 <div class="flex items-center gap-2">
                                   <div class="w-2 h-2 rounded-full animate-pulse" :style="{ backgroundColor: destinationIndicatorColor }"></div>
-                                  <span class="text-[#e5e5e5] text-sm font-bold tracking-wide">Chain {{ props.crossChainTransfers[0].destinationChainId }}</span>
+                                  <span class="text-[#e5e5e5] text-sm font-bold tracking-wide" v-if="destinationChainId !== null">Chain {{ destinationChainId }}</span>
+                                  <span class="text-[#e5e5e5] text-sm font-bold tracking-wide" v-else>Chain —</span>
                                 </div>
                               </div>
                             </div>
@@ -291,12 +381,17 @@ const destinationIndicatorColor = computed(() => {
                               <span class="text-[#888888] text-xs font-medium uppercase tracking-wider">Destination Chain</span>
                             </div>
                             
-                            <!-- Address -->
-                            <div class="flex items-center justify-center gap-2 p-3 bg-[#0a0a0a]/50 rounded-lg border border-[#2a2a2a]">
+                            <!-- Address: finalized vs pending skeleton -->
+                            <div v-if="actualReceiver" class="flex items-center justify-center gap-2 p-3 bg-[#0a0a0a]/50 rounded-lg border border-[#2a2a2a]">
                               <div class="flex items-center justify-center min-w-0">
                                 <span class="text-[#cccccc] text-xs font-mono">
                                   {{ actualReceiver.length > 14 ? actualReceiver.substring(0, 8) + '...' + actualReceiver.substring(actualReceiver.length - 6) : actualReceiver }}
                                 </span>
+                              </div>
+                            </div>
+                            <div v-else class="p-3">
+                              <div class="animate-pulse">
+                                <div class="h-8 w-full bg-[#1a1a1a] rounded"></div>
                               </div>
                             </div>
                           </div>
@@ -379,10 +474,11 @@ const destinationIndicatorColor = computed(() => {
           </div>
         </DivideItem>
 
-        <!-- Destination Transaction Details -->
-        <DivideItem v-if="destinationTransaction">
+        <!-- Destination Transaction Details (finalized or skeleton) -->
+        <DivideItem>
           <div class="flex flex-col gap-4">
             <LabelValue
+              v-if="destinationTransaction"
               label="Destination Transaction:"
               description="The completion transaction on the destination chain"
               tooltipPos="right"
@@ -445,11 +541,30 @@ const destinationIndicatorColor = computed(() => {
                 </div>
               </template>
             </LabelValue>
+            <!-- Section 3: Token Transfers -->
+            <div v-else class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
+              <div class="w-[300px] flex-shrink-0">
+                <div class="h-5 w-36 bg-gray-700 rounded"></div>
+              </div>
+              <div class="flex flex-col gap-2">
+                <div class="flex items-center gap-2">
+                  <div class="h-5 w-96 bg-gray-600 rounded"></div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <div class="h-5 w-[540px] bg-gray-600 rounded"></div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <div class="h-5 w-36 bg-gray-700 rounded"></div>
+                  <div class="h-5 w-36 bg-gray-700 rounded"></div>
+                  <div class="h-5 w-36 bg-gray-700 rounded"></div>
+                </div>
+              </div>
+            </div>
           </div>
         </DivideItem>
 
-        <!-- Continuation Payload (only for destination transaction) -->
-        <DivideItem v-if="destinationTransaction?.cmd?.payload?.pactId">
+        <!-- Cross-chain metadata shown for both finalized and pending -->
+        <DivideItem v-if="metadataPactId">
           <div class="flex flex-col gap-4">
             <LabelValue
               label="Pact ID:"
@@ -459,7 +574,7 @@ const destinationIndicatorColor = computed(() => {
             >
               <template #value>
                 <div class="flex items-center gap-2">
-                  <span class="text-[#f5f5f5] text-[15px] break-all">{{ destinationTransaction.cmd.payload.pactId }}</span>
+                  <span class="text-[#f5f5f5] text-[15px] break-all">{{ metadataPactId }}</span>
                 </div>
               </template>
             </LabelValue>
@@ -474,18 +589,18 @@ const destinationIndicatorColor = computed(() => {
                 <div class="flex items-center gap-2">
                   <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                     <span class="text-[#bbbbbb]">Step:</span>
-                    <span class="text-[#f5f5f5] ml-1">{{ destinationTransaction.cmd.payload.step }}</span>
+                    <span class="text-[#f5f5f5] ml-1">{{ metadataStep ?? '-' }}</span>
                   </span>
                   <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
                     <span class="text-[#bbbbbb]">Rollback:</span>
-                    <span class="text-[#f5f5f5] ml-1">{{ destinationTransaction.cmd.payload.rollback ? 'Yes' : 'No' }}</span>
+                    <span class="text-[#f5f5f5] ml-1">{{ metadataRollback ? 'Yes' : 'No' }}</span>
                   </span>
                 </div>
               </template>
             </LabelValue>
 
             <!-- Continuation Data -->
-            <div v-if="destinationTransaction.result?.continuation" class="flex flex-col md:flex-row items-start gap-1 md:gap-0">
+            <div v-if="metadataSource.result?.continuation" class="flex flex-col md:flex-row items-start gap-1 md:gap-0">
               <div class="flex gap-2 w-full md:min-w-[300px] md:max-w-[300px]">
                 <div class="flex items-center gap-2">
                   <Tooltip
@@ -505,15 +620,15 @@ const destinationIndicatorColor = computed(() => {
                 <div class="w-full">
                   <textarea
                     readonly
-                    :value="formatContinuationData(destinationTransaction.result.continuation)"
+                    :value="formatContinuationData(metadataSource.result.continuation)"
                     class="break-all w-full bg-[#151515] border border-[#222222] rounded-lg text-[#bbbbbb] text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto min-h-[150px]"
                   ></textarea>
                 </div>
               </div>
             </div>
 
-            <!-- Proof Data -->
-            <div v-if="destinationTransaction.cmd.payload.proof" class="flex flex-col md:flex-row items-start gap-1 md:gap-0">
+            <!-- Proof Data (show whenever destination exists with proof) -->
+            <div v-if="destinationTransaction && destinationTransaction.cmd?.payload?.proof" class="flex flex-col md:flex-row items-start gap-1 md:gap-0">
               <div class="flex gap-2 w-full md:min-w-[300px] md:max-w-[300px]">
                 <div class="flex items-center gap-2">
                   <Tooltip
@@ -541,7 +656,7 @@ const destinationIndicatorColor = computed(() => {
             </div>
 
             <!-- Payload Data -->
-            <div v-if="destinationTransaction.cmd.payload.data" class="flex flex-col md:flex-row items-start gap-1 md:gap-0">
+            <div v-if="metadataSource.cmd?.payload?.data" class="flex flex-col md:flex-row items-start gap-1 md:gap-0">
               <div class="flex gap-2 w-full md:min-w-[300px] md:max-w-[300px]">
                 <div class="flex items-center gap-2">
                   <Tooltip
@@ -561,7 +676,7 @@ const destinationIndicatorColor = computed(() => {
                 <div class="w-full">
                   <textarea
                     readonly
-                    :value="formatJsonPretty(destinationTransaction.cmd.payload.data)"
+                    :value="formatJsonPretty(metadataSource.cmd.payload.data)"
                     class="break-all w-full bg-[#151515] border border-[#222222] rounded-lg text-[#bbbbbb] text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto min-h-[100px]"
                   ></textarea>
                 </div>
@@ -575,7 +690,36 @@ const destinationIndicatorColor = computed(() => {
     <div v-else-if="props.loadingCrossChain" class="text-center py-8 text-[#bbbbbb]">
       Loading related transaction data...
     </div>
-    
+
+    <!-- Pending skeleton when we know it's cross-chain but no transfer data yet -->
+    <div v-else-if="props.isCrossChain" class="py-5">
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center gap-2 w-fit px-2 py-1 rounded-lg border text-xs bg-[#17150d] border-[#44464980] text-[#fbbf24]">
+          <IconHourglass class="w-3 h-3" />
+          Pending cross-chain transfer
+        </div>
+
+        <div class="bg-[#111111] border border-[#222222] rounded-xl p-4">
+          <div class="animate-pulse">
+            <div class="flex items-center justify-between gap-8">
+              <div class="flex-1">
+                <div class="h-5 w-40 bg-[#222222] rounded mb-3"></div>
+                <div class="h-8 w-full bg-[#1a1a1a] rounded"></div>
+              </div>
+              <div class="w-24 h-6 bg-[#222222] rounded"></div>
+              <div class="flex-1">
+                <div class="h-5 w-48 bg-[#222222] rounded mb-3"></div>
+                <div class="h-8 w-full bg-[#1a1a1a] rounded"></div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-3 text-[#bbbbbb] text-sm">
+            Destination transaction not processed yet. This view will update once it is mined.
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div v-else class="text-center py-8 text-[#bbbbbb]">
       No cross-chain transfer data found for this transaction
     </div>
