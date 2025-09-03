@@ -23,7 +23,7 @@ const props = defineProps<{
       <SearchViewTokensItem
         v-bind="tokens"
         class="py-2"
-        :key="'tokens:'+tokens.id"
+        :key="'tokens:'+tokens.module"
         v-for="(tokens, i) in tokens"
         @select="props.onRecordHistory && props.onRecordHistory(tokens.module, 'tokens')"
       />

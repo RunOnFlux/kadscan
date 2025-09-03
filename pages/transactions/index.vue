@@ -226,6 +226,7 @@ watch(
         delete q.chain;
         router.replace({ query: q });
       }
+      await fetchLastBlockHeight({ networkId: network.id });
       await fetchTransactionsByCode({ networkId: network.id, pactCode: String(route.query.code) });
       loadingPage.value = false;
       return;
@@ -255,6 +256,7 @@ watch([rowsToShow, codeRowsToShow], async () => {
   if (blocksError.value) blocksError.value = null as any;
   currentPage.value = 1;
   if (codeMode.value) {
+    await fetchLastBlockHeight({ networkId: network.id });
     await fetchTransactionsByCode({ networkId: network.id, pactCode: String(route.query.code) });
   } else {
     const params: { networkId: string; chainId?: string; isCoinbase?: boolean; minHeight?: number; maxHeight?: number } = { networkId: network.id };
@@ -281,6 +283,7 @@ watch(currentPage, async (newPage, oldPage) => {
 
   if (codeMode.value) {
     const params: { networkId: string; after?: string; before?: string } = { networkId: network.id };
+    await fetchLastBlockHeight({ networkId: network.id });
     if (newPage === 1) {
       // Explicit jump to FIRST page in code mode
       await fetchTransactionsByCode({ ...params, pactCode: String(route.query.code) });

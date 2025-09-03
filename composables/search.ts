@@ -321,38 +321,32 @@ export function useSearch () {
         }
       }
 
-      // Token search
+      // Token search (symbol-focused, case-insensitive, supports leading $)
       if (shouldSearchAll || data.filter.value === 'tokens') {
         try {
-          // Try to find token in static tokens first
-          const staticToken = staticTokens.find(token => 
-            token.module.toLowerCase().includes(value.toLowerCase()) ||
-            token.name.toLowerCase().includes(value.toLowerCase()) ||
-            token.symbol.toLowerCase().includes(value.toLowerCase())
-          );
+          const q = (value || '').trim();
+          const norm = q.replace(/^\$/,'').toLowerCase();
 
-          if (staticToken) {
-            const tokenResponse: any = await $fetch('/api/graphql', {
-              method: 'POST',
-              body: {
-                query: tokenQuery,
-                variables: {
-                  tokenAddress: staticToken.module
-                },
-                networkId: selectedNetwork.value?.id,
-              },
-            });
-            
-            if (tokenResponse.data?.tokenPrice) {
-              results.tokens = [{
-                type: 'fungible',
-                module: staticToken.module,
-                name: staticToken.name,
-                symbol: staticToken.symbol,
-                chainId: 'all' // Tokens are cross-chain
-              }];
-            }
+          // Exact symbol matches first (may produce multiple if duplicates exist)
+          const exactSymbolMatches = staticTokens.filter(t => (t.symbol || '').toLowerCase() === norm);
+
+          let matches = exactSymbolMatches;
+          // If no exact symbol matches, fall back to substring search across module/name/symbol
+          if (!matches.length) {
+            matches = staticTokens.filter(token =>
+              token.module.toLowerCase().includes(norm) ||
+              (token.name || '').toLowerCase().includes(norm) ||
+              (token.symbol || '').toLowerCase().includes(norm)
+            );
           }
+
+          results.tokens = matches.map((t) => ({
+            type: 'fungible',
+            module: t.module,
+            name: t.name,
+            symbol: t.symbol,
+            chainId: 'all',
+          }));
         } catch (error) {
           console.warn('[SEARCH] Token search failed:', error);
         }
@@ -638,7 +632,19 @@ export function useSearch () {
     data.precheck.blockHeightInfo = null;
     data.precheck.transactionData = null;
 
-    // 1. Block Height - Highest Priority (numeric only)
+    // 1. Token symbol exact match (case-insensitive, supports leading $) - Highest Priority
+    {
+      const norm = (searchTerm || '').trim().replace(/^\$/,'').toLowerCase();
+      if (norm.length > 0) {
+        const matches = staticTokens.filter(t => (t.symbol || '').toLowerCase() === norm);
+        if (matches.length > 0) {
+          // Enter should trigger the first one
+          return { type: 'token', module: matches[0].module } as any;
+        }
+      }
+    }
+
+    // 2. Block Height
     if (numericRegex.test(searchTerm)) {
       const height = parseInt(searchTerm);
       if (height >= 0 && height <= 20000000) {
@@ -668,7 +674,7 @@ export function useSearch () {
       }
     }
 
-    // 2. Transaction Hash - Second Priority (query to verify it exists)
+    // 3. Transaction Hash - Next Priority (query to verify it exists)
     if (likelyRequestKeyRegex.test(searchTerm)) {
       try {
         const txResponse: any = await $fetch('/api/graphql', {
@@ -691,7 +697,7 @@ export function useSearch () {
       }
     }
 
-    // 3. Module exact match (namespace.module) - Next Priority
+    // 4. Module exact match (namespace.module)
     const looksLikeModule = (() => {
       const parts = (searchTerm || '').split('.')
       return parts.length === 2 && parts[0].trim().length > 0 && parts[1].trim().length > 0
@@ -729,7 +735,7 @@ export function useSearch () {
       }
     }
 
-    // 4. Block Hash - Next Priority (query to verify it exists)
+    // 5. Block Hash (query to verify it exists)
     try {
       const blockHashResponse: any = await $fetch('/api/graphql', {
         method: 'POST',
@@ -751,7 +757,7 @@ export function useSearch () {
       console.warn('[SEARCH] Block hash verification failed:', error);
     }
 
-    // 5. Account - Next (verify existence via fungibleAccount)
+    // 6. Account (verify existence via fungibleAccount)
     try {
       const fungibleResponse: any = await $fetch('/api/graphql', {
         method: 'POST',
@@ -773,7 +779,7 @@ export function useSearch () {
       console.warn('[SEARCH] Fungible account verification failed:', error);
     }
 
-    // 6. Code search - Last attempt (min 4 chars), but skip when > 12 chars
+    // 7. Code search - Last attempt (min 4 chars), but skip when > 12 chars
     if ((searchTerm || '').length >= 4 && (searchTerm || '').length <= 15) {
       try {
         const codeCheck: any = await $fetch('/api/graphql', {
@@ -816,9 +822,7 @@ export function useSearch () {
 
     if (data?.searched?.tokens && data?.searched?.tokens?.length === 1) {
       const token = data?.searched?.tokens[0];
-      const staticMetadata = staticTokens.find(({ module }) => module === token.module);
-      const pathId = (staticMetadata as any)?.id || token.module;
-      router.push(`/tokens/${encodeURIComponent(pathId)}`);
+      router.push(`/token/${encodeURIComponent(token.module)}`);
       return true;
     }
 
@@ -888,13 +892,20 @@ export function useSearch () {
     const redirectInfo: any = await shouldRedirectBeforeSearch(data.query);
 
     // Record this search attempt in history regardless of redirect
-    addToHistory(data.query, redirectInfo?.type ?? null);
+    {
+      const historyType = redirectInfo?.type === 'token' ? 'tokens' : (redirectInfo?.type ?? null);
+      addToHistory(data.query, historyType);
+    }
 
     if (redirectInfo) {
       if (redirectInfo.type === "blocks") {
         const baseUrl = `/blocks/${data.query}/chain/${redirectInfo.chainId}`;
         const url = redirectInfo.canonical === false ? `${baseUrl}?canonical=false` : baseUrl;
         router.push(url);
+        cleanup();
+        return;
+      } else if (redirectInfo.type === 'token') {
+        router.push(`/token/${encodeURIComponent(redirectInfo.module)}`);
         cleanup();
         return;
       } else if (redirectInfo.type === "block-hash") {
@@ -942,13 +953,20 @@ export function useSearch () {
 
     const redirectInfo: any = await shouldRedirectBeforeSearch(q);
     
-    addToHistory(q, redirectInfo?.type ?? null);
+    {
+      const historyType = redirectInfo?.type === 'token' ? 'tokens' : (redirectInfo?.type ?? null);
+      addToHistory(q, historyType);
+    }
 
     if (redirectInfo) {
       if (redirectInfo.type === "blocks") {
         const baseUrl = `/blocks/${q}/chain/${redirectInfo.chainId}`;
         const url = redirectInfo.canonical === false ? `${baseUrl}?canonical=false` : baseUrl;
         router.push(url);
+        cleanup();
+        return;
+      } else if (redirectInfo.type === 'token') {
+        router.push(`/token/${encodeURIComponent(redirectInfo.module)}`);
         cleanup();
         return;
       } else if (redirectInfo.type === "block-hash") {
