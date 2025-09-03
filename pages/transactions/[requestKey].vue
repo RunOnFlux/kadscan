@@ -60,6 +60,7 @@ const {
   crossChainTransfers,
   isSourceTransaction,
   hasCrossChainData,
+  isCrossChain,
   transactionExecutionResult,
 } = useTransaction(transactionId, networkId)
 
@@ -194,7 +195,7 @@ const displayedCode = computed(() => {
 
     if (crossChainTransactionStatus.value === 'failed') {
       return {
-        text: 'Failed',
+        text: 'Cross Chain Transfer',
         icon: IconCancel,
         classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]',
         description: 'Cross-chain transaction failed to execute',
@@ -203,7 +204,7 @@ const displayedCode = computed(() => {
 
     if (crossChainTransactionStatus.value === 'success') {
       return {
-        text: 'Success',
+        text: 'Cross Chain Transfer',
         icon: IconCheckmarkFill,
         classes: 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]',
         description: 'Cross-chain transaction executed successfully',
@@ -250,7 +251,7 @@ const eventsCount = computed(() => {
 const tabLabels = computed(() => {
   const labels = ['Overview', `Logs (${eventsCount.value})`]
   
-  if (hasCrossChainData.value) {
+  if (isCrossChain.value) {
     labels.push('Cross Chain')
   }
   
@@ -476,6 +477,7 @@ onUnmounted(() => {
           :cross-chain-transfers="crossChainTransfers"
           :is-source-transaction="isSourceTransaction"
           :loading-cross-chain="loadingCrossChain"
+          :is-cross-chain="isCrossChain"
         />
 
         <!-- Transaction Details -->

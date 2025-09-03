@@ -376,6 +376,16 @@ export const useTransaction = (
     return 'pending'
   })
 
+  // Cross-chain detection flag used for tab visibility and pending views
+  // True when continuation exists (destination step) or when our heuristic detects
+  // a cross-chain flow (source/destination with missing sender/receiver), or when
+  // the payload already exposes a pactId (ContinuationPayload present)
+  const isCrossChain = computed(() => {
+    const hasContinuationResult = transaction.value?.result?.continuation !== null && transaction.value?.result?.continuation !== undefined
+    const hasContinuationPayload = transaction.value?.cmd?.payload?.pactId !== null && transaction.value?.cmd?.payload?.pactId !== undefined
+    return Boolean(hasContinuationResult || hasContinuationPayload || crossChainTransactionStatus.value !== null)
+  })
+
   const signerTransferValue = computed(() => {
     if (!transaction.value?.cmd?.signers?.length || !transaction.value?.result?.transfers?.edges?.length) {
       return '0'
@@ -518,6 +528,7 @@ export const useTransaction = (
     signerTransferValue,
     transactionSigners,
     crossChainTransactionStatus,
+    isCrossChain,
     // Cross-chain properties
     crossChainTransaction,
     loadingCrossChain,
