@@ -90,8 +90,9 @@ const medGasPrice = computed(() => {
           <SearchInputHeader v-if="route.path !== '/'" />
           <Menu as="div" class="relative inline-block text-left hidden md:block">
           <div>
-            <MenuButton class="h-[36.5px] w-[36.5px] rounded-lg flex items-center justify-center border border-[#222222] bg-[#151515] hover:bg-[#222222]">
+            <MenuButton class="h-[36.5px] rounded-lg flex items-center gap-2 border border-[#222222] bg-[#151515] hover:bg-[#222222] px-3">
               <IconKadena class="h-4 w-4" />
+              <span v-if="selectedNetwork" class="text-[13px] text-[#f5f5f5]">{{ selectedNetwork.name }}</span>
             </MenuButton>
           </div>
 
