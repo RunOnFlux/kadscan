@@ -19,15 +19,21 @@ export const shortenAddress = (
 export const shortenString = (
   string: string,
   startChars = 6,
-  endChars = 4
+  endChars = 4,
+  minTotalLength = 20
 ): string => {
   if (!string) {
     return ''
   }
 
-  return `${string.slice(0, startChars)}...${string.slice(
-    -endChars
-  )}`
+  // Only truncate when the string is longer than both the begin+end window
+  // and the configured minimum threshold (defaults to 20)
+  const threshold = Math.max(minTotalLength, startChars + endChars)
+  if (string.length <= threshold) {
+    return string
+  }
+
+  return `${string.slice(0, startChars)}...${string.slice(-endChars)}`
 }
 
 /**

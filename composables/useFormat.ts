@@ -154,6 +154,40 @@ export const useFormat = () => {
     }
   };
 
+  // Format numeric amounts with a maximum number of decimals.
+  // If the original value has more decimals than allowed, append an ellipsis.
+  // Thousands separators are preserved for the integer part.
+  const formatAmountWithEllipsis = (
+    input: string | number,
+    maxDecimals: number = 6,
+  ): string => {
+    try {
+      let s = typeof input === 'number' ? String(input) : String(input || '0');
+      s = s.replace(/,/g, '');
+      const match = s.match(/^(\d+)(?:\.(\d+))?$/);
+      const clamp = (str: string, n: number) => (n >= 0 ? str.slice(0, n) : str);
+
+      if (!match) {
+        const n = Number(input);
+        if (!Number.isFinite(n)) return String(input);
+        const [intStr, fracStr = ''] = String(n).split('.');
+        const needsEllipsis = fracStr.length > maxDecimals;
+        const truncated = clamp(fracStr, maxDecimals);
+        const integerFormatted = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(Math.trunc(n));
+        return integerFormatted + (truncated ? `.${truncated}` : '') + (needsEllipsis ? '...' : '');
+      }
+
+      const intPart = match[1];
+      const fracPart = match[2] || '';
+      const needsEllipsis = fracPart.length > maxDecimals;
+      const truncated = clamp(fracPart, maxDecimals);
+      const integerFormatted = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(Number(intPart));
+      return integerFormatted + (truncated ? `.${truncated}` : '') + (needsEllipsis ? '...' : '');
+    } catch {
+      return String(input);
+    }
+  };
+
   return {
     truncateAddress,
     formatRelativeTime,
@@ -163,5 +197,7 @@ export const useFormat = () => {
     removeTrailingZeros,
     // precise KDA helpers
     formatKdaFee,
+    // general number formatting
+    formatAmountWithEllipsis,
   };
 }; 

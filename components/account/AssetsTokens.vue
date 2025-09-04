@@ -68,6 +68,8 @@ function formatUsdUpTo8(num: number) {
   return `$${new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 8 }).format(num)}`
 }
 
+const { formatAmountWithEllipsis } = useFormat()
+
 const iconForModule = (module: string) => {
   const token = staticTokens.find(t => t.module === module) || (module === 'coin' ? staticTokens.find(t => t.module === 'coin') : null)
   return token?.icon || ''
@@ -104,7 +106,7 @@ const flattenedRows = computed(() => {
         module: b.module,
         chain: b.chainId,
         price: formatUsdUpTo8(unitUsd),
-        amount: new Intl.NumberFormat('en-US', { maximumFractionDigits: 12 }).format(amountNum),
+        amount: formatAmountWithEllipsis(b.balance),
         value: formatUsdFixed2(parseFloat(value.toFixed(2))),
         _sortValue: value,
         _icon: iconForModule(b.module),
