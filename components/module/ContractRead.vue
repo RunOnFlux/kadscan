@@ -58,6 +58,41 @@ async function onCall() {
   await call(moduleName as any, selectedFn.value.name, args, props.chain)
   hasQueried.value = true
 }
+
+// Autosize directive for wrapping, single-line-to-multiline inputs
+function autosize(el: HTMLTextAreaElement) {
+  if (!el) return
+  el.style.overflow = 'hidden'
+  el.style.height = 'auto'
+  const cs = window.getComputedStyle(el)
+  const line = parseFloat(cs.lineHeight || '20')
+  const pt = parseFloat(cs.paddingTop || '0')
+  const pb = parseFloat(cs.paddingBottom || '0')
+  const bt = parseFloat(cs.borderTopWidth || '0')
+  const bb = parseFloat(cs.borderBottomWidth || '0')
+  const singleLineH = line + pt + pb + bt + bb
+  const contentH = el.scrollHeight
+  el.style.minHeight = contentH > singleLineH + 1 ? '110px' : '25px'
+  el.style.height = Math.max(contentH, parseFloat(el.style.minHeight)) + 'px'
+}
+
+const vAutosize = {
+  mounted(el: HTMLTextAreaElement) {
+    const handler = () => autosize(el)
+    ;(el as any)._autosizeHandler = handler
+    el.addEventListener('input', handler)
+    // initialize next frame to allow layout
+    requestAnimationFrame(handler)
+  },
+  updated(el: HTMLTextAreaElement) {
+    requestAnimationFrame(() => autosize(el))
+  },
+  unmounted(el: HTMLTextAreaElement) {
+    const h = (el as any)._autosizeHandler
+    if (h) el.removeEventListener('input', h)
+    delete (el as any)._autosizeHandler
+  }
+}
 </script>
 
 <template>
@@ -95,26 +130,17 @@ async function onCall() {
                 <div class="text-[12px] text-[#bbbbbb] whitespace-normal break-words">
                   {{ p.name }}<span v-if="p.type" class="text-[#888888]">: {{ p.type }}</span>
                 </div>
-                <div
-                  class="grid w-full text-sm text-[#bbbbbb]
-                         [&>textarea]:text-inherit
-                         [&>textarea]:resize-none
-                         [&>textarea]:overflow-hidden
-                         [&>textarea]:[grid-area:1/1/2/2]
-                         after:[grid-area:1/1/2/2]
-                         after:whitespace-pre-wrap
-                         after:invisible
-                         after:content-[attr(data-cloned-val)_'_']
-                         after:pb-2"
-                  :data-cloned-val="paramValues[p.name]"
-                >
+                <div class="w-full text-sm text-[#bbbbbb]">
                   <textarea
                     v-model="paramValues[p.name]"
-                    class="w-full bg-[#151515] border border-[#222222] rounded-md text-[#bbbbbb] text-sm px-2 py-1 outline-none font-mono whitespace-pre-wrap min-h-[110px]"
+                    v-autosize
+                    rows="1"
+                    class="w-full bg-[#151515] border border-[#222222] rounded-md text-[#bbbbbb] text-sm px-2 py-1 outline-none font-mono whitespace-pre-wrap break-words overflow-hidden resize-none"
                     placeholder='Enter Pact literal (eg "k:addr", 1.0, true, {"k":1})'
                     data-gramm="false"
                     data-gramm_editor="false"
                     spellcheck="false"
+                    style="min-height:25px;height:auto"
                   ></textarea>
                 </div>
               </div>
