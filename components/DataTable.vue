@@ -87,6 +87,7 @@ const formatTotalItems = (num: number) => {
           <template v-else>
             {{ customTitle || 'Searching with code' }}
           </template>
+          <slot name="titleSuffix" />
         </h2>
         <p class="text-[13px] text-[#bbbbbb]">
           {{ subtitle }}
