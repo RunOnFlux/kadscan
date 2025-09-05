@@ -32,6 +32,12 @@ export default defineNuxtConfig({
     public: {
       CG_KEY: process.env.CG_KEY,
       CG_URL: process.env.CG_URL || "https://api.coingecko.com/api/v3",
+      // PostHog public runtime config
+      posthogPublicKey: process.env.NUXT_PUBLIC_POSTHOG_KEY,
+      posthogHost: process.env.NUXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com',
+      posthogDefaults: process.env.NUXT_PUBLIC_POSTHOG_DEFAULTS || '2025-05-24',
+      // Optional toggle; we will still guard by production in the plugin
+      posthogEnabled: process.env.NUXT_PUBLIC_POSTHOG_ENABLED || 'true',
     },
   },
 

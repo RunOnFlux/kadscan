@@ -65,17 +65,6 @@ const transactionQuery = `
   }
 `;
 
-const tokenQuery = `
-  query TokenPrice($tokenAddress: String!) {
-    tokenPrice(tokenAddress: $tokenAddress) {
-      id
-      name
-      symbol
-      module
-    }
-  }
-`;
-
 // Transactions by Pact code (code search)
 const transactionsByPactCodeQuery = `
   query TransactionsByPactCode($pactCode: String!, $after: String, $before: String, $first: Int, $last: Int) {
