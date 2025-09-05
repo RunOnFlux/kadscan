@@ -19,7 +19,7 @@ export default defineNuxtPlugin(() => {
   const enabled = mode === 'true' || mode === 'debug'
 
   const initIfNeeded = () => {
-    if (initialized || !enabled || !hasGrantedConsent() || !runtimeConfig.public.posthogPublicKey) {
+    if (initialized || !enabled || !hasGrantedConsent() || !runtimeConfig.public.posthogPublicKey || !runtimeConfig.public.posthogPublicKey) {
       return
     }
 
