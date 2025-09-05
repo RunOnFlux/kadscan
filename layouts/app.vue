@@ -14,6 +14,7 @@ await useAsyncData('global-kda-fetch', () => fetchSharedKadenaData());
   >
     <HeaderMasterTopBar />
     <HeaderTopbar/>
+    <ConsentBanner />
 
     <div class="w-full grow relative">
       <div class="relative h-full px-3 pt-6 pb-10 md:px-5 md:pt-4 md:pb-20 max-w-[1400px] w-full mx-auto">

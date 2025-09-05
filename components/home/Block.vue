@@ -61,11 +61,14 @@ const timeAgo = computed(() => {
               </div>
             </Tooltip>
             <div>
-              <Tooltip value="Transactions in this block">
+              <Tooltip v-if="props.totalTransactions > 0" value="Transactions in this block">
                 <NuxtLink :to="`/transactions?block=${props.height}`" class="text-[#6ab5db] hover:text-[#9ccee7]">
                   {{ props.totalTransactions }} {{ props.totalTransactions === 1 ? 'Transaction' : 'Transactions' }}
                 </NuxtLink>
               </Tooltip>
+              <div v-else class="text-[#bbbbbb]">
+                {{ props.totalTransactions }} {{ props.totalTransactions === 1 ? 'Transaction' : 'Transactions' }}
+              </div>
             </div>
           </div>
 
