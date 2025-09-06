@@ -18,6 +18,8 @@ import { useScreenSize } from '~/composables/useScreenSize';
 import { exportableToCsv } from '~/composables/csv';
 import { downloadCSV } from '~/composables/csv';
 import { useBlocks } from '~/composables/useBlocks';
+import IconRefresh from '~/components/icon/Refresh.vue';
+import { useTransactionCountWss } from '~/composables/useTransactionWss';
 
 definePageMeta({
   layout: 'app',
@@ -170,6 +172,22 @@ const totalPages = computed(() => {
 
 const { transactionStatus } = useStatus(lastBlockHeight);
 
+// Live incoming transactions counter via WSS
+const {
+  startSubscription: startIncomingSub,
+  incomingCount,
+  baseline,
+  hasSeenBaseline,
+  setBaselineHash,
+  resetCountStream,
+  overLimit,
+  maxIncomingCount,
+} = useTransactionCountWss();
+
+onMounted(() => {
+  startIncomingSub();
+});
+
 // Computed property to filter out transactions from orphaned blocks
 const filteredTransactions = computed(() => {
   const list = codeMode.value ? codeTransactions.value : transactions.value;
@@ -184,6 +202,28 @@ const filteredTransactions = computed(() => {
 
 // Use the correct loading state depending on mode
 const isLoading = computed(() => codeMode.value ? codeLoading.value : loading.value);
+
+// Baseline guard: only set once per reset cycle
+const hasSetBaseline = ref(false);
+
+watch([filteredTransactions, currentPage, codeMode], () => {
+  if (codeMode.value) return;
+  if (currentPage.value !== 1) return;
+  if (hasSetBaseline.value) return;
+  const first = filteredTransactions.value?.[0]?.requestKey || null;
+  if (first) {
+    setBaselineHash(first);
+    hasSetBaseline.value = true;
+  }
+});
+
+async function refreshTopPage() {
+  if (process.client) {
+    hasSetBaseline.value = false;
+    window.location.reload();
+    return;
+  }
+}
 
 watch(
   [currentPage, rowsToShow],
@@ -398,6 +438,14 @@ function downloadData() {
     >
       <template #actions>
         <template v-if="!codeMode">
+          <button
+            v-if="incomingCount > 0"
+            @click="refreshTopPage"
+            class="hidden lg:flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
+          >
+            <IconRefresh class="w-4 h-4" style="color: #00a186;" />
+            <span class="text-[#00a186] font-medium">+{{ incomingCount }} New Transactions</span>
+          </button>
           <FilterSelect
             :modelValue="selectedChain"
             @update:modelValue="selectedChain = $event"

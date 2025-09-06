@@ -13,6 +13,8 @@ import SkeletonTable from '~/components/skeleton/Table.vue';
 import { useStatus } from '~/composables/useStatus';
 import StatusBadge from '~/components/StatusBadge.vue';
 import { useBlocks } from '~/composables/useBlocks';
+import IconRefresh from '~/components/icon/Refresh.vue';
+import { useBlockCountWss } from '~/composables/useBlockWss';
 import { useFormat } from '~/composables/useFormat';
 import { useSharedData } from '~/composables/useSharedData';
 import { useScreenSize } from '~/composables/useScreenSize';
@@ -131,6 +133,43 @@ const filteredBlocks = computed(() => {
   if (!blocks.value || !lastBlockHeight || !lastBlockHeight.value) return [];
   return blocks.value.filter((block: any) => Boolean(block.canonical));
 });
+
+// Live incoming blocks counter via WSS (identical logic to transactions)
+const {
+  startSubscription: startIncomingSub,
+  incomingCount,
+  baseline,
+  hasSeenBaseline,
+  setBaselineHash,
+  resetCountStream,
+  overLimit,
+  maxIncomingCount,
+} = useBlockCountWss();
+
+onMounted(() => {
+  startIncomingSub();
+});
+
+// Baseline guard: only set once per reset cycle
+const hasSetBaseline = ref(false);
+
+watch([filteredBlocks, currentPage], () => {
+  if (currentPage.value !== 1) return;
+  if (hasSetBaseline.value) return;
+  const first = (filteredBlocks.value?.[0]?.hash) || null;
+  if (first) {
+    setBaselineHash(first);
+    hasSetBaseline.value = true;
+  }
+});
+
+async function refreshTopPage() {
+  if (process.client) {
+    hasSetBaseline.value = false;
+    window.location.reload();
+    return;
+  }
+}
 
 watch(
   [currentPage, rowsToShow],
@@ -264,6 +303,14 @@ function downloadData() {
       :has-previous-page="pageInfo?.hasPreviousPage"
     >
       <template #actions>
+        <button
+          v-if="incomingCount > 0"
+          @click="refreshTopPage"
+          class="hidden lg:flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
+        >
+          <IconRefresh class="w-4 h-4" style="color: #00a186;" />
+          <span class="text-[#00a186] font-medium">+{{ incomingCount }} New Blocks</span>
+        </button>
         <FilterSelect
           :modelValue="selectedChain"
           @update:modelValue="selectedChain = $event"
