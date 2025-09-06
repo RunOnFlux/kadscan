@@ -180,11 +180,12 @@ const {
   hasSeenBaseline,
   setBaselineHash,
   resetCountStream,
+  overLimit,
+  maxIncomingCount,
 } = useTransactionCountWss();
 
 onMounted(() => {
   startIncomingSub();
-  console.log('[Transactions] page mounted - started incoming count subscription');
 });
 
 // Computed property to filter out transactions from orphaned blocks
@@ -214,7 +215,6 @@ watch([filteredTransactions, currentPage, codeMode], () => {
     setBaselineHash(first);
     hasSetBaseline.value = true;
   }
-  console.log('[Transactions] baseline check - currentPage', currentPage.value, 'first requestKey', first, 'ws.baseline', baseline?.value, 'seen?', hasSeenBaseline?.value);
 });
 
 async function refreshTopPage() {
@@ -441,7 +441,7 @@ function downloadData() {
           <button
             v-if="incomingCount > 0"
             @click="refreshTopPage"
-            class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
+            class="hidden lg:flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
           >
             <IconRefresh class="w-4 h-4" style="color: #00a186;" />
             <span class="text-[#00a186] font-medium">+{{ incomingCount }} New Transactions</span>

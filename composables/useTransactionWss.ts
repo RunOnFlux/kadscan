@@ -34,7 +34,6 @@ const subscriptionQuery = `
 
 const startSubscription = () => {
   if (unsubscribe || !client) {
-    console.warn("Transaction WSS client not ready or already subscribed.");
     return;
   }
   try {
@@ -132,6 +131,8 @@ const baselineHash = ref<string | null>(null);
 const hasSeenBaseline = ref(false);
 const lastTopHash = ref<string | null>(null);
 const TRANSACTION_FRAME_SIZE = 100;
+const MAX_INCOMING_COUNT = 1000;
+const overLimit = ref(false);
 
 const COUNT_SUBSCRIPTION = `
   subscription Subscription($quantity: Int) {
@@ -145,7 +146,6 @@ function noop() {}
 
 const startCountSubscription = () => {
   if (countUnsubscribe || !countClient) {
-    console.warn('Transaction Count WSS client not ready or already subscribed. countUnsubscribe?', !!countUnsubscribe, 'client?', !!countClient);
     return;
   }
   try {
@@ -153,50 +153,42 @@ const startCountSubscription = () => {
       { query: COUNT_SUBSCRIPTION, variables: { quantity: TRANSACTION_FRAME_SIZE } },
       {
         next: (result: any) => {
-          // Debug: raw payload
-          console.log('[WSS][count] next payload:', result);
           const payload = result?.data?.transactions;
           const items = Array.isArray(payload) ? payload : payload ? [payload] : [];
-          console.log('[WSS][count] items received:', items.length);
           const hashes = items.map((t: any) => t?.hash).filter(Boolean);
           const baseline = baselineHash.value;
 
           if (!hasSeenBaseline.value) {
             const idx = baseline ? hashes.indexOf(baseline) : -1;
-            console.log('[WSS][count] baseline lookup (pre-seen):', { baseline, idx, top: hashes[0], lastTopHash: lastTopHash.value });
             if (idx >= 0) {
               // Count only those strictly before baseline
               incomingCount.value += idx;
               hasSeenBaseline.value = true;
               lastTopHash.value = hashes[0] || null;
-              console.log('[WSS][count] baseline detected. index:', idx, 'baseline:', baseline, 'new lastTopHash:', lastTopHash.value, 'incomingCount:', incomingCount.value);
             } else {
               // Not seen yet; wait for a frame containing baseline
               const prevTop = lastTopHash.value;
               lastTopHash.value = hashes[0] || lastTopHash.value;
-              if (lastTopHash.value !== prevTop) {
-                console.log('[WSS][count] awaiting baseline. updated lastTopHash:', lastTopHash.value);
-              }
             }
           } else {
             // Incremental counting since last frame
             const idxPrevTop = lastTopHash.value ? hashes.indexOf(lastTopHash.value) : -1;
-            console.log('[WSS][count] incremental step:', { prevTop: lastTopHash.value, idxPrevTop, top: hashes[0] });
             if (idxPrevTop >= 0) {
               incomingCount.value += idxPrevTop; // number of newer hashes before previous top
               const prevTop = lastTopHash.value;
               lastTopHash.value = hashes[0] || lastTopHash.value;
-              console.log('[WSS][count] advanced by', idxPrevTop, 'prevTop:', prevTop, 'newTop:', lastTopHash.value, 'incomingCount:', incomingCount.value);
             } else {
               // If our lastTopHash is not present, we do not adjust baseline; just update lastTopHash
               const prevTop = lastTopHash.value;
               lastTopHash.value = hashes[0] || lastTopHash.value;
-              if (lastTopHash.value !== prevTop) {
-                console.log('[WSS][count] prevTop not found in frame. updated lastTopHash:', lastTopHash.value);
-              }
             }
           }
-          console.log('[WSS][count] incomingCount now:', incomingCount.value);
+          // Cap and shutdown when reaching threshold
+          if (!overLimit.value && incomingCount.value >= MAX_INCOMING_COUNT) {
+            incomingCount.value = MAX_INCOMING_COUNT;
+            overLimit.value = true;
+            try { stopCountSubscription(); } catch {}
+          }
           countIsConnected.value = true;
         },
         error: (err: any) => {
@@ -233,11 +225,12 @@ export const useTransactionCountWss = () => {
     incomingCount.value = 0;
     hasSeenBaseline.value = false;
     lastTopHash.value = null;
+    overLimit.value = false;
     if (baselineHash.value) {
       // Wait until we see this baseline in a ws frame
       noop();
     }
-    console.log('[WSS][count] baseline updated:', { previous, next: baselineHash.value });
+    // baseline updated
   };
 
   const refreshBaseline = (hash: string | null | undefined) => {
@@ -256,6 +249,7 @@ export const useTransactionCountWss = () => {
     hasSeenBaseline.value = false;
     lastTopHash.value = null;
     baselineHash.value = null;
+    overLimit.value = false;
 
     // Recreate client for current network
     const network = useSharedData().selectedNetwork.value;
@@ -264,7 +258,7 @@ export const useTransactionCountWss = () => {
         ? 'wss://devnet.kadindexer.io/mainnet/wss/graphql'
         : 'wss://devnet.kadindexer.io/testnet/wss/graphql';
       countClient = createClient({ url: wssUrl, connectionParams: () => ({}) });
-      console.log('[WSS][count] reset stream; client recreated.');
+      // reset stream; client recreated
       startCountSubscription();
     }
   };
@@ -283,6 +277,7 @@ export const useTransactionCountWss = () => {
     hasSeenBaseline.value = false;
     lastTopHash.value = null;
     baselineHash.value = null;
+    overLimit.value = false;
 
     // Setup new client
     const wssUrl = network.id === 'mainnet01'
@@ -293,7 +288,6 @@ export const useTransactionCountWss = () => {
       url: wssUrl,
       connectionParams: () => ({}),
     });
-    console.log('[WSS][count] client created for network:', network.id, 'url:', wssUrl);
     // Start subscription immediately after client is created
     startCountSubscription();
   }, { immediate: true, deep: true });
@@ -314,6 +308,8 @@ export const useTransactionCountWss = () => {
     incomingCount: readonly(incomingCount),
     baseline: readonly(baselineHash),
     hasSeenBaseline: readonly(hasSeenBaseline),
+    overLimit: readonly(overLimit),
+    maxIncomingCount: MAX_INCOMING_COUNT,
     setBaselineHash,
     refreshBaseline,
     resetCountStream,
