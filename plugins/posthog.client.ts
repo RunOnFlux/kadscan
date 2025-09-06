@@ -32,7 +32,7 @@ export default defineNuxtPlugin(() => {
       defaults: runtimeConfig.public.posthogDefaults as any,
       // Session replay with v2 recorder and input masking
       session_recording: ({
-        maskAllInputs: true,
+        maskAllInputs: false,
         recorderVersion: 'v2',
       } as any),
       loaded: (ph) => {
