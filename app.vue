@@ -24,6 +24,29 @@ useHead({
   ]
 })
 
+// Default Open Graph and Twitter card metadata for link previews
+useSeoMeta({
+  title: 'Kadscan: Block Explorer',
+  description: 'Kadscan is a Block Explorer and Analytics Platform for the Kadena Blockchain.',
+  ogTitle: 'Kadscan: Block Explorer',
+  ogDescription: 'Kadscan is a Block Explorer and Analytics Platform for the Kadena Blockchain.',
+  ogType: 'website',
+  ogUrl: 'https://kadscan.io/',
+  ogImage: 'https://kadscan.io/kadscan.jpeg',
+  twitterCard: 'summary_large_image',
+  twitterTitle: 'Kadscan: Block Explorer',
+  twitterDescription: 'Kadscan is a Block Explorer and Analytics Platform for the Kadena Blockchain.',
+  twitterImage: 'https://kadscan.io/kadscan.jpeg',
+})
+
+// Provide recommended dimensions for better compatibility
+useHead({
+  meta: [
+    { property: 'og:image:width', content: '1545' },
+    { property: 'og:image:height', content: '425' },
+  ],
+})
+
 </script>
 
 <template>
