@@ -37,7 +37,7 @@ const {
 } = useBlocks();
 
 useHead({
-  title: `Blocks at Height #${height.value}`
+  title: 'Blocks'
 });
 
 onMounted(() => {

@@ -238,7 +238,7 @@ const currentGuard = computed(() => {
 })
 
 useHead({
-  title: `Account ${address.value} - Kadscan`
+  title: 'Account'
 })
 
 // QR modal state

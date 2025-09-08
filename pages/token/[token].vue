@@ -110,7 +110,7 @@ const onChangeChainSelect = (option: any) => {
 }
 
 useHead({
-  title: `Token ${moduleName.value} - Kadscan`
+  title: 'Token'
 })
 
 // Static token icon (if available)
