@@ -155,8 +155,7 @@ export function useContractTransactions() {
         }
       })
     } catch (e) {
-      console.error('Error fetching contract transactions:', e)
-      error.value = e
+      error.value = new Error('Unable to load contract transactions. Please try again.')
       transactions.value = []
     } finally {
       loading.value = false

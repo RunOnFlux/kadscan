@@ -67,7 +67,7 @@ export function useContractPactRead() {
       result.value = response?.data?.pactQuery?.[0]?.result ?? null
       return result.value
     } catch (e) {
-      error.value = e
+      error.value = new Error('Unable to read from contract. Please try again.')
       return null
     } finally {
       loading.value = false

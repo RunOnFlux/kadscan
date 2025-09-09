@@ -143,8 +143,7 @@ export const useAccountTransactions = () => {
         }
       });
     } catch (e) {
-      console.error('Error fetching or processing account transactions:', e);
-      error.value = e;
+      error.value = new Error('Unable to load account transactions. Please try again.');
       transactions.value = [];
     } finally {
       loading.value = false;

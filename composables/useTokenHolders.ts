@@ -95,7 +95,7 @@ export function useTokenHolders() {
         }
       })
     } catch (e) {
-      error.value = e
+      error.value = new Error('Unable to load token holders. Please try again.')
       holders.value = []
     } finally {
       loading.value = false

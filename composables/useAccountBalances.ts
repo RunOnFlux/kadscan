@@ -29,8 +29,6 @@ const pageInfo = ref<any>(null)
 const lastBlockHeight = ref<number | null>(null)
 const balances = ref<Array<{ balance: string; chainId: string; module: string }>>([])
 
-// In-memory cache keyed by `${networkId}:${accountName}:${chainKey}`
-// where chainKey is 'all' or a comma-joined list of chainIds (sorted)
 const balancesCache = new Map<string, {
   lastBlockHeight: number | null,
   pageInfo: any,
@@ -118,7 +116,7 @@ export const useAccountBalances = () => {
         balances: balances.value,
       })
     } catch (e: any) {
-      error.value = e
+      error.value = new Error('Unable to load balances for this account. Please try again.')
     } finally {
       loading.value = false
       hasFetched.value = true
