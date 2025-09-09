@@ -171,8 +171,7 @@ export const useAccount = () => {
       });
 
     } catch (e) {
-      console.error('Error fetching first and last transfers:', e);
-      error.value = e;
+      error.value = new Error('Unable to load first/last transfers for this account. Please try again.');
       firstTransaction.value = null;
       lastTransaction.value = null;
     } finally {
@@ -215,8 +214,7 @@ export const useAccount = () => {
       accountData.value = result;
       
     } catch (e) {
-      console.error('Error fetching account data:', e);
-      error.value = e;
+      error.value = new Error('Unable to load account details. Please try again.');
       accountData.value = null;
     } finally {
       accountLoading.value = false;
