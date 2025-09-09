@@ -360,7 +360,16 @@ const smartTruncateAddress = (address: string) => {
 // Helper functions to get actual sender/receiver addresses for cross-chain transfers
 const getActualSender = (transfer: any) => {
   // Try regular senderAccount first, then crossChainTransfer.senderAccount
-  return transfer.senderAccount || transfer.crossChainTransfer?.senderAccount || ''
+  const directSender = transfer.senderAccount || transfer.crossChainTransfer?.senderAccount
+  if (directSender && directSender !== '') return directSender
+
+  // If this is a coinbase transaction and no sender is present, show "coinbase"
+  if (transaction.value?.cmd?.meta?.sender === 'coinbase') {
+    return 'coinbase'
+  }
+
+  // Default to system for mints/system operations
+  return 'k:system'
 }
 
 const getActualReceiver = (transfer: any) => {
@@ -481,7 +490,8 @@ onUnmounted(() => {
         />
 
         <!-- Transaction Details -->
-        <div v-else-if="activeTab.startsWith('Overview')" :key="'overview'" class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
+        <div v-else-if="activeTab.startsWith('Overview')" :key="'overview'">
+          <div class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
           <Divide>
             <!-- Section 1: Basic Information -->
             <DivideItem>
@@ -640,16 +650,19 @@ onUnmounted(() => {
                     >
                       <!-- From Address -->
                       <span class="text-[#f5f5f5] font-medium">From</span>
-                      <NuxtLink 
-                        :to="`/account/${getActualSender(transferEdge.node)}`" 
-                        class="text-[#6ab5db] hover:text-[#9ccee7]"
-                      >{{ smartTruncateAddress(getActualSender(transferEdge.node)) }}</NuxtLink>
-                      <Copy 
-                        :value="getActualSender(transferEdge.node)" 
-                        tooltipText="Copy sender address"
-                        iconSize="h-5 w-5"
-                        buttonClass="w-5 h-5 hover:opacity-100"
-                      />
+                      <template v-if="getActualSender(transferEdge.node) !== 'k:system'">
+                        <NuxtLink 
+                          :to="`/account/${getActualSender(transferEdge.node)}`" 
+                          class="text-[#6ab5db] hover:text-[#9ccee7]"
+                        >{{ smartTruncateAddress(getActualSender(transferEdge.node)) }}</NuxtLink>
+                        <Copy 
+                          :value="getActualSender(transferEdge.node)" 
+                          tooltipText="Copy sender address"
+                          iconSize="h-5 w-5"
+                          buttonClass="w-5 h-5 hover:opacity-100"
+                        />
+                      </template>
+                      <span v-else class="text-[#f5f5f5]">{{ getActualSender(transferEdge.node) }}</span>
                       
                       <!-- To Address -->
                       <span class="text-[#f5f5f5] font-medium">To</span>
@@ -747,13 +760,10 @@ onUnmounted(() => {
               </div>
             </DivideItem>
           </Divide>
-        </div>
-      </Transition>
+          </div>
 
-      <!-- Tab Content with Fade Transition -->
-      <Transition name="tab-fade" mode="out-in">
-        <!-- More Details Section -->
-        <div v-if="activeTab.startsWith('Overview')" class="bg-[#111111] border border-[#222222] rounded-xl p-5 mb-2 shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+          <!-- More Details Section (now inside Overview branch) -->
+          <div class="bg-[#111111] border border-[#222222] rounded-xl p-5 mb-2 shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
           <div 
             ref="contentRef"
             class="overflow-hidden transition-all duration-300 ease-out"
@@ -958,6 +968,7 @@ onUnmounted(() => {
               </LabelValue>
             </DivideItem>
           </Divide>
+          </div>
         </div>
       </Transition>
     </div>

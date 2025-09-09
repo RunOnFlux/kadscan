@@ -237,7 +237,7 @@ watch(
 );
 
 useHead({
-  title: `Block #${height.value} - Details`,
+  title: 'Block',
 });
 
 onMounted(() => {

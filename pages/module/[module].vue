@@ -104,7 +104,7 @@ const onChangeChainSelect = (option: any) => {
 }
 
 useHead({
-  title: `Contract ${moduleName.value} - Kadscan`
+  title: 'Contract'
 })
 
 // Ensure chains are fetched and chain query defaults correctly

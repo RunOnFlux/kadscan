@@ -111,8 +111,7 @@ export function useContractPact(
       allChainsLoaded.value = true
       setActiveModuleFromCache()
     } catch (e) {
-      console.error('[useContractPact] fetchAllChains error', e)
-      error.value = e
+      error.value = new Error('Unable to load contract module details. Please try again.')
       moduleInfo.value = null
     } finally {
       fetchingAll.value = false
@@ -169,8 +168,7 @@ export function useContractPact(
         code: codeStr,
       }
     } catch (e) {
-      console.error('[useContractPact] fetchModule error', e)
-      error.value = e
+      error.value = new Error('Unable to load contract module details. Please try again.')
       moduleInfo.value = null
     } finally {
       loading.value = false

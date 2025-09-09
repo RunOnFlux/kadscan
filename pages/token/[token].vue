@@ -110,7 +110,7 @@ const onChangeChainSelect = (option: any) => {
 }
 
 useHead({
-  title: `Token ${moduleName.value} - Kadscan`
+  title: 'Token'
 })
 
 // Static token icon (if available)
@@ -120,6 +120,16 @@ const tokenIconSrc = computed(() => tokenStaticMeta.value?.icon || '')
 // Price handling (USD per unit), 6 decimals
 const { getUsdPerUnit, primeModules } = useAssetUsdPrices()
 const unitUsd = computed(() => (moduleName.value ? getUsdPerUnit(moduleName.value) : 0))
+
+// Format display for unit USD price
+const formattedUnitUsd = computed(() => {
+  const v = Number(unitUsd.value)
+  if (!Number.isFinite(v)) return null
+  if (v === 0) return '$0.0'
+  if (v > 0 && v < 1e-6) return '<$0.000000'
+  if (v > 0) return `$${v.toFixed(6)}`
+  return null
+})
 
 watch(() => moduleName.value, (m) => { if (m) primeModules([m]) }, { immediate: true })
 
@@ -193,12 +203,8 @@ watch([selectedNetwork, () => route.query.chain, () => moduleName.value], async 
           <div>
             <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">PRICE</div>
             <div class="text-[14px] text-[#f5f5f5]">
-              <template v-if="unitUsd && unitUsd > 0">
-                ${{ Number(unitUsd).toFixed(6) }}
-              </template>
-              <template v-else>
-                N/A
-              </template>
+              <template v-if="formattedUnitUsd !== null">{{ formattedUnitUsd }}</template>
+              <template v-else>N/A</template>
             </div>
           </div>
         </div>

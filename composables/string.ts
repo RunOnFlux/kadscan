@@ -138,6 +138,18 @@ export function parsePactCode(input: string | any): string {
 
   const code = input.trim();
   
+  // If the provided code is a bare JSON object with no keys (e.g., "{}"),
+  // treat it as no-parameters input and avoid rendering a misleading
+  // "Function: {}" header in the Default View.
+  try {
+    if (code.startsWith('{') && code.endsWith('}')) {
+      const parsed = JSON.parse(code);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && Object.keys(parsed).length === 0) {
+        return 'No parameters';
+      }
+    }
+  } catch { /* fall through to generic parsing */ }
+  
   // Helper function to split multiple top-level function calls
   const splitFunctionCalls = (code: string): string[] => {
     const functionCalls: string[] = [];

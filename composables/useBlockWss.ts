@@ -78,8 +78,7 @@ const startSubscription = () => {
         },
         // 'error' is called when something goes wrong with the subscription.
         error: (err: any) => {
-          console.error('Block WebSocket Subscription Error:', err)
-          error.value = err.message || 'Unknown error'
+          error.value = 'Unable to connect to live blocks'
           isConnected.value = false
         },
         // 'complete' is called when the subscription is terminated by the server.
@@ -90,8 +89,7 @@ const startSubscription = () => {
       }
     )
   } catch (err: unknown) {
-    console.error('Failed to start Block WebSocket subscription:', err)
-    error.value = err instanceof Error ? err.message : 'Failed to start subscription'
+    error.value = 'Failed to start subscription'
   }
 }
 
@@ -229,8 +227,7 @@ const startCountSubscription = () => {
           countIsConnected.value = true;
         },
         error: (err: any) => {
-          console.error('Block Count WebSocket Subscription Error:', err);
-          countError.value = err?.message || 'Unknown error';
+          countError.value = 'Unable to connect to live block count.';
           countIsConnected.value = false;
         },
         complete: () => {
@@ -240,8 +237,7 @@ const startCountSubscription = () => {
       }
     );
   } catch (err: unknown) {
-    console.error('Failed to start Block Count WebSocket subscription:', err);
-    countError.value = err instanceof Error ? err.message : 'Failed to start subscription';
+    countError.value = 'Failed to start subscription';
   }
 }
 

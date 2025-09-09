@@ -130,8 +130,7 @@ export const useContractEvents = () => {
         }
       })
     } catch (e) {
-      console.error('Error fetching contract events:', e)
-      error.value = e
+      error.value = new Error('Unable to load contract events. Please try again.')
       events.value = []
     } finally {
       loading.value = false

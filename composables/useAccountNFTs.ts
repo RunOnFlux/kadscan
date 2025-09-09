@@ -218,7 +218,7 @@ export const useAccountNFTs = () => {
         // Prime cache now (metadata may fill in later)
         cache.set(cacheKey, { nfts: arr, metadataByKey: { ...dict } })
       } catch (e: any) {
-        error.value = e
+        error.value = new Error('Unable to load NFTs for this account. Please try again.')
       } finally {
         loading.value = false
         hasFetched.value = true

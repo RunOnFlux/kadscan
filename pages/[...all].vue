@@ -4,7 +4,7 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Page Not Found | Kadscan'
+  title: 'Page Not Found'
 })
 
 onMounted(() => {

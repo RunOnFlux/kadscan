@@ -323,56 +323,38 @@ export const useTransaction = (
       })
   })
 
-  // Cross-chain transaction status detection
+  // Cross-chain transaction status detection (evidence-based only)
   const crossChainTransactionStatus = computed(() => {
-    if (!transaction.value?.result?.transfers?.edges?.length) return null
+    const hasContinuationResult = transaction.value?.result?.continuation !== null && transaction.value?.result?.continuation !== undefined
+    const hasContinuationPayload = transaction.value?.cmd?.payload?.pactId !== null && transaction.value?.cmd?.payload?.pactId !== undefined
 
-    const transfers = transaction.value.result.transfers.edges.map((edge: any) => edge.node)
-    
-    // Check for source cross-chain (receiverAccount is empty)
-    const sourceTransfer = transfers.find((transfer: any) => 
-      !transfer.receiverAccount || transfer.receiverAccount === ''
-    )
-    
-    // Check for destination cross-chain (senderAccount is empty)  
-    const destinationTransfer = transfers.find((transfer: any) => 
-      !transfer.senderAccount || transfer.senderAccount === ''
-    )
-    
-    // If neither source nor destination cross-chain detected, return null
-    if (!sourceTransfer && !destinationTransfer) return null
-    
-    // Find transfers that have crossChainTransfer data (not null)
-    const transfersWithCrossChain = transfers.filter((transfer: any) => 
-      transfer.crossChainTransfer !== null
-    )
-    
-    // Check if any crossChainTransfer has badResult different than null (FAILED)
+    // Only evaluate status when there is continuation evidence
+    if (!hasContinuationResult && !hasContinuationPayload) return null
+
+    const transfers = transaction.value?.result?.transfers?.edges?.map((edge: any) => edge.node) || []
+
+    // Consider only transfers with crossChainTransfer data
+    const transfersWithCrossChain = transfers.filter((transfer: any) => transfer.crossChainTransfer !== null)
+
+    // Failed: any cross-chain transfer with badResult
     for (const transfer of transfersWithCrossChain) {
       if (transfer.crossChainTransfer?.transaction?.result?.badResult !== null) {
         return 'failed'
       }
     }
-    
-    // If we have transfers with crossChainTransfer data, check for SUCCESS
-    if (transfersWithCrossChain.length > 0) {
-      // Check if we have complete pair across both levels (transfer + crossChainTransfer)
-      const hasCompletePair = transfersWithCrossChain.some((transfer: any) => {
-        const crossChain = transfer.crossChainTransfer
-        
-        // Check if we have complementary sender/receiver across both levels
-        const hasSender = transfer.senderAccount || crossChain.senderAccount
-        const hasReceiver = transfer.receiverAccount || crossChain.receiverAccount
-        
-        return hasSender && hasReceiver
-      })
-      
-      if (hasCompletePair) {
-        return 'success'
-      }
+
+    // Success: any cross-chain transfer with complementary endpoints
+    const hasCompletePair = transfersWithCrossChain.some((transfer: any) => {
+      const crossChain = transfer.crossChainTransfer
+      const hasSender = transfer.senderAccount || crossChain?.senderAccount
+      const hasReceiver = transfer.receiverAccount || crossChain?.receiverAccount
+      return Boolean(hasSender && hasReceiver)
+    })
+    if (hasCompletePair) {
+      return 'success'
     }
-    
-    // If we detected cross-chain activity but crossChainTransfer is null OR incomplete, it's PENDING
+
+    // Pending: continuation evidence exists but neither failed nor success (e.g., no crossChainTransfer yet or incomplete)
     return 'pending'
   })
 
@@ -383,7 +365,7 @@ export const useTransaction = (
   const isCrossChain = computed(() => {
     const hasContinuationResult = transaction.value?.result?.continuation !== null && transaction.value?.result?.continuation !== undefined
     const hasContinuationPayload = transaction.value?.cmd?.payload?.pactId !== null && transaction.value?.cmd?.payload?.pactId !== undefined
-    return Boolean(hasContinuationResult || hasContinuationPayload || crossChainTransactionStatus.value !== null)
+    return Boolean(hasContinuationResult || hasContinuationPayload)
   })
 
   const signerTransferValue = computed(() => {
@@ -503,8 +485,7 @@ export const useTransaction = (
         }
       }
     } catch (e: any) {
-      const message = typeof e?.message === 'string' ? e.message : 'Unable to load transaction. Please try again.'
-      error.value = new Error(message)
+      error.value = new Error('Unable to load transaction. Please try again.')
       transaction.value = null
     } finally {
       loading.value = false

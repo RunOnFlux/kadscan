@@ -145,7 +145,7 @@ export function useTokenTransfers() {
 
       tokenTransfers.value = (result.edges || []).map((edge: any) => shapeTransfer(edge))
     } catch (e) {
-      error.value = e
+      error.value = new Error('Unable to load token transfers. Please try again.')
       tokenTransfers.value = []
     } finally {
       loading.value = false

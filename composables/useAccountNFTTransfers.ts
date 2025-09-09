@@ -177,7 +177,7 @@ export const useAccountNFTTransfers = () => {
       tokenTransfers.value = edges.map((edge: any) => shapeTransfer(edge, accountName));
     } catch (e) {
       console.error('Error fetching or processing account token transfers:', e);
-      error.value = e;
+      error.value = new Error('Unable to load NFT transfers for this account. Please try again.');
       tokenTransfers.value = [];
     } finally {
       loading.value = false;

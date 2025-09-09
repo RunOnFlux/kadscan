@@ -139,7 +139,7 @@ export const useBlocksMetrics = (selectedNetwork: NetworkRef) => {
 
       cards.value = metrics;
     } catch (e: any) {
-      error.value = e?.message || 'Failed to load metrics';
+      error.value = 'Failed to load metrics';
       cards.value = [];
     } finally {
       loading.value = false;

@@ -52,8 +52,7 @@ const startSubscription = () => {
           isConnected.value = true
         },
         error: (err: any) => {
-          console.error('Transaction WebSocket Subscription Error:', err);
-          error.value = err.message || 'Unknown error';
+          error.value = 'Unable to connect to live transactions.';
           isConnected.value = false;
         },
         complete: () => {
@@ -63,8 +62,7 @@ const startSubscription = () => {
       }
     )
   } catch (err: unknown) {
-    console.error('Failed to start Transaction WebSocket subscription:', err);
-    error.value = err instanceof Error ? err.message : 'Failed to start subscription';
+    error.value = 'Failed to start subscription';
   }
 }
 
@@ -192,8 +190,7 @@ const startCountSubscription = () => {
           countIsConnected.value = true;
         },
         error: (err: any) => {
-          console.error('Transaction Count WebSocket Subscription Error:', err);
-          countError.value = err?.message || 'Unknown error';
+          countError.value = 'Unable to connect to live transaction count.';
           countIsConnected.value = false;
         },
         complete: () => {
@@ -203,8 +200,7 @@ const startCountSubscription = () => {
       }
     );
   } catch (err: unknown) {
-    console.error('Failed to start Transaction Count WebSocket subscription:', err);
-    countError.value = err instanceof Error ? err.message : 'Failed to start subscription';
+    countError.value = 'Failed to start subscription';
   }
 }
 
