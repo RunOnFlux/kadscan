@@ -196,8 +196,7 @@ export const useTransactions = () => {
         };
       });
     } catch (e: any) {
-      const message = typeof e?.message === 'string' ? e.message : 'Unable to load transactions. Please try again.';
-      error.value = new Error(message);
+      error.value = new Error('Unable to load transactions. Please try again.');
       transactions.value = [];
     } finally {
       loading.value = false;

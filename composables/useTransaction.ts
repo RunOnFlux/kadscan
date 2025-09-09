@@ -503,8 +503,7 @@ export const useTransaction = (
         }
       }
     } catch (e: any) {
-      const message = typeof e?.message === 'string' ? e.message : 'Unable to load transaction. Please try again.'
-      error.value = new Error(message)
+      error.value = new Error('Unable to load transaction. Please try again.')
       transaction.value = null
     } finally {
       loading.value = false

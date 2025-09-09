@@ -177,8 +177,7 @@ export const useBlocks = () => {
       }
 
     } catch (e) {
-      const message = (e as any)?.message || 'Unable to load latest block height.';
-      error.value = new Error(message);
+      error.value = new Error('Unable to load latest block height.');
     }
   };
 
@@ -265,8 +264,7 @@ export const useBlocks = () => {
       });
       blocks.value = blocksMap;
     } catch (e) {
-      const message = (e as any)?.message || 'Unable to load blocks. Please try again.';
-      error.value = new Error(message);
+      error.value = new Error('Unable to load blocks. Please try again.');
       blocks.value = [];
     } finally {
       loading.value = false;
@@ -332,8 +330,7 @@ export const useBlocks = () => {
       // Sort by chainId in ascending order (0-19)
       blocksByHeight.value = blocksMap.sort((a: any, b: any) => a.chainId - b.chainId);
     } catch (e) {
-      const message = (e as any)?.message || 'Unable to load blocks for this height. Please try again.';
-      error.value = new Error(message);
+      error.value = new Error('Unable to load blocks for this height. Please try again.');
       blocksByHeight.value = [];
     } finally {
       loadingByHeight.value = false;

@@ -353,8 +353,7 @@ export const useBlock = (
       }
     } catch (e: any) {
       // Normalize any thrown error to a user-friendly message
-      const message = typeof e?.message === 'string' ? e.message : 'Unable to load block. Please try again.';
-      error.value = new Error(message);
+      error.value = new Error('Unable to load block. Please try again.');
       block.value = null;
     } finally {
       loading.value = false;
