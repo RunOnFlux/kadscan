@@ -360,7 +360,16 @@ const smartTruncateAddress = (address: string) => {
 // Helper functions to get actual sender/receiver addresses for cross-chain transfers
 const getActualSender = (transfer: any) => {
   // Try regular senderAccount first, then crossChainTransfer.senderAccount
-  return transfer.senderAccount || transfer.crossChainTransfer?.senderAccount || ''
+  const directSender = transfer.senderAccount || transfer.crossChainTransfer?.senderAccount
+  if (directSender && directSender !== '') return directSender
+
+  // If this is a coinbase transaction and no sender is present, show "coinbase"
+  if (transaction.value?.cmd?.meta?.sender === 'coinbase') {
+    return 'coinbase'
+  }
+
+  // Otherwise, leave empty so UI can decide how to render
+  return ''
 }
 
 const getActualReceiver = (transfer: any) => {
