@@ -368,8 +368,8 @@ const getActualSender = (transfer: any) => {
     return 'coinbase'
   }
 
-  // Otherwise, leave empty so UI can decide how to render
-  return ''
+  // Default to system for mints/system operations
+  return 'k:system'
 }
 
 const getActualReceiver = (transfer: any) => {
@@ -650,16 +650,19 @@ onUnmounted(() => {
                     >
                       <!-- From Address -->
                       <span class="text-[#f5f5f5] font-medium">From</span>
-                      <NuxtLink 
-                        :to="`/account/${getActualSender(transferEdge.node)}`" 
-                        class="text-[#6ab5db] hover:text-[#9ccee7]"
-                      >{{ smartTruncateAddress(getActualSender(transferEdge.node)) }}</NuxtLink>
-                      <Copy 
-                        :value="getActualSender(transferEdge.node)" 
-                        tooltipText="Copy sender address"
-                        iconSize="h-5 w-5"
-                        buttonClass="w-5 h-5 hover:opacity-100"
-                      />
+                      <template v-if="getActualSender(transferEdge.node) !== 'k:system'">
+                        <NuxtLink 
+                          :to="`/account/${getActualSender(transferEdge.node)}`" 
+                          class="text-[#6ab5db] hover:text-[#9ccee7]"
+                        >{{ smartTruncateAddress(getActualSender(transferEdge.node)) }}</NuxtLink>
+                        <Copy 
+                          :value="getActualSender(transferEdge.node)" 
+                          tooltipText="Copy sender address"
+                          iconSize="h-5 w-5"
+                          buttonClass="w-5 h-5 hover:opacity-100"
+                        />
+                      </template>
+                      <span v-else class="text-[#f5f5f5]">{{ getActualSender(transferEdge.node) }}</span>
                       
                       <!-- To Address -->
                       <span class="text-[#f5f5f5] font-medium">To</span>
