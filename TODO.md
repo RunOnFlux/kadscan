@@ -6,12 +6,14 @@ Status: Planning
 ## Checklist for the current page
 - [ ] Dependency inventory (components/composables/utils/server/api, route params/query)
 - [ ] Data flow traced end-to-end and SSR-safe
+- [ ] SSR decision recorded for this page (keep client-only vs enable SSR)
 - [ ] Reactive state normalized (refs/reactive)
 - [ ] Computed properties reviewed/simplified
 - [ ] Watchers reviewed/reduced
 - [ ] Lifecycle hooks reviewed
 - [ ] Functions organized and extracted where reusable
 - [ ] Loading/error/empty states standardized
+- [ ] Confirm helper reuse vs creation (search `composables/string.ts`, `number.ts`, domain composables)
 - [ ] Naming and file/module ordering aligned
 - [ ] Imports grouped and ordered
 - [ ] Duplication removed; utilities extracted
@@ -38,12 +40,14 @@ Status: Planning
 
 - [ ] Dependency inventory
 - [ ] Data flow SSR-safe
+- [ ] SSR decision recorded for this page
 - [ ] State normalized
 - [ ] Computed reviewed
 - [ ] Watchers reviewed
 - [ ] Lifecycle reviewed
 - [ ] Functions organized/extracted
 - [ ] Loading/error/empty
+- [ ] Confirm helper reuse vs creation
 - [ ] Naming/order
 - [ ] Imports ordered
 - [ ] Duplication removed
