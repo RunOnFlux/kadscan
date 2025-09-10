@@ -1,0 +1,59 @@
+---
+description: "Refactor standard – one page at a time, with cascade awareness"
+globs:
+  - "pages/**/*.vue"
+  - "components/**/*.vue"
+  - "composables/**/*.ts"
+  - "server/api/**/*.ts"
+  - "lib/**/*.ts"
+alwaysApply: true
+---
+
+## Refactor objective (must hold true)
+- Preserve existing behavior and UX.
+- No new frameworks or global switches. Do NOT enable TS strict globally, add Pinia, or add test suites.
+- Data path: components/pages -> composables -> Nuxt `server/api/*` -> external indexer (GraphQL). No direct external fetches in `.vue`.
+- Work on ONE page at a time. Update `TODO.md` and pause for manual review before cascading.
+
+## Required process (checklist per page)
+1) Inventory dependencies: components, composables, utils, `server/api/*`, route params/query, assets.
+2) Trace data flow end-to-end; make SSR-safe (`useAsyncData`/`useFetch` patterns). Eliminate direct external calls in `.vue`.
+3) Normalize reactive state: consolidate refs, prefer `computed` over watchers, remove redundant state.
+4) Extract/relocate logic: move pure/duplicated helpers to appropriate composables/utils. Avoid behavior changes.
+5) API handling: composables call Nuxt API; standardize loading/error/empty shapes surfaced from composables.
+6) Types: add/strengthen local types and composable return types. Avoid `any`. Do not change global TS config.
+7) Organize files per layout below and group/sort imports (vue/nuxt -> third-party -> internal).
+8) Comments: concise docstrings explaining "why" for nontrivial logic.
+9) Accessibility/performance: keys on v-for, avoid heavy reactive arrays when not needed, memoize derived data.
+10) Impact analysis: for each changed composable/util, list all consumers and add cascade items to `TODO.md`.
+11) Update `TODO.md` progress and stop for manual review before proceeding to cascade tasks.
+
+## SFC layout order (enforced when editing)
+Template
+<script setup>
+- Imports
+- Local types
+- Props/Emits
+- Constants
+- Reactive State (refs/reactive)
+- Computed
+- Watchers
+- Lifecycle hooks
+- Functions (top-down helpers, then event handlers)
+</script>
+Styles (if present)
+
+## Acceptance criteria
+- Behavior unchanged; no console errors; lints/build pass.
+- No direct external indexer calls in components/pages.
+- Data fetching centralized in composables → Nuxt API.
+- Reduced duplication; clearer structure; typed composable interfaces.
+
+## Prohibited during refactor
+- Enabling TS `strict` globally, adding Pinia, adding Playwright/Vitest.
+- Cross-cutting rewrites across multiple pages in one pass.
+- Removing legacy site code (defer; current task focuses on active pages).
+
+## Working with `TODO.md`
+- Record the current target page, tick each checklist item, and list cascade impacts.
+- If changes affect shared composables/utils, add individual cascade tasks and pause for manual review.
