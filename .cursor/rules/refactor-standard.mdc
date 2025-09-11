@@ -31,12 +31,15 @@ alwaysApply: true
 13) SSR mode changes require explicit approval per page; default to preserving current behavior.
 14) New composables must be re-entrant, expose reactive state where relevant, and perform robust cleanup.
 15) Prefer adding new composables over changing interfaces of widely used ones. Interface changes require explicit approval and cascade planning.
+16) Move extractable computed derivations into composables. Keep only UI-local computed (toggle/DOM/state-only) in pages.
+17) Actively update `TODO.md` as you progress: tick items immediately after completion and before starting the next step.
 
 ## Composable interface standard (per page)
 - Return shape includes at minimum: `{ data, loading, error }` where `data` is typed, `loading`/`error` are reactive.
 - Provide `isEmpty` as a computed when empty semantics are relevant to the page.
 - Keep types local to the composable or page; export only when strictly necessary.
 - Avoid side effects during setup; start effects explicitly and ensure cleanup.
+ - Prefer placing domain computed/derivations inside composables rather than pages.
 
 ## Post-edit verification (must be checked in `TODO.md`)
 - SFC order and import grouping applied.
@@ -46,19 +49,25 @@ alwaysApply: true
 - No console errors or warnings.
  - No public interface changes to widely used composables or shared components without explicit approval.
 
+## Commenting standard (enforced when editing)
+- Add a short comment/docstring above nontrivial refs/constants explaining purpose.
+- Add a brief comment above each nontrivial computed and every watcher describing rationale/conditions.
+- Add a brief comment above lifecycle hooks that perform side-effects, explaining why/when.
+- Add a top-level docstring for complex functions/helpers explaining intent and key invariants.
+
 ## SFC layout order (enforced when editing)
-Template
 <script setup>
 - Imports
 - Local types
 - Props/Emits
 - Constants
 - Reactive State (refs/reactive)
-- Computed
+- Computed (UI-local only; domain computed live in composables)
 - Watchers
 - Lifecycle hooks
 - Functions (top-down helpers, then event handlers)
 </script>
+Template
 Styles (if present)
 
 ## Acceptance criteria

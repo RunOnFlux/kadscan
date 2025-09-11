@@ -5,12 +5,15 @@ Status: Planning
 
 SSR decision (this page): Keep client-only (no SSR data fetching changes in Phase 2)
 
+Process reminder: Actively update this TODO during progress. Tick items immediately after completion and before starting the next step.
+
 ## Checklist for the current page
 - [ ] Dependency inventory (components/composables/utils/server/api, route params/query)
 - [ ] Data flow traced end-to-end and SSR-safe
 - [ ] SSR decision recorded for this page (keep client-only vs enable SSR)
 - [ ] Reactive state normalized (refs/reactive)
 - [ ] Computed properties reviewed/simplified
+- [ ] List computed/derivations to move into composables (keep only UI-local in page)
 - [ ] Watchers reviewed/reduced
 - [ ] Lifecycle hooks reviewed
 - [ ] Functions organized and extracted where reusable
@@ -20,20 +23,23 @@ SSR decision (this page): Keep client-only (no SSR data fetching changes in Phas
 - [ ] Imports grouped and ordered
 - [ ] Duplication removed; utilities extracted
 - [ ] Types added/strengthened (no `any`)
-- [ ] Comments/docstrings for nontrivial logic
+- [ ] Comments/docstrings planned for nontrivial refs/computed/watchers/lifecycle/functions
 - [ ] Accessibility/performance pass
 - [ ] Impact analysis: list consumers of changed composables/utils
 - [ ] Update cascade tasks (below)
 - [ ] Manual review checkpoint (stop before proceeding)
 
 ## Post-edit verification (must confirm after edits)
-- [ ] SFC order and import grouping applied
+- [ ] SFC order and import grouping applied (script-first layout)
 - [ ] Skeleton/spinner usage preserved per current UX
 - [ ] Initial-load skeleton not shown during background polling; content remains visible while polling
 - [ ] Composable surfaces expose `{ data, loading, error }` (and `isPolling` if applicable)
 - [ ] No interface changes to widely used composables (new composable preferred)
 - [ ] No direct external fetches in pages/components
 - [ ] No console errors or warnings
+- [ ] Domain computed moved into composables; page keeps only UI-local computed
+- [ ] Comments/docstrings added above nontrivial refs/computed/watchers/lifecycle/functions
+- [ ] TODO updated and ticked, manual review stop performed
 
 ## Cascade tasks (add items when a shared module changes)
 - 
