@@ -41,8 +41,10 @@ alwaysApply: true
 ## Post-edit verification (must be checked in `TODO.md`)
 - SFC order and import grouping applied.
 - Skeleton/spinner usage preserved per current UX.
+- Initial-load skeleton must not show during background polling; content stays visible while polling.
 - No direct external fetches in pages/components.
 - No console errors or warnings.
+ - No public interface changes to widely used composables or shared components without explicit approval.
 
 ## SFC layout order (enforced when editing)
 Template

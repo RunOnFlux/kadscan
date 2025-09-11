@@ -29,6 +29,7 @@ SSR decision (this page): Keep client-only (no SSR data fetching changes in Phas
 ## Post-edit verification (must confirm after edits)
 - [ ] SFC order and import grouping applied
 - [ ] Skeleton/spinner usage preserved per current UX
+- [ ] Initial-load skeleton not shown during background polling; content remains visible while polling
 - [ ] Composable surfaces expose `{ data, loading, error }` (and `isPolling` if applicable)
 - [ ] No interface changes to widely used composables (new composable preferred)
 - [ ] No direct external fetches in pages/components
