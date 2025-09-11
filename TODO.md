@@ -3,6 +3,8 @@
 Current target page: `pages/transactions/[requestKey].vue`
 Status: Planning
 
+SSR decision (this page): Keep client-only (no SSR data fetching changes in Phase 2)
+
 ## Checklist for the current page
 - [ ] Dependency inventory (components/composables/utils/server/api, route params/query)
 - [ ] Data flow traced end-to-end and SSR-safe
@@ -23,6 +25,14 @@ Status: Planning
 - [ ] Impact analysis: list consumers of changed composables/utils
 - [ ] Update cascade tasks (below)
 - [ ] Manual review checkpoint (stop before proceeding)
+
+## Post-edit verification (must confirm after edits)
+- [ ] SFC order and import grouping applied
+- [ ] Skeleton/spinner usage preserved per current UX
+- [ ] Composable surfaces expose `{ data, loading, error }` (and `isPolling` if applicable)
+- [ ] No interface changes to widely used composables (new composable preferred)
+- [ ] No direct external fetches in pages/components
+- [ ] No console errors or warnings
 
 ## Cascade tasks (add items when a shared module changes)
 - 

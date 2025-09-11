@@ -30,6 +30,19 @@ alwaysApply: true
 12) Prefer reuse of existing helpers in `composables/string.ts`, `composables/number.ts`, or domain composables before adding new ones.
 13) SSR mode changes require explicit approval per page; default to preserving current behavior.
 14) New composables must be re-entrant, expose reactive state where relevant, and perform robust cleanup.
+15) Prefer adding new composables over changing interfaces of widely used ones. Interface changes require explicit approval and cascade planning.
+
+## Composable interface standard (per page)
+- Return shape includes at minimum: `{ data, loading, error }` where `data` is typed, `loading`/`error` are reactive.
+- Provide `isEmpty` as a computed when empty semantics are relevant to the page.
+- Keep types local to the composable or page; export only when strictly necessary.
+- Avoid side effects during setup; start effects explicitly and ensure cleanup.
+
+## Post-edit verification (must be checked in `TODO.md`)
+- SFC order and import grouping applied.
+- Skeleton/spinner usage preserved per current UX.
+- No direct external fetches in pages/components.
+- No console errors or warnings.
 
 ## SFC layout order (enforced when editing)
 Template
