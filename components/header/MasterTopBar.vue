@@ -6,6 +6,8 @@ import { Listbox, ListboxButton } from '@headlessui/vue'
 import SelectOptions from '~/components/SelectOptions.vue';
 
 const route = useRoute();
+// Stable id for Headless UI MenuButton to prevent SSR/client mismatch
+const networkMenuButtonId = useId();
 
 const {
   kdaPrice,
@@ -90,7 +92,7 @@ const medGasPrice = computed(() => {
           <SearchInputHeader v-if="route.path !== '/'" />
           <Menu as="div" class="relative inline-block text-left hidden md:block">
           <div>
-            <MenuButton class="h-[36.5px] rounded-lg flex items-center gap-2 border border-[#222222] bg-[#151515] hover:bg-[#222222] px-3">
+            <MenuButton :id="networkMenuButtonId" class="h-[36.5px] rounded-lg flex items-center gap-2 border border-[#222222] bg-[#151515] hover:bg-[#222222] px-3">
               <IconKadena class="h-4 w-4" />
               <span v-if="selectedNetwork" class="text-[13px] text-[#f5f5f5]">{{ selectedNetwork.name }}</span>
             </MenuButton>
