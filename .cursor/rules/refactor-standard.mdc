@@ -1,14 +1,7 @@
 ---
-description: "Refactor standard – one page at a time, with cascade awareness"
-globs:
-  - "pages/**/*.vue"
-  - "components/**/*.vue"
-  - "composables/**/*.ts"
-  - "server/api/**/*.ts"
-  - "lib/**/*.ts"
-alwaysApply: true
+description: "Refactor code"
+alwaysApply: false
 ---
-
 ## Refactor objective (must hold true)
 - Preserve existing behavior and UX.
 - No new frameworks or global switches. Do NOT enable TS strict globally, add Pinia, or add test suites.
@@ -37,6 +30,7 @@ alwaysApply: true
 19) When a monolithic composable mixes concerns, split it by domain. Example: move cross-chain handling out of `useTransaction` into `useTransactionCrossChain`.
 20) Interface changes to widely used composables require explicit approval and a deprecation plan. Maintain backward compatibility in this pass (delegate old fields) or update all consumers in the same pass.
 21) Remove unused returns from composables only after confirming there are no consumers via repo search; otherwise mark them deprecated and add cascade tasks to migrate.
+22) Do NOT create new "derived" composables for page-level domain logic. Move domain computed into the main domain composable used by the page (e.g., `useTransactions` for transactions list, `useTransaction` for details).
 
 ## Composable interface standard (per page)
 - Return shape includes at minimum: `{ data, loading, error }` where `data` is typed, `loading`/`error` are reactive.
@@ -45,6 +39,9 @@ alwaysApply: true
 - Avoid side effects during setup; start effects explicitly and ensure cleanup.
 - Prefer placing domain computed/derivations inside composables rather than pages.
 - Consolidate status/format derivations into domain composables (`useStatus`, `useFormat`) where appropriate to maximize reuse and minimize duplication.
+ - Transaction-specific formatters MUST be either:
+   - Added to `useTransactions`/`useTransaction` (domain placement), or
+   - Added to `useFormat` with domain-prefixed names (e.g., `formatTransactionMethod`, `formatTransactionMethodFull`). Avoid generic names that lack context.
 
 ## Post-edit verification (must be checked in `TODO.md`)
 - SFC order and import grouping applied.
@@ -55,10 +52,11 @@ alwaysApply: true
  - No public interface changes to widely used composables or shared components without explicit approval.
 
 ## Commenting standard (enforced when editing)
-- Add a short comment/docstring above nontrivial refs/constants explaining purpose.
+- Use single-line `//` comments only. Do not use block `/** */` doc comments.
+- Add a short comment above nontrivial refs/constants explaining purpose.
 - Add a brief comment above each nontrivial computed and every watcher describing rationale/conditions.
-- Add a brief comment above lifecycle hooks that perform side-effects, explaining why/when.
-- Add a top-level docstring for complex functions/helpers explaining intent and key invariants.
+- Group lifecycle hooks together; ensure at most one `onMounted` block. Merge duplicates.
+- Add a short header comment for complex functions/helpers explaining intent and key invariants.
 
 ## SFC layout order (enforced when editing)
 <script setup>
