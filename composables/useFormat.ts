@@ -196,6 +196,21 @@ export const useFormat = () => {
     return `$${n.toFixed(4)} / KDA`;
   };
 
+  // Format Pact method strings for table display (hyphens -> spaces, Title Case).
+  const formatTransactionMethod = (val?: string): string => {
+    if (!val || val === '-') return 'Transaction'
+    const replaced = String(val).replace(/-/g, ' ')
+    const titleCased = replaced.replace(/\b([a-zA-Z])/g, (m) => m.toUpperCase())
+    return titleCased.length > 15 ? titleCased.slice(0, 15) + '...' : titleCased
+  }
+
+  // Full method text for tooltip (Title Case, no trimming)
+  const formatTransactionMethodFull = (val?: string): string => {
+    if (!val || val === '-') return 'Transaction'
+    const replaced = String(val).replace(/-/g, ' ')
+    return replaced.replace(/\b([a-zA-Z])/g, (m) => m.toUpperCase())
+  }
+
   const formatGasLimitUsage = (
     gasUsed: number | string | null | undefined,
     gasLimit: number | string | null | undefined,
@@ -242,5 +257,7 @@ export const useFormat = () => {
     formatGasLimitUsage,
     smartTruncateAddress,
     calculateKdaUsdValue,
+    formatTransactionMethod,
+    formatTransactionMethodFull,
   };
 }; 
