@@ -211,6 +211,24 @@ export const useFormat = () => {
     return `${formattedLimit} | ${formattedUsed} (${percentage}%)`;
   };
 
+  // Conditionally truncate only long/hash-like addresses
+  const smartTruncateAddress = (address: string, start: number = 10, end: number = 10, hashSize: number = 25): string => {
+    if (!address) return address;
+    const isHashFormat = address.startsWith('k:') || address.length > hashSize;
+    return isHashFormat ? truncateAddress(address, start, end) : address;
+  };
+
+  // Calculate USD value for KDA transfers (UI helper)
+  const calculateKdaUsdValue = (amount: string, isKda: boolean, kadenaPrice: number | string | null) => {
+    if (!isKda || !kadenaPrice || !amount) return null
+    
+    const numericAmount = parseFloat(amount)
+    const priceValue = parseFloat(kadenaPrice.toString())
+    const usdValue = numericAmount * priceValue
+    
+    return usdValue.toFixed(6)
+  }
+
   return {
     truncateAddress,
     formatRelativeTime,
@@ -218,12 +236,11 @@ export const useFormat = () => {
     formatGasPrice,
     formatKda,
     removeTrailingZeros,
-    // precise KDA helpers
     formatKdaFee,
-    // general number formatting
     formatAmountWithEllipsis,
-    // transaction derived formatters
     formatKadenaPriceDisplay,
     formatGasLimitUsage,
+    smartTruncateAddress,
+    calculateKdaUsdValue,
   };
 }; 

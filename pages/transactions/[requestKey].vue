@@ -33,7 +33,7 @@ useHead({
 
 // Presentation helpers
 const { isMobile } = useScreenSize()
-const { formatRelativeTime, truncateAddress, formatKadenaPriceDisplay, formatGasLimitUsage } = useFormat()
+const { formatRelativeTime, truncateAddress, formatKadenaPriceDisplay, formatGasLimitUsage, smartTruncateAddress, calculateKdaUsdValue } = useFormat()
 const { selectedNetwork } = useSharedData()
 const route = useRoute()
 
@@ -225,33 +225,6 @@ const getTokenMetadata = (moduleName: string) => {
     icon: null,
     module: moduleName
   }
-}
-
-// Calculate USD value for KDA transfers (UI helper)
-const calculateKdaUsdValue = (amount: string, isKda: boolean) => {
-  if (!isKda || !kadenaPrice.value || !amount) return null
-  
-  const numericAmount = parseFloat(amount)
-  const priceValue = parseFloat(kadenaPrice.value.toString())
-  const usdValue = numericAmount * priceValue
-  
-  return usdValue.toFixed(6)
-}
-
-
-// Helper function to conditionally truncate only hash-format addresses
-const smartTruncateAddress = (address: string) => {
-  if (!address) return address
-  
-  // Check if it's a long hash format address (k: followed by a long hex string)
-  const isHashFormat = address.startsWith('k:') || address.length > 25
-  
-  if (isHashFormat) {
-    return truncateAddress(address, 10, 10)
-  }
-  
-  // Return as-is for short/human-readable addresses
-  return address
 }
 
 // Minimal local types for transfer helpers
@@ -587,10 +560,10 @@ onUnmounted(() => {
                       
                       <!-- USD Value for KDA -->
                       <span 
-                        v-if="calculateKdaUsdValue(transferEdge.node.amount, transferEdge.node.moduleName === 'coin')" 
+                        v-if="calculateKdaUsdValue(transferEdge.node.amount, transferEdge.node.moduleName === 'coin', kadenaPrice)" 
                         class="text-[#bbbbbb]"
                       >
-                        (${{ calculateKdaUsdValue(transferEdge.node.amount, transferEdge.node.moduleName === 'coin') }})
+                        (${{ calculateKdaUsdValue(transferEdge.node.amount, transferEdge.node.moduleName === 'coin', kadenaPrice) }})
                       </span>
                       
                       <!-- Token Icon -->
@@ -637,7 +610,7 @@ onUnmounted(() => {
                   <template #value>
                     <div class="flex items-center gap-2">
                       <span class="text-[#f5f5f5]">{{ signerTransferValue }} KDA</span>
-                      <span v-if="signerTransferValue > 0" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(signerTransferValue, true) }})</span>
+                      <span v-if="signerTransferValue > 0" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(signerTransferValue, true, kadenaPrice) }})</span>
                     </div>
                   </template>
                 </LabelValue>
@@ -646,7 +619,7 @@ onUnmounted(() => {
                   <template #value>
                     <div class="flex items-center gap-2">
                       <span class="text-[#f5f5f5]">{{ transactionFee }} KDA</span>
-                      <span v-if="transactionFee > 0" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(transactionFee, true) }})</span>
+                      <span v-if="transactionFee > 0" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(transactionFee, true, kadenaPrice) }})</span>
                     </div>
                   </template>
                 </LabelValue>
