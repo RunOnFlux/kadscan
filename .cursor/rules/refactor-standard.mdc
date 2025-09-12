@@ -33,13 +33,18 @@ alwaysApply: true
 15) Prefer adding new composables over changing interfaces of widely used ones. Interface changes require explicit approval and cascade planning.
 16) Move extractable computed derivations into composables. Keep only UI-local computed (toggle/DOM/state-only) in pages.
 17) Actively update `TODO.md` as you progress: tick items immediately after completion and before starting the next step.
+18) Avoid parallel derivations. Do not introduce new derived-data composables that duplicate logic available in existing domain composables. Consolidate instead.
+19) When a monolithic composable mixes concerns, split it by domain. Example: move cross-chain handling out of `useTransaction` into `useTransactionCrossChain`.
+20) Interface changes to widely used composables require explicit approval and a deprecation plan. Maintain backward compatibility in this pass (delegate old fields) or update all consumers in the same pass.
+21) Remove unused returns from composables only after confirming there are no consumers via repo search; otherwise mark them deprecated and add cascade tasks to migrate.
 
 ## Composable interface standard (per page)
 - Return shape includes at minimum: `{ data, loading, error }` where `data` is typed, `loading`/`error` are reactive.
 - Provide `isEmpty` as a computed when empty semantics are relevant to the page.
 - Keep types local to the composable or page; export only when strictly necessary.
 - Avoid side effects during setup; start effects explicitly and ensure cleanup.
- - Prefer placing domain computed/derivations inside composables rather than pages.
+- Prefer placing domain computed/derivations inside composables rather than pages.
+- Consolidate status/format derivations into domain composables (`useStatus`, `useFormat`) where appropriate to maximize reuse and minimize duplication.
 
 ## Post-edit verification (must be checked in `TODO.md`)
 - SFC order and import grouping applied.
