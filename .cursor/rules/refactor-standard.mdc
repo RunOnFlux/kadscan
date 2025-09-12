@@ -31,6 +31,9 @@ alwaysApply: false
 20) Interface changes to widely used composables require explicit approval and a deprecation plan. Maintain backward compatibility in this pass (delegate old fields) or update all consumers in the same pass.
 21) Remove unused returns from composables only after confirming there are no consumers via repo search; otherwise mark them deprecated and add cascade tasks to migrate.
 22) Do NOT create new "derived" composables for page-level domain logic. Move domain computed into the main domain composable used by the page (e.g., `useTransactions` for transactions list, `useTransaction` for details).
+23) Do NOT introduce undefined aliases or speculative calls. Every symbol used MUST be declared/imported in the same file and come from the same composable instance (no phantom variables like `useTx`).
+24) Remove duplicate/contradictory comments. Replace block comments with single-line `//` and keep one concise comment per section.
+25) Ensure at most one `onMounted` per SFC. Merge multiple blocks and preserve side-effect order.
 
 ## Composable interface standard (per page)
 - Return shape includes at minimum: `{ data, loading, error }` where `data` is typed, `loading`/`error` are reactive.
