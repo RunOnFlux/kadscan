@@ -41,6 +41,53 @@ export function useTransactionCrossChain(params: UseTransactionCrossChainParams)
   const crossChainTransaction = ref<any>(null)
   const loadingCrossChain = ref(false)
 
+  const RELATED_TRANSACTION_QUERY = `
+query GetRelatedTransaction($requestKey: String!) {
+  transaction(requestKey: $requestKey) {
+    hash
+    cmd {
+      meta {
+        chainId
+        creationTime
+        gasLimit
+        gasPrice
+        sender
+        ttl
+      }
+      networkId
+      nonce
+      payload {
+        ... on ContinuationPayload {
+          data
+          pactId
+          proof
+          rollback
+          step
+        }
+        ... on ExecutionPayload {
+          code
+          data
+        }
+      }
+    }
+    result {
+      ... on TransactionResult {
+        badResult
+        block {
+          chainId
+          canonical
+          height
+        }
+        continuation
+        gas
+        goodResult
+        transactionId
+      }
+    }
+  }
+}
+`
+
   const fetchCrossChainTransaction = async (requestKey: string, networkId: string) => {
     if (!requestKey || !networkId) return
     loadingCrossChain.value = true
@@ -48,7 +95,7 @@ export function useTransactionCrossChain(params: UseTransactionCrossChainParams)
       const response: any = await $fetch('/api/graphql', {
         method: 'POST',
         body: {
-          query: `query GetRelatedTransaction($requestKey: String!) {\n  transaction(requestKey: $requestKey) {\n    hash\n    cmd {\n      meta { chainId creationTime gasLimit gasPrice sender ttl }\n      networkId\n      nonce\n      payload {\n        ... on ContinuationPayload { data pactId proof rollback step }\n        ... on ExecutionPayload { code data }\n      }\n    }\n    result {\n      ... on TransactionResult { badResult block { chainId canonical height } continuation gas goodResult transactionId }\n    }\n  }\n}`,
+          query: RELATED_TRANSACTION_QUERY,
           variables: { requestKey },
           networkId,
         },
