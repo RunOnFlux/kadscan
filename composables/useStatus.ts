@@ -104,7 +104,63 @@ export function useStatus(providedLastBlockHeight?: Ref<number | null>) {
     }
   }
 
-  return { transactionStatus, blockStatus }
+  const transactionStatusCrossChain = (
+    status: 'failed' | 'success' | 'pending' | null | undefined,
+  ): StatusDescriptor | null => {
+    if (status == null) return null
+    if (status === 'failed') {
+      return {
+        text: 'Cross Chain Transfer',
+        placement: 'top',
+        icon: IconCancel,
+        classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]',
+        description: 'Cross-chain transaction failed to execute',
+      }
+    }
+    if (status === 'success') {
+      return {
+        text: 'Cross Chain Transfer',
+        placement: 'top',
+        icon: IconCheckmarkFill,
+        classes: 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]',
+        description: 'Cross-chain transaction executed successfully',
+      }
+    }
+    return {
+      text: 'Cross Chain Transfer',
+      placement: 'top',
+      icon: IconHourglass,
+      classes: 'bg-[#17150d] border-[#44464980] text-[#989898]',
+      description: 'Cross-chain transaction is pending to be finalized or failed',
+    }
+  }
+
+  const transactionResultStatus = (
+    badResult: unknown | null | undefined,
+    goodResult: unknown | null | undefined,
+  ): StatusDescriptor | null => {
+    if (badResult !== null && badResult !== undefined) {
+      return {
+        text: 'Bad',
+        placement: 'top',
+        icon: IconCancel,
+        classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]',
+        description: 'Transaction returned a bad result',
+      }
+    }
+    if (goodResult !== null && goodResult !== undefined) {
+      return {
+        text: 'Good',
+        placement: 'top',
+        icon: IconCheckmarkFill,
+        classes: 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]',
+        description: 'Transaction returned a good result',
+      }
+    }
+    return null
+  }
+
+  return { transactionStatus, blockStatus, transactionStatusCrossChain, transactionResultStatus }
 }
 
 

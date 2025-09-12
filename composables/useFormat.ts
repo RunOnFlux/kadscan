@@ -188,6 +188,29 @@ export const useFormat = () => {
     }
   };
 
+  // --- Derived formatters used by transaction page ---
+  const formatKadenaPriceDisplay = (price: number | string | null | undefined): string | null => {
+    if (price == null) return null;
+    const n = typeof price === 'number' ? price : parseFloat(String(price));
+    if (!Number.isFinite(n)) return null;
+    return `$${n.toFixed(4)} / KDA`;
+  };
+
+  const formatGasLimitUsage = (
+    gasUsed: number | string | null | undefined,
+    gasLimit: number | string | null | undefined,
+  ): string => {
+    if (gasUsed == null || gasLimit == null) return '-';
+    const usedNum = parseInt(String(gasUsed));
+    const limitNum = parseInt(String(gasLimit));
+    if (!Number.isFinite(usedNum) || !Number.isFinite(limitNum)) return '-';
+    if (usedNum === 0 && limitNum === 0) return '0 | 0';
+    const percentage = ((usedNum / limitNum) * 100).toFixed(2);
+    const formattedUsed = new Intl.NumberFormat('en-US', { minimumFractionDigits: 0 }).format(usedNum);
+    const formattedLimit = new Intl.NumberFormat('en-US', { minimumFractionDigits: 0 }).format(limitNum);
+    return `${formattedLimit} | ${formattedUsed} (${percentage}%)`;
+  };
+
   return {
     truncateAddress,
     formatRelativeTime,
@@ -199,5 +222,8 @@ export const useFormat = () => {
     formatKdaFee,
     // general number formatting
     formatAmountWithEllipsis,
+    // transaction derived formatters
+    formatKadenaPriceDisplay,
+    formatGasLimitUsage,
   };
 }; 
