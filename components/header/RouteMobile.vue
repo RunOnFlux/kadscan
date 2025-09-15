@@ -28,7 +28,7 @@ const props = defineProps<{
     <NuxtLink
       :to="props.path"
       v-if="props.type === 'link'"
-      class="px-3 py-2 text-[#cccccc] hover:text-kadscan-500 block"
+      class="px-3 py-2 text-[#cccccc] hover:text-[#009367] block"
     >
       {{ props.label }}
     </NuxtLink>
@@ -39,8 +39,8 @@ const props = defineProps<{
       v-slot="{ open }"
     >
       <DisclosureButton
-        :class="open ? 'text-kadscan-500' : 'text-[#cccccc]'"
-        class="hover:text-kadscan-500 flex items-center justify-between w-full gap-2 px-3 py-2 ring-0 outline-none"
+        :class="open ? 'text-[#009367]' : 'text-[#cccccc]'"
+        class="hover:text-[#009367] flex items-center justify-between w-full gap-2 px-3 py-2 ring-0 outline-none"
       >
         <span
           class="text-sm"
