@@ -25,12 +25,12 @@ function saveChanges() {
 }
 
 const blockPresets = [
-  { value: 'latest-blocks', label: 'Latest Blocks' },
+  { value: 'recent-blocks', label: 'Recent Blocks' },
 ];
 
 const transactionPresets = [
-  { value: 'latest-transactions', label: 'Latest Transactions' },
-  { value: 'latest-coinbase-transactions', label: 'Latest Coinbase Transactions' },
+  { value: 'recent-transactions', label: 'Recent Transactions' },
+  { value: 'recent-coinbase-transactions', label: 'Recent Coinbase Transactions' },
 ];
 
 const presets = computed(() => {

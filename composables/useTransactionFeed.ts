@@ -13,7 +13,7 @@ export const useTransactionFeed = () => {
   const { selectedNetwork } = useSharedData();
 
   const sortedTransactionGroups = computed(() => {
-    const sourceMap = cardPreset.value === 'latest-coinbase-transactions'
+    const sourceMap = cardPreset.value === 'recent-coinbase-transactions'
       ? coinbaseTransactions.value
       : regularTransactions.value;
     return Array.from(sourceMap.values()).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());

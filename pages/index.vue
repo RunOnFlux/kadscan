@@ -109,7 +109,7 @@ const transactionListTitle = computed(() => {
         class="grid lg:grid-cols-1 gap-4 lg:gap-6"
       >
         <HomeList
-          label="Latest Blocks"
+          label="Recent Blocks"
           path="/blocks"
           :is-customizable="true"
           @customize="openModal('blocks')"

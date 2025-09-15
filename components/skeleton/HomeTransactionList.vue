@@ -4,7 +4,7 @@ import HomeList from '~/components/home/List.vue'
 
 <template>
   <HomeList
-    label="Latest Transactions"
+    label="Recent Transactions"
     is-customizable
   >
     <div
