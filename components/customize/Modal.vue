@@ -80,9 +80,6 @@ watch(() => props.isOpen, (isOpen) => {
 
             <div class="space-y-4">
               <div>
-                <h3 class="mb-3 text-xs tracking-wider text-[#b8b8b8] uppercase">
-                  Preset
-                </h3>
                 <div class="flex flex-wrap gap-4">
                   <CustomizeRadio
                     v-for="preset in presets"
@@ -104,7 +101,7 @@ watch(() => props.isOpen, (isOpen) => {
               Close
             </button>
             <button
-              class="px-3 py-2 text-sm text-white bg-[#0784c3] rounded-lg hover:bg-[#0670a6]"
+              class="px-3 py-2 text-sm text-white bg-[#009367] rounded-lg hover:bg-[#007a56]"
               @click="saveChanges"
             >
               Save changes
