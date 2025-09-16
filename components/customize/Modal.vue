@@ -75,7 +75,7 @@ watch(() => props.isOpen, (isOpen) => {
 
           <div class="p-4">
             <p class="mb-4 text-sm text-[#f5f5f5]">
-              Customize this card by selecting one of the options below.
+              Customize your view by choosing one of the options.
             </p>
 
             <div class="space-y-4">
@@ -95,7 +95,7 @@ watch(() => props.isOpen, (isOpen) => {
 
           <div class="flex justify-end gap-2 p-4 bg-[#151515] border-t border-gray-700">
             <button
-              class="px-3 py-2 text-sm text-gray-300 rounded-lg hover:bg-[#252525] hover:text-[#f5f5f5]"
+              class="px-3 py-2 text-sm rounded-lg bg-[#252525] hover:bg-[#222222] text-[#f5f5f5]"
               @click="closeModal"
             >
               Close

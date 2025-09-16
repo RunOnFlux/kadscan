@@ -25,7 +25,7 @@ onMounted(() => {
 
   const geometry = new THREE.BoxGeometry(1, 1, 1)
   const wireframeMaterial = new THREE.MeshBasicMaterial({ color: '#ffffff', wireframe: true });
-  const solidMaterial = new THREE.MeshBasicMaterial({ color: 0x009367, wireframe: true });
+  const solidMaterial = new THREE.MeshBasicMaterial({ color: 0x00e19d, wireframe: true });
 
   renderer.setSize(width, height)
   renderer.setPixelRatio(window.devicePixelRatio)

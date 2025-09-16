@@ -113,7 +113,7 @@ const medGasPrice = computed(() => {
                     @click="setNetwork(network)"
                     :class="[
                       active ? 'bg-[#222222]' : '',
-                      selectedNetwork.id === network.id ? 'text-[#6ab5db]' : 'text-[#f5f5f5]',
+                      selectedNetwork.id === network.id ? 'text-[#00e19d]' : 'text-[#f5f5f5]',
                       'group flex w-full items-center hover:bg-[#222222] justify-start rounded-md px-3 py-2 text-sm',
                     ]"
                   >

@@ -103,7 +103,7 @@ const marketCapInKda = computed(() => {
                   <Tooltip value="Total transactions and Average TPS of last 10 blocks">
                     <NuxtLink
                       to="/transactions"
-                      class="hover:text-[#009367]"
+                      class="hover:text-[#00e19d]"
                     >
                       {{ transactionsCountRef.transactionCount ? transactionsCountRef.transactionCount : '—' }}
                     </NuxtLink>
