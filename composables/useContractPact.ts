@@ -1,6 +1,6 @@
 import type { Ref } from 'vue'
 import { ref, watch, computed } from 'vue'
-import { parseJsonSafely, unescapeCodeString } from '~/composables/string'
+import { parseJsonSafely, unescapeCodeString } from '~/composables/useString'
 import { useSharedData } from '~/composables/useSharedData'
 
 type PactQueryItem = {

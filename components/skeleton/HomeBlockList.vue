@@ -4,7 +4,7 @@ import HomeList from '~/components/home/List.vue'
 
 <template>
   <HomeList
-    label="Latests Blocks"
+    label="Recent Blocks"
     is-customizable
   >
     <div

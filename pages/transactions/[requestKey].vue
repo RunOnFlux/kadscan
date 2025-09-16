@@ -1,21 +1,22 @@
 <script setup lang="ts">
 import { ref, nextTick, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
+// Composables
 import { useTransaction } from '~/composables/useTransaction'
+import { useBlocks } from '~/composables/useBlocks'
 import { useFormat } from '~/composables/useFormat'
 import { useScreenSize } from '~/composables/useScreenSize'
 import { useSharedData } from '~/composables/useSharedData'
-import { useBlocks } from '~/composables/useBlocks'
+import { useTransactionPolling } from '~/composables/useTransactionPolling'
+import { useStatus } from '~/composables/useStatus'
+// Constants & helpers
 import { staticTokens } from '~/constants/tokens'
-import { integer } from '~/composables/number'
-import { unescapeCodeString, parsePactCode, formatJsonPretty, formatSignatures } from '~/composables/string'
+import { unescapeCodeString, parsePactCode, formatJsonPretty, formatSignatures } from '~/composables/useString'
+// Components
 import TransactionLogs from '~/components/transaction/Logs.vue'
 import TransactionCrossChain from '~/components/transaction/CrossChain.vue'
-import { useStatus } from '~/composables/useStatus'
-import IconHourglass from '~/components/icon/Hourglass.vue'
-import IconCancel from '~/components/icon/Cancel.vue'
-import IconCheckmarkFill from '~/components/icon/CheckmarkFill.vue'
 import StatusBadge from '~/components/StatusBadge.vue'
+import IconHourglass from '~/components/icon/Hourglass.vue'
 import Clock from '~/components/icon/Clock.vue'
 import SkeletonTransactionDetails from '~/components/skeleton/TransactionDetails.vue'
 import ErrorOverlay from '~/components/error/Overlay.vue'
@@ -30,8 +31,9 @@ useHead({
   title: 'Transaction Details'
 })
 
+// Presentation helpers
 const { isMobile } = useScreenSize()
-const { formatRelativeTime, truncateAddress } = useFormat()
+const { formatRelativeTime, truncateAddress, formatKadenaPriceDisplay, formatGasLimitUsage, smartTruncateAddress, calculateKdaUsdValue } = useFormat()
 const { selectedNetwork } = useSharedData()
 const route = useRoute()
 
@@ -53,57 +55,72 @@ const {
   kadenaPrice,
   signerTransferValue,
   transactionSigners,
-  crossChainTransactionStatus,
-  // Cross-chain properties
+  displayHash,
+  displayChainId,
+  age,
+  feePayer,
+  transfersCount,
+  eventsCount,
   crossChainTransaction,
   loadingCrossChain,
   crossChainTransfers,
   isSourceTransaction,
   hasCrossChainData,
   isCrossChain,
+  crossChainTransactionStatus,
   transactionExecutionResult,
 } = useTransaction(transactionId, networkId)
 
+// Status helpers
+const { transactionStatus: computeTxStatus, transactionStatusCrossChain, transactionResultStatus } = useStatus(lastBlockHeight)
+const transactionStatus = computed(() => computeTxStatus(
+  transaction.value?.result?.block?.height,
+  transaction.value?.result?.block?.canonical,
+  transaction.value?.result?.badResult,
+))
+const crossChainStatus = computed(() => transactionStatusCrossChain(crossChainTransactionStatus.value))
+const executionResultBadge = computed(() => transactionResultStatus(
+  transaction.value?.result?.badResult,
+  transaction.value?.result?.goodResult,
+))
+
+// Formatted values via useFormat helpers
+const formattedKadenaPrice = computed(() => formatKadenaPriceDisplay(kadenaPrice.value))
+const formattedGasInfo = computed(() => formatGasLimitUsage(
+  transaction.value?.result?.gas,
+  transaction.value?.cmd?.meta?.gasLimit,
+))
+
 // Text content for tooltips and labels
 const textContent = {
-  transactionHash: { label: 'Request Key:', description: 'Request Key is a unique identifier that is generated whenever a transaction is executed.' },
-  status: { label: 'Status:', description: 'The status of the transaction.' },
-  block: { label: 'Block:', description: 'Number of the block height in which the transaction is recorded. Block confirmations indicate how many blocks have been added since the transaction was produced.' },
-  chainId: { label: 'Chain ID:', description: 'The specific chain (0-19) on which this block was mined' },
-  timestamp: { label: 'Timestamp:', description: 'Date and time at which a transaction is produced.' },
-  signers: { label: 'Signers:', description: 'Accounts that authorized this transaction.' },
-  paidBy: { label: 'Paid By:', description: 'The account that submitted and paid the gas fees for this transaction.' },
-  tokenTransfers: { label: 'Token Transfers:', description: 'Individual token transfers within this transaction' },
-  value: { label: 'Value:', description: 'Total KDA transferred out of the signer(s) account(s) due to this transaction.' },
-  transactionFee: { label: 'Transaction Fee:', description: 'Amount paid to process this transaction in KDA.' },
-  gasPrice: { label: 'Gas Price:', description: 'Cost per unit of gas spent for this transaction.' },
-  kadenaPrice: { label: 'Kadena Price:', description: 'Price of KDA on the day this transaction was created.' },
-  gasLimit: { label: 'Gas Limit & Usage by Txn:', description: 'Maximum amount of gas allocated for the transaction & the amount eventually used.' },
-  result: { label: 'Result:', description: 'Transaction execution result returned by Pact.' },
-  otherAttributes: { label: 'Other Attributes:', description: 'Other data related to this transaction.' },
-  inputData: { label: 'Input Data:', description: 'Pact code executed in this transaction.' },
+  transactionHash: { label: 'Request Key:', description: 'A unique request key assigned to each submitted transaction.' },
+  status: { label: 'Status:', description: 'The current state or outcome of this transaction.' },
+  block: { label: 'Block:', description: 'The block height that recorded this transaction. Confirmations count blocks added after it.' },
+  chainId: { label: 'Chain ID:', description: 'The chain index (0–19) where this transaction was executed.' },
+  timestamp: { label: 'Timestamp:', description: 'The date and time the transaction was created.' },
+  signers: { label: 'Signers:', description: 'Accounts whose signatures authorized this transaction.' },
+  paidBy: { label: 'Paid By:', description: 'The account that paid for the gas.' },
+  tokenTransfers: { label: 'Token Transfers:', description: 'Individual token movements caused by this transaction.' },
+  value: { label: 'Value:', description: 'Total Kadena (KDA) debited from the signer accounts by this transaction.' },
+  transactionFee: { label: 'Transaction Fee:', description: 'The KDA paid to process this transaction.' },
+  gasPrice: { label: 'Gas Price:', description: 'The price paid per unit of gas in Kadena (KDA).' },
+  kadenaPrice: { label: 'Kadena Price:', description: 'KDA’s market price at the time this transaction was created.' },
+  gasLimit: { label: 'Gas Limit & Usage by Txn:', description: 'The maximum gas allowed and the amount actually used.' },
+  result: { label: 'Result:', description: 'The execution outcome returned by Pact.' },
+  otherAttributes: { label: 'Other Attributes:', description: 'Additional metadata related to this transaction.' },
+  inputData: { label: 'Input Data:', description: 'The Pact code and inputs executed by this transaction.' },
   moreDetails: { label: 'More Details:' },
 }
 
-// Polling variables and functions
-let pollingInterval: ReturnType<typeof setInterval> | null = null;
-
-const stopPolling = () => {
-  if (pollingInterval) {
-    clearInterval(pollingInterval);
-    pollingInterval = null;
-  }
-};
-
-const startPolling = () => {
-  stopPolling();
-  pollingInterval = setInterval(() => {
-    if (networkId.value && transactionId.value) {
-      fetchTransaction();
-      fetchLastBlockHeight({ networkId: networkId.value });
-    }
-  }, 6000);
-};
+// Background polling control (initial skeleton only; keep content visible during polling)
+const { isPolling } = useTransactionPolling({
+  transaction,
+  lastBlockHeight,
+  networkId,
+  transactionId,
+  fetchTransaction,
+  fetchLastBlockHeight,
+})
 
 // Tab management - simplified for now
 const activeTab = ref('Overview')
@@ -121,7 +138,7 @@ const resizeStartY = ref(0)
 const resizeStartHeight = ref(0)
 const contentHeightCodeVariation = ref(0)
 
-// Code view functionality
+// Code view functionality (presentation-only)
 const codeView = ref('default') // 'default' or 'raw'
 
 const toggleMoreDetails = () => {
@@ -166,7 +183,7 @@ const stopResize = () => {
   document.removeEventListener('mouseup', stopResize)
 }
 
-// Computed property for code display
+// Computed property for code display (presentation-only)
 const displayedCode = computed(() => {
   const rawCode = transaction.value?.cmd?.payload?.code
   
@@ -179,72 +196,6 @@ const displayedCode = computed(() => {
   } else if (codeView.value === 'signatures') {
     return formatSignatures(transaction.value?.sigs)
   }
-})
-
-  const { transactionStatus: computeTxStatus } = useStatus(lastBlockHeight)
-  const transactionStatus = computed(() => computeTxStatus(
-    transaction.value?.result?.block?.height,
-    transaction.value?.result?.block?.canonical,
-    transaction.value?.result?.badResult,
-  ))
-
-  // Cross-chain transaction status (duplicated from transactionStatus pattern)
-  const crossChainStatus = computed(() => {
-    // Return null if no cross-chain transaction detected
-    if (!crossChainTransactionStatus.value) return null
-
-    if (crossChainTransactionStatus.value === 'failed') {
-      return {
-        text: 'Cross Chain Transfer',
-        icon: IconCancel,
-        classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]',
-        description: 'Cross-chain transaction failed to execute',
-      };
-    }
-
-    if (crossChainTransactionStatus.value === 'success') {
-      return {
-        text: 'Cross Chain Transfer',
-        icon: IconCheckmarkFill,
-        classes: 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]',
-        description: 'Cross-chain transaction executed successfully',
-      };
-    }
-
-    return {
-      text: 'Cross Chain Transfer',
-      icon: IconHourglass,
-      classes: 'bg-[#17150d] border-[#44464980] text-[#989898]',
-      description: 'Cross-chain transaction is pending to be finalized or failed',
-    };
-  });
-
-const displayHash = computed(() => {
-  if (!transaction.value?.hash) return ''
-  return transaction.value.hash
-})
-
-const displayChainId = computed(() => {
-  return transaction.value?.cmd?.meta?.chainId ?? '-'
-})
-
-const age = computed(() => {
-  if (!transaction.value?.cmd?.meta?.creationTime) return ''
-  return formatRelativeTime(transaction.value.cmd.meta.creationTime)
-})
-
-// Removed: from computed - now using transactionSigners from composable
-
-const feePayer = computed(() => {
-  return transaction.value?.cmd?.meta?.sender || ''
-})
-
-const transfersCount = computed(() => {
-  return transaction.value?.result?.transfers?.totalCount || 0
-})
-
-const eventsCount = computed(() => {
-  return transaction.value?.result?.eventCount || 0
 })
 
 // Tab management - defined after eventsCount to avoid initialization order issues
@@ -265,7 +216,7 @@ watch(tabLabels, (newLabels) => {
   }
 }, { immediate: true })
 
-// Token metadata helper function
+// Token metadata helper function (UI helper)
 const getTokenMetadata = (moduleName: string) => {
   const tokenData = staticTokens.find(token => token.module === moduleName)
   return tokenData || {
@@ -276,89 +227,25 @@ const getTokenMetadata = (moduleName: string) => {
   }
 }
 
-// Calculate USD value for KDA transfers
-const calculateKdaUsdValue = (amount: string, isKda: boolean) => {
-  if (!isKda || !kadenaPrice.value || !amount) return null
-  
-  const numericAmount = parseFloat(amount)
-  const priceValue = parseFloat(kadenaPrice.value.toString())
-  const usdValue = numericAmount * priceValue
-  
-  return usdValue.toFixed(6)
-}
-
-// Format kadena price for display
-const formattedKadenaPrice = computed(() => {
-  if (!kadenaPrice.value) return null
-  
-  const price = typeof kadenaPrice.value === 'number' 
-    ? kadenaPrice.value 
-    : parseFloat(kadenaPrice.value.toString())
-    
-  return isNaN(price) ? null : `$${price.toFixed(4)} / KDA`
-})
-
-// Format gas limit and usage information
-const formattedGasInfo = computed(() => {
-  const gasUsed = transaction.value?.result?.gas
-  const gasLimit = transaction.value?.cmd?.meta?.gasLimit
-  
-  if (!gasUsed || !gasLimit) return '-'
-  
-  const usedNum = parseInt(gasUsed)
-  const limitNum = parseInt(gasLimit)
-
-  // Don't show percentage if both are 0 or if calculation would result in NaN
-  if (usedNum === 0 && limitNum === 0) {
-    return "0 | 0"
-  }
-  
-  // Calculate percentage
-  const percentage = ((usedNum / limitNum) * 100).toFixed(2)
-  
-  // Format numbers with commas
-  const formattedUsed = integer.format(usedNum)
-  const formattedLimit = integer.format(limitNum)
-  
-  return `${formattedLimit} | ${formattedUsed} (${percentage}%)`
-})
-
-// Execution Result badge mapping (Good/Bad)
-const executionResultBadge = computed(() => {
-  if (!transactionExecutionResult?.value) return null
-  if (transactionExecutionResult.value.type === 'badResult') {
-    return {
-      text: 'Bad',
-      icon: IconCancel,
-      classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]',
-      description: 'Transaction returned a bad result',
-    }
-  }
-  return {
-    text: 'Good',
-    icon: IconCheckmarkFill,
-    classes: 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]',
-    description: 'Transaction returned a good result',
-  }
-})
-
-// Helper function to conditionally truncate only hash-format addresses
-const smartTruncateAddress = (address: string) => {
-  if (!address) return address
-  
-  // Check if it's a long hash format address (k: followed by a long hex string)
-  const isHashFormat = address.startsWith('k:') || address.length > 25
-  
-  if (isHashFormat) {
-    return truncateAddress(address, 10, 10)
-  }
-  
-  // Return as-is for short/human-readable addresses
-  return address
+// Minimal local types for transfer helpers
+type TransferNode = {
+  moduleName: string
+  amount: string
+  senderAccount?: string
+  receiverAccount?: string
+  requestKey?: string
+  crossChainTransfer?: {
+    creationTime?: string
+    receiverAccount?: string
+    requestKey?: string
+    senderAccount?: string
+    block?: { canonical?: boolean; chainId?: string }
+    transaction?: { result?: { badResult?: unknown | null; goodResult?: unknown | null } }
+  } | null
 }
 
 // Helper functions to get actual sender/receiver addresses for cross-chain transfers
-const getActualSender = (transfer: any) => {
+const getActualSender = (transfer: TransferNode) => {
   // Try regular senderAccount first, then crossChainTransfer.senderAccount
   const directSender = transfer.senderAccount || transfer.crossChainTransfer?.senderAccount
   if (directSender && directSender !== '') return directSender
@@ -372,14 +259,24 @@ const getActualSender = (transfer: any) => {
   return 'k:system'
 }
 
-const getActualReceiver = (transfer: any) => {
+const getActualReceiver = (transfer: TransferNode) => {
   // Try regular receiverAccount first, then crossChainTransfer.receiverAccount
   const receiver = transfer.receiverAccount || transfer.crossChainTransfer?.receiverAccount
   if (receiver) return receiver
   return 'k:system'
 }
 
-// Fetch transaction data
+// Deterministic composite key for transfers; falls back to requestKey/hash when needed
+const makeTransferKey = (transfer: TransferNode, index: number) => {
+  const a = getActualSender(transfer)
+  const b = getActualReceiver(transfer)
+  const m = transfer.moduleName
+  const amt = transfer.amount
+  const fallback = transfer.requestKey || transaction.value?.hash || 'tx'
+  return `${m}:${a}:${b}:${amt}:${index}:${fallback}`
+}
+
+// Fetch transaction data on id/network changes (initial skeleton on fresh mount)
 watch([transactionId, networkId], ([newTxId, newNetworkId], [oldTxId, oldNetworkId]) => {
   // If network changes while on the page, clear state to show skeleton
   if (newNetworkId !== oldNetworkId) {
@@ -400,27 +297,6 @@ watch(
   { immediate: true }
 );
 
-// Polling control watcher
-watch(
-  [() => transaction.value, lastBlockHeight],
-  ([currentTransaction, newLastBlockHeight]) => {
-    if (!currentTransaction) return;
-
-    const hasFailed = currentTransaction?.result?.badResult !== null;
-    const isOldEnough = currentTransaction?.result?.block?.height &&
-      (newLastBlockHeight - currentTransaction.result.block.height) > 6;
-
-    // Keep polling until the transaction's block is old enough (>= 6 confirmations)
-    // or the transaction has failed. Canonical flag may flip later; do not stop based on it.
-    if (hasFailed || isOldEnough) {
-      stopPolling();
-    } else {
-      startPolling();
-    }
-  },
-  { deep: true }
-);
-
 onMounted(() => {
   // Fresh page mount: clear shared composable state to show skeleton
   clearState()
@@ -430,9 +306,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  // Clean up polling interval
-  stopPolling();
-  // Clean up event listeners
+  // Clean up event listeners for code resize
   document.removeEventListener('mousemove', handleResize)
   document.removeEventListener('mouseup', stopResize)
 })
@@ -449,7 +323,7 @@ onUnmounted(() => {
     </div>
 
     <!-- Loading state -->
-    <SkeletonTransactionDetails v-if="loading && !pollingInterval" />
+    <SkeletonTransactionDetails v-if="loading && !isPolling" />
 
     <!-- Transaction content -->
     <div v-else-if="transaction">
@@ -645,7 +519,7 @@ onUnmounted(() => {
                   <div class="flex flex-col gap-3">
                     <div 
                       v-for="(transferEdge, index) in transaction.result.transfers.edges" 
-                      :key="transferEdge.node.id"
+                      :key="makeTransferKey(transferEdge.node, index)"
                       class="flex flex-wrap items-center gap-1.5 text-[15px]"
                     >
                       <!-- From Address -->
@@ -686,10 +560,10 @@ onUnmounted(() => {
                       
                       <!-- USD Value for KDA -->
                       <span 
-                        v-if="calculateKdaUsdValue(transferEdge.node.amount, transferEdge.node.moduleName === 'coin')" 
+                        v-if="calculateKdaUsdValue(transferEdge.node.amount, transferEdge.node.moduleName === 'coin', kadenaPrice)" 
                         class="text-[#bbbbbb]"
                       >
-                        (${{ calculateKdaUsdValue(transferEdge.node.amount, transferEdge.node.moduleName === 'coin') }})
+                        (${{ calculateKdaUsdValue(transferEdge.node.amount, transferEdge.node.moduleName === 'coin', kadenaPrice) }})
                       </span>
                       
                       <!-- Token Icon -->
@@ -736,7 +610,7 @@ onUnmounted(() => {
                   <template #value>
                     <div class="flex items-center gap-2">
                       <span class="text-[#f5f5f5]">{{ signerTransferValue }} KDA</span>
-                      <span v-if="signerTransferValue > 0" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(signerTransferValue, true) }})</span>
+                      <span v-if="signerTransferValue > 0" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(signerTransferValue, true, kadenaPrice) }})</span>
                     </div>
                   </template>
                 </LabelValue>
@@ -745,7 +619,7 @@ onUnmounted(() => {
                   <template #value>
                     <div class="flex items-center gap-2">
                       <span class="text-[#f5f5f5]">{{ transactionFee }} KDA</span>
-                      <span v-if="transactionFee > 0" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(transactionFee, true) }})</span>
+                      <span v-if="transactionFee > 0" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(transactionFee, true, kadenaPrice) }})</span>
                     </div>
                   </template>
                 </LabelValue>

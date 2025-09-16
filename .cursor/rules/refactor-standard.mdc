@@ -1,0 +1,92 @@
+---
+description: "Refactor code"
+alwaysApply: false
+---
+## Refactor objective (must hold true)
+- Preserve existing behavior and UX.
+- No new frameworks or global switches. Do NOT enable TS strict globally, add Pinia, or add test suites.
+- Data path: components/pages -> composables -> Nuxt `server/api/*` -> external indexer (GraphQL). No direct external fetches in `.vue`.
+- Work on ONE page at a time. Update `TODO.md` and pause for manual review before cascading.
+
+## Required process (checklist per page)
+1) Inventory dependencies: components, composables, utils, `server/api/*`, route params/query, assets.
+2) Trace data flow end-to-end; make SSR-safe (`useAsyncData`/`useFetch` patterns). Eliminate direct external calls in `.vue`.
+3) Normalize reactive state: consolidate refs, prefer `computed` over watchers, remove redundant state.
+4) Extract/relocate logic: move pure/duplicated helpers to appropriate composables/utils. Avoid behavior changes.
+5) API handling: composables call Nuxt API; standardize loading/error/empty shapes surfaced from composables.
+6) Types: add/strengthen local types and composable return types. Avoid `any`. Do not change global TS config.
+7) Organize files per layout below and group/sort imports (vue/nuxt -> third-party -> internal).
+8) Comments: concise docstrings explaining "why" for nontrivial logic.
+9) Accessibility/performance: keys on v-for, avoid heavy reactive arrays when not needed, memoize derived data.
+10) Impact analysis: for each changed composable/util, list all consumers and add cascade items to `TODO.md`.
+11) Update `TODO.md` progress and stop for manual review before proceeding to cascade tasks.
+12) Prefer reuse of existing helpers in `composables/string.ts`, `composables/number.ts`, or domain composables before adding new ones.
+13) SSR mode changes require explicit approval per page; default to preserving current behavior.
+14) New composables must be re-entrant, expose reactive state where relevant, and perform robust cleanup.
+15) Prefer adding new composables over changing interfaces of widely used ones. Interface changes require explicit approval and cascade planning.
+16) Move extractable computed derivations into composables. Keep only UI-local computed (toggle/DOM/state-only) in pages.
+17) Actively update `TODO.md` as you progress: tick items immediately after completion and before starting the next step.
+18) Avoid parallel derivations. Do not introduce new derived-data composables that duplicate logic available in existing domain composables. Consolidate instead.
+19) When a monolithic composable mixes concerns, split it by domain. Example: move cross-chain handling out of `useTransaction` into `useTransactionCrossChain`.
+20) Interface changes to widely used composables require explicit approval and a deprecation plan. Maintain backward compatibility in this pass (delegate old fields) or update all consumers in the same pass.
+21) Remove unused returns from composables only after confirming there are no consumers via repo search; otherwise mark them deprecated and add cascade tasks to migrate.
+22) Do NOT create new "derived" composables for page-level domain logic. Move domain computed into the main domain composable used by the page (e.g., `useTransactions` for transactions list, `useTransaction` for details).
+23) Do NOT introduce undefined aliases or speculative calls. Every symbol used MUST be declared/imported in the same file and come from the same composable instance (no phantom variables like `useTx`).
+24) Remove duplicate/contradictory comments. Replace block comments with single-line `//` and keep one concise comment per section.
+25) Ensure at most one `onMounted` per SFC. Merge multiple blocks and preserve side-effect order.
+
+## Composable interface standard (per page)
+- Return shape includes at minimum: `{ data, loading, error }` where `data` is typed, `loading`/`error` are reactive.
+- Provide `isEmpty` as a computed when empty semantics are relevant to the page.
+- Keep types local to the composable or page; export only when strictly necessary.
+- Avoid side effects during setup; start effects explicitly and ensure cleanup.
+- Prefer placing domain computed/derivations inside composables rather than pages.
+- Consolidate status/format derivations into domain composables (`useStatus`, `useFormat`) where appropriate to maximize reuse and minimize duplication.
+ - Transaction-specific formatters MUST be either:
+   - Added to `useTransactions`/`useTransaction` (domain placement), or
+   - Added to `useFormat` with domain-prefixed names (e.g., `formatTransactionMethod`, `formatTransactionMethodFull`). Avoid generic names that lack context.
+
+## Post-edit verification (must be checked in `TODO.md`)
+- SFC order and import grouping applied.
+- Skeleton/spinner usage preserved per current UX.
+- Initial-load skeleton must not show during background polling; content stays visible while polling.
+- No direct external fetches in pages/components.
+- No console errors or warnings.
+ - No public interface changes to widely used composables or shared components without explicit approval.
+
+## Commenting standard (enforced when editing)
+- Use single-line `//` comments only. Do not use block `/** */` doc comments.
+- Add a short comment above nontrivial refs/constants explaining purpose.
+- Add a brief comment above each nontrivial computed and every watcher describing rationale/conditions.
+- Group lifecycle hooks together; ensure at most one `onMounted` block. Merge duplicates.
+- Add a short header comment for complex functions/helpers explaining intent and key invariants.
+
+## SFC layout order (enforced when editing)
+<script setup>
+- Imports
+- Local types
+- Props/Emits
+- Constants
+- Reactive State (refs/reactive)
+- Computed (UI-local only; domain computed live in composables)
+- Watchers
+- Lifecycle hooks
+- Functions (top-down helpers, then event handlers)
+</script>
+Template
+Styles (if present)
+
+## Acceptance criteria
+- Behavior unchanged; no console errors; lints/build pass.
+- No direct external indexer calls in components/pages.
+- Data fetching centralized in composables → Nuxt API.
+- Reduced duplication; clearer structure; typed composable interfaces.
+
+## Prohibited during refactor
+- Enabling TS `strict` globally, adding Pinia, adding Playwright/Vitest.
+- Cross-cutting rewrites across multiple pages in one pass.
+- Removing legacy site code (defer; current task focuses on active pages).
+
+## Working with `TODO.md`
+- Record the current target page, tick each checklist item, and list cascade impacts.
+- If changes affect shared composables/utils, add individual cascade tasks and pause for manual review.

@@ -1,6 +1,7 @@
-import { ref, computed } from 'vue'
+import { ref, computed, type Ref } from 'vue'
 import { useBinance } from '~/composables/useBinance'
 import { useFormat } from '~/composables/useFormat'
+import { useTransactionCrossChain } from '~/composables/useTransactionCrossChain'
 
 // Helper: determine if a pubkey can be mapped to a Kadena k:<pubkey> account
 const isKAccountPubKey = (value: string | undefined | null) => {
@@ -122,80 +123,41 @@ query Transaction($requestKey: String!, $first: Int, $transfersFirst2: Int) {
 }
 `;
 
-// Query for fetching cross-chain related transaction
-const CROSS_CHAIN_RELATED_TRANSACTION_QUERY = `
-  query GetRelatedTransaction($requestKey: String!) {
-    transaction(requestKey: $requestKey) {
-      hash
-      cmd {
-        meta {
-          chainId
-          creationTime
-          gasLimit
-          gasPrice
-          sender
-          ttl
-        }
-        networkId
-        nonce
-        payload {
-          ... on ContinuationPayload {
-            data
-            pactId
-            proof
-            rollback
-            step
-          }
-          ... on ExecutionPayload {
-            code
-            data
-          }
-        }
-      }
-      result {
-        ... on TransactionResult {
-          badResult
-          block {
-            chainId
-            canonical
-            height
-          }
-          continuation
-          gas
-          goodResult
-          transactionId
-        }
-      }
-    }
-  }
-`;
-
 const transaction = ref<any>(null)
 const loading = ref(true)
 const error = ref<any>(null)
 const kadenaPrice = ref<number | null>(null)
 const kadenaPriceLastDay = ref<Date | null>(null)
 
-// Cross-chain related transaction state
-const crossChainTransaction = ref<any>(null)
-const loadingCrossChain = ref(false)
-
-// Clear state for fresh page mounts (do not use for in-page param changes)
-const clearState = () => {
-  transaction.value = null
-  loading.value = true
-  error.value = null
-  crossChainTransaction.value = null
-  loadingCrossChain.value = false
-}
+// Clear state is defined inside useTransaction to reset both base and cross-chain state
 
 export const useTransaction = (
   transactionId: Ref<string | undefined>,
   networkId: Ref<string | undefined>
 ) => {
+  // Cross-chain delegation (instantiate now to access state for clearState)
+  const {
+    crossChainTransaction,
+    loadingCrossChain,
+    fetchCrossChainTransaction,
+    isCrossChain,
+    crossChainTransfers,
+    isSourceTransaction,
+    hasCrossChainData,
+    crossChainTransactionStatus,
+  } = useTransactionCrossChain({ transaction })
+
+  // Clear state for fresh page mounts (do not use for in-page param changes)
+  const clearState = () => {
+    transaction.value = null
+    loading.value = true
+    error.value = null
+    crossChainTransaction.value = null
+    loadingCrossChain.value = false
+  }
   const { fetchKadenaPriceAtDate } = useBinance()
   const { lastBlockHeight, fetchLastBlockHeight } = useBlocks();
-  const { formatGasPrice, formatKda } = useFormat()
+  const { formatGasPrice, formatKda, formatRelativeTime } = useFormat()
 
   const fetchKadenaPrice = async (creationTime: string) => {
     if (!creationTime) return
@@ -212,32 +174,7 @@ export const useTransaction = (
     }
   }
 
-  // Function to fetch cross-chain related transaction
-  const fetchCrossChainTransaction = async (requestKey: string, networkId: string) => {
-    if (!requestKey || !networkId) return
-    
-    loadingCrossChain.value = true
-    try {
-      const response: any = await $fetch('/api/graphql', {
-        method: 'POST',
-        body: {
-          query: CROSS_CHAIN_RELATED_TRANSACTION_QUERY,
-          variables: {
-            requestKey: requestKey
-          },
-          networkId: networkId
-        }
-      })
-      if (response?.errors) {
-        throw new Error('Unable to load related transaction. Please try again.')
-      }
-      crossChainTransaction.value = response?.data?.transaction
-    } catch (error) {
-      crossChainTransaction.value = null
-    } finally {
-      loadingCrossChain.value = false
-    }
-  }
+  // cross-chain helpers already initialized above
 
   // Computed properties for derived data
   const primaryTransfer = computed(() => {
@@ -323,51 +260,6 @@ export const useTransaction = (
       })
   })
 
-  // Cross-chain transaction status detection (evidence-based only)
-  const crossChainTransactionStatus = computed(() => {
-    const hasContinuationResult = transaction.value?.result?.continuation !== null && transaction.value?.result?.continuation !== undefined
-    const hasContinuationPayload = transaction.value?.cmd?.payload?.pactId !== null && transaction.value?.cmd?.payload?.pactId !== undefined
-
-    // Only evaluate status when there is continuation evidence
-    if (!hasContinuationResult && !hasContinuationPayload) return null
-
-    const transfers = transaction.value?.result?.transfers?.edges?.map((edge: any) => edge.node) || []
-
-    // Consider only transfers with crossChainTransfer data
-    const transfersWithCrossChain = transfers.filter((transfer: any) => transfer.crossChainTransfer !== null)
-
-    // Failed: any cross-chain transfer with badResult
-    for (const transfer of transfersWithCrossChain) {
-      if (transfer.crossChainTransfer?.transaction?.result?.badResult !== null) {
-        return 'failed'
-      }
-    }
-
-    // Success: any cross-chain transfer with complementary endpoints
-    const hasCompletePair = transfersWithCrossChain.some((transfer: any) => {
-      const crossChain = transfer.crossChainTransfer
-      const hasSender = transfer.senderAccount || crossChain?.senderAccount
-      const hasReceiver = transfer.receiverAccount || crossChain?.receiverAccount
-      return Boolean(hasSender && hasReceiver)
-    })
-    if (hasCompletePair) {
-      return 'success'
-    }
-
-    // Pending: continuation evidence exists but neither failed nor success (e.g., no crossChainTransfer yet or incomplete)
-    return 'pending'
-  })
-
-  // Cross-chain detection flag used for tab visibility and pending views
-  // True when continuation exists (destination step) or when our heuristic detects
-  // a cross-chain flow (source/destination with missing sender/receiver), or when
-  // the payload already exposes a pactId (ContinuationPayload present)
-  const isCrossChain = computed(() => {
-    const hasContinuationResult = transaction.value?.result?.continuation !== null && transaction.value?.result?.continuation !== undefined
-    const hasContinuationPayload = transaction.value?.cmd?.payload?.pactId !== null && transaction.value?.cmd?.payload?.pactId !== undefined
-    return Boolean(hasContinuationResult || hasContinuationPayload)
-  })
-
   const signerTransferValue = computed(() => {
     if (!transaction.value?.cmd?.signers?.length || !transaction.value?.result?.transfers?.edges?.length) {
       return '0'
@@ -392,44 +284,17 @@ export const useTransaction = (
     return totalValue.toString()
   })
 
-  // Cross-chain computed properties
-  const crossChainTransfers = computed(() => {
-    if (!transaction.value?.result?.transfers?.edges) return []
-    
-    return transaction.value.result.transfers.edges
-      .filter((edge: any) => edge.node.crossChainTransfer !== null)
-      .map((edge: any) => {
-        // Determine if current transaction is source or destination
-        const isSource = transaction.value.cmd.payload?.step === undefined
-        
-        return {
-          ...edge.node,
-          // Always show correct source → destination flow regardless of which transaction we're viewing
-          sourceChainId: isSource 
-            ? transaction.value.cmd.meta.chainId 
-            : edge.node.crossChainTransfer.block.chainId,
-          destinationChainId: isSource 
-            ? edge.node.crossChainTransfer.block.chainId 
-            : transaction.value.cmd.meta.chainId,
-          // Keep for backward compatibility but mark as deprecated
-          currentChainId: transaction.value.cmd.meta.chainId,
-          destinationRequestKey: edge.node.crossChainTransfer.requestKey,
-          destinationCreationTime: edge.node.crossChainTransfer.creationTime,
-          isDestinationSuccessful: edge.node.crossChainTransfer.transaction?.result?.badResult === null
-        }
-      })
+  // Lightweight derived fields on transaction state
+  const displayHash = computed<string>(() => String(transaction.value?.hash || ''))
+  const displayChainId = computed<string>(() => transaction.value?.cmd?.meta?.chainId ?? '-')
+  const age = computed<string>(() => {
+    const creation = transaction.value?.cmd?.meta?.creationTime
+    if (!creation) return ''
+    return formatRelativeTime(String(creation))
   })
-
-  // Determine if current transaction is source or destination
-  const isSourceTransaction = computed(() => {
-    // If we have a continuation payload, this is likely the destination
-    return transaction.value?.cmd?.payload?.step === undefined
-  })
-
-  // Cross-chain data availability check
-  const hasCrossChainData = computed(() => {
-    return crossChainTransfers.value.length > 0
-  })
+  const feePayer = computed<string>(() => transaction.value?.cmd?.meta?.sender || '')
+  const transfersCount = computed<number>(() => transaction.value?.result?.transfers?.totalCount || 0)
+  const eventsCount = computed<number>(() => transaction.value?.result?.eventCount || 0)
 
   const fetchTransaction = async () => {
     if (!transactionId.value || !networkId.value) {
@@ -508,6 +373,14 @@ export const useTransaction = (
     blockConfirmations,
     signerTransferValue,
     transactionSigners,
+    // Lightweight derived fields
+    displayHash,
+    displayChainId,
+    age,
+    feePayer,
+    transfersCount,
+    eventsCount,
+    // Cross-chain (delegated)
     crossChainTransactionStatus,
     isCrossChain,
     // Cross-chain properties

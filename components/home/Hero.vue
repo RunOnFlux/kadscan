@@ -4,7 +4,7 @@
   <div class="grid lg:grid-cols-[1fr_auto] mb-10">
     <div class="flex flex-col justify-between w-full py-6">
       <h1 class="text-[#f5f5f5] font-semibold text-[20px] mb-2 my-2">
-        Kadena Blockchain Explorer
+        Kadena Block Explorer
       </h1>
 
       <SearchInput />

@@ -1,7 +1,8 @@
 <script setup lang="ts">
+// Vue core
 import { ref, watch, computed } from 'vue';
-import IconDownload from '~/components/icon/Download.vue';
-import { useStatus } from '~/composables/useStatus';
+
+// Components
 import StatusBadge from '~/components/StatusBadge.vue';
 import DataTable from '~/components/DataTable.vue';
 import FilterSelect from '~/components/FilterSelect.vue';
@@ -10,121 +11,29 @@ import Copy from '~/components/Copy.vue';
 import SkeletonTable from '~/components/skeleton/Table.vue';
 import ErrorOverlay from '~/components/error/Overlay.vue';
 import ColumnGas from '~/components/column/Gas.vue';
+import IconDownload from '~/components/icon/Download.vue';
+import IconRefresh from '~/components/icon/Refresh.vue';
+
+// Composables
+import { useStatus } from '~/composables/useStatus';
 import { useTransactions } from '~/composables/useTransactions';
 import { useTransactionsByPactCode } from '~/composables/useTransactionsByPactCode';
-import { useFormat } from '~/composables/useFormat';
+import { useBlocks } from '~/composables/useBlocks';
 import { useSharedData } from '~/composables/useSharedData';
 import { useScreenSize } from '~/composables/useScreenSize';
-import { exportableToCsv } from '~/composables/csv';
-import { downloadCSV } from '~/composables/csv';
-import { useBlocks } from '~/composables/useBlocks';
-import IconRefresh from '~/components/icon/Refresh.vue';
 import { useTransactionCountWss } from '~/composables/useTransactionWss';
+import { useFormat } from '~/composables/useFormat';
 
+// Utils
+import { exportableToCsv, downloadCSV } from '~/composables/useCSV';
+
+// Constants
 definePageMeta({
   layout: 'app',
   middleware: ['sanitize-chain'],
 });
 
-useHead({
-  title: 'Transactions'
-});
-
-const route = useRoute();
-const router = useRouter();
-const { truncateAddress, formatKdaFee } = useFormat();
-const { selectedNetwork } = useSharedData();
-const { isMobile } = useScreenSize();
-
-const { 
-  lastBlockHeight, 
-  fetchLastBlockHeight, 
-  error: blocksError, 
-  clearState: clearBlocksState 
-  } = useBlocks();
-
-const { 
-  error: transactionsError,
-  transactions, 
-  loading, 
-  fetchTransactions,
-  pageInfo, 
-  totalCount, 
-  rowsToShow, 
-  updateRowsToShow,
-  clearState: clearTransactionsState,
-} = useTransactions();
-
-// Code-mode support (minimum 4 characters)
-const codeMode = computed(() => typeof route.query.code === 'string' && route.query.code.length >= 4);
-const {
-  error: codeError,
-  transactions: codeTransactions,
-  loading: codeLoading,
-  fetchTransactionsByCode,
-  pageInfo: codePageInfo,
-  rowsToShow: codeRowsToShow,
-  updateRowsToShow: updateCodeRowsToShow,
-  clearState: clearCodeState,
-} = useTransactionsByPactCode();
-
-// Chain filter state (middleware ensures query.chain is valid or absent)
-const selectedChain = ref(route.query.chain ? { label: String(route.query.chain), value: String(route.query.chain) } : { label: 'All', value: null });
-const selectedBlock = ref<number | null>(route.query.block ? Number(route.query.block) : null);
-
-// Clear global state on mount to show skeleton on page navigation
-onMounted(() => {
-  clearTransactionsState();
-  clearCodeState();
-  clearBlocksState();
-});
-
-// Generate chain filter options (All + 0-19)
-const chainOptions = computed(() => {
-  const options = [{ label: 'All', value: null }];
-  for (let i = 0; i <= 19; i++) {
-    options.push({ label: i.toString(), value: i.toString() });
-  }
-  return options;
-});
-
-const subtitle = computed(() => {
-  if (codeMode.value) return '';
-  if (filteredTransactions.value.length === 0 || loading.value || !totalCount.value) {
-    return '';
-  }
-
-  const itemsBefore = (currentPage.value - 1) * rowsToShow.value;
-  const remaining = Math.max(totalCount.value - itemsBefore, 0);
-  const pageCount = Math.min(rowsToShow.value, remaining);
-
-  const newestTxIndex = totalCount.value - itemsBefore;
-  const oldestTxIndex = Math.max(newestTxIndex - pageCount + 1, 1);
-
-  const formattedNewest = new Intl.NumberFormat().format(newestTxIndex);
-  const formattedOldest = new Intl.NumberFormat().format(oldestTxIndex);
-
-  return `(Showing transactions between #${formattedOldest} to #${formattedNewest})`;
-});
-
-// Use shared formatter from useFormat composable
-const FEE_DECIMALS = 12
-const getFeeInKda = (item: any) => formatKdaFee(item?.gas, item?.rawGasPrice, { decimals: FEE_DECIMALS, trimTrailingZeros: true })
-
-// Format method helper (hyphens to spaces, Title Case each word, trim to 15 chars)
-const formatMethod = computed(() => (val?: string) => {
-  if (!val || val === '-') return 'Transaction'
-  const replaced = String(val).replace(/-/g, ' ')
-  const titleCased = replaced.replace(/\b([a-zA-Z])/g, (m) => m.toUpperCase())
-  return titleCased.length > 15 ? titleCased.slice(0, 15) + '...' : titleCased
-})
-
-// Full formatted method for tooltip (Title Case, no trimming)
-const formatMethodFull = computed(() => (val?: string) => {
-  if (!val || val === '-') return 'Transaction'
-  const replaced = String(val).replace(/-/g, ' ')
-  return replaced.replace(/\b([a-zA-Z])/g, (m) => m.toUpperCase())
-})
+useHead({ title: 'Transactions' });
 
 const tableHeaders = [
   { key: 'requestKey', label: 'Request Key' },
@@ -144,8 +53,80 @@ const rowOptions = [
   { label: '50', value: 50 },
   { label: '100', value: 100 },
 ];
+
+// Reactive State (refs/reactive)
+const route = useRoute();
+const router = useRouter();
+// Shared format helpers (method helpers moved from page-local to useFormat)
+const { truncateAddress, formatKdaFee, formatTransactionMethod, formatTransactionMethodFull } = useFormat();
+const { selectedNetwork } = useSharedData();
+const { isMobile } = useScreenSize();
+
+const { lastBlockHeight, fetchLastBlockHeight, error: blocksError, clearState: clearBlocksState } = useBlocks();
+
+const {
+  error: transactionsError,
+  transactions,
+  loading,
+  fetchTransactions,
+  pageInfo,
+  totalCount,
+  rowsToShow,
+  updateRowsToShow,
+  clearState: clearTransactionsState,
+  filteredTransactions: txFilteredTransactions,
+  totalPages: txTotalPages,
+  subtitle: txSubtitle,
+} = useTransactions();
+
+const {
+  error: codeError,
+  transactions: codeTransactions,
+  loading: codeLoading,
+  fetchTransactionsByCode,
+  pageInfo: codePageInfo,
+  rowsToShow: codeRowsToShow,
+  updateRowsToShow: updateCodeRowsToShow,
+  clearState: clearCodeState,
+} = useTransactionsByPactCode();
+
+// Chain and block filters (kept in page; reflected in URL via FilterSelect)
+// Middleware ensures query.chain is valid when present.
+const selectedChain = ref(route.query.chain ? { label: String(route.query.chain), value: String(route.query.chain) } : { label: 'All', value: null });
+const selectedBlock = ref<number | null>(route.query.block ? Number(route.query.block) : null);
+
 const currentPage = ref(Number(route.query.page) || 1);
 const loadingPage = ref(false);
+
+const { transactionStatus } = useStatus(lastBlockHeight);
+
+// Live incoming transactions counter via WSS
+const {
+  startSubscription: startIncomingSub,
+  incomingCount,
+  baseline,
+  hasSeenBaseline,
+  setBaselineHash,
+  resetCountStream,
+  overLimit,
+  maxIncomingCount,
+} = useTransactionCountWss();
+
+// Baseline guard: only set once per reset cycle
+const hasSetBaseline = ref(false);
+
+// Computed (UI-local only)
+// UI-local mode switch: enables pact code search when query.code length >= 4
+const codeMode = computed(() => typeof route.query.code === 'string' && route.query.code.length >= 4);
+
+// UI-local: generate chain filter options (All + 0-19)
+const chainOptions = computed(() => {
+  const options = [{ label: 'All', value: null }];
+  for (let i = 0; i <= 19; i++) {
+    options.push({ label: i.toString(), value: i.toString() });
+  }
+  return options;
+});
 
 const selectedRowOption = computed({
   get: () => codeMode.value
@@ -164,48 +145,15 @@ const selectedRowOption = computed({
   },
 });
 
-const totalPages = computed(() => {
-  if (codeMode.value) return 1;
-  if (!totalCount.value) return 1;
-  return Math.ceil(totalCount.value / rowsToShow.value);
-});
-
-const { transactionStatus } = useStatus(lastBlockHeight);
-
-// Live incoming transactions counter via WSS
-const {
-  startSubscription: startIncomingSub,
-  incomingCount,
-  baseline,
-  hasSeenBaseline,
-  setBaselineHash,
-  resetCountStream,
-  overLimit,
-  maxIncomingCount,
-} = useTransactionCountWss();
-
-onMounted(() => {
-  startIncomingSub();
-});
-
-// Computed property to filter out transactions from orphaned blocks
-const filteredTransactions = computed(() => {
-  const list = codeMode.value ? codeTransactions.value : transactions.value;
-  if (!list || !lastBlockHeight || !lastBlockHeight.value) return [];
-  
-  return list.filter((transaction: any) => {
-    // Remove transactions from orphaned blocks (same logic as blockStatus function)
-    const isFromOrphanedBlock = lastBlockHeight.value - 6 >= transaction.height && !transaction.canonical;
-    return !isFromOrphanedBlock;
-  });
-});
+// Domain-derived values wired from transactions composable
+const filteredTransactions = computed(() => codeMode.value ? (codeTransactions.value || []) : (txFilteredTransactions?.value || []));
+const totalPages = computed(() => codeMode.value ? 1 : (txTotalPages?.value || 1));
+const subtitle = computed(() => codeMode.value ? '' : (txSubtitle?.value || ''));
 
 // Use the correct loading state depending on mode
 const isLoading = computed(() => codeMode.value ? codeLoading.value : loading.value);
 
-// Baseline guard: only set once per reset cycle
-const hasSetBaseline = ref(false);
-
+// Watchers
 watch([filteredTransactions, currentPage, codeMode], () => {
   if (codeMode.value) return;
   if (currentPage.value !== 1) return;
@@ -217,20 +165,12 @@ watch([filteredTransactions, currentPage, codeMode], () => {
   }
 });
 
-async function refreshTopPage() {
-  if (process.client) {
-    hasSetBaseline.value = false;
-    window.location.reload();
-    return;
-  }
-}
-
 watch(
   [currentPage, rowsToShow],
   ([newPage, newRows], [oldPage, oldRows]) => {
     // Don't update URL if there's an error (prevents race condition with error redirect)
     if (transactionsError.value || blocksError.value) return;
-    
+
     const query = { ...route.query, page: newPage };
     if (newRows !== oldRows) {
       query.page = 1;
@@ -248,7 +188,7 @@ watch(() => route.query.page, (page) => {
   }
 });
 
-// 1) React to network or chain change: reset to page 1 and refresh counts, then fetch first page
+// 1) React to network/filters/code changes: reset to page 1 and fetch appropriately
 watch(
   [selectedNetwork, selectedChain, selectedBlock, () => route.query.code],
   async ([network]) => {
@@ -288,7 +228,7 @@ watch(
   { immediate: true }
 );
 
-// 2) React to rows-per-page change: reset to page 1 and refetch first page
+// 2) Rows-per-page change: reset to page 1 and refetch
 watch([rowsToShow, codeRowsToShow], async () => {
   const network = selectedNetwork.value;
   if (!network) return;
@@ -313,7 +253,7 @@ watch([rowsToShow, codeRowsToShow], async () => {
   loadingPage.value = false;
 });
 
-// 3) React to page change only: fetch the next/prev page using cursors
+// 3) Pagination: fetch next/prev page using cursors (code vs normal)
 watch(currentPage, async (newPage, oldPage) => {
   const network = selectedNetwork.value;
   if (!network) return;
@@ -388,23 +328,36 @@ watch(() => route.query.code, (code) => {
   }
 });
 
+// Lifecycle hooks
+// Clear list state, then start incoming subscription (keeps initial skeleton)
+onMounted(() => { clearTransactionsState(); clearCodeState(); clearBlocksState(); startIncomingSub(); });
 
+// Functions (helpers, then event handlers)
+// Forces a top-of-list refresh while preserving initial-skeleton semantics
+async function refreshTopPage() {
+  if (process.client) {
+    hasSetBaseline.value = false;
+    window.location.reload();
+    return;
+  }
+}
+
+// Export current page rows to CSV with formatted status and fee
 function downloadData() {
-  // Map items to include export-friendly fields for Status and Fee (12-decimal string)
-  const rows = (filteredTransactions.value || []).map((item: any) => {
-    const statusText = transactionStatus(item.height, item.canonical, item.badResult)?.text || ''
-    const feeStr = getFeeInKda(item)
+  const rows = ((codeMode.value ? codeTransactions.value : transactions.value) || []).map((item: any) => {
+    const statusText = transactionStatus(item.height, item.canonical, item.badResult)?.text || '';
+    const feeStr = formatKdaFee(item?.gas, item?.rawGasPrice);
     return {
       ...item,
       time: item?.timeUtc || item?.time,
       status: statusText,
       fee: feeStr,
       gasLimit: item?.rawGasLimit ?? item?.gasLimit ?? '',
-    }
-  })
+    };
+  });
 
-  const csv = exportableToCsv(rows, tableHeaders)
-  downloadCSV(csv, `kadena-transactions-page-${currentPage.value}.csv`)
+  const csv = exportableToCsv(rows, tableHeaders);
+  downloadCSV(csv, `kadena-transactions-page-${currentPage.value}.csv`);
 }
 </script>
 
@@ -460,7 +413,7 @@ function downloadData() {
           class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
         >
           <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
-          <span class="hidden md:inline">Download Page Data</span>
+          <span class="hidden md:inline">Download</span>
         </button>
       </template>
 
@@ -497,15 +450,15 @@ function downloadData() {
        
       <template #method="{ item }">
         <div class="flex items-center">
-          <Tooltip :value="formatMethodFull(item.method)">
+          <Tooltip :value="formatTransactionMethodFull(item.method)">
             <span class="px-2 py-1.5 bg-[#151515] rounded-md border border-[#292929] text-[11px] text-[#f5f5f5] font-normal inline-flex items-center justify-center leading-none w-[120px]">
-              {{ formatMethod(item.method) }}
+              {{ formatTransactionMethod(item.method) }}
             </span>
           </Tooltip>
         </div>
       </template>
       <template #fee="{ item }">
-        <span class="text-[#f5f5f5]">{{ getFeeInKda(item) }}</span>
+        <span class="text-[#f5f5f5]">{{ formatKdaFee(item?.gas, item?.rawGasPrice) }}</span>
       </template>
     </DataTable>
   </div>

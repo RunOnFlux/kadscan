@@ -1,6 +1,8 @@
-import { ref } from 'vue';
+import { ref, computed, type Ref } from 'vue';
+import { useRoute } from '#app';
+import { useBlocks } from './useBlocks';
 import { useFormat } from './useFormat';
-import { extractPactCall, unescapeCodeString } from '~/composables/string'
+import { extractPactCall, unescapeCodeString } from '~/composables/useString'
 
 const GQL_QUERY = `
   query Transactions(
@@ -64,10 +66,34 @@ const GQL_QUERY = `
   }
 `;
 
-const transactions = ref<any[]>([]);
+export type TransactionRow = {
+  requestKey: string
+  height: number
+  canonical: boolean
+  badResult: unknown
+  chainId: string
+  time: string
+  timeUtc: string
+  sender: string
+  rawGasPrice: number | string
+  gas: number
+  gasLimit: string
+  rawGasLimit: number
+  method: string
+  cursor: string
+}
+
+export type PageInfo = {
+  startCursor?: string
+  endCursor?: string
+  hasNextPage?: boolean
+  hasPreviousPage?: boolean
+}
+
+const transactions: Ref<TransactionRow[]> = ref([]);
 const loading = ref(true);
 const { formatRelativeTime } = useFormat();
-const pageInfo = ref<any>(null);
+const pageInfo: Ref<PageInfo | null> = ref(null);
 const totalCount = ref(0);
 const rowsToShow = ref(25);
 const error = ref<any>(null);
@@ -83,6 +109,10 @@ export const useTransactions = () => {
   const updateRowsToShow = (rows: any) => {
     rowsToShow.value = rows.value;
   };
+
+  // Route and blocks context (reactive) used for derived metadata
+  const route = useRoute();
+  const { lastBlockHeight } = useBlocks();
 
   const fetchTransactions = async ({
     networkId,
@@ -203,6 +233,38 @@ export const useTransactions = () => {
     }
   };
 
+  // Derived: filter out transactions from orphaned blocks (requires lastBlockHeight)
+  const filteredTransactions = computed<TransactionRow[]>(() => {
+    const lb = lastBlockHeight?.value
+    if (!transactions.value || !lb) return []
+    return transactions.value.filter((t) => {
+      const isFromOrphanedBlock = lb - 6 >= t.height && !t.canonical
+      return !isFromOrphanedBlock
+    })
+  })
+
+  // Derived: total pages from totalCount and rowsToShow
+  const totalPages = computed<number>(() => {
+    if (!totalCount.value) return 1
+    return Math.ceil(totalCount.value / rowsToShow.value)
+  })
+
+  // Derived: subtitle text describing the visible ordinal range
+  const subtitle = computed<string>(() => {
+    if (filteredTransactions.value.length === 0 || !totalCount.value) return ''
+    const currentPage = Number(route.query.page) || 1
+    const itemsBefore = (currentPage - 1) * rowsToShow.value
+    const remaining = Math.max(totalCount.value - itemsBefore, 0)
+    const pageCount = Math.min(rowsToShow.value, remaining)
+
+    const newestTxIndex = totalCount.value - itemsBefore
+    const oldestTxIndex = Math.max(newestTxIndex - pageCount + 1, 1)
+
+    const formattedNewest = new Intl.NumberFormat().format(newestTxIndex)
+    const formattedOldest = new Intl.NumberFormat().format(oldestTxIndex)
+    return `Showing transactions between #${formattedOldest} to #${formattedNewest}`
+  })
+
   return {
     error,
     transactions,
@@ -213,5 +275,8 @@ export const useTransactions = () => {
     rowsToShow,
     updateRowsToShow,
     clearState,
+    filteredTransactions,
+    totalPages,
+    subtitle,
   };
 }; 

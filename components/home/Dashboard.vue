@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, defineProps, toRef } from 'vue';
 import Chart from '~/components/Chart.vue';
-import { integer, money } from '~/composables/number';
+import { integer, money } from '~/composables/useFormat';
 import { useTransactionCount } from '~/composables/useTransactionCount';
 import { useFormat } from '~/composables/useFormat';
 import KadenaIcon from '~/components/icon/Kadena.vue';
@@ -103,7 +103,7 @@ const marketCapInKda = computed(() => {
                   <Tooltip value="Total transactions and Average TPS of last 10 blocks">
                     <NuxtLink
                       to="/transactions"
-                      class="hover:text-[#0879b2]"
+                      class="hover:text-[#00e19d]"
                     >
                       {{ transactionsCountRef.transactionCount ? transactionsCountRef.transactionCount : '—' }}
                     </NuxtLink>
@@ -120,7 +120,7 @@ const marketCapInKda = computed(() => {
             </div>
           </div>
           <div class="text-right">
-            <div class="text-xs text-[#bbbbbb] mb-[1px]">MED GAS PRICE</div>
+            <div class="text-xs text-[#bbbbbb] mb-[1px]">AVG GAS PRICE</div>
             <Tooltip value="Median Gas Price from the last 100 Transactions">
               <div class="text-[15px] text-[#f5f5f5]">{{ formattedAvgGasPrice ? formattedAvgGasPrice + ' KDA' : '—' }}</div>
             </Tooltip>

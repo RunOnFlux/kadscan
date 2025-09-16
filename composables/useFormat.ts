@@ -1,3 +1,66 @@
+import { unknownToken, staticTokens } from '~/constants/tokens'
+
+export const money = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+})
+
+export const integer = new Intl.NumberFormat('en-US', {
+  minimumFractionDigits: 0,
+})
+
+export const transformRawBalances = ({
+  prices,
+  allBalances,
+}: any) => {
+  if (!allBalances) {
+    return []
+  }
+
+  const balancesObj = allBalances.nodes
+    .sort((a: any, b: any) => a.chainId - b.chainId)
+    .reduce((prev: any, current: any) => {
+      const {
+        balance,
+        module = '',
+      } = current || {}
+
+      const formatedModule = current.module === 'coin' ? 'kadena' : current.module
+
+      const metadata = staticTokens.find(({ module }) => current.module === module)  || unknownToken
+
+      const etl = prices?.find(({ id }: any) => formatedModule.includes(id))
+
+      if (!prev[module]) {
+        prev[module] = {
+          module,
+          metadata,
+          symbol: metadata?.symbol,
+          balance: 0,
+          balances: [],
+
+          ...etl,
+        }
+      }
+
+      prev[module].balance = prev[module].balance + Number(balance)
+
+      prev[module].balances.push({
+        ...etl,
+        ...current,
+        value: '-',
+      })
+
+      return prev
+    }, {})
+
+  return Object.values(balancesObj).sort((a: any, b: any) => {
+    return (b.current_price || 0) - (a.current_price || 0)
+  })
+}
+
 export const useFormat = () => {
   const truncateAddress = (
     address: string,
@@ -188,6 +251,62 @@ export const useFormat = () => {
     }
   };
 
+  // --- Derived formatters used by transaction page ---
+  const formatKadenaPriceDisplay = (price: number | string | null | undefined): string | null => {
+    if (price == null) return null;
+    const n = typeof price === 'number' ? price : parseFloat(String(price));
+    if (!Number.isFinite(n)) return null;
+    return `$${n.toFixed(4)} / KDA`;
+  };
+
+  // Format Pact method strings for table display (hyphens -> spaces, Title Case).
+  const formatTransactionMethod = (val?: string): string => {
+    if (!val || val === '-') return 'Transaction'
+    const replaced = String(val).replace(/-/g, ' ')
+    const titleCased = replaced.replace(/\b([a-zA-Z])/g, (m) => m.toUpperCase())
+    return titleCased.length > 15 ? titleCased.slice(0, 15) + '...' : titleCased
+  }
+
+  // Full method text for tooltip (Title Case, no trimming)
+  const formatTransactionMethodFull = (val?: string): string => {
+    if (!val || val === '-') return 'Transaction'
+    const replaced = String(val).replace(/-/g, ' ')
+    return replaced.replace(/\b([a-zA-Z])/g, (m) => m.toUpperCase())
+  }
+
+  const formatGasLimitUsage = (
+    gasUsed: number | string | null | undefined,
+    gasLimit: number | string | null | undefined,
+  ): string => {
+    if (gasUsed == null || gasLimit == null) return '-';
+    const usedNum = parseInt(String(gasUsed));
+    const limitNum = parseInt(String(gasLimit));
+    if (!Number.isFinite(usedNum) || !Number.isFinite(limitNum)) return '-';
+    if (usedNum === 0 && limitNum === 0) return '0 | 0';
+    const percentage = ((usedNum / limitNum) * 100).toFixed(2);
+    const formattedUsed = new Intl.NumberFormat('en-US', { minimumFractionDigits: 0 }).format(usedNum);
+    const formattedLimit = new Intl.NumberFormat('en-US', { minimumFractionDigits: 0 }).format(limitNum);
+    return `${formattedLimit} | ${formattedUsed} (${percentage}%)`;
+  };
+
+  // Conditionally truncate only long/hash-like addresses
+  const smartTruncateAddress = (address: string, start: number = 10, end: number = 10, hashSize: number = 25): string => {
+    if (!address) return address;
+    const isHashFormat = address.startsWith('k:') || address.length > hashSize;
+    return isHashFormat ? truncateAddress(address, start, end) : address;
+  };
+
+  // Calculate USD value for KDA transfers (UI helper)
+  const calculateKdaUsdValue = (amount: string, isKda: boolean, kadenaPrice: number | string | null) => {
+    if (!isKda || !kadenaPrice || !amount) return null
+    
+    const numericAmount = parseFloat(amount)
+    const priceValue = parseFloat(kadenaPrice.toString())
+    const usdValue = numericAmount * priceValue
+    
+    return usdValue.toFixed(6)
+  }
+
   return {
     truncateAddress,
     formatRelativeTime,
@@ -195,9 +314,13 @@ export const useFormat = () => {
     formatGasPrice,
     formatKda,
     removeTrailingZeros,
-    // precise KDA helpers
     formatKdaFee,
-    // general number formatting
     formatAmountWithEllipsis,
+    formatKadenaPriceDisplay,
+    formatGasLimitUsage,
+    smartTruncateAddress,
+    calculateKdaUsdValue,
+    formatTransactionMethod,
+    formatTransactionMethodFull,
   };
 }; 

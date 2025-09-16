@@ -41,9 +41,9 @@ const emit = defineEmits(['customize'])
       <NuxtLink
         v-if="path"
         :to="path"
-        class="text-[12px] font-semibold text-[#b8b8b8] hover:text-[#9ccee7]"
+        class="text-[12px] font-semibold text-[#cccccc] hover:text-[#00e19d]"
       >
-        {{ label.includes('Blocks') ? 'VIEW ALL BLOCKS' : 'VIEW ALL TRANSACTIONS' }} &rarr;
+        {{ label.includes('Blocks') ? 'ALL BLOCKS' : 'ALL TRANSACTIONS' }} &rarr;
       </NuxtLink>
     </div>
   </div>

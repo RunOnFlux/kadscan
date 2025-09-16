@@ -25,12 +25,12 @@ function saveChanges() {
 }
 
 const blockPresets = [
-  { value: 'latest-blocks', label: 'Latest Blocks' },
+  { value: 'recent-blocks', label: 'Recent Blocks' },
 ];
 
 const transactionPresets = [
-  { value: 'latest-transactions', label: 'Latest Transactions' },
-  { value: 'latest-coinbase-transactions', label: 'Latest Coinbase Transactions' },
+  { value: 'recent-transactions', label: 'Recent Transactions' },
+  { value: 'recent-coinbase-transactions', label: 'Recent Coinbase Transactions' },
 ];
 
 const presets = computed(() => {
@@ -75,14 +75,11 @@ watch(() => props.isOpen, (isOpen) => {
 
           <div class="p-4">
             <p class="mb-4 text-sm text-[#f5f5f5]">
-              Customize this card by selecting one of the options below.
+              Customize your view by choosing one of the options.
             </p>
 
             <div class="space-y-4">
               <div>
-                <h3 class="mb-3 text-xs tracking-wider text-[#b8b8b8] uppercase">
-                  Preset
-                </h3>
                 <div class="flex flex-wrap gap-4">
                   <CustomizeRadio
                     v-for="preset in presets"
@@ -98,13 +95,13 @@ watch(() => props.isOpen, (isOpen) => {
 
           <div class="flex justify-end gap-2 p-4 bg-[#151515] border-t border-gray-700">
             <button
-              class="px-3 py-2 text-sm text-gray-300 rounded-lg hover:bg-[#252525] hover:text-[#f5f5f5]"
+              class="px-3 py-2 text-sm rounded-lg bg-[#252525] hover:bg-[#222222] text-[#f5f5f5]"
               @click="closeModal"
             >
               Close
             </button>
             <button
-              class="px-3 py-2 text-sm text-white bg-[#0784c3] rounded-lg hover:bg-[#0670a6]"
+              class="px-3 py-2 text-sm text-white bg-[#009367] rounded-lg hover:bg-[#007a56]"
               @click="saveChanges"
             >
               Save changes

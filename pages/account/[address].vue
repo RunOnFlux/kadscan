@@ -10,20 +10,19 @@ import KadenaIcon from '~/components/icon/Kadena.vue'
 import UpperRightArrow from '~/components/icon/UpperRightArrow.vue'
 import Coins from '~/components/icon/Coins.vue'
 import Copy from '~/components/Copy.vue'
-// Removed inline chain navigation controls
 import AccountTransactions from '~/components/account/AccountTransactions.vue'
 import AccountTokenTransfers from '~/components/account/AccountTokenTransfers.vue'
 import AccountNFTTransfers from '~/components/account/AccountNFTTransfers.vue'
 import AccountAssets from '~/components/account/AccountAssets.vue'
-import TokenHoldings from '~/components/account/TokenHoldings.vue'
+import AccountTokenHoldings from '~/components/account/AccountTokenHoldings.vue'
 import { useAccountBalances } from '~/composables/useAccountBalances'
-import { transformRawBalances } from '~/composables/balances'
+import { transformRawBalances } from '~/composables/useFormat'
 import { useFormat } from '~/composables/useFormat'
 import QrIcon from '~/components/icon/Qr.vue'
 import Tooltip from '~/components/Tooltip.vue'
 import QrModal from '~/components/qr/Modal.vue'
 import Select from '~/components/Select.vue'
-import AddressIdenticon from '~/components/avatar/AddressIdenticon.vue'
+import AccountAddressIcon from '~/components/account/AccountAddressIcon.vue'
 
 definePageMeta({
   layout: 'app',
@@ -410,7 +409,7 @@ watch(
     <div class="pb-5 border-b border-[#222222] mb-6 px-1">
       <div class="flex flex-col gap-1 md:flex-row md:items-center md:gap-3">
         <div class="flex items-center gap-2 mb-1 md:mb-0">
-          <AddressIdenticon :address="address" class="w-6 h-6 rounded-full" />
+          <AccountAddressIcon :address="address" class="w-6 h-6 rounded-full" />
           <h1 class="text-[19px] font-semibold leading-[150%] text-[#f5f5f5]">Account</h1>
         </div>
         <div class="flex flex-col md:flex-row md:items-center md:gap-3">
@@ -464,7 +463,7 @@ watch(
           </div>
           <div>
             <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">TOKEN HOLDINGS</div>
-            <TokenHoldings
+            <AccountTokenHoldings
               :loading="balancesLoading"
               :balances="rawBalances"
               @view-all-assets="() => { activeTab = 'assets' }"

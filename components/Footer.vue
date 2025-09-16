@@ -4,7 +4,11 @@ import IconGithub from '~/components/icon/Github.vue'
 import IconGitbook from '~/components/icon/Gitbook.vue'
 import IconBackToTop from '~/components/icon/BackToTop.vue'
 
-const { routes } = useAppConfig()
+const routes = [
+  { tag: 'home', label: 'Home', path: '/', type: 'link' },
+  { tag: 'blocks', label: 'Blocks', path: '/blocks', type: 'link' },
+  { tag: 'transactions', label: 'Transactions', path: '/transactions', type: 'link' },
+]
 
 const socials = [
   {
@@ -41,7 +45,7 @@ const scrollToTop = () => {
             <IconLogoColor class="h-[38px] md:h-[42px] w-max" />
           </div>
           <span class="hidden md:block text-sm text-[#f5f5f5] leading-[19.6px]">
-            Kadscan is a Block Explorer and Analytics Platform for the Kadena Blockchain.
+            Kadscan powers visibility into Kadena through block explorer and analytics.
             <NuxtLink
               to="https://forms.gle/f3RB1A8MUAf1Pvgx9"
               target="_blank"

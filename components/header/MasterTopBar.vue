@@ -6,6 +6,8 @@ import { Listbox, ListboxButton } from '@headlessui/vue'
 import SelectOptions from '~/components/SelectOptions.vue';
 
 const route = useRoute();
+// Stable id for Headless UI MenuButton to prevent SSR/client mismatch
+const networkMenuButtonId = useId();
 
 const {
   kdaPrice,
@@ -74,7 +76,7 @@ const medGasPrice = computed(() => {
           <span class="text-[#6ab5db] hover:text-[#9ccee7]">{{ formattedKdaPrice }}</span>
           <span :class="variationColor" class="ml-1">{{ formattedVariation ? `(${formattedVariation})` : '' }}</span>
 
-          <span class="ml-4 mr-1 hidden lg:inline">Med Gas Price:</span>
+          <span class="ml-4 mr-1 hidden lg:inline">Avg Gas Price:</span>
           <span class="text-[#6ab5db] hover:text-[#9ccee7] hidden lg:inline">{{ medGasPrice ? medGasPrice + ' KDA' : '-' }}</span>
           <NuxtLink
             to="https://forms.gle/f3RB1A8MUAf1Pvgx9"
@@ -90,7 +92,7 @@ const medGasPrice = computed(() => {
           <SearchInputHeader v-if="route.path !== '/'" />
           <Menu as="div" class="relative inline-block text-left hidden md:block">
           <div>
-            <MenuButton class="h-[36.5px] rounded-lg flex items-center gap-2 border border-[#222222] bg-[#151515] hover:bg-[#222222] px-3">
+            <MenuButton :id="networkMenuButtonId" class="h-[36.5px] rounded-lg flex items-center gap-2 border border-[#222222] bg-[#151515] hover:bg-[#222222] px-3">
               <IconKadena class="h-4 w-4" />
               <span v-if="selectedNetwork" class="text-[13px] text-[#f5f5f5]">{{ selectedNetwork.name }}</span>
             </MenuButton>
@@ -111,7 +113,7 @@ const medGasPrice = computed(() => {
                     @click="setNetwork(network)"
                     :class="[
                       active ? 'bg-[#222222]' : '',
-                      selectedNetwork.id === network.id ? 'text-[#6ab5db]' : 'text-[#f5f5f5]',
+                      selectedNetwork.id === network.id ? 'text-[#00e19d]' : 'text-[#f5f5f5]',
                       'group flex w-full items-center hover:bg-[#222222] justify-start rounded-md px-3 py-2 text-sm',
                     ]"
                   >

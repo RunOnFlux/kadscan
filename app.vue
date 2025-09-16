@@ -9,7 +9,7 @@ useHead({
     {
       hid: 'description',
       name: 'description',
-      content: 'Kadscan is a Block Explorer and Analytics Platform for the Kadena Blockchain.'
+      content: 'Kadscan powers visibility into Kadena through block explorer and analytics.'
     },
     {
       hid: 'robots',
@@ -27,15 +27,15 @@ useHead({
 // Default Open Graph and Twitter card metadata for link previews
 useSeoMeta({
   title: 'Kadscan: Block Explorer',
-  description: 'Kadscan is a Block Explorer and Analytics Platform for the Kadena Blockchain.',
+  description: 'Kadscan powers visibility into Kadena through block explorer and analytics.',
   ogTitle: 'Kadscan: Block Explorer',
-  ogDescription: 'Kadscan is a Block Explorer and Analytics Platform for the Kadena Blockchain.',
+  ogDescription: 'Kadscan powers visibility into Kadena through block explorer and analytics.',
   ogType: 'website',
   ogUrl: 'https://kadscan.io/',
   ogImage: 'https://kadscan.io/kadscan.jpeg',
   twitterCard: 'summary_large_image',
   twitterTitle: 'Kadscan: Block Explorer',
-  twitterDescription: 'Kadscan is a Block Explorer and Analytics Platform for the Kadena Blockchain.',
+  twitterDescription: 'Kadscan powers visibility into Kadena through block explorer and analytics.',
   twitterImage: 'https://kadscan.io/kadscan.jpeg',
 })
 

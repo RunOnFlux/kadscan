@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { useFormat } from './useFormat'
-import { extractPactCall, unescapeCodeString } from '~/composables/string'
+import { extractPactCall, unescapeCodeString } from '~/composables/useString'
 
 const GQL_QUERY = `
   query Transactions(

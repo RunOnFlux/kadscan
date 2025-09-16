@@ -1,6 +1,6 @@
 import { ref, readonly } from 'vue';
 import { useFormat } from './useFormat';
-import { extractPactCall, unescapeCodeString } from '~/composables/string'
+import { extractPactCall, unescapeCodeString } from '~/composables/useString'
 
 const GQL_QUERY = `
   query Transactions($accountName: String, $after: String, $before: String, $first: Int, $last: Int, $chainId: String) {

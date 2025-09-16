@@ -4,15 +4,14 @@ import { useNetworkInfo } from '~/composables/useNetworkInfo';
 import { useBinance } from '~/composables/useBinance';
 
 // State for Kadena data
-const kadenaCoinData = ref<{
-  price: number | null,
-  variation: number | null,
-  marketCap: number | null
-}>({
-  price: null,
-  variation: null,
-  marketCap: null,
-});
+// Accessor ensures useState is called within a valid Nuxt context
+function kadenaCoinState() {
+  return useState('kadena-coin-data', () => ({
+    price: null as number | null,
+    variation: null as number | null,
+    marketCap: null as number | null,
+  }))
+}
 
 // Function to fetch Kadena data
 export async function fetchSharedKadenaData() {
@@ -27,12 +26,13 @@ export async function fetchSharedKadenaData() {
     ])) as [any, any];
 
     if (binanceData?.data && networkInfo?.coinsInCirculation) {
+      const state = kadenaCoinState()
       const price = parseFloat(binanceData.data.lastPrice);
       const circulatingSupply = networkInfo.coinsInCirculation;
 
-      kadenaCoinData.value.price = price;
-      kadenaCoinData.value.variation = parseFloat(binanceData.data.priceChangePercent);
-      kadenaCoinData.value.marketCap = price * circulatingSupply;
+      state.value.price = price;
+      state.value.variation = parseFloat(binanceData.data.priceChangePercent);
+      state.value.marketCap = price * circulatingSupply;
       return;
     }
   } catch (error) {
@@ -40,10 +40,11 @@ export async function fetchSharedKadenaData() {
   }
 
   try {
+    const state = kadenaCoinState()
     const data = await $coingecko.request('coins/kadena');
-    kadenaCoinData.value.price = data?.market_data?.current_price?.usd ?? null;
-    kadenaCoinData.value.variation = data?.market_data?.price_change_percentage_24h ?? null;
-    kadenaCoinData.value.marketCap = data?.market_data?.market_cap?.usd ?? null;
+    state.value.price = data?.market_data?.current_price?.usd ?? null;
+    state.value.variation = data?.market_data?.price_change_percentage_24h ?? null;
+    state.value.marketCap = data?.market_data?.market_cap?.usd ?? null;
   } catch (error) {
     console.error('Failed to fetch Kadena data from CoinGecko:', error);
   }
@@ -92,9 +93,9 @@ export function useSharedData() {
 
   return {
     // Kadena token data
-    kdaPrice: computed(() => kadenaCoinData.value.price),
-    kdaVariation: computed(() => kadenaCoinData.value.variation),
-    kdaMarketCap: computed(() => kadenaCoinData.value.marketCap),
+    kdaPrice: computed(() => kadenaCoinState().value.price),
+    kdaVariation: computed(() => kadenaCoinState().value.variation),
+    kdaMarketCap: computed(() => kadenaCoinState().value.marketCap),
 
     // Gas price stats
     gasPriceStats: gasPriceStats, // Pass through the reactive stats
