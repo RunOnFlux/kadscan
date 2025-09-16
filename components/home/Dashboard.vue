@@ -120,7 +120,7 @@ const marketCapInKda = computed(() => {
             </div>
           </div>
           <div class="text-right">
-            <div class="text-xs text-[#bbbbbb] mb-[1px]">MED GAS PRICE</div>
+            <div class="text-xs text-[#bbbbbb] mb-[1px]">AVG GAS PRICE</div>
             <Tooltip value="Median Gas Price from the last 100 Transactions">
               <div class="text-[15px] text-[#f5f5f5]">{{ formattedAvgGasPrice ? formattedAvgGasPrice + ' KDA' : '—' }}</div>
             </Tooltip>

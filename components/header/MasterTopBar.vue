@@ -76,7 +76,7 @@ const medGasPrice = computed(() => {
           <span class="text-[#6ab5db] hover:text-[#9ccee7]">{{ formattedKdaPrice }}</span>
           <span :class="variationColor" class="ml-1">{{ formattedVariation ? `(${formattedVariation})` : '' }}</span>
 
-          <span class="ml-4 mr-1 hidden lg:inline">Med Gas Price:</span>
+          <span class="ml-4 mr-1 hidden lg:inline">Avg Gas Price:</span>
           <span class="text-[#6ab5db] hover:text-[#9ccee7] hidden lg:inline">{{ medGasPrice ? medGasPrice + ' KDA' : '-' }}</span>
           <NuxtLink
             to="https://forms.gle/f3RB1A8MUAf1Pvgx9"
