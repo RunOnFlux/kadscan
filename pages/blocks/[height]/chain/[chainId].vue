@@ -42,7 +42,6 @@ const textContent = {
   moreDetails: { label: 'More Details' },
 };
 
-
 const { formatFullDate, truncateAddress, removeTrailingZeros, formatGasPrice } = useFormat();
 const route = useRoute();
 const router = useRouter();
