@@ -238,7 +238,7 @@ watch(() => props.balances, (arr) => {
       <!-- Footer CTA (sticky bottom, styled like List.vue) -->
       <div class="px-6 py-3 text-center bg-[#151515] rounded-b-md border-t border-[#222222]">
         <button 
-          class="text-[12px] font-semibold text-[#b8b8b8] hover:text-[#9ccee7]"
+          class="text-[12px] font-semibold text-[#b8b8b8] hover:text-[#00e19d]"
           @click.prevent="onViewAll"
         >
           VIEW ALL ASSETS &rarr;
