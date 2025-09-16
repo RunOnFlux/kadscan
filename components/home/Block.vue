@@ -2,7 +2,7 @@
 import { formatDistanceToNowStrict } from 'date-fns'
 import { computed, ref, onMounted, onUnmounted } from 'vue';
 import Tooltip from '../Tooltip.vue';
-import BlockIcon from '~/components/icon/Block.vue';
+import KadenaIcon from '~/components/icon/Kadena.vue';
 
 const props = defineProps<{
   height: number,
@@ -43,7 +43,7 @@ const timeAgo = computed(() => {
     >
       <div class="flex items-center md:w-1/3 gap-2 w-[160px]">
         <div class="bg-[#151515] rounded-md p-3 hidden md:block">
-          <BlockIcon class="w-6 h-6 text-[#b0b0b0]" />
+          <KadenaIcon class="w-6 h-6" />
         </div>
         <div>
           <NuxtLink :to="`/blocks/${props.height}`" class="text-[#6ab5db] hover:text-[#9ccee7] text-[15px]">
