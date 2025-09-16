@@ -6,7 +6,7 @@ import DataTable from '~/components/DataTable.vue'
 import SkeletonTable from '~/components/skeleton/Table.vue'
 import Tooltip from '~/components/Tooltip.vue'
 import Copy from '~/components/Copy.vue'
-import { exportableToCsv, downloadCSV } from '~/composables/csv'
+import { exportableToCsv, downloadCSV } from '~/composables/useCSV'
 import { useTokenHolders } from '~/composables/useTokenHolders'
 import { useSharedData } from '~/composables/useSharedData'
 import { useAssetUsdPrices } from '~/composables/useAssetUsdPrices'
@@ -219,7 +219,7 @@ const displayHolders = computed(() => {
           class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
         >
           <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
-          <span class="hidden md:inline">Download Page Data</span>
+          <span class="hidden md:inline">Download</span>
         </button>
       </template>
 

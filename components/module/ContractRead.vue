@@ -3,7 +3,7 @@ import { ref, watch, computed } from 'vue'
 import { useContractPact } from '~/composables/useContractPact'
 import { useContractPactParser } from '~/composables/useContractPactParser'
 import { useContractPactRead } from '~/composables/useContractPactRead'
-import { formatJsonPretty } from '~/composables/string'
+import { formatJsonPretty } from '~/composables/useString'
 import IconEnlarge from '~/components/icon/Enlarge.vue'
 
 defineOptions({ name: 'ContractRead' })

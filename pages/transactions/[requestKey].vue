@@ -11,7 +11,7 @@ import { useTransactionPolling } from '~/composables/useTransactionPolling'
 import { useStatus } from '~/composables/useStatus'
 // Constants & helpers
 import { staticTokens } from '~/constants/tokens'
-import { unescapeCodeString, parsePactCode, formatJsonPretty, formatSignatures } from '~/composables/string'
+import { unescapeCodeString, parsePactCode, formatJsonPretty, formatSignatures } from '~/composables/useString'
 // Components
 import TransactionLogs from '~/components/transaction/Logs.vue'
 import TransactionCrossChain from '~/components/transaction/CrossChain.vue'

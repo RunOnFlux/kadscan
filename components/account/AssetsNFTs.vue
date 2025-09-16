@@ -8,8 +8,8 @@ import { useAccountNFTs } from '~/composables/useAccountNFTs'
 import { useSharedData } from '~/composables/useSharedData'
 import Tooltip from '~/components/Tooltip.vue'
 import Copy from '~/components/Copy.vue'
-import { shortenString, sanitizeDisplayText } from '~/composables/string'
-import { exportableToCsv, downloadCSV } from '~/composables/csv'
+import { shortenString, sanitizeDisplayText } from '~/composables/useString'
+import { exportableToCsv, downloadCSV } from '~/composables/useCSV'
 
 const props = defineProps<{
   address: string
@@ -134,7 +134,7 @@ const subtitle = computed(() => {
   if (totalItems.value === 0) return ''
   const first = (currentPage.value - 1) * rowsToShow.value + 1
   const last = Math.min(currentPage.value * rowsToShow.value, totalItems.value)
-  return `(Showing NFTs ${first}–${last})`
+  return `Showing NFTs ${first}–${last}`
 })
 
 function downloadData() {
@@ -195,7 +195,7 @@ onBeforeUnmount(() => {
           class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
         >
           <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
-          <span class="hidden md:inline">Download Page Data</span>
+          <span class="hidden md:inline">Download</span>
         </button>
       </template>
       <template #preview="{ item }">

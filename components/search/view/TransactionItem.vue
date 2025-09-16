@@ -10,7 +10,13 @@ const props = defineProps<{
   creationTime: string | null,
 }>()
 
-const status = useTransactionStatus(props.result)
+const status = computed(() => {
+  try {
+    return props.result.includes('"status":"success"') ? 'success' : 'error'
+  } catch {
+    return 'error'
+  }
+})
 
 const timeAgo = computed(() => {
   if (!props.creationTime) return null

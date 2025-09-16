@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Copy from '~/components/Copy.vue'
 const { truncateAddress } = useFormat()
-import { sanitizeDisplayText } from '~/composables/string'
+import { sanitizeDisplayText } from '~/composables/useString'
 import { useAccountNFTs } from '~/composables/useAccountNFTs'
 
 const { nfts, selectedHolding, selectedMetadata, selectedError, selectFirstForChain, isSelectionValid } = useAccountNFTs()

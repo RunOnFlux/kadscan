@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive } from 'vue'
-import { formatJsonPretty } from '~/composables/string'
+import { formatJsonPretty } from '~/composables/useString'
 import { useScreenSize } from '~/composables/useScreenSize'
 import Informational from '~/components/icon/Informational.vue'
 import Tooltip from '~/components/Tooltip.vue'

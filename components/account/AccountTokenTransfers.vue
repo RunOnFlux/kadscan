@@ -10,7 +10,7 @@ import { useAccountTokenTransfers } from '~/composables/useAccountTokenTransfers
 import { useFormat } from '~/composables/useFormat';
 import { useSharedData } from '~/composables/useSharedData';
 import { useScreenSize } from '~/composables/useScreenSize';
-import { exportableToCsv, downloadCSV } from '~/composables/csv';
+import { exportableToCsv, downloadCSV } from '~/composables/useCSV';
 
 const props = defineProps<{
   address: string;
@@ -102,7 +102,7 @@ const subtitle = computed(() => {
   const oldestIndex = Math.max(newestIndex - pageCount + 1, 1);
   const formattedNewest = new Intl.NumberFormat().format(newestIndex);
   const formattedOldest = new Intl.NumberFormat().format(oldestIndex);
-  return `(Showing transfers between #${formattedOldest} to #${formattedNewest})`;
+  return `Showing transfers between #${formattedOldest} to #${formattedNewest}`;
 });
 
 // Clear state and perform the initial fetch after initializing chain from URL
@@ -248,7 +248,7 @@ function downloadData() {
           class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
         >
           <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
-          <span class="hidden md:inline">Download Page Data</span>
+          <span class="hidden md:inline">Download</span>
         </button>
       </template>
 

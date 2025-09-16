@@ -128,7 +128,7 @@ export function parseJsonSafely(input: any): any {
 
 /**
  * Parses Pact smart contract code into a structured readable format
- * @param input - Raw Pact code like "(free.radio02.close-send-receive "arg1" [...] [])" or multiple calls like "(func1 ...)(func2 ...)"
+ * @param input - Raw Pact code like "(free.radio02.close-send-receive \"arg1\" [...] [])" or multiple calls like "(func1 ...)(func2 ...)"
  * @returns Structured format showing contract, method, and numbered parameters for each function call
  */
 export function parsePactCode(input: string | any): string {
@@ -574,3 +574,5 @@ export function coercePactArg(input: string): string {
   if (trimmed.startsWith('[') || trimmed.startsWith('{') || trimmed.startsWith('(')) return trimmed
   return `"${trimmed.replace(/\\"/g, '"')}"`
 }
+
+

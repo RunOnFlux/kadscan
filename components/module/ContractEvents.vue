@@ -8,8 +8,8 @@ import Select from '~/components/Select.vue'
 import SkeletonTable from '~/components/skeleton/Table.vue'
 import IconEnlarge from '~/components/icon/Enlarge.vue'
 import LabelValue from '~/components/LabelValue.vue'
-import { exportableToCsv, downloadCSV } from '~/composables/csv'
-import { formatJsonPretty } from '~/composables/string'
+import { exportableToCsv, downloadCSV } from '~/composables/useCSV'
+import { formatJsonPretty } from '~/composables/useString'
 import { useSharedData } from '~/composables/useSharedData'
 import { useContractEvents } from '~/composables/useContractEvents'
 import { useStatus } from '~/composables/useStatus'
@@ -69,7 +69,7 @@ const subtitle = computed(() => {
   const oldestIndex = Math.max(newestIndex - pageCount + 1, 1)
   const formattedNewest = new Intl.NumberFormat().format(newestIndex)
   const formattedOldest = new Intl.NumberFormat().format(oldestIndex)
-  return `(Showing events between #${formattedOldest} to #${formattedNewest})`
+  return `Showing events between #${formattedOldest} to #${formattedNewest}`
 })
 // Status computation per event (replaces eventStatus)
 const { lastBlockHeight, fetchLastBlockHeight } = useBlocks()
@@ -231,7 +231,7 @@ function downloadData() {
           class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
         >
           <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
-          <span class="hidden md:inline">Download Page Data</span>
+          <span class="hidden md:inline">Download</span>
         </button>
         <PaginationControls
           :currentPage="currentPage"

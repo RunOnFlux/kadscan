@@ -8,7 +8,7 @@ import { useAccountBalances } from '~/composables/useAccountBalances'
 import { useSharedData } from '~/composables/useSharedData'
 import Tooltip from '~/components/Tooltip.vue'
 import { useFormat } from '~/composables/useFormat'
-import { exportableToCsv, downloadCSV } from '~/composables/csv'
+import { exportableToCsv, downloadCSV } from '~/composables/useCSV'
 import { useAssetUsdPrices } from '~/composables/useAssetUsdPrices'
 
 const props = defineProps<{
@@ -149,7 +149,7 @@ const subtitle = computed(() => {
   if (totalCount.value === 0) return ''
   const first = (currentPage.value - 1) * rowsToShow.value + 1
   const last = Math.min(currentPage.value * rowsToShow.value, totalCount.value)
-  return `(Showing assets between #${first} to #${last})`
+  return `Showing assets between #${first} to #${last}`
 })
 
 function downloadData() {
@@ -185,7 +185,7 @@ function downloadData() {
           class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
         >
           <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
-          <span class="hidden md:inline">Download Page Data</span>
+          <span class="hidden md:inline">Download</span>
         </button>
       </template>
       <template #asset="{ item }">

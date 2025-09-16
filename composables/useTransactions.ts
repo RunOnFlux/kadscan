@@ -2,7 +2,7 @@ import { ref, computed, type Ref } from 'vue';
 import { useRoute } from '#app';
 import { useBlocks } from './useBlocks';
 import { useFormat } from './useFormat';
-import { extractPactCall, unescapeCodeString } from '~/composables/string'
+import { extractPactCall, unescapeCodeString } from '~/composables/useString'
 
 const GQL_QUERY = `
   query Transactions(
@@ -262,7 +262,7 @@ export const useTransactions = () => {
 
     const formattedNewest = new Intl.NumberFormat().format(newestTxIndex)
     const formattedOldest = new Intl.NumberFormat().format(oldestTxIndex)
-    return `(Showing transactions between #${formattedOldest} to #${formattedNewest})`
+    return `Showing transactions between #${formattedOldest} to #${formattedNewest}`
   })
 
   return {

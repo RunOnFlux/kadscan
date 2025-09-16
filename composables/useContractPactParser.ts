@@ -1,6 +1,6 @@
 import type { Ref } from 'vue'
 import { computed } from 'vue'
-import { unescapeCodeString } from '~/composables/string'
+import { unescapeCodeString } from '~/composables/useString'
 
 export type PactFunction = {
   name: string

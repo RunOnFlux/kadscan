@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, defineProps, toRef } from 'vue';
 import Chart from '~/components/Chart.vue';
-import { integer, money } from '~/composables/number';
+import { integer, money } from '~/composables/useFormat';
 import { useTransactionCount } from '~/composables/useTransactionCount';
 import { useFormat } from '~/composables/useFormat';
 import KadenaIcon from '~/components/icon/Kadena.vue';

@@ -78,16 +78,6 @@ export function transactionToCsv({ transaction, transfers, events }: any) {
     transfers: transfers.map(({ transfer }: any) => transfer),
   }, {}, '');
 
-  // transfers.forEach(({ transfer }: any, index: number) => {
-  //   const flatTransfer = flatten(transfer, flattenedData, `transfer_${index}_`);
-  //   Object.assign(flattenedData, flatTransfer);
-  // });
-
-  // events.forEach((event: any, index: number) => {
-  //   const flatEvent = flatten(event, flattenedData, `event_${index}_`);
-  //   Object.assign(flattenedData, flatEvent);
-  // });
-
   const csv = convertArrayToCSV([flattenedData])
 
   return csv;
@@ -116,3 +106,5 @@ export function downloadCSV(csv: string, filename: string) {
     document.body.removeChild(link);
   }
 }
+
+

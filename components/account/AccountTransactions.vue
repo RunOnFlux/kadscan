@@ -13,7 +13,7 @@ import { useAccountTransactions } from '~/composables/useAccountTransactions';
 import { useFormat } from '~/composables/useFormat';
 import { useSharedData } from '~/composables/useSharedData';
 import { useScreenSize } from '~/composables/useScreenSize';
-import { exportableToCsv, downloadCSV } from '~/composables/csv';
+import { exportableToCsv, downloadCSV } from '~/composables/useCSV';
 import { useBlocks } from '~/composables/useBlocks';
 
 const props = defineProps<{
@@ -111,7 +111,7 @@ const subtitle = computed(() => {
   const oldestTxIndex = Math.max(newestTxIndex - pageCount + 1, 1);
   const formattedNewest = new Intl.NumberFormat().format(newestTxIndex);
   const formattedOldest = new Intl.NumberFormat().format(oldestTxIndex);
-  return `(Showing transactions between #${formattedOldest} to #${formattedNewest})`;
+  return `Showing transactions between #${formattedOldest} to #${formattedNewest}`;
 });
 
 function getFeeInKda(item: any) {
@@ -284,7 +284,7 @@ function downloadData() {
           class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
         >
           <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
-          <span class="hidden md:inline">Download Page Data</span>
+          <span class="hidden md:inline">Download</span>
         </button>
       </template>
 
