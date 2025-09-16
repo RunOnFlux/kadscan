@@ -14,14 +14,14 @@ const {
   recordHistory,
 } = useSearch();
 
-const placeholder = ref('Search by Transaction / Address / Block / Token / Module')
+const placeholder = ref('Search for Blocks / Transactions / Addresses / Tokens')
 const focused = ref(false)
 
 const updatePlaceholder = () => {
   if (window.innerWidth < 640) {
-    placeholder.value = 'Transaction / Address / Block / Token'
+    placeholder.value = 'Blocks / Transactions / Addresses / Tokens'
   } else {
-    placeholder.value = 'Search by Transaction / Address / Block / Token / Module'
+    placeholder.value = 'Search for Blocks / Transactions / Addresses / Tokens'
   }
 }
 

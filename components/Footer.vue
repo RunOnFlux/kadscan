@@ -4,7 +4,11 @@ import IconGithub from '~/components/icon/Github.vue'
 import IconGitbook from '~/components/icon/Gitbook.vue'
 import IconBackToTop from '~/components/icon/BackToTop.vue'
 
-const { routes } = useAppConfig()
+const routes = [
+  { tag: 'home', label: 'Home', path: '/', type: 'link' },
+  { tag: 'blocks', label: 'Blocks', path: '/blocks', type: 'link' },
+  { tag: 'transactions', label: 'Transactions', path: '/transactions', type: 'link' },
+]
 
 const socials = [
   {

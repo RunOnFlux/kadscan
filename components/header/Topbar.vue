@@ -12,7 +12,11 @@ import {
 import { useSharedData } from '~/composables/useSharedData';
 import IconKadena from '~/components/icon/Kadena.vue';
 
-const config = useAppConfig()
+const routes = [
+  { tag: 'home', label: 'Home', path: '/', type: 'link' },
+  { tag: 'blocks', label: 'Blocks', path: '/blocks', type: 'link' },
+  { tag: 'transactions', label: 'Transactions', path: '/transactions', type: 'link' },
+]
 
 provideUseId(() => useId());
 
@@ -60,7 +64,7 @@ const {
         <HeaderRoute
           :key="route.tag + i"
           v-bind="route"
-          v-for="(route, i) in config.routes"
+          v-for="(route, i) in routes"
         />
       </div>
 
@@ -121,7 +125,7 @@ const {
         <HeaderRouteMobile
           :key="route.tag + i + '-mobile'"
           v-bind="route"
-          v-for="(route, i) in config.routes"
+          v-for="(route, i) in routes"
         />
       </DisclosurePanel>
     </transition>
