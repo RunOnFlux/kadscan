@@ -28,7 +28,7 @@ const goToModule = async () => {
       <span class="text-[#f5f5f5] text-sm truncate block">
         {{ name }}
       </span>
-      <span class="text-font-500 text-xs">
+      <span class="text-[#939393] text-xs">
         {{ allChains ? 'All chains' : `Available on ${chainsCount} chain${chainsCount === 1 ? '' : 's'}` }}
       </span>
     </div>

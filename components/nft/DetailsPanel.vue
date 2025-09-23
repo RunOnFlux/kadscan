@@ -101,7 +101,7 @@ const ownerDisplay = computed(() => {
         target="_blank"
         rel="noopener"
         aria-label="Open external site"
-        class="inline-flex items-center justify-center text-[#888888] hover:text-kadscan-400"
+        class="inline-flex items-center justify-center text-[#888888] hover:text-[#39a1d9]"
       >
         <IconExternal class="w-5 h-5" />
       </a>

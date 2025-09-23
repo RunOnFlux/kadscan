@@ -428,7 +428,7 @@ watch(
                 @click.prevent="openQr"
                 aria-label="Show address QR"
               >
-                <QrIcon class="text-[#888888] group-hover:text-kadscan-400" />
+                <QrIcon class="text-[#888888] group-hover:text-[#39a1d9]" />
               </button>
             </Tooltip>
           </div>

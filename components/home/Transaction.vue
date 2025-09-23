@@ -49,7 +49,7 @@ const formattedFee = computed(() => {
   <div class="px-4">
     <div
       class="flex items-center justify-between py-[14px]"
-      :class="{ 'border-b border-gray-700': index !== totalItems - 1 }"
+      :class="{ 'border-b border-[#292B2C]': index !== totalItems - 1 }"
     >
       <div class="flex items-center md:w-5/12 md:gap-2 w-[160px]">
         <div class="bg-[#151515] rounded-md p-3 hidden md:block">
@@ -83,7 +83,7 @@ const formattedFee = computed(() => {
         </div>
 
         <Tooltip value="Transaction Fee">
-          <div class="text-[11px] text-[#f5f5f5] border border-gray-600 bg-transparent rounded-md px-2 py-1">
+          <div class="text-[11px] text-[#f5f5f5] border border-[#343636] bg-transparent rounded-md px-2 py-1">
             {{ formattedFee }} kda
           </div>
         </Tooltip>

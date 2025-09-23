@@ -153,7 +153,7 @@ const marketCapInKda = computed(() => {
             :key="props.chartData.prices.length"
             v-bind="props.chartData"
           />
-          <div v-else class="h-full w-full flex items-center justify-center text-gray-500">
+          <div v-else class="h-full w-full flex items-center justify-center text-[#3E4041]">
             Loading...
           </div>
         </div>

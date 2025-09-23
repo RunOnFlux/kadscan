@@ -30,7 +30,7 @@ const { recordHistory } = useSearch();
 
         <div
           v-else
-          class="w-full h-full bg-gray-300 rounded"
+          class="w-full h-full bg-[#525454] rounded"
         />
       </div>
 
@@ -44,7 +44,7 @@ const { recordHistory } = useSearch();
         </span>
 
         <span
-          class="text-font-500 text-xs truncate"
+          class="text-[#939393] text-xs truncate"
         >
           {{ module }}
         </span>

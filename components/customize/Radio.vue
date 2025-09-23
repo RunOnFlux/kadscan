@@ -16,12 +16,12 @@ function select() {
 
 <template>
   <label
-    class="flex items-center gap-2 px-2 py-1 text-sm border rounded-lg cursor-pointer border-gray-700"
+    class="flex items-center gap-2 px-2 py-1 text-sm border rounded-lg cursor-pointer border-[#292B2C]"
     @click="select"
   >
     <div
       class="w-4 h-4 border-2 rounded-full flex items-center justify-center"
-      :class="isChecked ? 'border-[#009367]' : 'border-gray-500'"
+      :class="isChecked ? 'border-[#009367]' : 'border-[#3E4041]'"
     >
       <div
         v-if="isChecked"

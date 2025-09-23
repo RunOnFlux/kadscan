@@ -61,10 +61,10 @@ watch(() => props.isOpen, (isOpen) => {
         @click="closeModal"
       >
         <div
-          class="bg-[#111111] border border-gray-700 rounded-xl shadow-xl w-full max-w-lg overflow-hidden"
+          class="bg-[#111111] border border-[#292B2C] rounded-xl shadow-xl w-full max-w-lg overflow-hidden"
           @click.stop
         >
-          <div class="flex items-center justify-between p-4 border-b border-gray-700">
+          <div class="flex items-center justify-between p-4 border-b border-[#292B2C]">
             <h2 class="text-[15px] font-semibold text-white">
               Custom Card
             </h2>
@@ -93,7 +93,7 @@ watch(() => props.isOpen, (isOpen) => {
             </div>
           </div>
 
-          <div class="flex justify-end gap-2 p-4 bg-[#151515] border-t border-gray-700">
+          <div class="flex justify-end gap-2 p-4 bg-[#151515] border-t border-[#292B2C]">
             <button
               class="px-3 py-2 text-sm rounded-lg bg-[#252525] hover:bg-[#222222] text-[#f5f5f5]"
               @click="closeModal"

@@ -47,7 +47,7 @@ const {
         />
         <span
           v-if="selectedNetwork"
-          class="text-xs font-bold text-gray-400"
+          class="text-xs font-bold text-[#484A4B]"
         >
           {{ selectedNetwork.name }}
         </span>

@@ -81,7 +81,7 @@ function open () {
               px-2
               pb-3
               pt-2
-              border-t-[2px] border-t-[#00e19d] bg-gray-700 rounded-b-lg w-[240px]
+              border-t-[2px] border-t-[#00e19d] bg-[#292B2C] rounded-b-lg w-[240px]
             "
           >
             <div

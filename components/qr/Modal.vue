@@ -61,10 +61,10 @@ watch(
         @click="closeModal"
       >
         <div
-          class="bg-[#111111] border border-gray-700 rounded-xl shadow-xl w-full max-w-sm overflow-hidden"
+          class="bg-[#111111] border border-[#292B2C] rounded-xl shadow-xl w-full max-w-sm overflow-hidden"
           @click.stop
         >
-          <div class="flex items-center justify-between p-4 border-b border-gray-700">
+          <div class="flex items-center justify-between p-4 border-b border-[#292B2C]">
             <h2 class="text-[15px] font-semibold text-white">
               Account QR Code
             </h2>
@@ -75,7 +75,7 @@ watch(
 
           <div class="p-5 flex flex-col items-center gap-3">
             <div
-              class="rounded-lg p-3 bg-[#151515] border border-gray-700"
+              class="rounded-lg p-3 bg-[#151515] border border-[#292B2C]"
             >
               <img v-if="dataUrl" :src="dataUrl" alt="QR Code" class="w-[220px] h-[220px]" />
               <div v-else class="w-[220px] h-[220px] grid place-items-center text-[#888888]">
@@ -87,9 +87,9 @@ watch(
             </div>
           </div>
 
-          <div class="flex justify-end gap-2 p-4 bg-[#151515] border-t border-gray-700">
+          <div class="flex justify-end gap-2 p-4 bg-[#151515] border-t border-[#292B2C]">
             <button
-              class="px-3 py-2 text-sm text-gray-300 rounded-lg hover:bg-[#252525] hover:text-[#f5f5f5]"
+              class="px-3 py-2 text-sm text-[#525454] rounded-lg hover:bg-[#252525] hover:text-[#f5f5f5]"
               @click="closeModal"
             >
               Close

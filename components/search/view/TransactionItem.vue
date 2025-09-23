@@ -49,7 +49,7 @@ const { recordHistory } = useSearch();
 
       <div>
         <span
-          class="text-font-500 text-xs"
+          class="text-[#939393] text-xs"
         >
           Block: {{ height }}
         </span>
@@ -57,7 +57,7 @@ const { recordHistory } = useSearch();
         -
 
         <span
-          class="text-font-500 text-xs"
+          class="text-[#939393] text-xs"
         >
           Chain: {{ chainId }}
         </span>
@@ -65,7 +65,7 @@ const { recordHistory } = useSearch();
         -
 
         <span
-          class="text-font-500 text-xs"
+          class="text-[#939393] text-xs"
         >
           Time: {{ timeAgo }}
         </span>

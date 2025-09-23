@@ -576,7 +576,7 @@ onUnmounted(() => {
                         />
                         <div 
                           v-else
-                          class="w-5 h-5 bg-gray-400 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                          class="w-5 h-5 bg-[#484A4B] rounded-full flex items-center justify-center text-xs font-bold text-white"
                         >
                           {{ getTokenMetadata(transferEdge.node.moduleName).symbol.charAt(0) }}
                         </div>
