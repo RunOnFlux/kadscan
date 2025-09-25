@@ -1,7 +1,16 @@
 /** @type {import('tailwindcss').Config} */
 const defaultTheme = require('tailwindcss/defaultTheme')
 
+// Helper to support opacity with CSS variables in Tailwind color utilities
+const withOpacityValue = (variable) => ({ opacityValue }) => {
+  if (opacityValue !== undefined) {
+    return `rgb(var(${variable}) / ${opacityValue})`
+  }
+  return `rgb(var(${variable}))`
+}
+
 export default {
+  darkMode: 'class',
   content: [
     "./components/**/*.{js,vue,ts}",
     "./layouts/**/*.vue",
@@ -29,42 +38,50 @@ export default {
         '2xl': ['1.5rem', '140%'],
       },
       colors: {
-        system: {
-          green: {
-            DEFAULT: '#38A169',
-          },
+        // Semantic tokens (to be expanded as we migrate)
+        'bg-primary': withOpacityValue('--bg-primary'),
+        'bg-secondary': withOpacityValue('--bg-secondary'),
+        'bg-hover': withOpacityValue('--bg-hover'),
+        'bg-disabled': withOpacityValue('--bg-disabled'),
 
-          red: {
-            DEFAULT: '#C6454B',
-          },
+        'border-default': withOpacityValue('--border-default'),
+        'border-strong': withOpacityValue('--border-strong'),
+        'border-muted': withOpacityValue('--border-muted'),
 
-        },
+        'text-primary': withOpacityValue('--text-primary'),
+        'text-secondary': withOpacityValue('--text-secondary'),
+        'text-tertiary': withOpacityValue('--text-tertiary'),
+        'text-accent': withOpacityValue('--text-accent'),
+        'text-danger': withOpacityValue('--text-danger'),
 
-        kadscan: {
-          400: '#39a1d9',
-          500: '#0784c3',
-          600: '#056a9e',
-          700: '#045079',
-        },
+        link: withOpacityValue('--link'),
+        'link-hover': withOpacityValue('--link-hover'),
 
-        font: {
-          400: '#FFFFFF',
-          450: '#B3B3B3',
-          500: '#939393',
-        },
+        'btn-bg': withOpacityValue('--btn-bg'),
+        'btn-text': withOpacityValue('--btn-text'),
+        'btn-border': withOpacityValue('--btn-border'),
+        'btn-hover-bg': withOpacityValue('--btn-hover-bg'),
+        'btn-cta-bg': withOpacityValue('--btn-cta-bg'),
+        'btn-cta-hover-bg': withOpacityValue('--btn-cta-hover-bg'),
 
+        'tab-bg-active': withOpacityValue('--tab-bg-active'),
+        'tab-text-active': withOpacityValue('--tab-text-active'),
+        'tab-bg-inactive': withOpacityValue('--tab-bg-inactive'),
+        'tab-text-inactive': withOpacityValue('--tab-text-inactive'),
+        'tab-bg-hover': withOpacityValue('--tab-bg-hover'),
 
-        gray: {
-          900: '#010101',
-          800: '#1A1C1D',
-          700: '#292B2C',
-          600: '#343636',
-          500: '#3E4041',
-          400: '#484A4B',
-          300: '#525454',
-          200: '#555757',
-          100: '#5E6060',
-        },
+        'badge-bg-success': withOpacityValue('--badge-bg-success'),
+        'badge-text-success': withOpacityValue('--badge-text-success'),
+        'badge-bg-success-soft': withOpacityValue('--badge-bg-success-soft'),
+        'badge-bg-warning': withOpacityValue('--badge-bg-warning'),
+        'badge-text-warning': withOpacityValue('--badge-text-warning'),
+        'badge-bg-warning-soft': withOpacityValue('--badge-bg-warning-soft'),
+        'badge-bg-error': withOpacityValue('--badge-bg-error'),
+        'badge-bg-error-strong': withOpacityValue('--badge-bg-error-strong'),
+        'badge-text-error': withOpacityValue('--badge-text-error'),
+
+        accent: withOpacityValue('--accent'),
+        'accent-strong': withOpacityValue('--accent-strong'),
       }
     },
     screens: {

@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue';
+import { computed, watch, ref, onMounted } from 'vue';
 import { useSharedData } from '~/composables/useSharedData';
 import { fetchInitialGasPriceStats } from '~/composables/useAverageGasPrice';
-import { Listbox, ListboxButton } from '@headlessui/vue'
+import { Listbox, ListboxButton, Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 import SelectOptions from '~/components/SelectOptions.vue';
+import ThemeLight from '~/components/icon/ThemeLight.vue';
+import ThemeDim from '~/components/icon/ThemeDim.vue';
+import ThemeDark from '~/components/icon/ThemeDark.vue';
 
 const route = useRoute();
 // Stable id for Headless UI MenuButton to prevent SSR/client mismatch
@@ -57,6 +60,32 @@ const medGasPrice = computed(() => {
   return avg.toFixed(10).replace(/\.?0+$/, '');
 });
 
+// Theme control using data-theme attribute (light | dim | dark)
+const theme = ref<'light' | 'dim' | 'dark'>('light');
+
+function applyThemeAttribute() {
+  const root = document.documentElement;
+  root.removeAttribute('class'); // ensure legacy .dark not interfering
+  root.setAttribute('data-theme', theme.value);
+}
+
+function setTheme(next: 'light' | 'dim' | 'dark') {
+  theme.value = next;
+  try {
+    localStorage.setItem('theme', theme.value);
+  } catch {}
+  applyThemeAttribute();
+}
+
+onMounted(() => {
+  try {
+    const saved = localStorage.getItem('theme') as 'light' | 'dim' | 'dark' | null;
+    theme.value = saved === 'dim' || saved === 'dark' ? saved : 'light';
+  } catch {
+    theme.value = 'light';
+  }
+  applyThemeAttribute();
+});
 </script>
 
 <template>
@@ -90,6 +119,33 @@ const medGasPrice = computed(() => {
 
         <div class="flex items-center gap-2 w-full md:w-auto justify-center md:justify-end">
           <SearchInputHeader v-if="route.path !== '/'" />
+          <!-- Theme selector between searchbar and network switch -->
+          <Menu as="div" class="relative inline-block text-left">
+            <div>
+              <MenuButton class="h-[36.5px] rounded-lg flex items-center gap-2 border border-[#222222] bg-[#151515] hover:bg-[#222222] px-3 text-[#f5f5f5]">
+                <component :is="theme === 'light' ? ThemeLight : (theme === 'dim' ? ThemeDim : ThemeDark)" class="h-4 w-4" />
+              </MenuButton>
+            </div>
+            <MenuItems class="absolute right-0 mt-1 border border-[#222222] w-36 origin-top-right rounded-lg bg-[#111111] shadow-[0_0_15px_rgba(255,255,255,0.0625)] ring-1 ring-black/5 focus:outline-none px-2 py-1">
+              <div class="px-1 py-1">
+                <MenuItem v-slot="{ active }">
+                  <button @click="setTheme('light')" :class="[ active ? 'bg-[#222222]' : '', 'group flex w-full items-center justify-start rounded-md px-3 py-2 text-sm gap-2', theme==='light' ? 'text-[#00e19d]' : 'text-[#f5f5f5]']">
+                    <ThemeLight class="h-4 w-4" /><span>Light</span>
+                  </button>
+                </MenuItem>
+                <MenuItem v-slot="{ active }">
+                  <button @click="setTheme('dim')" :class="[ active ? 'bg-[#222222]' : '', 'group flex w-full items-center justify-start rounded-md px-3 py-2 text-sm gap-2', theme==='dim' ? 'text-[#00e19d]' : 'text-[#f5f5f5]']">
+                    <ThemeDim class="h-4 w-4" /><span>Dim</span>
+                  </button>
+                </MenuItem>
+                <MenuItem v-slot="{ active }">
+                  <button @click="setTheme('dark')" :class="[ active ? 'bg-[#222222]' : '', 'group flex w-full items-center justify-start rounded-md px-3 py-2 text-sm gap-2', theme==='dark' ? 'text-[#00e19d]' : 'text-[#f5f5f5]']">
+                    <ThemeDark class="h-4 w-4" /><span>Dark</span>
+                  </button>
+                </MenuItem>
+              </div>
+            </MenuItems>
+          </Menu>
           <Menu as="div" class="relative inline-block text-left hidden md:block">
           <div>
             <MenuButton :id="networkMenuButtonId" class="h-[36.5px] rounded-lg flex items-center gap-2 border border-[#222222] bg-[#151515] hover:bg-[#222222] px-3">
