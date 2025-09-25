@@ -75,7 +75,7 @@ function markBroken(key: string) {
     <div v-if="displayable.length > 0" class="flex items-center justify-between mb-3">
       <div class="text-[#f5f5f5] font-semibold">NFTs Accross All Chains</div>
       <Tooltip placement="left" :value="`We are currently fetching the NFTs metadata directly in the URLs found associated with the NFT in the blockchain. NFTs usually don't store their images on the blockchain, they rather use an URL pointing to the image. But in most cases, these links are missconfigured or not maintained after a long period of time and might not be available.`">
-        <button class="w-5 h-5 grid place-items-center text-[#bbbbbb] hover:text-[#e0e0e0]" aria-label="NFTs info">
+        <button class="w-5 h-5 grid place-items-center text-[#bbbbbb] hover:text-[#bbbbbb]" aria-label="NFTs info">
           <InfoIcon class="w-5 h-5" />
         </button>
       </Tooltip>
@@ -114,7 +114,7 @@ function markBroken(key: string) {
       <template v-else>
         <div class="grid grid-cols-4 gap-2">
           <div v-for="idx in 4" :key="idx" class="aspect-square rounded-lg overflow-hidden bg-[#151515] border border-[#222222]">
-            <div class="w-full h-full relative animate-[pulse_0.7s_ease-in-out_infinite] bg-[#1a1a1a]">
+            <div class="w-full h-full relative animate-[pulse_0.7s_ease-in-out_infinite] bg-[#222222]">
               <div class="absolute inset-0 flex items-center justify-center">
                 <div class="h-5 w-5 rounded-full border-2 border-white/20 border-t-transparent animate-spin"></div>
               </div>

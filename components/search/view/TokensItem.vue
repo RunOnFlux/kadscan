@@ -14,7 +14,7 @@ const { recordHistory } = useSearch();
   <NuxtLink
     :to="`/token/${encodeURIComponent(module)}`"
     @click="recordHistory(module, 'tokens')"
-    class="py-2 px-2 flex items-center gap-2 w-full hover:bg-[#1d1d1d] hover:rounded-md"
+    class="py-2 px-2 flex items-center gap-2 w-full hover:bg-[#222222] hover:rounded-md"
   >
     <div
       class="flex items-center gap-2"

@@ -33,7 +33,7 @@ const nameForModule = (module: string) => {
 
 // Palette: 8 harmonious colors tuned for dark backgrounds
 // Order follows the color wheel for smooth visual balance
-const PALETTE = ['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#10b981', '#06b6d4', '#3b82f6', '#8b5cf6']
+const PALETTE = ['#ff6b6b', '#f97316', '#f59e0b', '#84cc16', '#10b981', '#06b6d4', '#3b82f6', '#8b5cf6']
 const OTHERS_COLOR = '#4b5563'
 
 // When a specific chain is selected, only include that chain's balances; otherwise include all.

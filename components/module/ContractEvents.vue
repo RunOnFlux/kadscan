@@ -282,15 +282,15 @@ function downloadData() {
             <template #value>
               <div class="flex items-center gap-2 w-full flex-wrap">
                 <StatusBadge :status="eventTransactionStatus(ev)" :tooltip="false" />
-                <span v-if="ev.height !== undefined && ev.height !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+                <span v-if="ev.height !== undefined && ev.height !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#222222] text-[11px] font-semibold flex items-center leading-none">
                   <span class="text-[#bbbbbb]">Height:</span>
                   <NuxtLink :to="`/blocks/${ev.height}/chain/${ev.chainId}`" class="text-[#f5f5f5] ml-1 hover:underline">{{ ev.height }}</NuxtLink>
                 </span>
-                <span v-if="ev.chainId !== undefined && ev.chainId !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+                <span v-if="ev.chainId !== undefined && ev.chainId !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#222222] text-[11px] font-semibold flex items-center leading-none">
                   <span class="text-[#bbbbbb]">Chain:</span>
                   <span class="text-[#f5f5f5] ml-1">{{ ev.chainId }}</span>
                 </span>
-                <span v-if="ev.time" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+                <span v-if="ev.time" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#222222] text-[11px] font-semibold flex items-center leading-none">
                   <span class="text-[#bbbbbb]">Time:</span>
                   <span class="text-[#f5f5f5] ml-1">{{ ev.time }}</span>
                 </span>

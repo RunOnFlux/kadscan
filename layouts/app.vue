@@ -46,11 +46,11 @@ body.modal-open {
 }
 
 ::-webkit-scrollbar-track {
-  background: #2d2d2d;
+  background: #333333;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #2d2d2d;
+  background-color: #333333;
   border-radius: 8px;
   border: 1px solid #3d3d3d;
 }
@@ -62,6 +62,6 @@ body.modal-open {
 /* For Firefox */
 html {
   scrollbar-width: auto; /* 'auto' is the default, 'thin' is the other option */
-  scrollbar-color: #6b6b6b #2d2d2d;
+  scrollbar-color: #6b6b6b #333333;
 }
 </style>

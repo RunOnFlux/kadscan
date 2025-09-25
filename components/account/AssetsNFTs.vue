@@ -200,7 +200,7 @@ onBeforeUnmount(() => {
       </template>
       <template #preview="{ item }">
         <button
-          class="w-8 h-8 rounded-md border border-[#222222] grid place-items-center hover:bg-[#1a1a1a] active:bg-[#252525]"
+          class="w-8 h-8 rounded-md border border-[#222222] grid place-items-center hover:bg-[#222222] active:bg-[#252525]"
           @click.prevent="openPreview(item)"
         >
           <PreviewIcon class="opacity-60"/>
@@ -208,7 +208,7 @@ onBeforeUnmount(() => {
       </template>
       <template #name="{ item }">
         <div class="flex items-center gap-2">
-          <div class="relative w-8 h-8 rounded-md overflow-hidden bg-[#1a1a1a] border border-[#222222] grid place-items-center">
+          <div class="relative w-8 h-8 rounded-md overflow-hidden bg-[#222222] border border-[#222222] grid place-items-center">
             <img v-if="item._image && !isMiniBroken(item)" :src="item._image" alt="nft" class="w-full h-full object-cover" @error="markMiniBroken(item)" />
             <span v-else-if="!item._metaErr && !isMiniBroken(item)" class="inline-block">
               <span class="block w-[12px] h-[12px] border-2 border-[#bbbbbb] border-t-transparent rounded-full animate-spin"></span>

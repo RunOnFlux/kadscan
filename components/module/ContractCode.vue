@@ -126,15 +126,15 @@ const declarationInfo = computed<DeclarationInfo | null>(() => {
           <p v-if="docString" class="text-[15px] text-[#f5f5f5]">{{ docString }}</p>
           <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
             <div v-if="declarationInfo" class="flex flex-wrap gap-2">
-            <span v-if="declarationInfo?.type" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+            <span v-if="declarationInfo?.type" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#222222] text-[11px] font-semibold flex items-center leading-none">
               <span class="text-[#bbbbbb]">Type:</span>
               <span class="text-[#f5f5f5] ml-1">{{ declarationInfo?.type }}</span>
             </span>
-            <span v-if="(declarationInfo?.name || moduleInfo?.name)" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+            <span v-if="(declarationInfo?.name || moduleInfo?.name)" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#222222] text-[11px] font-semibold flex items-center leading-none">
               <span class="text-[#bbbbbb]">Module Name:</span>
               <span class="text-[#f5f5f5] ml-1">{{ declarationInfo?.name || effectiveModuleInfo?.name }}</span>
             </span>
-            <span v-if="declarationInfo?.capability" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+            <span v-if="declarationInfo?.capability" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#222222] text-[11px] font-semibold flex items-center leading-none">
               <span class="text-[#bbbbbb]">Capability:</span>
               <span class="text-[#f5f5f5] ml-1">{{ declarationInfo?.capability }}</span>
             </span>

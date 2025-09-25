@@ -179,7 +179,7 @@ const vAutosize = {
             <div class="text-[#f5f5f5] text-[15px] fix w-full md:flex-1 overflow-hidden">
               <div v-if="loading" class="w-full">
                 <div class="relative overflow-hidden rounded-lg border border-[#222222] bg-[#151515] h-[110px] md:h-[120px]">
-                  <div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-[#2a2a2a] to-transparent animate-shimmer"></div>
+                  <div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-[#333333] to-transparent animate-shimmer"></div>
                 </div>
               </div>
               <div v-else-if="!resultExpanded"

@@ -145,9 +145,9 @@ input {
   transition-timing-function: ease-in-out !important;
 }
 input:focus {
-  border-color: #292929 !important;
+  border-color: #333333 !important;
   border-width: 1px !important;
-  box-shadow: 0 0 0 2px #292929 !important;
+  box-shadow: 0 0 0 2px #333333 !important;
   outline: none !important;
 }
 </style> 

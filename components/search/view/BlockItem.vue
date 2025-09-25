@@ -37,7 +37,7 @@ const { recordHistory } = useSearch();
   <NuxtLink
     :to="blockUrl"
     @click="recordHistory(hash || String(height), 'blocks')"
-    class="py-2 px-2 flex gap-2 hover:bg-[#1d1d1d] hover:rounded-md"
+    class="py-2 px-2 flex gap-2 hover:bg-[#222222] hover:rounded-md"
   >
     <IconStatus
       :status="status"

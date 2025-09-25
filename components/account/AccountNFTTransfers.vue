@@ -284,7 +284,7 @@ function downloadData() {
         </div>
       </template>
       <template #action="{ item }">
-        <span class="px-2 py-1.5 rounded-md border border-[#292929] bg-[#151515] text-[11px] text-[#f5f5f5] font-normal inline-flex items-center justify-center leading-none w-[92px]">
+        <span class="px-2 py-1.5 rounded-md border border-[#333333] bg-[#151515] text-[11px] text-[#f5f5f5] font-normal inline-flex items-center justify-center leading-none w-[92px]">
           {{ item.action }}
         </span>
       </template>

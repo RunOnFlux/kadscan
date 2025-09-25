@@ -100,15 +100,15 @@ function makeEventKey(edge: any, index: number): string {
             >
               <template #value>
                 <div class="flex items-center gap-2 w-full">
-                  <span v-if="eventEdge.node.orderIndex !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+                  <span v-if="eventEdge.node.orderIndex !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#222222] text-[11px] font-semibold flex items-center leading-none">
                     <span class="text-[#bbbbbb]">Order Indexer:</span>
                     <span class="text-[#f5f5f5] ml-1">{{ eventEdge.node.orderIndex }}</span>
                   </span>
-                  <span v-if="eventEdge.node.moduleName !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+                  <span v-if="eventEdge.node.moduleName !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#222222] text-[11px] font-semibold flex items-center leading-none">
                     <span class="text-[#bbbbbb]">Module:</span>
                     <NuxtLink :to="`/module/${eventEdge.node.moduleName}`" class="text-[#6ab5db] ml-1 hover:text-[#9ccee7]">{{ eventEdge.node.moduleName }}</NuxtLink>
                   </span>
-                  <span v-if="eventEdge.node.name !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+                  <span v-if="eventEdge.node.name !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#222222] text-[11px] font-semibold flex items-center leading-none">
                     <span class="text-[#bbbbbb]">Event:</span>
                     <span class="text-[#f5f5f5] ml-1">{{ eventEdge.node.name }}</span>
                   </span>

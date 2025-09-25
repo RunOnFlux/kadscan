@@ -70,7 +70,7 @@ const scrollToTop = () => {
 
         <button
           @click="scrollToTop"
-          class="md:hidden flex items-center gap-2 text-[#f5f5f5] bg-[#1a1a1a] border border-[#2d2d2d] rounded-lg px-4 py-2"
+          class="md:hidden flex items-center gap-2 text-[#f5f5f5] bg-[#222222] border border-[#333333] rounded-lg px-4 py-2"
         >
           <IconBackToTop class="h-5 w-5" />
           <span>Back to Top</span>

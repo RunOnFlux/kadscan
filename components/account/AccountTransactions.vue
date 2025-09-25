@@ -321,7 +321,7 @@ function downloadData() {
       <template #method="{ item }">
         <div class="flex items-center">
           <Tooltip :value="formatMethodFull(item.method)">
-            <span class="px-2 py-1.5 bg-[#151515] rounded-md border border-[#292929] text-[11px] text-[#f5f5f5] font-normal inline-flex items-center justify-center leading-none w-[120px]">
+            <span class="px-2 py-1.5 bg-[#151515] rounded-md border border-[#333333] text-[11px] text-[#f5f5f5] font-normal inline-flex items-center justify-center leading-none w-[120px]">
               {{ formatMethod(item.method) }}
             </span>
           </Tooltip>

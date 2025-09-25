@@ -337,7 +337,7 @@ onUnmounted(() => {
               'px-[10px] py-[5px] text-[13px] rounded-lg font-medium transition-colors',
               activeTab === label
                 ? 'bg-[#009367] text-[#f5f5f5]'
-                : 'bg-[#252525] text-[#bbbbbb] hover:bg-[#333333]'
+                : 'bg-[#252525] text-[#bbbbbb] hover:bg-[#2d2d2d]'
             ]"
             @click="activeTab = label"
           >
@@ -409,7 +409,7 @@ onUnmounted(() => {
                      <NuxtLink v-if="transaction?.result?.block?.height" :to="`/blocks/${transaction.result.block.height}/chain/${transaction.result.block.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ transaction.result.block.height }}</NuxtLink>
                      <span v-else-if="!transaction?.result?.block?.height && transaction?.cmd?.meta?.chainId && (transaction?.cmd?.meta?.creationTime === 0 || new Date(transaction?.cmd?.meta?.creationTime).getTime() < new Date('1970-01-02').getTime())" class="text-[#f5f5f5]">Genesis</span>
                      <span v-else class="text-[#f5f5f5]">-</span>
-                     <span v-if="blockConfirmations !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] text-[#f5f5f5] font-semibold flex items-center leading-none">
+                     <span v-if="blockConfirmations !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#222222] text-[11px] text-[#f5f5f5] font-semibold flex items-center leading-none">
                       {{ blockConfirmations }} Block Confirmations
                      </span>
                    </div>
@@ -700,15 +700,15 @@ onUnmounted(() => {
                     >
                       <template #value>
                         <div class="flex flex-wrap gap-2">
-                          <span v-if="transaction?.cmd?.meta?.ttl !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+                          <span v-if="transaction?.cmd?.meta?.ttl !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#222222] text-[11px] font-semibold flex items-center leading-none">
                             <span class="text-[#bbbbbb]">TTL:</span>
                             <span class="text-[#f5f5f5] ml-1">{{ transaction?.cmd?.meta?.ttl }}</span>
                           </span>
-                          <span v-if="transaction?.cmd?.nonce !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+                          <span v-if="transaction?.cmd?.nonce !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#222222] text-[11px] font-semibold flex items-center leading-none">
                             <span class="text-[#bbbbbb]">Nonce:</span>
                             <span class="text-[#f5f5f5] ml-1">{{ transaction?.cmd?.nonce }}</span>
                           </span>
-                          <span v-if="transaction?.result?.transactionId !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
+                          <span v-if="transaction?.result?.transactionId !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#222222] text-[11px] font-semibold flex items-center leading-none">
                             <span class="text-[#bbbbbb]">TXID:</span>
                             <span class="text-[#f5f5f5] ml-1">{{ transaction?.result?.transactionId }}</span>
                           </span>

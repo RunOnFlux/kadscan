@@ -44,7 +44,7 @@ onMounted(() => {
       
       <div class="py-5">
         <NuxtLink to="/">
-          <button class="bg-[#0584c3] hover:bg-[#0584c3]/80 text-[#f5f5f5] px-3 py-1.5 rounded-lg transition-colors duration-200 text-[15px]">
+          <button class="bg-[#009367] hover:bg-[#009367]/80 text-[#f5f5f5] px-3 py-1.5 rounded-lg transition-colors duration-200 text-[15px]">
             Back Home
           </button>
         </NuxtLink>

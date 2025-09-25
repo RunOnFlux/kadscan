@@ -75,7 +75,7 @@ const arrowClass = computed(() => {
           v-show="isVisible"
           :class="tooltipClass"
         >
-          <div class="z-[10] bg-[#313131] text-[#e5e5e5] text-xs px-2 py-1 rounded-md shadow-lg relative text-center isolate">
+          <div class="z-[10] bg-[#313131] text-[#f5f5f5] text-xs px-2 py-1 rounded-md shadow-lg relative text-center isolate">
             {{ value }}
             <div :class="arrowClass"></div>
           </div>

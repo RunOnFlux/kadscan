@@ -28,7 +28,7 @@ const goToMore = async () => {
       <button
         v-if="hasMore"
         type="button"
-        class="py-2 px-2 flex items-center justify-center hover:bg-[#1d1d1d] hover:rounded-md w-full"
+        class="py-2 px-2 flex items-center justify-center hover:bg-[#222222] hover:rounded-md w-full"
         @click.prevent="goToMore"
       >
         <span class="text-[#6ab5db] text-sm">Show more</span>

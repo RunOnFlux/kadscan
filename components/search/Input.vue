@@ -124,7 +124,7 @@ input {
   border-width: 2px !important;
 }
 input:focus {
-  border-color: #292929 !important;
+  border-color: #333333 !important;
   border-width: 2px !important;
   outline: none !important;
 }
