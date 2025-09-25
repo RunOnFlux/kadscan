@@ -1,22 +1,22 @@
 :root {
   /* Light theme (default) */
   /* Backgrounds & Surfaces */
-  --bg-primary: 255 255 255; /* #ffffff */
-  --bg-secondary: 34 34 34; /* #222222 */
-  --bg-hover: 37 37 37; /* #252525 */
-  --bg-disabled: 21 21 21; /* #151515 */
+  --surface-primary: 255 255 255; /* #ffffff */
+  --surface-secondary: 34 34 34; /* #222222 */
+  --surface-hover: 37 37 37; /* #252525 */
+  --surface-disabled: 21 21 21; /* #151515 */
 
   /* Borders */
-  --border-default: 34 34 34; /* #222222 */
-  --border-strong: 51 51 51; /* #333333 */
-  --border-muted: 68 70 72; /* #444648 */
+  --line-default: 34 34 34; /* #222222 */
+  --line-strong: 51 51 51; /* #333333 */
+  --line-muted: 68 70 72; /* #444648 */
 
   /* Text */
-  --text-primary: 245 245 245; /* #f5f5f5 */
-  --text-secondary: 187 187 187; /* #bbbbbb */
-  --text-tertiary: 136 136 136; /* #888888 */
-  --text-accent: 0 161 134; /* #00a186 */
-  --text-danger: 255 107 107; /* #ff6b6b */
+  --font-primary: 245 245 245; /* #f5f5f5 */
+  --font-secondary: 187 187 187; /* #bbbbbb */
+  --font-tertiary: 136 136 136; /* #888888 */
+  --font-accent: 0 161 134; /* #00a186 */
+  --font-danger: 255 107 107; /* #ff6b6b */
 
   /* Links */
   --link: 106 181 219; /* #6ab5db */
@@ -55,18 +55,18 @@
 
 /* Dim theme */
 [data-theme="dim"] {
-  --bg-primary: 17 17 17; /* #111111 */
-  --bg-secondary: 34 34 34; /* #222222 */
-  --bg-hover: 37 37 37; /* #252525 */
-  --bg-disabled: 21 21 21; /* #151515 */
+  --surface-primary: 17 17 17; /* #111111 */
+  --surface-secondary: 34 34 34; /* #222222 */
+  --surface-hover: 37 37 37; /* #252525 */
+  --surface-disabled: 21 21 21; /* #151515 */
 
-  --border-default: 34 34 34; /* #222222 */
-  --border-strong: 51 51 51; /* #333333 */
-  --border-muted: 68 70 72; /* #444648 */
+  --line-default: 34 34 34; /* #222222 */
+  --line-strong: 51 51 51; /* #333333 */
+  --line-muted: 68 70 72; /* #444648 */
 
-  --text-primary: 245 245 245; /* #f5f5f5 */
-  --text-secondary: 187 187 187; /* #bbbbbb */
-  --text-tertiary: 136 136 136; /* #888888 */
+  --font-primary: 245 245 245; /* #f5f5f5 */
+  --font-secondary: 187 187 187; /* #bbbbbb */
+  --font-tertiary: 136 136 136; /* #888888 */
 
   --link: 106 181 219; /* #6ab5db */
   --link-hover: 156 206 231; /* #9ccee7 */
@@ -100,18 +100,18 @@
 
 /* Dark theme */
 [data-theme="dark"] {
-  --bg-primary: 17 17 17; /* #111111 */
-  --bg-secondary: 34 34 34; /* #222222 */
-  --bg-hover: 37 37 37; /* #252525 */
-  --bg-disabled: 21 21 21; /* #151515 */
+  --surface-primary: 17 17 17; /* #111111 */
+  --surface-secondary: 34 34 34; /* #222222 */
+  --surface-hover: 37 37 37; /* #252525 */
+  --surface-disabled: 21 21 21; /* #151515 */
 
-  --border-default: 34 34 34; /* #222222 */
-  --border-strong: 51 51 51; /* #333333 */
-  --border-muted: 68 70 72; /* #444648 */
+  --line-default: 34 34 34; /* #222222 */
+  --line-strong: 51 51 51; /* #333333 */
+  --line-muted: 68 70 72; /* #444648 */
 
-  --text-primary: 245 245 245; /* #f5f5f5 */
-  --text-secondary: 187 187 187; /* #bbbbbb */
-  --text-tertiary: 136 136 136; /* #888888 */
+  --font-primary: 245 245 245; /* #f5f5f5 */
+  --font-secondary: 187 187 187; /* #bbbbbb */
+  --font-tertiary: 136 136 136; /* #888888 */
 
   --link: 106 181 219; /* #6ab5db */
   --link-hover: 156 206 231; /* #9ccee7 */
