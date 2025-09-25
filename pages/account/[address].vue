@@ -397,7 +397,7 @@ watch(
   [selectedNetwork, address],
   async ([network, addr]) => {
     if (!network || !addr) return
-    await fetchAccountBalances({ networkId: network.id, accountName: addr })
+    await fetchAccountBalances({ networkId: network.id, accountName: addr, first: 200 })
   },
   { immediate: true }
 )
