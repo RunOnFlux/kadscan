@@ -165,7 +165,7 @@ watch([selectedNetwork, () => route.query.chain, () => moduleName.value], async 
 <template>
   <div>
     <!-- Header -->
-    <div class="pb-5 border-b border-[#222222] mb-6 px-1">
+    <div class="pb-5 border-b border-line-default mb-6 px-1">
       <div class="flex flex-col gap-1 md:flex-row md:items-center md:gap-3">
         <div class="flex items-center gap-2 mb-1 md:mb-0">
           <img v-if="tokenIconSrc" :src="tokenIconSrc" alt="Token icon" class="w-8 h-8 rounded-full" />
@@ -187,7 +187,7 @@ watch([selectedNetwork, () => route.query.chain, () => moduleName.value], async 
     <!-- Top Blocks -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6 items-stretch">
       <!-- Overview -->
-      <div class="bg-surface-primary border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+      <div class="bg-surface-primary border border-line-default rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
         <h3 class="text-font-primary font-semibold mb-4">
           Overview <span class="text-font-secondary font-normal">— {{ overviewChainLabel }}</span>
         </h3>
@@ -211,12 +211,12 @@ watch([selectedNetwork, () => route.query.chain, () => moduleName.value], async 
       </div>
 
       <!-- More Info -->
-      <div class="bg-surface-primary border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+      <div class="bg-surface-primary border border-line-default rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
         <h3 class="text-font-primary font-semibold mb-4">More Info</h3>
         <div class="space-y-4">
           <div>
             <div class="text-[13px] text-font-secondary font-medium mb-1">TOKEN MODULE</div>
-            <NuxtLink :to="`/module/${moduleName}`" class="inline-flex items-center gap-1 text-[#6AB5DB] hover:text-[#9ccee7] break-all text-[14px]">
+            <NuxtLink :to="`/module/${moduleName}`" class="inline-flex items-center gap-1 text-link hover:text-link-hover break-all text-[14px]">
               <span>{{ moduleName }}</span>
               <UpperRightArrow class="w-4 h-4" />
             </NuxtLink>
@@ -232,7 +232,7 @@ watch([selectedNetwork, () => route.query.chain, () => moduleName.value], async 
       </div>
 
       <!-- Multichain Info -->
-      <div class="bg-surface-primary border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+      <div class="bg-surface-primary border border-line-default rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
         <h3 class="text-font-primary font-semibold mb-4">Multichain Info</h3>
         <div class="space-y-4">
           <div class="flex items-center justify-between gap-2">
@@ -267,7 +267,7 @@ watch([selectedNetwork, () => route.query.chain, () => moduleName.value], async 
           :class="[
             'px-3 py-1 rounded-lg text-[14px] font-medium transition-colors whitespace-nowrap relative',
             activeTab === tab.id 
-              ? 'bg-[#009367] text-font-primary' 
+              ? 'bg-accent-strong text-font-primary' 
               : 'bg-surface-hover text-font-primary hover:bg-[#333333]'
           ]"
         >

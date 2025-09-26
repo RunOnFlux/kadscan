@@ -53,7 +53,7 @@ const positionClasses = computed(() => {
       z-[99999]
       px-3
       py-2
-      border border-[#222222]
+      border border-line-default
       rounded-lg
       absolute
       bg-surface-primary

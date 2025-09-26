@@ -117,7 +117,7 @@ const declarationInfo = computed<DeclarationInfo | null>(() => {
 <template>
   <div>
     <div class="mb-4">
-      <div class="divide-y divide-[#222222]">
+      <div class="divide-y divide-line-default">
         <div class="pb-3 md:pb-4">
           <h2 class="text-[15px] text-normal text-font-primary">Contract Code</h2>
           <p class="text-[13px] text-font-secondary">Pact source code of the module</p>
@@ -126,15 +126,15 @@ const declarationInfo = computed<DeclarationInfo | null>(() => {
           <p v-if="docString" class="text-[15px] text-font-primary">{{ docString }}</p>
           <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
             <div v-if="declarationInfo" class="flex flex-wrap gap-2">
-            <span v-if="declarationInfo?.type" class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+            <span v-if="declarationInfo?.type" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
               <span class="text-font-secondary">Type:</span>
               <span class="text-font-primary ml-1">{{ declarationInfo?.type }}</span>
             </span>
-            <span v-if="(declarationInfo?.name || moduleInfo?.name)" class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+            <span v-if="(declarationInfo?.name || moduleInfo?.name)" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
               <span class="text-font-secondary">Module Name:</span>
               <span class="text-font-primary ml-1">{{ declarationInfo?.name || effectiveModuleInfo?.name }}</span>
             </span>
-            <span v-if="declarationInfo?.capability" class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+            <span v-if="declarationInfo?.capability" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
               <span class="text-font-secondary">Capability:</span>
               <span class="text-font-primary ml-1">{{ declarationInfo?.capability }}</span>
             </span>
@@ -142,21 +142,21 @@ const declarationInfo = computed<DeclarationInfo | null>(() => {
             <div v-if="!effectiveLoading && !effectiveError" class="flex items-center gap-2 w-full md:w-fit justify-end mt-2 md:mt-0">
             <button
               @click="onDownload"
-              class="flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-[#222222] rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-surface-disabled active:text-font-primary"
+              class="flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-surface-disabled active:text-font-primary"
               aria-label="Download code"
             >
               <IconDownload class="w-4 h-4" />
             </button>
             <button
               @click="onCopy"
-              class="flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-[#222222] rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-surface-disabled active:text-font-primary"
+              class="flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-surface-disabled active:text-font-primary"
               aria-label="Copy code"
             >
               <IconCopy class="w-4 h-4" />
             </button>
             <button
               @click="toggleEnlarge"
-              class="flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-[#222222] rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-surface-disabled active:text-font-primary"
+              class="flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-surface-disabled active:text-font-primary"
               aria-label="Enlarge editor"
             >
               <IconEnlarge class="w-4 h-4" />
@@ -167,9 +167,9 @@ const declarationInfo = computed<DeclarationInfo | null>(() => {
       </div>
     </div>
 
-    <div v-if="effectiveLoading" class="w-full bg-surface-disabled border border-[#222222] rounded-lg px-[10px] py-[40px]">
+    <div v-if="effectiveLoading" class="w-full bg-surface-disabled border border-line-default rounded-lg px-[10px] py-[40px]">
       <div class="flex items-center justify-center">
-        <div class="h-8 w-8 rounded-full border-2 border-[#333333] border-t-[#009367] animate-spin"></div>
+        <div class="h-8 w-8 rounded-full border-2 border-line-strong border-t-[#009367] animate-spin"></div>
       </div>
     </div>
 
@@ -179,7 +179,7 @@ const declarationInfo = computed<DeclarationInfo | null>(() => {
 
     <ClientOnly v-else>
       <div
-        class="w-full bg-surface-disabled border border-[#222222] rounded-lg text-font-secondary text-sm overflow-auto resize-y"
+        class="w-full bg-surface-disabled border border-line-default rounded-lg text-font-secondary text-sm overflow-auto resize-y"
         :style="{ height: (isEnlarged ? 700 : 500) + 'px' }"
         @contextmenu.prevent
       >

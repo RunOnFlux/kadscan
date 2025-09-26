@@ -54,7 +54,7 @@ const invertOrder = computed(() => !hasTokens.value && hasNFTs.value)
 
     <!-- Right column: Pie (tokens section) and NFTs preview (order may invert without unmounting) -->
     <div class="flex flex-col gap-4">
-      <div :class="['bg-surface-primary border border-[#222222] rounded-xl px-10 py-8 shadow-[0_0_20px_rgba(255,255,255,0.0625)]', invertOrder ? 'order-2' : 'order-1']">
+      <div :class="['bg-surface-primary border border-line-default rounded-xl px-10 py-8 shadow-[0_0_20px_rgba(255,255,255,0.0625)]', invertOrder ? 'order-2' : 'order-1']">
         <AssetsPieChart />
       </div>
       <div class="flex flex-col gap-4" :class="invertOrder ? 'order-1' : 'order-2'">

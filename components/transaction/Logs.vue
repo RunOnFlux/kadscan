@@ -47,7 +47,7 @@ function makeEventKey(edge: any, index: number): string {
 </script>
 
 <template>
-  <div class="bg-surface-primary border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
+  <div class="bg-surface-primary border border-line-default rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
     <div v-if="transaction?.result?.logs || sortedEvents.length">
       <Divide>
         <!-- Logs Hash Section -->
@@ -100,21 +100,21 @@ function makeEventKey(edge: any, index: number): string {
             >
               <template #value>
                 <div class="flex items-center gap-2 w-full">
-                  <span v-if="eventEdge.node.orderIndex !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+                  <span v-if="eventEdge.node.orderIndex !== undefined" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
                     <span class="text-font-secondary">Order Indexer:</span>
                     <span class="text-font-primary ml-1">{{ eventEdge.node.orderIndex }}</span>
                   </span>
-                  <span v-if="eventEdge.node.moduleName !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+                  <span v-if="eventEdge.node.moduleName !== undefined" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
                     <span class="text-font-secondary">Module:</span>
-                    <NuxtLink :to="`/module/${eventEdge.node.moduleName}`" class="text-[#6ab5db] ml-1 hover:text-[#9ccee7]">{{ eventEdge.node.moduleName }}</NuxtLink>
+                    <NuxtLink :to="`/module/${eventEdge.node.moduleName}`" class="text-link ml-1 hover:text-link-hover">{{ eventEdge.node.moduleName }}</NuxtLink>
                   </span>
-                  <span v-if="eventEdge.node.name !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+                  <span v-if="eventEdge.node.name !== undefined" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
                     <span class="text-font-secondary">Event:</span>
                     <span class="text-font-primary ml-1">{{ eventEdge.node.name }}</span>
                   </span>
                   <button
                     @click="toggleExpand(makeEventKey(eventEdge, index))"
-                    class="ml-auto flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-[#222222] rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-surface-disabled active:text-font-primary"
+                    class="ml-auto flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-surface-disabled active:text-font-primary"
                     aria-label="Enlarge parameters"
                   >
                     <IconEnlarge class="w-4 h-4" />
@@ -153,7 +153,7 @@ function makeEventKey(edge: any, index: number): string {
                     <textarea
                       readonly
                       :value="formatJsonPretty(eventEdge.node.parameterText)"
-                      class="break-all w-full bg-surface-disabled border border-[#222222] rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-auto h-[110px] m-0"
+                      class="break-all w-full bg-surface-disabled border border-line-default rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-auto h-[110px] m-0"
                     ></textarea>
                   </div>
                   <div
@@ -173,7 +173,7 @@ function makeEventKey(edge: any, index: number): string {
                     <textarea
                       readonly
                       :value="formatJsonPretty(eventEdge.node.parameterText)"
-                      class="break-all w-full bg-surface-disabled border border-[#222222] rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-hidden min-h-[110px]"
+                      class="break-all w-full bg-surface-disabled border border-line-default rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-hidden min-h-[110px]"
                     ></textarea>
                   </div>
                 </div>

@@ -77,7 +77,7 @@ const formatTotalItems = (num: number) => {
 </script>
 
 <template>
-  <div class="bg-surface-primary border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
+  <div class="bg-surface-primary border border-line-default rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
     <div class="flex justify-between mb-4" :class="preventHeaderWrap ? 'flex-row items-center gap-2 flex-nowrap' : 'flex-col md:flex-row gap-y-2 items-start md:items-center'">
       <div>
         <h2 class="text-[15px] text-normal text-font-primary">
@@ -110,7 +110,7 @@ const formatTotalItems = (num: number) => {
     </div>
 
     <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-[#222222]">
+      <table class="min-w-full divide-y divide-line-default">
         <thead class="bg-transparent">
           <tr>
             <th
@@ -124,7 +124,7 @@ const formatTotalItems = (num: number) => {
             </th>
           </tr>
         </thead>
-        <tbody class="bg-transparent divide-y divide-[#222222]">
+        <tbody class="bg-transparent divide-y divide-line-default">
           <tr v-for="(item, index) in items" :key="index">
             <td
               v-for="header in headers"
@@ -144,7 +144,7 @@ const formatTotalItems = (num: number) => {
     <div class="pt-4 flex items-center justify-end md:justify-between">
       <div class="hidden md:flex items-center gap-2">
         <span class="text-[15px] text-font-secondary">Show rows:</span>
-        <div class="border border-[#222222] rounded-md">
+        <div class="border border-line-default rounded-md">
           <Select
             :modelValue="selectedRows"
             @update:modelValue="emit('update:selectedRows', $event)"

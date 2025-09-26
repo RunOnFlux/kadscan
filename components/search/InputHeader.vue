@@ -93,7 +93,7 @@ onUnmounted(() => {
         w-full
         text-font-primary
         placeholder:text-font-secondary
-        border border-[#222222]
+        border border-line-default
         rounded-[8px]
         outline-none
         box-border

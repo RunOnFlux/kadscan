@@ -156,12 +156,12 @@ watch(() => props.balances, (arr) => {
       class="absolute z-30 mt-2 w-full max-h-[420px] rounded-md border border-[#222] bg-[#0f0f0f] shadow-[0_0_20px_rgba(255,255,255,0.0625)] flex flex-col overflow-hidden"
     >
       <!-- Search -->
-      <div class="px-3 py-3 bg-[#0f0f0f] border-b border-[#222222]">
+      <div class="px-3 py-3 bg-[#0f0f0f] border-b border-line-default">
         <input
           v-model="search"
           type="text"
           placeholder="Search for Token or NFT"
-          class="w-full px-3 py-2 rounded-lg bg-surface-disabled border border-[#222] text-font-primary placeholder-[#777] text-[14px] outline-none focus:ring-2 focus:ring-[#333333]"
+          class="w-full px-3 py-2 rounded-lg bg-surface-disabled border border-[#222] text-font-primary placeholder-[#777] text-[14px] outline-none focus:ring-2 focus:ring-line-strong"
         />
       </div>
 
@@ -181,7 +181,7 @@ watch(() => props.balances, (arr) => {
             v-for="(item, idx) in filteredTokenItems" 
             :key="`token-${idx}`"
             :to="`/token/${item.module}`"
-            class="px-5 py-2 text-[14px] text-font-primary flex items-center justify-between border-b border-[#222222] last:border-b-0 hover:bg-surface-disabled"
+            class="px-5 py-2 text-[14px] text-font-primary flex items-center justify-between border-b border-line-default last:border-b-0 hover:bg-surface-disabled"
           >
             <div class="flex items-center gap-3 min-w-0">
               <div class="w-7 h-7 rounded-full bg-surface-secondary overflow-hidden grid place-items-center">
@@ -191,7 +191,7 @@ watch(() => props.balances, (arr) => {
                 </span>
               </div>
               <div class="min-w-0">
-                <div class="text-[14px] text-[#6ab5db] truncate">{{ item.name }}</div>
+                <div class="text-[14px] text-link truncate">{{ item.name }}</div>
                 <div class="text-[13px] text-font-secondary truncate">Chain <b>{{ item.chainId }}</b></div>
               </div>
             </div>
@@ -213,7 +213,7 @@ watch(() => props.balances, (arr) => {
           <div
             v-for="(item, idx) in filteredNftItems"
             :key="`nft-${idx}`"
-            class="px-5 py-2 text-[14px] text-font-primary flex items-center justify-between border-b border-[#222222] last:border-b-0"
+            class="px-5 py-2 text-[14px] text-font-primary flex items-center justify-between border-b border-line-default last:border-b-0"
           >
             <div class="flex items-center gap-3 min-w-0">
               <div class="w-6 h-6 rounded bg-[#222] grid place-items-center overflow-hidden">
@@ -236,7 +236,7 @@ watch(() => props.balances, (arr) => {
       </div>
 
       <!-- Footer CTA (sticky bottom, styled like List.vue) -->
-      <div class="px-6 py-3 text-center bg-surface-disabled rounded-b-md border-t border-[#222222]">
+      <div class="px-6 py-3 text-center bg-surface-disabled rounded-b-md border-t border-line-default">
         <button 
           class="text-[12px] font-semibold text-font-secondary hover:text-[#00e19d]"
           @click.prevent="onViewAll"

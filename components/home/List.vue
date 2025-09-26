@@ -12,10 +12,10 @@ const emit = defineEmits(['customize'])
 
 <template>
   <div
-    class="bg-surface-primary border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)]"
+    class="bg-surface-primary border border-line-default rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)]"
   >
     <div
-      class="flex items-center justify-between p-4 border-b border-[#222222]"
+      class="flex items-center justify-between p-4 border-b border-line-default"
     >
       <span
         class="text-[15px] font-semibold text-font-primary"
@@ -25,7 +25,7 @@ const emit = defineEmits(['customize'])
 
       <button
         v-if="isCustomizable"
-        class="flex items-start gap-1 px-[6px] pb-[4px] pt-[3px] text-sm border border-[#222222] rounded-lg bg-surface-disabled hover:bg-surface-secondary"
+        class="flex items-start gap-1 px-[6px] pb-[4px] pt-[3px] text-sm border border-line-default rounded-lg bg-surface-disabled hover:bg-surface-secondary"
         @click="emit('customize')"
       >
         <CustomizeIcon class="mt-[1px] text-font-primary w-4 h-4" />
@@ -37,7 +37,7 @@ const emit = defineEmits(['customize'])
       <slot />
     </div>
 
-    <div class="px-6 py-4 text-center bg-surface-disabled rounded-b-lg border-t border-[#222222] relative z-10">
+    <div class="px-6 py-4 text-center bg-surface-disabled rounded-b-lg border-t border-line-default relative z-10">
       <NuxtLink
         v-if="path"
         :to="path"

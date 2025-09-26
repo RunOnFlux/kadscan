@@ -37,7 +37,7 @@ const scrollToTop = () => {
 </script>
 
 <template>
-  <div class="w-full bg-surface-primary border-t border-[#222222]">
+  <div class="w-full bg-surface-primary border-t border-line-default">
     <div class="w-full max-w-[1400px] mx-auto px-5 pt-8 pb-4 flex flex-col">
       <div class="flex justify-between items-center gap-8 flex-wrap">
         <div class="flex flex-col gap-3">
@@ -50,7 +50,7 @@ const scrollToTop = () => {
               to="https://forms.gle/f3RB1A8MUAf1Pvgx9"
               target="_blank"
               rel="noopener noreferrer"
-              class="text-[#6ab5db] hover:text-[#9ccee7]"
+              class="text-link hover:text-link-hover"
             >
               Provide a Feedback!
             </NuxtLink>
@@ -70,7 +70,7 @@ const scrollToTop = () => {
 
         <button
           @click="scrollToTop"
-          class="md:hidden flex items-center gap-2 text-font-primary bg-surface-secondary border border-[#333333] rounded-lg px-4 py-2"
+          class="md:hidden flex items-center gap-2 text-font-primary bg-surface-secondary border border-line-strong rounded-lg px-4 py-2"
         >
           <IconBackToTop class="h-5 w-5" />
           <span>Back to Top</span>

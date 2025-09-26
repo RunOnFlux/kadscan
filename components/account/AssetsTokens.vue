@@ -182,7 +182,7 @@ function downloadData() {
       <template #actions>
         <button
           @click="downloadData"
-          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-font-primary bg-surface-disabled border border-[#222222] rounded-md hover:bg-surface-hover whitespace-nowrap"
+          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-surface-hover whitespace-nowrap"
         >
           <IconDownload class="w-4 h-4 text-font-secondary" />
           <span class="hidden md:inline">Download</span>
@@ -196,19 +196,19 @@ function downloadData() {
               {{ (item.module?.split('.')?.[1] || item.module || 'U')[0]?.toUpperCase() }}
             </span>
           </div>
-          <span class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.asset }}</span>
+          <span class="text-link hover:text-link-hover">{{ item.asset }}</span>
         </NuxtLink>
       </template>
       <template #module="{ item }">
         <Tooltip :value="item.module" :variant="'hash'" :disabled="!isLongModule(item.module)">
-          <NuxtLink :to="`/module/${item.module}`" class="text-[#6ab5db] hover:text-[#9ccee7]">
+          <NuxtLink :to="`/module/${item.module}`" class="text-link hover:text-link-hover">
             {{ displayModule(item.module) }}
           </NuxtLink>
         </Tooltip>
       </template>
     </DataTable>
 
-    <div v-else class="bg-surface-primary border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
+    <div v-else class="bg-surface-primary border border-line-default rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
       <div class="flex flex-col items-center justify-center py-12">
         <img src="/empty/nft.png" alt="No assets" class="w-24 h-24 mb-4 opacity-50" />
         <div class="text-font-primary text-lg font-medium mb-2">No tokens yet</div>

@@ -39,14 +39,14 @@ const timeAgo = computed(() => {
   <div class="px-4">
     <div
       class="flex items-center justify-between py-[14px]"
-      :class="{ 'border-b border-[#222222]': index !== totalItems - 1 }"
+      :class="{ 'border-b border-line-default': index !== totalItems - 1 }"
     >
       <div class="flex items-center md:w-1/3 gap-2 w-[160px]">
         <div class="bg-surface-disabled rounded-md p-3 hidden md:block">
           <KadenaIcon class="w-6 h-6" />
         </div>
         <div>
-          <NuxtLink :to="`/blocks/${props.height}`" class="text-[#6ab5db] hover:text-[#9ccee7] text-[15px]">
+          <NuxtLink :to="`/blocks/${props.height}`" class="text-link hover:text-link-hover text-[15px]">
             {{ props.height }}
           </NuxtLink>
           <div class="text-xs text-font-secondary">{{ timeAgo }}</div>
@@ -62,7 +62,7 @@ const timeAgo = computed(() => {
             </Tooltip>
             <div>
               <Tooltip v-if="props.totalTransactions > 0" value="Transactions in this block">
-                <NuxtLink :to="`/transactions?block=${props.height}`" class="text-[#6ab5db] hover:text-[#9ccee7]">
+                <NuxtLink :to="`/transactions?block=${props.height}`" class="text-link hover:text-link-hover">
                   {{ props.totalTransactions }} {{ props.totalTransactions === 1 ? 'Transaction' : 'Transactions' }}
                 </NuxtLink>
               </Tooltip>

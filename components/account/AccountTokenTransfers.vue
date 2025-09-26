@@ -245,7 +245,7 @@ function downloadData() {
         />
         <button
           @click="downloadData"
-          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-font-primary bg-surface-disabled border border-[#222222] rounded-md hover:bg-surface-hover whitespace-nowrap"
+          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-surface-hover whitespace-nowrap"
         >
           <IconDownload class="w-4 h-4 text-font-secondary" />
           <span class="hidden md:inline">Download</span>
@@ -255,20 +255,20 @@ function downloadData() {
       <template #requestKey="{ item }">
         <div class="flex items-center">
           <Tooltip :value="item.requestKey" variant="hash">
-            <NuxtLink :to="`/transactions/${item.requestKey}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.requestKey, 10, 8) }}</NuxtLink>
+            <NuxtLink :to="`/transactions/${item.requestKey}`" class="text-link hover:text-link-hover">{{ truncateAddress(item.requestKey, 10, 8) }}</NuxtLink>
           </Tooltip>
           <Copy :value="item.requestKey" tooltipText="Copy Transaction Request Key" />
         </div>
       </template>
       <template #height="{ item }">
         <span v-if="item.time === 0 || item.height === 0" class="text-font-primary">Genesis</span>
-        <NuxtLink v-else :to="`/blocks/${item.height}/chain/${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.height }}</NuxtLink>
+        <NuxtLink v-else :to="`/blocks/${item.height}/chain/${item.chainId}`" class="text-link hover:text-link-hover">{{ item.height }}</NuxtLink>
       </template>
       <template #sender="{ item }">
         <div class="flex items-center">
           <template v-if="item.sender && item.sender !== 'N/A'">
             <Tooltip :value="item.sender" variant="hash">
-              <NuxtLink :to="`/account/${item.sender}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.sender, 10, 10) }}</NuxtLink>
+              <NuxtLink :to="`/account/${item.sender}`" class="text-link hover:text-link-hover">{{ truncateAddress(item.sender, 10, 10) }}</NuxtLink>
             </Tooltip>
             <Copy :value="item.sender" tooltipText="Copy Address" />
           </template>
@@ -276,7 +276,7 @@ function downloadData() {
         </div>
       </template>
       <template #action="{ item }">
-        <span class="px-2 py-1.5 rounded-md border border-[#333333] bg-surface-disabled text-[11px] text-font-primary font-normal inline-flex items-center justify-center leading-none w-[92px]">
+        <span class="px-2 py-1.5 rounded-md border border-line-strong bg-surface-disabled text-[11px] text-font-primary font-normal inline-flex items-center justify-center leading-none w-[92px]">
           {{ item.action }}
         </span>
       </template>
@@ -284,7 +284,7 @@ function downloadData() {
         <div class="flex items-center">
           <template v-if="item.receiver && item.receiver !== 'N/A'">
             <Tooltip :value="item.receiver" variant="hash">
-              <NuxtLink :to="`/account/${item.receiver}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.receiver, 10, 10) }}</NuxtLink>
+              <NuxtLink :to="`/account/${item.receiver}`" class="text-link hover:text-link-hover">{{ truncateAddress(item.receiver, 10, 10) }}</NuxtLink>
             </Tooltip>
             <Copy :value="item.receiver" tooltipText="Copy Address" />
           </template>
@@ -311,14 +311,14 @@ function downloadData() {
         </div>
       </template>
       <template #token="{ item }">
-        <NuxtLink :to="`/token/${item.token}`" class="text-[#6ab5db] hover:text-[#9ccee7]">
+        <NuxtLink :to="`/token/${item.token}`" class="text-link hover:text-link-hover">
           {{ item.token }}
         </NuxtLink>
       </template>
     </DataTable>
 
     <!-- Empty state -->
-    <div v-else class="bg-surface-primary border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
+    <div v-else class="bg-surface-primary border border-line-default rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
       <div class="flex flex-col items-center justify-center py-12">
         <img src="/empty/txs.png" alt="No token transfers" class="w-24 h-24 mb-4 opacity-50" />
         <h3 class="text-font-primary text-lg font-medium mb-2">No token transfers yet</h3>

@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-surface-primary border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
+  <div class="bg-surface-primary border border-line-default rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
     <!-- Skeleton Header -->
     <div class="flex justify-between items-center p-4 mb-4">
       <div class="h-6 bg-[#343636] rounded w-1/5 animate-pulse"></div>

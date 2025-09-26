@@ -101,7 +101,7 @@ watch(() => props.isOpen, (isOpen) => {
               Close
             </button>
             <button
-              class="px-3 py-2 text-sm text-white bg-[#009367] rounded-lg hover:bg-[#007a56]"
+              class="px-3 py-2 text-sm text-white bg-accent-strong rounded-lg hover:bg-[#007a56]"
               @click="saveChanges"
             >
               Save changes

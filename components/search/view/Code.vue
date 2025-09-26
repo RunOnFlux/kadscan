@@ -31,7 +31,7 @@ const goToMore = async () => {
         class="py-2 px-2 flex items-center justify-center hover:bg-surface-secondary hover:rounded-md w-full"
         @click.prevent="goToMore"
       >
-        <span class="text-[#6ab5db] text-sm">Show more</span>
+        <span class="text-link text-sm">Show more</span>
       </button>
     </div>
   </div>

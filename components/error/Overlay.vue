@@ -20,7 +20,7 @@ const props = defineProps<{ message?: string }>()
       </div>
       <div class="py-5">
         <NuxtLink to="/">
-          <button class="bg-[#009367] hover:bg-[#009367]/80 text-font-primary px-3 py-1.5 rounded-lg transition-colors duration-200 text-[15px]">
+          <button class="bg-accent-strong hover:bg-accent-strong/80 text-font-primary px-3 py-1.5 rounded-lg transition-colors duration-200 text-[15px]">
             Back Home
           </button>
         </NuxtLink>

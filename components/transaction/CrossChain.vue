@@ -86,7 +86,7 @@ const getTransactionStatus = (transaction: any) => {
     return {
       text: 'Pending',
       icon: IconHourglass,
-      classes: 'bg-[#17150d] border-[#444648] text-font-secondary'
+      classes: 'bg-[#17150d] border-line-muted text-font-secondary'
     }
   }
   
@@ -109,7 +109,7 @@ const getTransactionStatus = (transaction: any) => {
   return {
     text: 'Pending',
     icon: IconHourglass,
-    classes: 'bg-[#17150d] border-[#444648] text-font-secondary'
+    classes: 'bg-[#17150d] border-line-muted text-font-secondary'
   }
 }
 
@@ -135,7 +135,7 @@ const crossChainStatus = computed(() => {
     return {
       text: 'Pending',
       icon: IconHourglass,
-      classes: 'bg-[#17150d] border-[#444648] text-font-secondary'
+      classes: 'bg-[#17150d] border-line-muted text-font-secondary'
     }
   }
   
@@ -152,7 +152,7 @@ const crossChainStatus = computed(() => {
   return {
     text: 'Pending',
     icon: IconHourglass,
-    classes: 'bg-[#17150d] border-[#444648] text-font-secondary'
+    classes: 'bg-[#17150d] border-line-muted text-font-secondary'
   }
 })
 
@@ -243,7 +243,7 @@ const metadataRollback = computed(() => {
 </script>
 
 <template>
-  <div class="bg-surface-primary border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
+  <div class="bg-surface-primary border border-line-default rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
     <div v-if="props.crossChainTransfers.length > 0 || props.isCrossChain">
       <Divide>
         <!-- Cross Chain Transfer Overview -->
@@ -283,22 +283,22 @@ const metadataRollback = computed(() => {
               <div class="lg:block hidden text-font-primary text-[15px] flex gap-2 flex-1 overflow-hidden">
                 <div class="w-full">
                   <!-- Modern Cross-Chain Flow Container -->
-                  <div class="relative p-6 bg-gradient-to-br from-surface-primary via-surface-secondary to-surface-primary border border-[#333333] rounded-2xl shadow-2xl backdrop-blur-sm">
+                  <div class="relative p-6 bg-gradient-to-br from-surface-primary via-surface-secondary to-surface-primary border border-line-strong rounded-2xl shadow-2xl backdrop-blur-sm">
                     <!-- Animated Background Elements -->
-                    <div class="absolute inset-0 bg-gradient-to-r from-[#00a186]/5 via-transparent to-[#00a186]/5 rounded-2xl"></div>
+                    <div class="absolute inset-0 bg-gradient-to-r from-accent/5 via-transparent to-accent/5 rounded-2xl"></div>
                     
                     <div class="relative flex items-center justify-between gap-8">
                       <!-- Source Chain Card -->
                       <div class="flex-1 group">
                         <div class="relative">
                           <!-- Glow Effect -->
-                          <div class="absolute -inset-1 bg-gradient-to-r from-[#00a186]/20 to-[#00a186]/10 rounded-xl blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
+                          <div class="absolute -inset-1 bg-gradient-to-r from-accent/20 to-accent/10 rounded-xl blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
                           
                           <!-- Main Card -->
-                          <div class="relative bg-gradient-to-br from-surface-secondary to-surface-primary border border-[#333333] rounded-xl p-4 backdrop-blur-sm transform group-hover:scale-[1.02] transition-all duration-300">
+                          <div class="relative bg-gradient-to-br from-surface-secondary to-surface-primary border border-line-strong rounded-xl p-4 backdrop-blur-sm transform group-hover:scale-[1.02] transition-all duration-300">
                             <!-- Chain Badge -->
                             <div class="flex items-center justify-center mb-3">
-                              <div class="px-4 py-2 bg-gradient-to-r from-[#333333] to-surface-secondary border border-[#444648] rounded-lg shadow-lg">
+                              <div class="px-4 py-2 bg-gradient-to-r from-[#333333] to-surface-secondary border border-line-muted rounded-lg shadow-lg">
                                 <div class="flex items-center gap-2">
                                   <div class="w-2 h-2 rounded-full animate-pulse" :style="{ backgroundColor: sourceIndicatorColor }"></div>
                                   <span class="text-font-primary text-sm font-bold tracking-wide">Chain {{ sourceChainId }}</span>
@@ -312,7 +312,7 @@ const metadataRollback = computed(() => {
                             </div>
                             
                             <!-- Address -->
-                            <div class="flex items-center justify-center gap-2 p-3 bg-surface-primary/50 rounded-lg border border-[#333333]">
+                            <div class="flex items-center justify-center gap-2 p-3 bg-surface-primary/50 rounded-lg border border-line-strong">
                               <div class="flex items-center justify-center min-w-0">
                                 <span class="text-font-secondary text-xs font-mono">
                                   {{ actualSender.length > 14 ? actualSender.substring(0, 8) + '...' + actualSender.substring(actualSender.length - 6) : actualSender }}
@@ -342,10 +342,10 @@ const metadataRollback = computed(() => {
                         <!-- Glassmorphism Amount -->
                         <div class="relative group">
                           <!-- Glow Effect (same as chain cards) -->
-                          <div class="absolute -inset-1 bg-gradient-to-r from-[#00a186]/20 to-[#00a186]/10 rounded-xl blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
+                          <div class="absolute -inset-1 bg-gradient-to-r from-accent/20 to-accent/10 rounded-xl blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
                           
                           <!-- Subtle glass container matching site theme -->
-                          <div class="relative px-4 py-2 bg-gradient-to-br from-surface-secondary/80 via-surface-primary/60 to-surface-primary/80 backdrop-blur-sm border border-[#333333]/50 rounded-xl shadow-lg transform group-hover:scale-[1.05] transition-all duration-300">
+                          <div class="relative px-4 py-2 bg-gradient-to-br from-surface-secondary/80 via-surface-primary/60 to-surface-primary/80 backdrop-blur-sm border border-line-strong/50 rounded-xl shadow-lg transform group-hover:scale-[1.05] transition-all duration-300">
                             <div class="flex items-center gap-2">
                                 <!-- Amount text -->
                                 <span class="text-white text-sm font-bold tracking-wide" v-if="transferAmount">
@@ -364,10 +364,10 @@ const metadataRollback = computed(() => {
                           <div class="absolute -inset-1 bg-gradient-to-r from-[#555555]/20 to-[#444648]/10 rounded-xl blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
                           
                           <!-- Main Card -->
-                          <div class="relative bg-gradient-to-br from-surface-secondary to-surface-primary border border-[#333333] rounded-xl p-4 backdrop-blur-sm transform group-hover:scale-[1.02] transition-all duration-300">
+                          <div class="relative bg-gradient-to-br from-surface-secondary to-surface-primary border border-line-strong rounded-xl p-4 backdrop-blur-sm transform group-hover:scale-[1.02] transition-all duration-300">
                             <!-- Chain Badge -->
                             <div class="flex items-center justify-center mb-3">
-                              <div class="px-4 py-2 bg-gradient-to-r from-[#333333] to-surface-secondary border border-[#444648] rounded-lg shadow-lg">
+                              <div class="px-4 py-2 bg-gradient-to-r from-[#333333] to-surface-secondary border border-line-muted rounded-lg shadow-lg">
                                 <div class="flex items-center gap-2">
                                   <div class="w-2 h-2 rounded-full animate-pulse" :style="{ backgroundColor: destinationIndicatorColor }"></div>
                                   <span class="text-font-primary text-sm font-bold tracking-wide" v-if="destinationChainId !== null">Chain {{ destinationChainId }}</span>
@@ -382,7 +382,7 @@ const metadataRollback = computed(() => {
                             </div>
                             
                             <!-- Address: finalized vs pending skeleton -->
-                            <div v-if="actualReceiver" class="flex items-center justify-center gap-2 p-3 bg-surface-primary/50 rounded-lg border border-[#333333]">
+                            <div v-if="actualReceiver" class="flex items-center justify-center gap-2 p-3 bg-surface-primary/50 rounded-lg border border-line-strong">
                               <div class="flex items-center justify-center min-w-0">
                                 <span class="text-font-secondary text-xs font-mono">
                                   {{ actualReceiver.length > 14 ? actualReceiver.substring(0, 8) + '...' + actualReceiver.substring(actualReceiver.length - 6) : actualReceiver }}
@@ -421,7 +421,7 @@ const metadataRollback = computed(() => {
                     <div class="flex items-center gap-2">
                       <NuxtLink 
                         :to="`/transactions/${sourceTransaction.hash}`" 
-                        class="text-[#6ab5db] hover:text-[#9ccee7] break-all"
+                        class="text-link hover:text-link-hover break-all"
                       >
                         {{ sourceTransaction.hash }}
                       </NuxtLink>
@@ -439,7 +439,7 @@ const metadataRollback = computed(() => {
                     <div class="flex items-center gap-2">
                       <NuxtLink 
                         :to="`/account/${actualSender}`" 
-                        class="text-[#6ab5db] hover:text-[#9ccee7] break-all"
+                        class="text-link hover:text-link-hover break-all"
                       >
                         {{ actualSender }}
                       </NuxtLink>
@@ -453,17 +453,17 @@ const metadataRollback = computed(() => {
                   </div>
                   
                   <div class="flex flex-wrap items-center gap-2">
-                    <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+                    <span class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
                       <span class="text-font-secondary">Chain:</span>
                       <span class="text-font-primary ml-1">{{ sourceTransaction.cmd.meta.chainId }}</span>
                     </span>
 
-                    <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+                    <span class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
                       <span class="text-font-secondary">Block:</span>
                       <span class="text-font-primary ml-1">{{ sourceTransaction.result.block.height }}</span>
                     </span>
 
-                    <span v-if="sourceTransaction.cmd.meta.creationTime" class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+                    <span v-if="sourceTransaction.cmd.meta.creationTime" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
                       <span class="text-font-secondary">Time:</span>
                       <span class="text-font-primary ml-1">{{ formatRelativeTime(sourceTransaction.cmd.meta.creationTime) }} ({{ new Date(sourceTransaction.cmd.meta.creationTime).toUTCString() }})</span>
                     </span>               
@@ -491,7 +491,7 @@ const metadataRollback = computed(() => {
                     <div class="flex items-center gap-2">
                       <NuxtLink 
                         :to="`/transactions/${destinationTransaction.hash}`" 
-                        class="text-[#6ab5db] hover:text-[#9ccee7] break-all"
+                        class="text-link hover:text-link-hover break-all"
                       >
                         {{ destinationTransaction.hash }}
                       </NuxtLink>
@@ -509,7 +509,7 @@ const metadataRollback = computed(() => {
                     <div class="flex items-center gap-2">
                       <NuxtLink 
                         :to="`/account/${actualReceiver}`" 
-                        class="text-[#6ab5db] hover:text-[#9ccee7] break-all"
+                        class="text-link hover:text-link-hover break-all"
                       >
                         {{ actualReceiver }}
                       </NuxtLink>
@@ -523,17 +523,17 @@ const metadataRollback = computed(() => {
                   </div>
                   
                   <div class="flex flex-wrap items-center gap-2">
-                    <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+                    <span class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
                       <span class="text-font-secondary">Chain:</span>
                       <span class="text-font-primary ml-1">{{ destinationTransaction.cmd.meta.chainId }}</span>
                     </span>
 
-                    <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+                    <span class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
                       <span class="text-font-secondary">Block:</span>
                       <span class="text-font-primary ml-1">{{ destinationTransaction.result.block.height }}</span>
                     </span>
                     
-                    <span v-if="destinationTransaction.cmd.meta.creationTime" class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+                    <span v-if="destinationTransaction.cmd.meta.creationTime" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
                       <span class="text-font-secondary">Time:</span>
                       <span class="text-font-primary ml-1">{{ formatRelativeTime(destinationTransaction.cmd.meta.creationTime) }} ({{ new Date(destinationTransaction.cmd.meta.creationTime).toUTCString() }})</span>
                     </span>
@@ -587,11 +587,11 @@ const metadataRollback = computed(() => {
             >
               <template #value>
                 <div class="flex items-center gap-2">
-                  <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+                  <span class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
                     <span class="text-font-secondary">Step:</span>
                     <span class="text-font-primary ml-1">{{ metadataStep ?? '-' }}</span>
                   </span>
-                  <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+                  <span class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
                     <span class="text-font-secondary">Rollback:</span>
                     <span class="text-font-primary ml-1">{{ metadataRollback ? 'Yes' : 'No' }}</span>
                   </span>
@@ -621,7 +621,7 @@ const metadataRollback = computed(() => {
                   <textarea
                     readonly
                     :value="formatContinuationData(metadataSource.result.continuation)"
-                    class="break-all w-full bg-surface-disabled border border-[#222222] rounded-lg text-font-secondary text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto min-h-[150px]"
+                    class="break-all w-full bg-surface-disabled border border-line-default rounded-lg text-font-secondary text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto min-h-[150px]"
                   ></textarea>
                 </div>
               </div>
@@ -649,7 +649,7 @@ const metadataRollback = computed(() => {
                   <textarea
                     readonly
                     :value="destinationTransaction.cmd.payload.proof"
-                    class="break-all w-full bg-surface-disabled border border-[#222222] rounded-lg text-font-secondary text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto min-h-[100px]"
+                    class="break-all w-full bg-surface-disabled border border-line-default rounded-lg text-font-secondary text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto min-h-[100px]"
                   ></textarea>
                 </div>
               </div>
@@ -677,7 +677,7 @@ const metadataRollback = computed(() => {
                   <textarea
                     readonly
                     :value="formatJsonPretty(metadataSource.cmd.payload.data)"
-                    class="break-all w-full bg-surface-disabled border border-[#222222] rounded-lg text-font-secondary text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto min-h-[100px]"
+                    class="break-all w-full bg-surface-disabled border border-line-default rounded-lg text-font-secondary text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto min-h-[100px]"
                   ></textarea>
                 </div>
               </div>
@@ -694,12 +694,12 @@ const metadataRollback = computed(() => {
     <!-- Pending skeleton when we know it's cross-chain but no transfer data yet -->
     <div v-else-if="props.isCrossChain" class="py-5">
       <div class="flex flex-col gap-4">
-        <div class="flex items-center gap-2 w-fit px-2 py-1 rounded-lg border text-xs bg-[#17150d] border-[#444648] text-[#fbbf24]">
+        <div class="flex items-center gap-2 w-fit px-2 py-1 rounded-lg border text-xs bg-[#17150d] border-line-muted text-[#fbbf24]">
           <IconHourglass class="w-3 h-3" />
           Pending cross-chain transfer
         </div>
 
-        <div class="bg-surface-primary border border-[#222222] rounded-xl p-4">
+        <div class="bg-surface-primary border border-line-default rounded-xl p-4">
           <div class="animate-pulse">
             <div class="flex items-center justify-between gap-8">
               <div class="flex-1">

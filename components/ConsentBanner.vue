@@ -46,14 +46,14 @@ onMounted(() => {
     leave-to-class="transform translate-y-4 opacity-0"
   >
     <div v-if="isVisible" class="fixed bottom-3 left-1/2 -translate-x-1/2 z-[100] w-[calc(100%-24px)] md:w-auto">
-      <div class="mx-auto flex max-w-3xl items-start gap-3 rounded-xl border border-[#222222] bg-surface-primary/95 px-4 py-3 shadow-[0_0_15px_rgba(255,255,255,0.0625)] backdrop-blur">
+      <div class="mx-auto flex max-w-3xl items-start gap-3 rounded-xl border border-line-default bg-surface-primary/95 px-4 py-3 shadow-[0_0_15px_rgba(255,255,255,0.0625)] backdrop-blur">
         <div class="flex-1 text-sm text-[#d6d6d6]">
           <p class="leading-5">
             We use analytics and session replay to improve Kadscan. Data is anonymized; inputs are masked. You can change your choice anytime in your browser storage.
           </p>
         </div>
         <div class="flex shrink-0 items-center gap-2">
-          <button @click="decline" class="px-3 py-2 text-sm rounded-lg border border-[#222222] bg-surface-disabled hover:bg-surface-secondary text-font-primary">Decline</button>
+          <button @click="decline" class="px-3 py-2 text-sm rounded-lg border border-line-default bg-surface-disabled hover:bg-surface-secondary text-font-primary">Decline</button>
           <button @click="accept" class="px-3 py-2 text-sm rounded-lg bg-[#6ab5db] hover:bg-[#9ccee7] text-[#0b0b0b]">Allow</button>
         </div>
       </div>

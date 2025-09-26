@@ -33,7 +33,7 @@ const {
   <Disclosure
     as="header"
     v-slot="{ open }"
-    class="w-full bg-surface-primary border-b border-[#222222] shadow-[0_4px_10px_-5px_rgba(255,255,255,0.0625)] z-[10]"
+    class="w-full bg-surface-primary border-b border-line-default shadow-[0_4px_10px_-5px_rgba(255,255,255,0.0625)] z-[10]"
   >
     <div
       class="w-full max-w-[1400px] mx-auto px-3 md:px-4 flex items-center justify-between h-[62px] md:h-[56px]"
@@ -71,7 +71,7 @@ const {
       <div class="flex items-center gap-2 md:hidden">
         <Menu as="div" class="relative inline-block text-left">
           <div>
-            <MenuButton class="h-8 w-8 rounded-lg flex items-center justify-center border border-[#222222]">
+            <MenuButton class="h-8 w-8 rounded-lg flex items-center justify-center border border-line-default">
               <IconKadena class="h-4 w-4" />
             </MenuButton>
           </div>
@@ -84,14 +84,14 @@ const {
             leave-from-class="transform scale-100 opacity-100"
             leave-to-class="transform scale-95 opacity-0"
           >
-            <MenuItems class="absolute right-0 mt-1 border border-[#222222] w-32 origin-top-right rounded-lg bg-surface-primary shadow-[0_0_15px_rgba(255,255,255,0.0625)] ring-1 ring-black/5 focus:outline-none px-2 py-1">
+            <MenuItems class="absolute right-0 mt-1 border border-line-default w-32 origin-top-right rounded-lg bg-surface-primary shadow-[0_0_15px_rgba(255,255,255,0.0625)] ring-1 ring-black/5 focus:outline-none px-2 py-1">
               <div class="px-1 py-1">
                 <MenuItem v-for="network in availableNetworks" :key="network.id" v-slot="{ active }">
                   <button
                     @click="setNetwork(network)"
                     :class="[
                       active ? 'bg-surface-secondary' : '',
-                      selectedNetwork.id === network.id ? 'text-[#6ab5db]' : 'text-font-primary',
+                      selectedNetwork.id === network.id ? 'text-link' : 'text-font-primary',
                       'group flex w-full items-center hover:bg-surface-secondary justify-start rounded-md px-3 py-2 text-sm',
                     ]"
                   >
@@ -104,7 +104,7 @@ const {
         </Menu>
         
         <DisclosureButton
-          class="h-8 w-8 rounded-lg flex items-center justify-center border border-[#222222] text-[#949494]"
+          class="h-8 w-8 rounded-lg flex items-center justify-center border border-line-default text-[#949494]"
         >
           <IconMenu class="w-6 h-6" />
         </DisclosureButton>

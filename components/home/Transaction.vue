@@ -57,7 +57,7 @@ const formattedFee = computed(() => {
         </div>
         <div>
           <Tooltip :value="props.hash" variant="hash">
-            <NuxtLink :to="`/transactions/${props.hash}`" class="text-[#6ab5db] hover:text-[#9ccee7] text-[15px]">
+            <NuxtLink :to="`/transactions/${props.hash}`" class="text-link hover:text-link-hover text-[15px]">
               {{ truncateAddress(props.hash) }}
             </NuxtLink>
           </Tooltip>
@@ -70,7 +70,7 @@ const formattedFee = computed(() => {
             <div class="text-font-primary">
               Sender
               <Tooltip :value="props.sender" variant="hash">
-                <NuxtLink :to="`/account/${props.sender}`" class="text-[#6ab5db] hover:text-[#9ccee7]">
+                <NuxtLink :to="`/account/${props.sender}`" class="text-link hover:text-link-hover">
                   {{ truncateAddress(props.sender) }}
                 </NuxtLink>
               </Tooltip>

@@ -12,7 +12,7 @@ defineProps({
     <div
       v-for="card in cards"
       :key="card.label"
-      class="bg-surface-primary border border-[#222222] rounded-xl p-4 shadow-[0_0_20px_rgba(255,255,255,0.0625)]"
+      class="bg-surface-primary border border-line-default rounded-xl p-4 shadow-[0_0_20px_rgba(255,255,255,0.0625)]"
     >
       <p class="text-[12px] text-font-secondary mb-1 uppercase tracking-wider">{{ card.label }}</p>
       <p class="text-[18px] text-font-primary">{{ card.value }}</p>

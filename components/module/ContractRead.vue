@@ -117,7 +117,7 @@ const vAutosize = {
               @click="selected = fn.name"
               :class="[
                 'px-3 py-1 rounded-lg text-[13px] transition-colors whitespace-normal break-words text-left max-w-full',
-                selected === fn.name ? 'bg-[#009367] text-font-primary' : 'bg-surface-hover text-font-primary hover:bg-[#333333]'
+                selected === fn.name ? 'bg-accent-strong text-font-primary' : 'bg-surface-hover text-font-primary hover:bg-[#333333]'
               ]"
             >
               {{ fn.name }}
@@ -135,7 +135,7 @@ const vAutosize = {
                     v-model="paramValues[p.name]"
                     v-autosize
                     rows="1"
-                    class="w-full bg-surface-disabled border border-[#222222] rounded-md text-font-secondary text-sm px-2 py-1 outline-none font-mono whitespace-pre-wrap break-words overflow-hidden resize-none"
+                    class="w-full bg-surface-disabled border border-line-default rounded-md text-font-secondary text-sm px-2 py-1 outline-none font-mono whitespace-pre-wrap break-words overflow-hidden resize-none"
                     placeholder='Enter Pact literal (eg "k:addr", 1.0, true, {"k":1})'
                     data-gramm="false"
                     data-gramm_editor="false"
@@ -157,7 +157,7 @@ const vAutosize = {
               <div>
                 <button
                   @click="onCall"
-                  class="px-3 py-1 rounded-lg bg-[#009367] text-font-primary text-[13px] disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+                  class="px-3 py-1 rounded-lg bg-accent-strong text-font-primary text-[13px] disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
                   :disabled="loading"
                 >
                   <svg v-if="loading" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -169,7 +169,7 @@ const vAutosize = {
               </div>
               <button
                 @click="resultExpanded = !resultExpanded"
-                class="flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-[#222222] rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-surface-disabled active:text-font-primary"
+                class="flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-surface-disabled active:text-font-primary"
                 aria-label="Toggle result size"
                 :title="resultExpanded ? 'Collapse' : 'Expand'"
               >
@@ -178,7 +178,7 @@ const vAutosize = {
             </div>
             <div class="text-font-primary text-[15px] fix w-full md:flex-1 overflow-hidden">
               <div v-if="loading" class="w-full">
-                <div class="relative overflow-hidden rounded-lg border border-[#222222] bg-surface-disabled h-[110px] md:h-[120px]">
+                <div class="relative overflow-hidden rounded-lg border border-line-default bg-surface-disabled h-[110px] md:h-[120px]">
                   <div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-[#333333] to-transparent animate-shimmer"></div>
                 </div>
               </div>
@@ -191,7 +191,7 @@ const vAutosize = {
                 <textarea
                   readonly
                   :value="error ? 'Error: ' + String(error) : result === null && hasQueried ? 'No result returned for this query.' : formatJsonPretty(result)"
-                  class="break-all w-full bg-surface-disabled border border-[#222222] rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-auto h-[110px] m-0"
+                  class="break-all w-full bg-surface-disabled border border-line-default rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-auto h-[110px] m-0"
                 ></textarea>
               </div>
               <div v-else
@@ -210,7 +210,7 @@ const vAutosize = {
                 <textarea
                   readonly
                   :value="error ? 'Error: ' + String(error) : result === null && hasQueried ? 'No result returned for this query.' : formatJsonPretty(result)"
-                  class="break-all w-full bg-surface-disabled border border-[#222222] rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-hidden min-h-[200px]"
+                  class="break-all w-full bg-surface-disabled border border-line-default rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-hidden min-h-[200px]"
                 ></textarea>
               </div>
             </div>

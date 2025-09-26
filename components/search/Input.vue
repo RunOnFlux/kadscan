@@ -42,7 +42,7 @@ onUnmounted(() => {
     v-outside="close"
   >
     <div
-      class="flex gap-2 items-center max-w-[675px] w-full p-[6px] bg-surface-primary rounded-lg border border-[#222222]"
+      class="flex gap-2 items-center max-w-[675px] w-full p-[6px] bg-surface-primary rounded-lg border border-line-default"
     >
       <div
         class="hidden sm:block"
@@ -106,7 +106,7 @@ onUnmounted(() => {
 
       <div
         @click="submit()"
-        class="flex items-center justify-center bg-[#009367] hover:bg-[#00805b] rounded-lg w-[36px] h-[34px] shrink-0 cursor-pointer"
+        class="flex items-center justify-center bg-accent-strong hover:bg-[#00805b] rounded-lg w-[36px] h-[34px] shrink-0 cursor-pointer"
       >
         <IconSearch
           class="w-5 h-5 text-font-primary"

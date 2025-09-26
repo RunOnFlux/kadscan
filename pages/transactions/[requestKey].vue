@@ -316,7 +316,7 @@ onUnmounted(() => {
   <ErrorOverlay v-if="error" :message="error?.message" />
   <div v-else>
     <!-- Header -->
-    <div class="flex items-center pb-5 border-b border-[#222222] mb-6 gap-2">
+    <div class="flex items-center pb-5 border-b border-line-default mb-6 gap-2">
       <h1 class="text-[19px] font-semibold leading-[150%] text-font-primary">
         Transaction Details
       </h1>
@@ -336,7 +336,7 @@ onUnmounted(() => {
             :class="[
               'px-[10px] py-[5px] text-[13px] rounded-lg font-medium transition-colors',
               activeTab === label
-                ? 'bg-[#009367] text-font-primary'
+                ? 'bg-accent-strong text-font-primary'
                 : 'bg-surface-hover text-font-secondary hover:bg-[#2d2d2d]'
             ]"
             @click="activeTab = label"
@@ -365,7 +365,7 @@ onUnmounted(() => {
 
         <!-- Transaction Details -->
         <div v-else-if="activeTab.startsWith('Overview')" :key="'overview'">
-          <div class="bg-surface-primary border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
+          <div class="bg-surface-primary border border-line-default rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
           <Divide>
             <!-- Section 1: Basic Information -->
             <DivideItem>
@@ -406,10 +406,10 @@ onUnmounted(() => {
                  <template #value>
                    <div class="flex items-center gap-2">
                      <IconHourglass v-if="transactionStatus.text === 'Pending'" class="w-3 h-3 text-font-secondary" />
-                     <NuxtLink v-if="transaction?.result?.block?.height" :to="`/blocks/${transaction.result.block.height}/chain/${transaction.result.block.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ transaction.result.block.height }}</NuxtLink>
+                     <NuxtLink v-if="transaction?.result?.block?.height" :to="`/blocks/${transaction.result.block.height}/chain/${transaction.result.block.chainId}`" class="text-link hover:text-link-hover">{{ transaction.result.block.height }}</NuxtLink>
                      <span v-else-if="!transaction?.result?.block?.height && transaction?.cmd?.meta?.chainId && (transaction?.cmd?.meta?.creationTime === 0 || new Date(transaction?.cmd?.meta?.creationTime).getTime() < new Date('1970-01-02').getTime())" class="text-font-primary">Genesis</span>
                      <span v-else class="text-font-primary">-</span>
-                     <span v-if="blockConfirmations !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] text-font-primary font-semibold flex items-center leading-none">
+                     <span v-if="blockConfirmations !== null" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] text-font-primary font-semibold flex items-center leading-none">
                       {{ blockConfirmations }} Block Confirmations
                      </span>
                    </div>
@@ -464,7 +464,7 @@ onUnmounted(() => {
                         class="flex items-center gap-2"
                       >
                         <template v-if="signer.address">
-                          <NuxtLink :to="`/account/${signer.address}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ signer.address }}</NuxtLink>
+                          <NuxtLink :to="`/account/${signer.address}`" class="text-link hover:text-link-hover">{{ signer.address }}</NuxtLink>
                           <Copy 
                             :value="signer.address" 
                             tooltipText="Copy Signer Address"
@@ -494,7 +494,7 @@ onUnmounted(() => {
                 >
                   <template #value>
                     <div class="flex items-center gap-2">
-                      <NuxtLink :to="`/account/${feePayer}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ feePayer }}</NuxtLink>
+                      <NuxtLink :to="`/account/${feePayer}`" class="text-link hover:text-link-hover">{{ feePayer }}</NuxtLink>
                       <Copy 
                         :value="feePayer" 
                         tooltipText="Copy Fee Payer Address"
@@ -527,7 +527,7 @@ onUnmounted(() => {
                       <template v-if="getActualSender(transferEdge.node) !== 'k:system'">
                         <NuxtLink 
                           :to="`/account/${getActualSender(transferEdge.node)}`" 
-                          class="text-[#6ab5db] hover:text-[#9ccee7]"
+                          class="text-link hover:text-link-hover"
                         >{{ smartTruncateAddress(getActualSender(transferEdge.node)) }}</NuxtLink>
                         <Copy 
                           :value="getActualSender(transferEdge.node)" 
@@ -543,7 +543,7 @@ onUnmounted(() => {
                       <NuxtLink 
                         v-if="getActualReceiver(transferEdge.node) !== 'k:system'"
                         :to="`/account/${getActualReceiver(transferEdge.node)}`" 
-                        class="text-[#6ab5db] hover:text-[#9ccee7]"
+                        class="text-link hover:text-link-hover"
                       >{{ smartTruncateAddress(getActualReceiver(transferEdge.node)) }}</NuxtLink>
                       <Copy 
                         v-if="getActualReceiver(transferEdge.node) !== 'k:system'"
@@ -584,7 +584,7 @@ onUnmounted(() => {
                         <!-- Token Name -->
                         <NuxtLink 
                           :to="`/token/${transferEdge.node.moduleName}`" 
-                          class="text-[#6ab5db] hover:text-[#9ccee7] font-medium"
+                          class="text-link hover:text-link-hover font-medium"
                         >
                           {{ getTokenMetadata(transferEdge.node.moduleName).symbol }}
                         </NuxtLink>
@@ -637,13 +637,13 @@ onUnmounted(() => {
           </div>
 
           <!-- More Details Section (now inside Overview branch) -->
-          <div class="bg-surface-primary border border-[#222222] rounded-xl p-5 mb-2 shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+          <div class="bg-surface-primary border border-line-default rounded-xl p-5 mb-2 shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
           <div 
             ref="contentRef"
             class="overflow-hidden transition-all duration-300 ease-out"
             :style="{ height: showMoreDetails ? contentHeight + contentHeightCodeVariation + 'px' : '0px' }"
           >
-            <div class="mb-4 pb-4 border-b border-[#222222]">
+            <div class="mb-4 pb-4 border-b border-line-default">
               <Divide>
                 <!-- More Details -->
                 <DivideItem>
@@ -700,15 +700,15 @@ onUnmounted(() => {
                     >
                       <template #value>
                         <div class="flex flex-wrap gap-2">
-                          <span v-if="transaction?.cmd?.meta?.ttl !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+                          <span v-if="transaction?.cmd?.meta?.ttl !== undefined" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
                             <span class="text-font-secondary">TTL:</span>
                             <span class="text-font-primary ml-1">{{ transaction?.cmd?.meta?.ttl }}</span>
                           </span>
-                          <span v-if="transaction?.cmd?.nonce !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+                          <span v-if="transaction?.cmd?.nonce !== undefined" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
                             <span class="text-font-secondary">Nonce:</span>
                             <span class="text-font-primary ml-1">{{ transaction?.cmd?.nonce }}</span>
                           </span>
-                          <span v-if="transaction?.result?.transactionId !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+                          <span v-if="transaction?.result?.transactionId !== undefined" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
                             <span class="text-font-secondary">TXID:</span>
                             <span class="text-font-primary ml-1">{{ transaction?.result?.transactionId }}</span>
                           </span>
@@ -742,7 +742,7 @@ onUnmounted(() => {
                               <textarea
                                 readonly
                                 :value="displayedCode"
-                                class="break-all w-full bg-surface-disabled border border-[#222222] rounded-lg text-font-secondary text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto"
+                                class="break-all w-full bg-surface-disabled border border-line-default rounded-lg text-font-secondary text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto"
                                 :style="{ height: codeContainerHeight + 'px' }"
                               ></textarea>
                               
@@ -826,7 +826,7 @@ onUnmounted(() => {
                 <template #value>
                   <button 
                     @click="toggleMoreDetails"
-                    class="flex items-center gap-1 transition-colors text-[15px] hover:text-[#9ccee7] text-[#6AB5DB]"
+                    class="flex items-center gap-1 transition-colors text-[15px] hover:text-link-hover text-link"
                   >
                     <svg 
                       class="w-3 h-3 transition-transform duration-300" 

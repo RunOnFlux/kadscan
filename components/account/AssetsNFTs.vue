@@ -192,7 +192,7 @@ onBeforeUnmount(() => {
       <template #actions>
         <button
           @click="downloadData"
-          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-font-primary bg-surface-disabled border border-[#222222] rounded-md hover:bg-surface-hover whitespace-nowrap"
+          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-surface-hover whitespace-nowrap"
         >
           <IconDownload class="w-4 h-4 text-font-secondary" />
           <span class="hidden md:inline">Download</span>
@@ -200,7 +200,7 @@ onBeforeUnmount(() => {
       </template>
       <template #preview="{ item }">
         <button
-          class="w-8 h-8 rounded-md border border-[#222222] grid place-items-center hover:bg-surface-secondary active:bg-surface-hover"
+          class="w-8 h-8 rounded-md border border-line-default grid place-items-center hover:bg-surface-secondary active:bg-surface-hover"
           @click.prevent="openPreview(item)"
         >
           <PreviewIcon class="opacity-60"/>
@@ -208,7 +208,7 @@ onBeforeUnmount(() => {
       </template>
       <template #name="{ item }">
         <div class="flex items-center gap-2">
-          <div class="relative w-8 h-8 rounded-md overflow-hidden bg-surface-secondary border border-[#222222] grid place-items-center">
+          <div class="relative w-8 h-8 rounded-md overflow-hidden bg-surface-secondary border border-line-default grid place-items-center">
             <img v-if="item._image && !isMiniBroken(item)" :src="item._image" alt="nft" class="w-full h-full object-cover" @error="markMiniBroken(item)" />
             <span v-else-if="!item._metaErr && !isMiniBroken(item)" class="inline-block">
               <span class="block w-[12px] h-[12px] border-2 border-[#bbbbbb] border-t-transparent rounded-full animate-spin"></span>
@@ -231,7 +231,7 @@ onBeforeUnmount(() => {
       </template>
     </DataTable>
 
-    <div v-else class="bg-surface-primary border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
+    <div v-else class="bg-surface-primary border border-line-default rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
       <div class="flex flex-col items-center justify-center py-12">
         <img src="/empty/nft.png" alt="No NFTs" class="w-24 h-24 mb-4 opacity-50" />
         <div class="text-font-primary text-lg font-medium mb-2">No NFTs yet</div>

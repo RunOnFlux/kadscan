@@ -406,7 +406,7 @@ watch(
 <template>
   <div>
     <!-- Header -->
-    <div class="pb-5 border-b border-[#222222] mb-6 px-1">
+    <div class="pb-5 border-b border-line-default mb-6 px-1">
       <div class="flex flex-col gap-1 md:flex-row md:items-center md:gap-3">
         <div class="flex items-center gap-2 mb-1 md:mb-0">
           <AccountAddressIcon :address="address" class="w-6 h-6 rounded-full" />
@@ -438,7 +438,7 @@ watch(
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6 items-stretch">
       <!-- Card 1: Overview -->
-      <div class="bg-surface-primary border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+      <div class="bg-surface-primary border border-line-default rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
         <h3 class="text-font-primary font-semibold mb-4">
           Overview <span class="text-font-secondary font-normal">— {{ overviewChainLabel }}</span>
         </h3>
@@ -472,7 +472,7 @@ watch(
         </div>
       </div>
 
-      <div class="bg-surface-primary border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+      <div class="bg-surface-primary border border-line-default rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
         <h3 class="text-font-primary font-semibold mb-4">More Info</h3>
         <div class="space-y-4">
           <div>
@@ -487,7 +487,7 @@ watch(
                   <NuxtLink 
                     v-if="lastTransaction?.requestKey" 
                     :to="`/transactions/${lastTransaction.requestKey}`"
-                    class="text-[#6AB5DB] text-[14px] hover:text-[#9ccee7] transition-colors"
+                    class="text-link text-[14px] hover:text-link-hover transition-colors"
                   >
                     {{ account.lastTransactionCreationTime }}
                   </NuxtLink>
@@ -502,7 +502,7 @@ watch(
                   <NuxtLink 
                     v-if="firstTransaction?.requestKey" 
                     :to="`/transactions/${firstTransaction.requestKey}`"
-                    class="text-[#6AB5DB] text-[14px] hover:text-[#9ccee7] transition-colors"
+                    class="text-link text-[14px] hover:text-link-hover transition-colors"
                   >
                     {{ account.firstTransactionCreationTime }}
                   </NuxtLink>
@@ -521,7 +521,7 @@ watch(
                 <template v-if="account.fundedBy">
                   <NuxtLink 
                     :to="`/account/${account.fundedBy}`"
-                    class="text-[#6AB5DB] hover:text-[#9ccee7] text-[14px]"
+                    class="text-link hover:text-link-hover text-[14px]"
                   >
                     {{ truncateAddress(account.fundedBy, 10, 10) }}
                   </NuxtLink>
@@ -529,14 +529,14 @@ watch(
                     <span>At Height </span>
                     <NuxtLink 
                       :to="`/blocks/${account.height}/chain/${account.chainId}`"
-                      class="text-[#6AB5DB] hover:text-[#9ccee7]"
+                      class="text-link hover:text-link-hover"
                     >
                       {{ account.height }}
                     </NuxtLink>
                     <span> and Chain ID </span>
                     <NuxtLink
                       :to="`/blocks?chain=${account.chainId}`"
-                      class="text-[#6AB5DB] hover:text-[#9ccee7]"
+                      class="text-link hover:text-link-hover"
                     >
                       {{ account.chainId }}
                     </NuxtLink>
@@ -549,7 +549,7 @@ watch(
         </div>
       </div>
 
-      <div class="bg-surface-primary border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+      <div class="bg-surface-primary border border-line-default rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
         <h3 class="text-font-primary font-semibold mb-4">Multichain Info</h3>
         <div class="space-y-4">
           <div class="flex items-center justify-between gap-2">
@@ -575,7 +575,7 @@ watch(
           <!-- Guards Information for selected chain only -->
           <div v-if="currentGuard">
             <div class="text-[13px] text-font-secondary font-medium mb-2">GUARDS</div>
-            <div class="bg-surface-secondary border border-[#333333] rounded-lg p-3">
+            <div class="bg-surface-secondary border border-line-strong rounded-lg p-3">
               <div class="grid grid-cols-4 gap-4">
                 <!-- Predicate Column (1/4) -->
                 <div class="col-span-1">
@@ -612,7 +612,7 @@ watch(
           :class="[
             'px-3 py-1 rounded-lg text-[14px] font-medium transition-colors whitespace-nowrap relative',
             activeTab === tab.id 
-              ? 'bg-[#009367] text-font-primary' 
+              ? 'bg-accent-strong text-font-primary' 
               : 'bg-surface-hover text-font-primary hover:bg-[#333333]'
           ]"
         >

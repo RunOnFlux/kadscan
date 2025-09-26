@@ -247,7 +247,7 @@ onMounted(() => {
 <template>
   <ErrorOverlay v-if="error" :message="error?.message" />
   <div v-else>
-    <div class="flex items-center pb-5 border-b border-[#222222] mb-6 gap-2">
+    <div class="flex items-center pb-5 border-b border-line-default mb-6 gap-2">
       <h1 class="text-[19px] font-semibold leading-[150%] text-font-primary">
         Block
       </h1>
@@ -263,7 +263,7 @@ onMounted(() => {
         <button
           class="px-[10px] py-[5px] text-[13px] rounded-lg font-medium transition-colors"
           :class="{
-            'bg-[#009367] text-font-primary': activeView === 'overview',
+            'bg-accent-strong text-font-primary': activeView === 'overview',
             'bg-surface-hover text-font-secondary hover:bg-[#333333]':
               activeView !== 'overview',
           }"
@@ -275,7 +275,7 @@ onMounted(() => {
 
       <div v-if="activeView === 'overview'">
         <div
-          class="bg-surface-primary border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-1"
+          class="bg-surface-primary border border-line-default rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-1"
         >
           <Divide>
             <!-- Section 1: Core Information -->
@@ -285,7 +285,7 @@ onMounted(() => {
                   <template #value>
                     <div class="flex items-center gap-2">
                       <Tooltip value="View all chains for this block height" :offset-distance="8">
-                        <NuxtLink :to="`/blocks/${block.height}`" class="text-[#6ab5db] hover:text-[#9ccee7] transition-colors">
+                        <NuxtLink :to="`/blocks/${block.height}`" class="text-link hover:text-link-hover transition-colors">
                           {{ block.height }}
                         </NuxtLink>
                       </Tooltip>
@@ -297,7 +297,7 @@ onMounted(() => {
                           <button
                             @click="goToBlock(height - 1, chainId)"
                             :disabled="disablePrevBlock"
-                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-font-primary hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
+                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-line-default bg-surface-primary text-xs font-normal text-link hover:text-font-primary hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3 transform rotate-180" />
                           </button>
@@ -309,7 +309,7 @@ onMounted(() => {
                           <button
                             @click="goToBlock(height + 1, chainId)"
                             :disabled="disableNextBlock"
-                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-font-primary hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
+                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-line-default bg-surface-primary text-xs font-normal text-link hover:text-font-primary hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3" />
                           </button>
@@ -324,7 +324,7 @@ onMounted(() => {
                       <Tooltip value="View all blocks for this chain" :offset-distance="8">
                         <NuxtLink 
                           :to="`/blocks?chain=${block.chainId}`"
-                          class="text-[#6ab5db] hover:text-[#9ccee7] cursor-pointer"
+                          class="text-link hover:text-link-hover cursor-pointer"
                         >
                           {{ String(block.chainId) }}
                         </NuxtLink>
@@ -334,7 +334,7 @@ onMounted(() => {
                           <button
                             @click="goToBlock(height, chainId - 1)"
                             :disabled="disablePrevChain"
-                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-font-primary hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
+                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-line-default bg-surface-primary text-xs font-normal text-link hover:text-font-primary hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3 transform rotate-180" />
                           </button>
@@ -343,7 +343,7 @@ onMounted(() => {
                           <button
                             @click="goToBlock(height, chainId + 1)"
                             :disabled="disableNextChain"
-                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-font-primary hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
+                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-line-default bg-surface-primary text-xs font-normal text-link hover:text-font-primary hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3" />
                           </button>
@@ -384,7 +384,7 @@ onMounted(() => {
                       <Tooltip v-if="block.transactions.totalCount > 0" value="Click to view Transactions">
                         <NuxtLink
                           :to="`/transactions?block=${block.height}&chain=${block.chainId}`"
-                          class="text-[#6ab5db] hover:text-[#9ccee7]"
+                          class="text-link hover:text-link-hover"
                         >
                           {{ block.transactions.totalCount }} {{ block.transactions.totalCount === 1 ? 'transaction' : 'transactions' }} in this block
                         </NuxtLink>
@@ -417,7 +417,7 @@ onMounted(() => {
                       <Tooltip :value="minerAccount" variant="hash">
                         <NuxtLink
                           :to="`/account/${minerAccount}`"
-                          class="text-[#6ab5db] hover:text-[#9ccee7]"
+                          class="text-link hover:text-link-hover"
                           >{{
                             truncateAddress(minerAccount, 10, 10)
                           }}</NuxtLink
@@ -506,7 +506,7 @@ onMounted(() => {
         <!-- More Details -->
         <div
           v-if="!loading && !error && block"
-          class="bg-surface-primary border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5"
+          class="bg-surface-primary border border-line-default rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5"
         >
           <div 
             ref="contentRef"
@@ -600,7 +600,7 @@ onMounted(() => {
                         <div class="flex items-center md:gap-2 gap-0 break-all">
                           <NuxtLink
                               :to="`/blocks/${block.parent.height}/chain/${block.parent.chainId}`"
-                              class="text-[#6ab5db] hover:text-[#9ccee7]"
+                              class="text-link hover:text-link-hover"
                             >
                               {{ block.parent.hash }}
                           </NuxtLink>
@@ -659,7 +659,7 @@ onMounted(() => {
                         <div class="flex items-center md:gap-2 gap-0 break-all">
                           <NuxtLink
                             :to="`/blocks/${block.height}/chain/${neighbor.chainId}`"
-                            class="text-[15px] text-[#6ab5db] hover:text-[#9ccee7]"
+                            class="text-[15px] text-link hover:text-link-hover"
                             >{{ neighbor.hash }}</NuxtLink
                           >
                           <Copy
@@ -687,7 +687,7 @@ onMounted(() => {
                 <template #value>
                   <button 
                     @click="toggleMoreDetails"
-                    class="flex items-center gap-1 transition-colors hover:text-[#9ccee7] text-[#6AB5DB] "
+                    class="flex items-center gap-1 transition-colors hover:text-link-hover text-link "
                   >
                     <svg 
                       class="w-3 h-3 transition-transform duration-300" 

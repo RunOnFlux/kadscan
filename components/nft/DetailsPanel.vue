@@ -92,7 +92,7 @@ const ownerDisplay = computed(() => {
 </script>
 
 <template>
-  <div v-if="selectedHolding" class="bg-surface-primary border border-[#222222] rounded-xl p-4 md:p-5 shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+  <div v-if="selectedHolding" class="bg-surface-primary border border-line-default rounded-xl p-4 md:p-5 shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
     <div class="flex items-center justify-between mb-3">
       <div class="text-font-primary font-semibold">NFT Details</div>
       <a
@@ -108,7 +108,7 @@ const ownerDisplay = computed(() => {
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="relative rounded-lg bg-surface-disabled border border-[#222222] aspect-square overflow-hidden flex items-center justify-center">
+      <div class="relative rounded-lg bg-surface-disabled border border-line-default aspect-square overflow-hidden flex items-center justify-center">
         <img v-show="imageUrl && !imageFailed" :src="imageUrl as any" alt="nft" class="block max-w-full max-h-full object-contain" @error="imageFailed = true" @load="imageFailed = false" />
         <div v-if="!imageUrl || imageFailed" class="text-font-tertiary text-center px-3">
           <div>No image</div>
@@ -124,7 +124,7 @@ const ownerDisplay = computed(() => {
       <div class="flex flex-col gap-3">
         <div v-if="ownerRoute">
           <div class="text-xs text-font-secondary mb-[2px]">Owner</div>
-          <NuxtLink :to="ownerRoute!.href" class="text-[15px] text-[#6ab5db] hover:text-[#9ccee7] break-all">{{ ownerDisplay }}</NuxtLink>
+          <NuxtLink :to="ownerRoute!.href" class="text-[15px] text-link hover:text-link-hover break-all">{{ ownerDisplay }}</NuxtLink>
         </div>
         <div>
           <div class="text-xs text-font-secondary mb-[2px]">Collection</div>
