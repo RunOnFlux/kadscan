@@ -31,7 +31,7 @@ const { recordHistory } = useSearch();
   <NuxtLink
     :to="`/transactions/${requestkey}`"
     @click="recordHistory(requestkey, 'transactions')"
-    class="py-2 px-2 flex gap-2 hover:bg-[#222222] hover:rounded-md w-full"
+    class="py-2 px-2 flex gap-2 hover:bg-surface-secondary hover:rounded-md w-full"
   >
     <IconStatus
       :status="status"

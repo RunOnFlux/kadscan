@@ -52,7 +52,7 @@ const formattedFee = computed(() => {
       :class="{ 'border-b border-[#292B2C]': index !== totalItems - 1 }"
     >
       <div class="flex items-center md:w-5/12 md:gap-2 w-[160px]">
-        <div class="bg-[#151515] rounded-md p-3 hidden md:block">
+        <div class="bg-surface-disabled rounded-md p-3 hidden md:block">
           <TransactionList class="w-6 h-6 text-[#b0b0b0]" />
         </div>
         <div>

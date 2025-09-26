@@ -84,25 +84,25 @@ const goToNext = () => {
       v-if="!unknownTotal"
       :disabled="!canGoFirst || loadingPage"
       @click="goToFirst"
-      class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
+      class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-[#888888] transition-colors duration-300"
     >
       First
     </button>
     <button
       :disabled="!canGoPrev || loadingPage"
       @click="goToPrevious"
-      class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
+      class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-[#888888] transition-colors duration-300"
     >
       <IconChevron class="h-4 w-4 transform rotate-180" />
     </button>
-    <span class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-[#151515] text-xs font-normal text-[#888888] cursor-default">
+    <span class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-surface-disabled text-xs font-normal text-[#888888] cursor-default">
       <template v-if="!unknownTotal">Page {{ formatCurrentPage }} of {{ formatTotalPages }}</template>
       <template v-else>Page {{ formatCurrentPage }}</template>
     </span>
     <button
       :disabled="!canGoNext || loadingPage"
       @click="goToNext"
-      class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
+      class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-[#888888] transition-colors duration-300"
     >
       <IconChevron class="h-4 w-4" />
     </button>
@@ -110,7 +110,7 @@ const goToNext = () => {
       v-if="!unknownTotal"
       :disabled="!canGoLast || loadingPage"
       @click="goToLast"
-      class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
+      class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-[#888888] transition-colors duration-300"
     >
       Last
     </button>

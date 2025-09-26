@@ -228,7 +228,7 @@ function downloadData() {
       <div class="flex items-center gap-2 w-full md:w-fit justify-end">
         <button
           @click="downloadData"
-          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
+          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-surface-disabled border border-[#222222] rounded-md hover:bg-surface-hover whitespace-nowrap"
         >
           <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
           <span class="hidden md:inline">Download</span>
@@ -282,21 +282,21 @@ function downloadData() {
             <template #value>
               <div class="flex items-center gap-2 w-full flex-wrap">
                 <StatusBadge :status="eventTransactionStatus(ev)" :tooltip="false" />
-                <span v-if="ev.height !== undefined && ev.height !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#222222] text-[11px] font-semibold flex items-center leading-none">
+                <span v-if="ev.height !== undefined && ev.height !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
                   <span class="text-[#bbbbbb]">Height:</span>
                   <NuxtLink :to="`/blocks/${ev.height}/chain/${ev.chainId}`" class="text-[#f5f5f5] ml-1 hover:underline">{{ ev.height }}</NuxtLink>
                 </span>
-                <span v-if="ev.chainId !== undefined && ev.chainId !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#222222] text-[11px] font-semibold flex items-center leading-none">
+                <span v-if="ev.chainId !== undefined && ev.chainId !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
                   <span class="text-[#bbbbbb]">Chain:</span>
                   <span class="text-[#f5f5f5] ml-1">{{ ev.chainId }}</span>
                 </span>
-                <span v-if="ev.time" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#222222] text-[11px] font-semibold flex items-center leading-none">
+                <span v-if="ev.time" class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
                   <span class="text-[#bbbbbb]">Time:</span>
                   <span class="text-[#f5f5f5] ml-1">{{ ev.time }}</span>
                 </span>
                 <button
                   @click="toggleExpand(makeEventKey(ev, index))"
-                  class="ml-auto flex items-center justify-center w-7 h-7 text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-[#151515] active:text-[#f5f5f5]"
+                  class="ml-auto flex items-center justify-center w-7 h-7 text-[#f5f5f5] bg-surface-disabled border border-[#222222] rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-surface-disabled active:text-[#f5f5f5]"
                   aria-label="Enlarge parameters"
                 >
                   <IconEnlarge class="w-4 h-4" />
@@ -321,7 +321,7 @@ function downloadData() {
                     <textarea
                       readonly
                       :value="formatJsonPretty(ev.parameterText)"
-                      class="break-all w-full bg-[#151515] border border-[#222222] rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-auto h-[110px] m-0"
+                      class="break-all w-full bg-surface-disabled border border-[#222222] rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-auto h-[110px] m-0"
                     ></textarea>
                   </div>
                   <div
@@ -341,7 +341,7 @@ function downloadData() {
                     <textarea
                       readonly
                       :value="formatJsonPretty(ev.parameterText)"
-                      class="break-all w-full bg-[#151515] border border-[#222222] rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-hidden min-h-[110px]"
+                      class="break-all w-full bg-surface-disabled border border-[#222222] rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-hidden min-h-[110px]"
                     ></textarea>
                   </div>
                 </div>

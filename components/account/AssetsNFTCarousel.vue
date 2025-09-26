@@ -86,7 +86,7 @@ function markBroken(key: string) {
         <ClientOnly v-if="shouldAutoScroll && displayable.length > 0">
           <Splide :options="splideOptions" :extensions="{ AutoScroll }">
             <SplideSlide v-for="(item, idx) in displayable" :key="`${item.key}-${idx}`">
-              <div class="relative aspect-square rounded-lg overflow-hidden bg-[#151515] border border-[#222222]">
+              <div class="relative aspect-square rounded-lg overflow-hidden bg-surface-disabled border border-[#222222]">
                 <img :src="item.image" alt="nft" class="w-full h-full object-cover" @error="markBroken(item.key)" />
                 <div v-if="item.holding?.balance && Number(item.holding.balance) > 1" class="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-[2px] rounded">
                   x{{ item.holding.balance }}
@@ -97,7 +97,7 @@ function markBroken(key: string) {
         </ClientOnly>
 
         <div v-else class="grid grid-cols-4 gap-2">
-          <div v-for="(item, idx) in displayable" :key="`${item.key}-${idx}`" class="relative aspect-square rounded-lg overflow-hidden bg-[#151515] border border-[#222222]">
+          <div v-for="(item, idx) in displayable" :key="`${item.key}-${idx}`" class="relative aspect-square rounded-lg overflow-hidden bg-surface-disabled border border-[#222222]">
             <img :src="item.image" alt="nft" class="w-full h-full object-cover" @error="markBroken(item.key)" />
             <div v-if="item.holding?.balance && Number(item.holding.balance) > 1" class="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-[2px] rounded">
               x{{ item.holding.balance }}
@@ -113,8 +113,8 @@ function markBroken(key: string) {
 
       <template v-else>
         <div class="grid grid-cols-4 gap-2">
-          <div v-for="idx in 4" :key="idx" class="aspect-square rounded-lg overflow-hidden bg-[#151515] border border-[#222222]">
-            <div class="w-full h-full relative animate-[pulse_0.7s_ease-in-out_infinite] bg-[#222222]">
+          <div v-for="idx in 4" :key="idx" class="aspect-square rounded-lg overflow-hidden bg-surface-disabled border border-[#222222]">
+            <div class="w-full h-full relative animate-[pulse_0.7s_ease-in-out_infinite] bg-surface-secondary">
               <div class="absolute inset-0 flex items-center justify-center">
                 <div class="h-5 w-5 rounded-full border-2 border-white/20 border-t-transparent animate-spin"></div>
               </div>

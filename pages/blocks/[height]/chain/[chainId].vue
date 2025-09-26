@@ -264,7 +264,7 @@ onMounted(() => {
           class="px-[10px] py-[5px] text-[13px] rounded-lg font-medium transition-colors"
           :class="{
             'bg-[#009367] text-[#f5f5f5]': activeView === 'overview',
-            'bg-[#252525] text-[#bbbbbb] hover:bg-[#333333]':
+            'bg-surface-hover text-[#bbbbbb] hover:bg-[#333333]':
               activeView !== 'overview',
           }"
           @click="activeView = 'overview'"
@@ -297,7 +297,7 @@ onMounted(() => {
                           <button
                             @click="goToBlock(height - 1, chainId)"
                             :disabled="disablePrevBlock"
-                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
+                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-[#888888] transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3 transform rotate-180" />
                           </button>
@@ -309,7 +309,7 @@ onMounted(() => {
                           <button
                             @click="goToBlock(height + 1, chainId)"
                             :disabled="disableNextBlock"
-                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
+                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-[#888888] transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3" />
                           </button>
@@ -334,7 +334,7 @@ onMounted(() => {
                           <button
                             @click="goToBlock(height, chainId - 1)"
                             :disabled="disablePrevChain"
-                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
+                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-[#888888] transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3 transform rotate-180" />
                           </button>
@@ -343,7 +343,7 @@ onMounted(() => {
                           <button
                             @click="goToBlock(height, chainId + 1)"
                             :disabled="disableNextChain"
-                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
+                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-[#888888] transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3" />
                           </button>

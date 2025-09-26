@@ -63,7 +63,7 @@ const props = defineProps<{
         leave-to-class="transform scale-95 opacity-0"
       >
         <DisclosurePanel
-          class="flex bazk:hidden w-full gap-2 flex-col pt-[6px] pb-2 px-2 border-t-[2px] border-t-[#00e19d] bg-[#222222] rounded-b-lg w-[240px]"
+          class="flex bazk:hidden w-full gap-2 flex-col pt-[6px] pb-2 px-2 border-t-[2px] border-t-[#00e19d] bg-surface-secondary rounded-b-lg w-[240px]"
         >
           <div
             class="flex flex-col gap-2"

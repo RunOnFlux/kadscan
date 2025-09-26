@@ -312,7 +312,7 @@ watch([moduleName, () => selectedNetwork.value?.id], () => { checkHasToken() }, 
           <!-- Interfaces block (like guards UI) -->
           <div v-if="declarationInfo?.type !== 'Interface' && !showOverviewLoading">
             <div class="text-[13px] text-[#bbbbbb] font-medium mb-2">INTERFACES</div>
-            <div class="bg-[#222222] border border-[#333333] rounded-lg p-3">
+            <div class="bg-surface-secondary border border-[#333333] rounded-lg p-3">
               <div v-if="showOverviewLoading" class="text-[14px] text-[#888888] animate-pulse">Loading...</div>
               <div v-else-if="moduleInfo?.interfaces && moduleInfo.interfaces.length > 0" class="space-y-1">
                 <div 
@@ -351,7 +351,7 @@ watch([moduleName, () => selectedNetwork.value?.id], () => { checkHasToken() }, 
               </Select>
             </template>
             <template v-else>
-              <div class="inline-flex items-center gap-2 rounded-lg bg-[#222222] border border-[#333333] px-3 py-2 select-none cursor-not-allowed">
+              <div class="inline-flex items-center gap-2 rounded-lg bg-surface-secondary border border-[#333333] px-3 py-2 select-none cursor-not-allowed">
                 <Coins class="w-4 h-4 text-[#f5f5f5]" />
                 <span class="text-[#f5f5f5] text-[14px]">Maybe in Kadena EVM?</span>
               </div>
@@ -372,7 +372,7 @@ watch([moduleName, () => selectedNetwork.value?.id], () => { checkHasToken() }, 
             'px-3 py-1 rounded-lg text-[13px] font-medium transition-colors whitespace-nowrap relative',
             activeTab === tab.id 
               ? 'bg-[#009367] text-[#f5f5f5]' 
-              : 'bg-[#252525] text-[#f5f5f5] hover:bg-[#333333]'
+              : 'bg-surface-hover text-[#f5f5f5] hover:bg-[#333333]'
           ]"
         >
           {{ tab.label }}

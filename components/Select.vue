@@ -40,7 +40,7 @@ provideUseId(() => useId())
               ? 'gap-1 px-2 py-1 text-xs h-7 min-h-0'
               : 'gap-2 px-3 py-2 text-[15px]',
             variant === 'filled'
-              ? 'rounded-lg bg-[#222222] border border-[#333333]'
+              ? 'rounded-lg bg-surface-secondary border border-[#333333]'
               : '',
             fullWidth ? 'w-full' : ''
           ]"

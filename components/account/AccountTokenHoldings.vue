@@ -137,7 +137,7 @@ watch(() => props.balances, (arr) => {
 <template>
   <div class="relative" v-outside="close">
     <button 
-      class="w-full px-3 py-2 rounded-md border border-[#222] bg-[#151515] text-[#f5f5f5] text-[14px] hover:bg-[#222] transition-colors flex items-center justify-between"
+      class="w-full px-3 py-2 rounded-md border border-[#222] bg-surface-disabled text-[#f5f5f5] text-[14px] hover:bg-[#222] transition-colors flex items-center justify-between"
       @click.prevent="open = !open"
       aria-haspopup="true"
       :aria-expanded="open ? 'true' : 'false'"
@@ -161,7 +161,7 @@ watch(() => props.balances, (arr) => {
           v-model="search"
           type="text"
           placeholder="Search for Token or NFT"
-          class="w-full px-3 py-2 rounded-lg bg-[#151515] border border-[#222] text-[#f5f5f5] placeholder-[#777] text-[14px] outline-none focus:ring-2 focus:ring-[#333333]"
+          class="w-full px-3 py-2 rounded-lg bg-surface-disabled border border-[#222] text-[#f5f5f5] placeholder-[#777] text-[14px] outline-none focus:ring-2 focus:ring-[#333333]"
         />
       </div>
 
@@ -169,7 +169,7 @@ watch(() => props.balances, (arr) => {
       <div class="flex-1 overflow-y-auto">
         <!-- Tokens Group -->
         <div class="px-3 pt-3 pb-2">
-          <div class="flex items-center justify-between px-3 py-2 rounded-md bg-[#151515] text-[#f5f5f5] text-[15px] font-semibold">
+          <div class="flex items-center justify-between px-3 py-2 rounded-md bg-surface-disabled text-[#f5f5f5] text-[15px] font-semibold">
             <span>Tokens ({{ tokensCount }})</span>
           </div>
         </div>
@@ -181,10 +181,10 @@ watch(() => props.balances, (arr) => {
             v-for="(item, idx) in filteredTokenItems" 
             :key="`token-${idx}`"
             :to="`/token/${item.module}`"
-            class="px-5 py-2 text-[14px] text-[#f5f5f5] flex items-center justify-between border-b border-[#222222] last:border-b-0 hover:bg-[#151515]"
+            class="px-5 py-2 text-[14px] text-[#f5f5f5] flex items-center justify-between border-b border-[#222222] last:border-b-0 hover:bg-surface-disabled"
           >
             <div class="flex items-center gap-3 min-w-0">
-              <div class="w-7 h-7 rounded-full bg-[#222222] overflow-hidden grid place-items-center">
+              <div class="w-7 h-7 rounded-full bg-surface-secondary overflow-hidden grid place-items-center">
                 <img v-if="item.icon" :src="item.icon" alt="icon" class="w-7 h-7 object-contain" />
                 <span v-else class="text-[12px] text-[#f5f5f5]">
                   {{ (item.name || 'U')[0]?.toUpperCase() }}
@@ -204,7 +204,7 @@ watch(() => props.balances, (arr) => {
 
         <!-- NFTs Group -->
         <div class="px-3 pt-3 pb-2">
-          <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-[#151515] text-[#f5f5f5] text-[15px] font-semibold">
+          <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-surface-disabled text-[#f5f5f5] text-[15px] font-semibold">
             <span>NFTs ({{ nftsCount }})</span>
           </div>
         </div>
@@ -236,7 +236,7 @@ watch(() => props.balances, (arr) => {
       </div>
 
       <!-- Footer CTA (sticky bottom, styled like List.vue) -->
-      <div class="px-6 py-3 text-center bg-[#151515] rounded-b-md border-t border-[#222222]">
+      <div class="px-6 py-3 text-center bg-surface-disabled rounded-b-md border-t border-[#222222]">
         <button 
           class="text-[12px] font-semibold text-[#bbbbbb] hover:text-[#00e19d]"
           @click.prevent="onViewAll"

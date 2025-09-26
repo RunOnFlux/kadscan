@@ -42,7 +42,7 @@ const timeAgo = computed(() => {
       :class="{ 'border-b border-[#222222]': index !== totalItems - 1 }"
     >
       <div class="flex items-center md:w-1/3 gap-2 w-[160px]">
-        <div class="bg-[#151515] rounded-md p-3 hidden md:block">
+        <div class="bg-surface-disabled rounded-md p-3 hidden md:block">
           <KadenaIcon class="w-6 h-6" />
         </div>
         <div>

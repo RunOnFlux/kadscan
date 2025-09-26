@@ -575,7 +575,7 @@ watch(
           <!-- Guards Information for selected chain only -->
           <div v-if="currentGuard">
             <div class="text-[13px] text-[#bbbbbb] font-medium mb-2">GUARDS</div>
-            <div class="bg-[#222222] border border-[#333333] rounded-lg p-3">
+            <div class="bg-surface-secondary border border-[#333333] rounded-lg p-3">
               <div class="grid grid-cols-4 gap-4">
                 <!-- Predicate Column (1/4) -->
                 <div class="col-span-1">
@@ -613,7 +613,7 @@ watch(
             'px-3 py-1 rounded-lg text-[14px] font-medium transition-colors whitespace-nowrap relative',
             activeTab === tab.id 
               ? 'bg-[#009367] text-[#f5f5f5]' 
-              : 'bg-[#252525] text-[#f5f5f5] hover:bg-[#333333]'
+              : 'bg-surface-hover text-[#f5f5f5] hover:bg-[#333333]'
           ]"
         >
           {{ tab.label }}

@@ -306,7 +306,7 @@ function downloadData() {
         <button
           v-if="incomingCount > 0"
           @click="refreshTopPage"
-          class="hidden lg:flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
+          class="hidden lg:flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-surface-disabled border border-[#222222] rounded-md hover:bg-surface-hover whitespace-nowrap"
         >
           <IconRefresh class="w-4 h-4" style="color: #00a186;" />
           <span class="text-[#00a186] font-medium">+{{ incomingCount }} New Blocks</span>
@@ -319,7 +319,7 @@ function downloadData() {
         />
         <button
           @click="downloadData"
-          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
+          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-surface-disabled border border-[#222222] rounded-md hover:bg-surface-hover whitespace-nowrap"
         >
           <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
           <span class="hidden md:inline">Download</span>

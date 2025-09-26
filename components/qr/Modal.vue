@@ -75,7 +75,7 @@ watch(
 
           <div class="p-5 flex flex-col items-center gap-3">
             <div
-              class="rounded-lg p-3 bg-[#151515] border border-[#292B2C]"
+              class="rounded-lg p-3 bg-surface-disabled border border-[#292B2C]"
             >
               <img v-if="dataUrl" :src="dataUrl" alt="QR Code" class="w-[220px] h-[220px]" />
               <div v-else class="w-[220px] h-[220px] grid place-items-center text-[#888888]">
@@ -87,9 +87,9 @@ watch(
             </div>
           </div>
 
-          <div class="flex justify-end gap-2 p-4 bg-[#151515] border-t border-[#292B2C]">
+          <div class="flex justify-end gap-2 p-4 bg-surface-disabled border-t border-[#292B2C]">
             <button
-              class="px-3 py-2 text-sm text-[#525454] rounded-lg hover:bg-[#252525] hover:text-[#f5f5f5]"
+              class="px-3 py-2 text-sm text-[#525454] rounded-lg hover:bg-surface-hover hover:text-[#f5f5f5]"
               @click="closeModal"
             >
               Close

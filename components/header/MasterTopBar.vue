@@ -122,24 +122,24 @@ onMounted(() => {
           <!-- Theme selector between searchbar and network switch -->
           <Menu as="div" class="relative inline-block text-left">
             <div>
-              <MenuButton class="h-[36.5px] rounded-lg flex items-center gap-2 border border-[#222222] bg-[#151515] hover:bg-[#222222] px-3 text-[#f5f5f5]">
+              <MenuButton class="h-[36.5px] rounded-lg flex items-center gap-2 border border-[#222222] bg-surface-disabled hover:bg-surface-secondary px-3 text-[#f5f5f5]">
                 <component :is="theme === 'light' ? ThemeLight : (theme === 'dim' ? ThemeDim : ThemeDark)" class="h-4 w-4" />
               </MenuButton>
             </div>
             <MenuItems class="absolute right-0 mt-1 border border-[#222222] w-36 origin-top-right rounded-lg bg-surface-primary shadow-[0_0_15px_rgba(255,255,255,0.0625)] ring-1 ring-black/5 focus:outline-none px-2 py-1">
               <div class="px-1 py-1">
                 <MenuItem v-slot="{ active }">
-                  <button @click="setTheme('light')" :class="[ active ? 'bg-[#222222]' : '', 'group flex w-full items-center justify-start rounded-md px-3 py-2 text-sm gap-2', theme==='light' ? 'text-[#00e19d]' : 'text-[#f5f5f5]']">
+                  <button @click="setTheme('light')" :class="[ active ? 'bg-surface-secondary' : '', 'group flex w-full items-center justify-start rounded-md px-3 py-2 text-sm gap-2', theme==='light' ? 'text-[#00e19d]' : 'text-[#f5f5f5]']">
                     <ThemeLight class="h-4 w-4" /><span>Light</span>
                   </button>
                 </MenuItem>
                 <MenuItem v-slot="{ active }">
-                  <button @click="setTheme('dim')" :class="[ active ? 'bg-[#222222]' : '', 'group flex w-full items-center justify-start rounded-md px-3 py-2 text-sm gap-2', theme==='dim' ? 'text-[#00e19d]' : 'text-[#f5f5f5]']">
+                  <button @click="setTheme('dim')" :class="[ active ? 'bg-surface-secondary' : '', 'group flex w-full items-center justify-start rounded-md px-3 py-2 text-sm gap-2', theme==='dim' ? 'text-[#00e19d]' : 'text-[#f5f5f5]']">
                     <ThemeDim class="h-4 w-4" /><span>Dim</span>
                   </button>
                 </MenuItem>
                 <MenuItem v-slot="{ active }">
-                  <button @click="setTheme('dark')" :class="[ active ? 'bg-[#222222]' : '', 'group flex w-full items-center justify-start rounded-md px-3 py-2 text-sm gap-2', theme==='dark' ? 'text-[#00e19d]' : 'text-[#f5f5f5]']">
+                  <button @click="setTheme('dark')" :class="[ active ? 'bg-surface-secondary' : '', 'group flex w-full items-center justify-start rounded-md px-3 py-2 text-sm gap-2', theme==='dark' ? 'text-[#00e19d]' : 'text-[#f5f5f5]']">
                     <ThemeDark class="h-4 w-4" /><span>Dark</span>
                   </button>
                 </MenuItem>
@@ -148,7 +148,7 @@ onMounted(() => {
           </Menu>
           <Menu as="div" class="relative inline-block text-left hidden md:block">
           <div>
-            <MenuButton :id="networkMenuButtonId" class="h-[36.5px] rounded-lg flex items-center gap-2 border border-[#222222] bg-[#151515] hover:bg-[#222222] px-3">
+            <MenuButton :id="networkMenuButtonId" class="h-[36.5px] rounded-lg flex items-center gap-2 border border-[#222222] bg-surface-disabled hover:bg-surface-secondary px-3">
               <IconKadena class="h-4 w-4" />
               <span v-if="selectedNetwork" class="text-[13px] text-[#f5f5f5]">{{ selectedNetwork.name }}</span>
             </MenuButton>
@@ -168,9 +168,9 @@ onMounted(() => {
                   <button
                     @click="setNetwork(network)"
                     :class="[
-                      active ? 'bg-[#222222]' : '',
+                      active ? 'bg-surface-secondary' : '',
                       selectedNetwork.id === network.id ? 'text-[#00e19d]' : 'text-[#f5f5f5]',
-                      'group flex w-full items-center hover:bg-[#222222] justify-start rounded-md px-3 py-2 text-sm',
+                      'group flex w-full items-center hover:bg-surface-secondary justify-start rounded-md px-3 py-2 text-sm',
                     ]"
                   >
                     <span>{{ network.name }}</span>

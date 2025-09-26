@@ -206,7 +206,7 @@ const showHistory = computed(() => {
         <button
           v-for="(h, idx) in (history || [])"
           :key="h.query + ':' + idx"
-          class="text-left w-full px-3 py-2 hover:bg-[#151515] rounded-md transition-colors"
+          class="text-left w-full px-3 py-2 hover:bg-surface-disabled rounded-md transition-colors"
           @click.prevent="onSelectHistory && onSelectHistory(h.query)"
         >
           <div class="flex items-center gap-2">

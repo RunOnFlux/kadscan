@@ -337,7 +337,7 @@ onUnmounted(() => {
               'px-[10px] py-[5px] text-[13px] rounded-lg font-medium transition-colors',
               activeTab === label
                 ? 'bg-[#009367] text-[#f5f5f5]'
-                : 'bg-[#252525] text-[#bbbbbb] hover:bg-[#2d2d2d]'
+                : 'bg-surface-hover text-[#bbbbbb] hover:bg-[#2d2d2d]'
             ]"
             @click="activeTab = label"
           >
@@ -409,7 +409,7 @@ onUnmounted(() => {
                      <NuxtLink v-if="transaction?.result?.block?.height" :to="`/blocks/${transaction.result.block.height}/chain/${transaction.result.block.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ transaction.result.block.height }}</NuxtLink>
                      <span v-else-if="!transaction?.result?.block?.height && transaction?.cmd?.meta?.chainId && (transaction?.cmd?.meta?.creationTime === 0 || new Date(transaction?.cmd?.meta?.creationTime).getTime() < new Date('1970-01-02').getTime())" class="text-[#f5f5f5]">Genesis</span>
                      <span v-else class="text-[#f5f5f5]">-</span>
-                     <span v-if="blockConfirmations !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#222222] text-[11px] text-[#f5f5f5] font-semibold flex items-center leading-none">
+                     <span v-if="blockConfirmations !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] text-[#f5f5f5] font-semibold flex items-center leading-none">
                       {{ blockConfirmations }} Block Confirmations
                      </span>
                    </div>
@@ -700,15 +700,15 @@ onUnmounted(() => {
                     >
                       <template #value>
                         <div class="flex flex-wrap gap-2">
-                          <span v-if="transaction?.cmd?.meta?.ttl !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#222222] text-[11px] font-semibold flex items-center leading-none">
+                          <span v-if="transaction?.cmd?.meta?.ttl !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
                             <span class="text-[#bbbbbb]">TTL:</span>
                             <span class="text-[#f5f5f5] ml-1">{{ transaction?.cmd?.meta?.ttl }}</span>
                           </span>
-                          <span v-if="transaction?.cmd?.nonce !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#222222] text-[11px] font-semibold flex items-center leading-none">
+                          <span v-if="transaction?.cmd?.nonce !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
                             <span class="text-[#bbbbbb]">Nonce:</span>
                             <span class="text-[#f5f5f5] ml-1">{{ transaction?.cmd?.nonce }}</span>
                           </span>
-                          <span v-if="transaction?.result?.transactionId !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#222222] text-[11px] font-semibold flex items-center leading-none">
+                          <span v-if="transaction?.result?.transactionId !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
                             <span class="text-[#bbbbbb]">TXID:</span>
                             <span class="text-[#f5f5f5] ml-1">{{ transaction?.result?.transactionId }}</span>
                           </span>
@@ -742,7 +742,7 @@ onUnmounted(() => {
                               <textarea
                                 readonly
                                 :value="displayedCode"
-                                class="break-all w-full bg-[#151515] border border-[#222222] rounded-lg text-[#bbbbbb] text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto"
+                                class="break-all w-full bg-surface-disabled border border-[#222222] rounded-lg text-[#bbbbbb] text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto"
                                 :style="{ height: codeContainerHeight + 'px' }"
                               ></textarea>
                               
@@ -765,10 +765,10 @@ onUnmounted(() => {
                               <button 
                                 @click="codeView = 'default'"
                                 :class="[
-                                  'px-3 py-1.5 text-xs rounded-md transition-colors bg-[#222222]',
+                                  'px-3 py-1.5 text-xs rounded-md transition-colors bg-surface-secondary',
                                   codeView === 'default' 
                                     ? 'text-[#f5f5f5] cursor-default' 
-                                    : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dadfe3] hover:text-[#000000]'
+                                    : 'bg-surface-secondary text-[#bbbbbb] hover:bg-[#dadfe3] hover:text-[#000000]'
                                 ]"
                               >
                                 Default View
@@ -776,10 +776,10 @@ onUnmounted(() => {
                               <button 
                                 @click="codeView = 'raw'"
                                 :class="[
-                                  'px-3 py-1.5 text-xs rounded-md transition-colors bg-[#222222]',
+                                  'px-3 py-1.5 text-xs rounded-md transition-colors bg-surface-secondary',
                                   codeView === 'raw' 
                                     ? 'text-[#f5f5f5] cursor-default' 
-                                    : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dadfe3] hover:text-[#000000]'
+                                    : 'bg-surface-secondary text-[#bbbbbb] hover:bg-[#dadfe3] hover:text-[#000000]'
                                 ]"
                               >
                                 Original
@@ -787,10 +787,10 @@ onUnmounted(() => {
                               <button 
                                 @click="codeView = 'data'"
                                 :class="[
-                                  'px-3 py-1.5 text-xs rounded-md transition-colors bg-[#222222]',
+                                  'px-3 py-1.5 text-xs rounded-md transition-colors bg-surface-secondary',
                                   codeView === 'data' 
                                     ? 'text-[#f5f5f5] cursor-default' 
-                                    : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dadfe3] hover:text-[#000000]'
+                                    : 'bg-surface-secondary text-[#bbbbbb] hover:bg-[#dadfe3] hover:text-[#000000]'
                                 ]"
                               >
                                 Data
@@ -798,10 +798,10 @@ onUnmounted(() => {
                               <button 
                                 @click="codeView = 'signatures'"
                                 :class="[
-                                  'px-3 py-1.5 text-xs rounded-md transition-colors bg-[#222222]',
+                                  'px-3 py-1.5 text-xs rounded-md transition-colors bg-surface-secondary',
                                   codeView === 'signatures' 
                                     ? 'text-[#f5f5f5] cursor-default' 
-                                    : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dadfe3] hover:text-[#000000]'
+                                    : 'bg-surface-secondary text-[#bbbbbb] hover:bg-[#dadfe3] hover:text-[#000000]'
                                 ]"
                               >
                                 Signatures

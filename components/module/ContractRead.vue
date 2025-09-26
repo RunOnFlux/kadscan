@@ -117,7 +117,7 @@ const vAutosize = {
               @click="selected = fn.name"
               :class="[
                 'px-3 py-1 rounded-lg text-[13px] transition-colors whitespace-normal break-words text-left max-w-full',
-                selected === fn.name ? 'bg-[#009367] text-[#f5f5f5]' : 'bg-[#252525] text-[#f5f5f5] hover:bg-[#333333]'
+                selected === fn.name ? 'bg-[#009367] text-[#f5f5f5]' : 'bg-surface-hover text-[#f5f5f5] hover:bg-[#333333]'
               ]"
             >
               {{ fn.name }}
@@ -135,7 +135,7 @@ const vAutosize = {
                     v-model="paramValues[p.name]"
                     v-autosize
                     rows="1"
-                    class="w-full bg-[#151515] border border-[#222222] rounded-md text-[#bbbbbb] text-sm px-2 py-1 outline-none font-mono whitespace-pre-wrap break-words overflow-hidden resize-none"
+                    class="w-full bg-surface-disabled border border-[#222222] rounded-md text-[#bbbbbb] text-sm px-2 py-1 outline-none font-mono whitespace-pre-wrap break-words overflow-hidden resize-none"
                     placeholder='Enter Pact literal (eg "k:addr", 1.0, true, {"k":1})'
                     data-gramm="false"
                     data-gramm_editor="false"
@@ -169,7 +169,7 @@ const vAutosize = {
               </div>
               <button
                 @click="resultExpanded = !resultExpanded"
-                class="flex items-center justify-center w-8 h-8 text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-[#151515] active:text-[#f5f5f5]"
+                class="flex items-center justify-center w-8 h-8 text-[#f5f5f5] bg-surface-disabled border border-[#222222] rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-surface-disabled active:text-[#f5f5f5]"
                 aria-label="Toggle result size"
                 :title="resultExpanded ? 'Collapse' : 'Expand'"
               >
@@ -178,7 +178,7 @@ const vAutosize = {
             </div>
             <div class="text-[#f5f5f5] text-[15px] fix w-full md:flex-1 overflow-hidden">
               <div v-if="loading" class="w-full">
-                <div class="relative overflow-hidden rounded-lg border border-[#222222] bg-[#151515] h-[110px] md:h-[120px]">
+                <div class="relative overflow-hidden rounded-lg border border-[#222222] bg-surface-disabled h-[110px] md:h-[120px]">
                   <div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-[#333333] to-transparent animate-shimmer"></div>
                 </div>
               </div>
@@ -191,7 +191,7 @@ const vAutosize = {
                 <textarea
                   readonly
                   :value="error ? 'Error: ' + String(error) : result === null && hasQueried ? 'No result returned for this query.' : formatJsonPretty(result)"
-                  class="break-all w-full bg-[#151515] border border-[#222222] rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-auto h-[110px] m-0"
+                  class="break-all w-full bg-surface-disabled border border-[#222222] rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-auto h-[110px] m-0"
                 ></textarea>
               </div>
               <div v-else
@@ -210,7 +210,7 @@ const vAutosize = {
                 <textarea
                   readonly
                   :value="error ? 'Error: ' + String(error) : result === null && hasQueried ? 'No result returned for this query.' : formatJsonPretty(result)"
-                  class="break-all w-full bg-[#151515] border border-[#222222] rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-hidden min-h-[200px]"
+                  class="break-all w-full bg-surface-disabled border border-[#222222] rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-hidden min-h-[200px]"
                 ></textarea>
               </div>
             </div>

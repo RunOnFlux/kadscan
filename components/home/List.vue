@@ -25,7 +25,7 @@ const emit = defineEmits(['customize'])
 
       <button
         v-if="isCustomizable"
-        class="flex items-start gap-1 px-[6px] pb-[4px] pt-[3px] text-sm border border-[#222222] rounded-lg bg-[#151515] hover:bg-[#222222]"
+        class="flex items-start gap-1 px-[6px] pb-[4px] pt-[3px] text-sm border border-[#222222] rounded-lg bg-surface-disabled hover:bg-surface-secondary"
         @click="emit('customize')"
       >
         <CustomizeIcon class="mt-[1px] text-[#f5f5f5] w-4 h-4" />
@@ -37,7 +37,7 @@ const emit = defineEmits(['customize'])
       <slot />
     </div>
 
-    <div class="px-6 py-4 text-center bg-[#151515] rounded-b-lg border-t border-[#222222] relative z-10">
+    <div class="px-6 py-4 text-center bg-surface-disabled rounded-b-lg border-t border-[#222222] relative z-10">
       <NuxtLink
         v-if="path"
         :to="path"

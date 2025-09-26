@@ -16,7 +16,7 @@ const goToModule = async () => {
 <template>
   <button
     type="button"
-    class="py-3 px-2 flex gap-2 hover:bg-[#222222] hover:rounded-md w-full text-left"
+    class="py-3 px-2 flex gap-2 hover:bg-surface-secondary hover:rounded-md w-full text-left"
     @click.prevent="goToModule"
   >
     <IconStatus

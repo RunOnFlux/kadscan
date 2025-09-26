@@ -87,7 +87,7 @@ onUnmounted(() => {
         text-[15px]
         font-normal
         leading-[22.5px]
-        bg-[#151515]
+        bg-surface-disabled
         h-[36.5px]
         min-h-[36.5px]
         w-full

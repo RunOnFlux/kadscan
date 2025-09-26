@@ -108,7 +108,7 @@ const ownerDisplay = computed(() => {
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="relative rounded-lg bg-[#151515] border border-[#222222] aspect-square overflow-hidden flex items-center justify-center">
+      <div class="relative rounded-lg bg-surface-disabled border border-[#222222] aspect-square overflow-hidden flex items-center justify-center">
         <img v-show="imageUrl && !imageFailed" :src="imageUrl as any" alt="nft" class="block max-w-full max-h-full object-contain" @error="imageFailed = true" @load="imageFailed = false" />
         <div v-if="!imageUrl || imageFailed" class="text-[#888888] text-center px-3">
           <div>No image</div>

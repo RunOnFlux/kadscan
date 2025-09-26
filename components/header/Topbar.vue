@@ -90,9 +90,9 @@ const {
                   <button
                     @click="setNetwork(network)"
                     :class="[
-                      active ? 'bg-[#222222]' : '',
+                      active ? 'bg-surface-secondary' : '',
                       selectedNetwork.id === network.id ? 'text-[#6ab5db]' : 'text-[#f5f5f5]',
-                      'group flex w-full items-center hover:bg-[#222222] justify-start rounded-md px-3 py-2 text-sm',
+                      'group flex w-full items-center hover:bg-surface-secondary justify-start rounded-md px-3 py-2 text-sm',
                     ]"
                   >
                     <span>{{ network.name }}</span>
