@@ -41,6 +41,18 @@ export function useTransactionCrossChain(params: UseTransactionCrossChainParams)
   const crossChainTransaction = ref<any>(null)
   const loadingCrossChain = ref(false)
 
+  // Helper: determine if a continuation value is meaningful
+  // TODO: Replace this with strict GraphQL union checks (__typename) or
+  //       backend-normalized nulls so we don't need to special-case "null" strings here.
+  const hasRealContinuation = (continuation: unknown): boolean => {
+    if (continuation == null) return false
+    if (typeof continuation === 'string') {
+      const normalized = continuation.trim().toLowerCase()
+      if (normalized === 'null' || normalized === '') return false
+    }
+    return true
+  }
+
   const RELATED_TRANSACTION_QUERY = `
 query GetRelatedTransaction($requestKey: String!) {
   transaction(requestKey: $requestKey) {
@@ -110,7 +122,7 @@ query GetRelatedTransaction($requestKey: String!) {
   }
 
   const isCrossChain = computed(() => {
-    const hasContResult = transaction.value?.result?.continuation != null
+    const hasContResult = hasRealContinuation(transaction.value?.result?.continuation)
     const hasContPayload = transaction.value?.cmd?.payload?.pactId != null
     return Boolean(hasContResult || hasContPayload)
   })
@@ -138,7 +150,7 @@ query GetRelatedTransaction($requestKey: String!) {
   const hasCrossChainData = computed(() => crossChainTransfers.value.length > 0)
 
   const crossChainTransactionStatus = computed<('failed' | 'success' | 'pending') | null>(() => {
-    const hasContResult = transaction.value?.result?.continuation != null
+    const hasContResult = hasRealContinuation(transaction.value?.result?.continuation)
     const hasContPayload = transaction.value?.cmd?.payload?.pactId != null
     if (!hasContResult && !hasContPayload) return null
     const transfers = transaction.value?.result?.transfers?.edges?.map((e: any) => e.node) || []
