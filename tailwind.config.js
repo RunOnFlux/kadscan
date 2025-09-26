@@ -84,6 +84,7 @@ export default {
         'badge-text-success': withOpacityValue('--badge-text-success'),
         'badge-bg-success-soft': withOpacityValue('--badge-bg-success-soft'),
         'badge-bg-warning': withOpacityValue('--badge-bg-warning'),
+        'badge-bg-pending': withOpacityValue('--badge-bg-pending'),
         'badge-text-warning': withOpacityValue('--badge-text-warning'),
         'badge-bg-warning-soft': withOpacityValue('--badge-bg-warning-soft'),
         'badge-bg-error': withOpacityValue('--badge-bg-error'),
