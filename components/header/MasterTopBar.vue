@@ -129,17 +129,17 @@ onMounted(() => {
             <MenuItems class="absolute right-0 mt-1 border border-line-default w-36 origin-top-right rounded-lg bg-surface-primary shadow-[0_0_15px_rgba(255,255,255,0.0625)] ring-1 ring-black/5 focus:outline-none px-2 py-1">
               <div class="px-1 py-1">
                 <MenuItem v-slot="{ active }">
-                  <button @click="setTheme('light')" :class="[ active ? 'bg-surface-secondary' : '', 'group flex w-full items-center justify-start rounded-md px-3 py-2 text-sm gap-2', theme==='light' ? 'text-[#00e19d]' : 'text-font-primary']">
+                  <button @click="setTheme('light')" :class="[ active ? 'bg-surface-secondary' : '', 'group flex w-full items-center justify-start rounded-md px-3 py-2 text-sm gap-2', theme==='light' ? 'text-font-accent-strong' : 'text-font-primary']">
                     <ThemeLight class="h-4 w-4" /><span>Light</span>
                   </button>
                 </MenuItem>
                 <MenuItem v-slot="{ active }">
-                  <button @click="setTheme('dim')" :class="[ active ? 'bg-surface-secondary' : '', 'group flex w-full items-center justify-start rounded-md px-3 py-2 text-sm gap-2', theme==='dim' ? 'text-[#00e19d]' : 'text-font-primary']">
+                  <button @click="setTheme('dim')" :class="[ active ? 'bg-surface-secondary' : '', 'group flex w-full items-center justify-start rounded-md px-3 py-2 text-sm gap-2', theme==='dim' ? 'text-font-accent-strong' : 'text-font-primary']">
                     <ThemeDim class="h-4 w-4" /><span>Dim</span>
                   </button>
                 </MenuItem>
                 <MenuItem v-slot="{ active }">
-                  <button @click="setTheme('dark')" :class="[ active ? 'bg-surface-secondary' : '', 'group flex w-full items-center justify-start rounded-md px-3 py-2 text-sm gap-2', theme==='dark' ? 'text-[#00e19d]' : 'text-font-primary']">
+                  <button @click="setTheme('dark')" :class="[ active ? 'bg-surface-secondary' : '', 'group flex w-full items-center justify-start rounded-md px-3 py-2 text-sm gap-2', theme==='dark' ? 'text-font-accent-strong' : 'text-font-primary']">
                     <ThemeDark class="h-4 w-4" /><span>Dark</span>
                   </button>
                 </MenuItem>
@@ -169,7 +169,7 @@ onMounted(() => {
                     @click="setNetwork(network)"
                     :class="[
                       active ? 'bg-surface-secondary' : '',
-                      selectedNetwork.id === network.id ? 'text-[#00e19d]' : 'text-font-primary',
+                      selectedNetwork.id === network.id ? 'text-font-accent-strong' : 'text-font-primary',
                       'group flex w-full items-center hover:bg-surface-secondary justify-start rounded-md px-3 py-2 text-sm',
                     ]"
                   >

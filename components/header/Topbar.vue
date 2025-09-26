@@ -47,7 +47,7 @@ const {
         />
         <span
           v-if="selectedNetwork"
-          class="text-xs font-bold text-[#484A4B]"
+          class="text-xs font-bold text-line-muted"
         >
           {{ selectedNetwork.name }}
         </span>
@@ -104,7 +104,7 @@ const {
         </Menu>
         
         <DisclosureButton
-          class="h-8 w-8 rounded-lg flex items-center justify-center border border-line-default text-[#949494]"
+          class="h-8 w-8 rounded-lg flex items-center justify-center border border-line-default text-font-tertiary"
         >
           <IconMenu class="w-6 h-6" />
         </DisclosureButton>

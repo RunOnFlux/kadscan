@@ -73,7 +73,7 @@ const timeAgo = computed(() => {
           </div>
 
         <Tooltip value="Block Reward">
-          <div class="text-[11px] text-font-primary border border-[#343636] bg-transparent rounded-md px-2 py-1">
+          <div class="text-[11px] text-font-primary border border-line-strong bg-transparent rounded-md px-2 py-1">
             {{ (props.totalRewards || 0).toFixed(1) }} kda
           </div>
         </Tooltip>

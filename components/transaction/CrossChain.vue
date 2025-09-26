@@ -548,10 +548,10 @@ const metadataRollback = computed(() => {
               </div>
               <div class="flex flex-col gap-2">
                 <div class="flex items-center gap-2">
-                  <div class="h-5 w-96 bg-[#343636] rounded"></div>
+                  <div class="h-5 w-96 bg-line-strong rounded"></div>
                 </div>
                 <div class="flex items-center gap-2">
-                  <div class="h-5 w-[540px] bg-[#343636] rounded"></div>
+                  <div class="h-5 w-[540px] bg-line-strong rounded"></div>
                 </div>
                 <div class="flex items-center gap-2">
                   <div class="h-5 w-36 bg-surface-skeleton rounded"></div>

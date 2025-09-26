@@ -89,7 +89,7 @@ watch(
 
           <div class="flex justify-end gap-2 p-4 bg-surface-disabled border-t border-surface-skeleton">
             <button
-              class="px-3 py-2 text-sm text-[#525454] rounded-lg hover:bg-surface-hover hover:text-font-primary"
+              class="px-3 py-2 text-sm text-line-muted rounded-lg hover:bg-surface-hover hover:text-font-primary"
               @click="closeModal"
             >
               Close

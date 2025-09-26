@@ -3,7 +3,7 @@
     <!-- Tabs Skeleton -->
     <div class="flex items-center justify-between pb-3">
       <div class="flex gap-2">
-        <div class="h-8 w-20 bg-[#343636] rounded-lg animate-pulse"></div>
+        <div class="h-8 w-20 bg-line-strong rounded-lg animate-pulse"></div>
         <div class="h-8 w-16 bg-surface-skeleton rounded-lg animate-pulse"></div>
       </div>
     </div>
@@ -19,7 +19,7 @@
               <div class="h-4 w-32 bg-surface-skeleton rounded"></div>
             </div>
             <div class="flex items-center gap-2 flex-1">
-              <div class="h-5 w-80 max-w-md bg-[#343636] rounded"></div>
+              <div class="h-5 w-80 max-w-md bg-line-strong rounded"></div>
             </div>
           </div>
           
@@ -29,7 +29,7 @@
               <div class="h-4 w-16 bg-surface-skeleton rounded"></div>
             </div>
             <div class="flex items-center">
-              <div class="h-5 w-20 bg-[#343636] rounded"></div>
+              <div class="h-5 w-20 bg-line-strong rounded"></div>
             </div>
           </div>
           
@@ -39,7 +39,7 @@
               <div class="h-4 w-12 bg-surface-skeleton rounded"></div>
             </div>
             <div class="flex items-center gap-2">
-              <div class="h-5 w-16 bg-[#343636] rounded"></div>
+              <div class="h-5 w-16 bg-line-strong rounded"></div>
             </div>
           </div>
           
@@ -49,7 +49,7 @@
               <div class="h-4 w-20 bg-surface-skeleton rounded"></div>
             </div>
             <div class="flex items-center">
-              <div class="h-5 w-12 bg-[#343636] rounded"></div>
+              <div class="h-5 w-12 bg-line-strong rounded"></div>
             </div>
           </div>
           
@@ -59,7 +59,7 @@
               <div class="h-4 w-20 bg-surface-skeleton rounded"></div>
             </div>
             <div class="flex items-center gap-2">
-              <div class="h-5 w-64 bg-[#343636] rounded"></div>
+              <div class="h-5 w-64 bg-line-strong rounded"></div>
             </div>
           </div>
         </div>
@@ -76,7 +76,7 @@
             </div>
             <div class="flex flex-col gap-2">
               <div class="flex items-center gap-2">
-                <div class="h-5 w-48 bg-[#343636] rounded"></div>
+                <div class="h-5 w-48 bg-line-strong rounded"></div>
               </div>
             </div>
           </div>
@@ -87,7 +87,7 @@
               <div class="h-4 w-16 bg-surface-skeleton rounded"></div>
             </div>
             <div class="flex items-center gap-2">
-              <div class="h-5 w-48 bg-[#343636] rounded"></div>
+              <div class="h-5 w-48 bg-line-strong rounded"></div>
             </div>
           </div>
         </div>
@@ -102,9 +102,9 @@
           </div>
           <div class="flex flex-col gap-3 flex-1">
             <div v-for="i in 2" :key="`transfer-${i}`" class="flex flex-wrap items-center gap-2">
-              <div class="h-5 w-40 bg-[#343636] rounded"></div>
-              <div class="h-5 w-40 bg-[#343636] rounded"></div>
-              <div class="h-5 w-40 bg-[#343636] rounded"></div>
+              <div class="h-5 w-40 bg-line-strong rounded"></div>
+              <div class="h-5 w-40 bg-line-strong rounded"></div>
+              <div class="h-5 w-40 bg-line-strong rounded"></div>
             </div>
           </div>
         </div>
@@ -120,7 +120,7 @@
               <div class="h-4 w-12 bg-surface-skeleton rounded"></div>
             </div>
             <div class="flex items-center gap-2">
-              <div class="h-5 w-40 bg-[#343636] rounded"></div>
+              <div class="h-5 w-40 bg-line-strong rounded"></div>
             </div>
           </div>
           
@@ -130,7 +130,7 @@
               <div class="h-4 w-28 bg-surface-skeleton rounded"></div>
             </div>
             <div class="flex items-center gap-2">
-              <div class="h-5 w-28 bg-[#343636] rounded"></div>
+              <div class="h-5 w-28 bg-line-strong rounded"></div>
             </div>
           </div>
           
@@ -140,7 +140,7 @@
               <div class="h-4 w-20 bg-surface-skeleton rounded"></div>
             </div>
             <div class="flex items-center">
-              <div class="h-5 w-20 bg-[#343636] rounded"></div>
+              <div class="h-5 w-20 bg-line-strong rounded"></div>
             </div>
           </div>
         </div>
@@ -154,7 +154,7 @@
           <div class="h-4 w-24 bg-surface-skeleton rounded"></div>
         </div>
         <div class="flex items-center gap-1">
-          <div class="h-5 w-32 bg-[#343636] rounded"></div>
+          <div class="h-5 w-32 bg-line-strong rounded"></div>
         </div>
       </div>
     </div>

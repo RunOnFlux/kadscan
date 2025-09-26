@@ -137,7 +137,7 @@ watch(() => props.balances, (arr) => {
 <template>
   <div class="relative" v-outside="close">
     <button 
-      class="w-full px-3 py-2 rounded-md border border-[#222] bg-surface-disabled text-font-primary text-[14px] hover:bg-[#222] transition-colors flex items-center justify-between"
+      class="w-full px-3 py-2 rounded-md border border-line-default bg-surface-disabled text-font-primary text-[14px] hover:bg-surface-secondary transition-colors flex items-center justify-between"
       @click.prevent="open = !open"
       aria-haspopup="true"
       :aria-expanded="open ? 'true' : 'false'"
@@ -153,7 +153,7 @@ watch(() => props.balances, (arr) => {
 
     <div 
       v-if="open"
-      class="absolute z-30 mt-2 w-full max-h-[420px] rounded-md border border-[#222] bg-surface-black shadow-[0_0_20px_rgba(255,255,255,0.0625)] flex flex-col overflow-hidden"
+      class="absolute z-30 mt-2 w-full max-h-[420px] rounded-md border border-line-default bg-surface-black shadow-[0_0_20px_rgba(255,255,255,0.0625)] flex flex-col overflow-hidden"
     >
       <!-- Search -->
       <div class="px-3 py-3 bg-surface-black border-b border-line-default">
@@ -161,7 +161,7 @@ watch(() => props.balances, (arr) => {
           v-model="search"
           type="text"
           placeholder="Search for Token or NFT"
-          class="w-full px-3 py-2 rounded-lg bg-surface-disabled border border-[#222] text-font-primary placeholder-[#777] text-[14px] outline-none focus:ring-2 focus:ring-line-strong"
+          class="w-full px-3 py-2 rounded-lg bg-surface-disabled border border-line-default text-font-primary placeholder-font-tertiary text-[14px] outline-none focus:ring-2 focus:ring-line-strong"
         />
       </div>
 
@@ -175,7 +175,7 @@ watch(() => props.balances, (arr) => {
         </div>
 
         <div v-if="loading" class="px-3 py-2 text-[14px] text-font-tertiary">Loading...</div>
-        <div v-else-if="filteredTokenItems.length === 0" class="px-5 pb-2 text-[13px] text-[#888]">No Tokens</div>
+        <div v-else-if="filteredTokenItems.length === 0" class="px-5 pb-2 text-[13px] text-font-tertiary">No Tokens</div>
         <div v-else>
           <NuxtLink 
             v-for="(item, idx) in filteredTokenItems" 
@@ -208,7 +208,7 @@ watch(() => props.balances, (arr) => {
             <span>NFTs ({{ nftsCount }})</span>
           </div>
         </div>
-        <div v-if="filteredNftItems.length === 0" class="px-5 pb-2 text-[13px] text-[#888]">No NFTs</div>
+        <div v-if="filteredNftItems.length === 0" class="px-5 pb-2 text-[13px] text-font-tertiary">No NFTs</div>
         <div v-else>
           <div
             v-for="(item, idx) in filteredNftItems"
@@ -216,7 +216,7 @@ watch(() => props.balances, (arr) => {
             class="px-5 py-2 text-[14px] text-font-primary flex items-center justify-between border-b border-line-default last:border-b-0"
           >
             <div class="flex items-center gap-3 min-w-0">
-              <div class="w-6 h-6 rounded bg-[#222] grid place-items-center overflow-hidden">
+              <div class="w-6 h-6 rounded bg-surface-secondary grid place-items-center overflow-hidden">
                 <img v-if="item.icon && !isMiniBroken(item)" :src="item.icon" alt="nft" class="w-full h-full object-cover" @error="markMiniBroken(item)" />
                 <span v-else-if="!item.metaErr && !isMiniBroken(item)" class="inline-block">
                   <span class="block w-[10px] h-[10px] border-2 border-font-secondary border-t-transparent rounded-full animate-spin"></span>
@@ -238,7 +238,7 @@ watch(() => props.balances, (arr) => {
       <!-- Footer CTA (sticky bottom, styled like List.vue) -->
       <div class="px-6 py-3 text-center bg-surface-disabled rounded-b-md border-t border-line-default">
         <button 
-          class="text-[12px] font-semibold text-font-secondary hover:text-[#00e19d]"
+          class="text-[12px] font-semibold text-font-secondary hover:text-font-accent-strong"
           @click.prevent="onViewAll"
         >
           VIEW ALL ASSETS &rarr;

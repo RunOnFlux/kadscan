@@ -83,7 +83,7 @@ const formattedFee = computed(() => {
         </div>
 
         <Tooltip value="Transaction Fee">
-          <div class="text-[11px] text-font-primary border border-[#343636] bg-transparent rounded-md px-2 py-1">
+          <div class="text-[11px] text-font-primary border border-line-strong bg-transparent rounded-md px-2 py-1">
             {{ formattedFee }} kda
           </div>
         </Tooltip>

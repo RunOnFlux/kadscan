@@ -55,7 +55,7 @@ const onCopy = async () => {
       <IconCopy
         v-else
         :sizeClass="iconSize || 'w-5 h-5'"
-        class="text-font-tertiary group-hover:text-[#39a1d9]"
+        class="text-font-tertiary group-hover:text-btn-cta-bg"
       />
     </button>
   </Tooltip>
@@ -69,7 +69,7 @@ const onCopy = async () => {
     <IconCopy
       v-else
       :sizeClass="iconSize || 'w-5 h-5'"
-      class="text-font-tertiary group-hover:text-[#39a1d9]"
+      class="text-font-tertiary group-hover:text-btn-cta-bg"
     />
   </button>
 </template>

@@ -212,7 +212,7 @@ const showHistory = computed(() => {
           <div class="flex items-center gap-2">
             <IconSearch class="w-4 h-4 text-font-secondary shrink-0" />
             <span class="text-sm text-font-primary flex-1 min-w-0 truncate">{{ h.query }}</span>
-            <span class="text-xs text-[#9aa0a6] ml-4 shrink-0 w-24 text-right truncate">{{ h.type || '' }}</span>
+            <span class="text-xs text-font-tertiary ml-4 shrink-0 w-24 text-right truncate">{{ h.type || '' }}</span>
           </div>
         </button>
       </div>

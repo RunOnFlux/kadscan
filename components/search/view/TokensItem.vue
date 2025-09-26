@@ -30,7 +30,7 @@ const { recordHistory } = useSearch();
 
         <div
           v-else
-          class="w-full h-full bg-[#525454] rounded"
+          class="w-full h-full bg-line-muted rounded"
         />
       </div>
 

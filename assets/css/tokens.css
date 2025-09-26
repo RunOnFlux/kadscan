@@ -18,6 +18,7 @@
   --font-primary: 245 245 245; /* #f5f5f5 */
   --font-secondary: 187 187 187; /* #bbbbbb */
   --font-tertiary: 136 136 136; /* #888888 */
+  --font-accent-strong: 0 225 157; /* #00e19d */
   --font-accent: 0 161 134; /* #00a186 */
   --font-danger: 255 107 107; /* #ff6b6b */
 
@@ -76,6 +77,7 @@
   --font-primary: 245 245 245; /* #f5f5f5 */
   --font-secondary: 187 187 187; /* #bbbbbb */
   --font-tertiary: 136 136 136; /* #888888 */
+  --font-accent-strong: 0 225 157; /* #00e19d */
   --font-accent: 0 161 134; /* #00a186 */
   --font-danger: 255 107 107; /* #ff6b6b */
 
@@ -134,6 +136,7 @@
   --font-primary: 245 245 245; /* #f5f5f5 */
   --font-secondary: 187 187 187; /* #bbbbbb */
   --font-tertiary: 136 136 136; /* #888888 */
+  --font-accent-strong: 0 225 157; /* #00e19d */
   --font-accent: 0 161 134; /* #00a186 */
   --font-danger: 255 107 107; /* #ff6b6b */
 

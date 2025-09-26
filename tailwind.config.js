@@ -56,6 +56,7 @@ export default {
         'font-primary': withOpacityValue('--font-primary'),
         'font-secondary': withOpacityValue('--font-secondary'),
         'font-tertiary': withOpacityValue('--font-tertiary'),
+        'font-accent-strong': withOpacityValue('--font-accent-strong'),
         'font-accent': withOpacityValue('--font-accent'),
         'font-danger': withOpacityValue('--font-danger'),
 

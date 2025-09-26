@@ -337,7 +337,7 @@ onUnmounted(() => {
               'px-[10px] py-[5px] text-[13px] rounded-lg font-medium transition-colors',
               activeTab === label
                 ? 'bg-accent-strong text-font-primary'
-                : 'bg-surface-hover text-font-secondary hover:bg-[#2d2d2d]'
+                : 'bg-surface-hover text-font-secondary hover:bg-surface-hover'
             ]"
             @click="activeTab = label"
           >
@@ -576,7 +576,7 @@ onUnmounted(() => {
                         />
                         <div 
                           v-else
-                          class="w-5 h-5 bg-[#484A4B] rounded-full flex items-center justify-center text-xs font-bold text-white"
+                          class="w-5 h-5 bg-line-muted rounded-full flex items-center justify-center text-xs font-bold text-white"
                         >
                           {{ getTokenMetadata(transferEdge.node.moduleName).symbol.charAt(0) }}
                         </div>
