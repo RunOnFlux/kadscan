@@ -38,7 +38,7 @@ const { recordHistory } = useSearch();
         class="flex flex-col w-full truncate"
       >
         <span
-          class="text-sm text-[#f5f5f5] font-medium uppercase truncate block"
+          class="text-sm text-font-primary font-medium uppercase truncate block"
         >
           {{ metadata?.symbol ? `$${metadata.symbol}` : module }}
         </span>

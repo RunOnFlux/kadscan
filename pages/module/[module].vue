@@ -208,10 +208,10 @@ watch([moduleName, () => selectedNetwork.value?.id], () => { checkHasToken() }, 
     <div class="pb-5 border-b border-[#222222] mb-6 px-1">
       <div class="flex flex-col gap-1 md:flex-row md:items-center md:gap-3">
         <div class="flex items-center gap-2 mb-1 md:mb-0">
-          <h1 class="text-[19px] font-semibold leading-[150%] text-[#f5f5f5]">Module</h1>
+          <h1 class="text-[19px] font-semibold leading-[150%] text-font-primary">Module</h1>
         </div>
         <div class="flex flex-col md:flex-row md:items-center md:gap-3">
-          <div class="text-[15px] text-[#f5f5f5] break-all">{{ moduleName }}</div>
+          <div class="text-[15px] text-font-primary break-all">{{ moduleName }}</div>
           <div class="flex items-center gap-3 pt-2 md:pt-0">
             <Copy 
               v-if="!isMobile"
@@ -230,37 +230,37 @@ watch([moduleName, () => selectedNetwork.value?.id], () => { checkHasToken() }, 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6 items-stretch">
       <!-- Overview -->
       <div class="bg-surface-primary border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
-        <h3 class="text-[#f5f5f5] font-semibold mb-4">
-          Overview <span class="text-[#bbbbbb] font-normal">— {{ overviewChainLabel }}</span>
+        <h3 class="text-font-primary font-semibold mb-4">
+          Overview <span class="text-font-secondary font-normal">— {{ overviewChainLabel }}</span>
         </h3>
         <div class="flex-1 flex flex-col gap-4">
           <!-- Row 1: Namespace + Module Name -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">NAMESPACE</div>
+              <div class="text-[13px] text-font-secondary font-medium mb-1">NAMESPACE</div>
               <div class="text-[14px]">
-                <span v-if="showOverviewLoading" class="text-[#888888] animate-pulse">Loading...</span>
-                <span v-else class="text-[#f5f5f5]">{{ namespaceLabel }}</span>
+                <span v-if="showOverviewLoading" class="text-font-tertiary animate-pulse">Loading...</span>
+                <span v-else class="text-font-primary">{{ namespaceLabel }}</span>
               </div>
             </div>
             <div>
-              <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">MODULE NAME</div>
+              <div class="text-[13px] text-font-secondary font-medium mb-1">MODULE NAME</div>
               <div class="text-[14px]">
-                <span v-if="showOverviewLoading" class="text-[#888888] animate-pulse">Loading...</span>
-                <span v-else class="text-[#f5f5f5]">{{ declarationInfo?.name || moduleInfo?.name || 'N/A' }}</span>
+                <span v-if="showOverviewLoading" class="text-font-tertiary animate-pulse">Loading...</span>
+                <span v-else class="text-font-primary">{{ declarationInfo?.name || moduleInfo?.name || 'N/A' }}</span>
               </div>
             </div>
           </div>
 
           <!-- Row 2: Full Hash + Copy -->
           <div>
-            <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">HASH</div>
+            <div class="text-[13px] text-font-secondary font-medium mb-1">HASH</div>
             <div class="text-[14px]">
-              <span v-if="showOverviewLoading" class="text-[#888888] animate-pulse">Loading...</span>
+              <span v-if="showOverviewLoading" class="text-font-tertiary animate-pulse">Loading...</span>
               <template v-else>
                 <template v-if="moduleInfo?.hash">
                   <div class="inline-flex items-center gap-2">
-                    <span class="text-[#f5f5f5]">{{ moduleInfo.hash }}</span>
+                    <span class="text-font-primary">{{ moduleInfo.hash }}</span>
                     <Copy 
                       v-if="!isMobile"
                       :value="moduleInfo.hash" 
@@ -271,12 +271,12 @@ watch([moduleName, () => selectedNetwork.value?.id], () => { checkHasToken() }, 
                     />
                   </div>
                 </template>
-                <span v-else class="text-[#f5f5f5]">N/A</span>
+                <span v-else class="text-font-primary">N/A</span>
               </template>
             </div>
             <!-- Token backlink (only if module is a token) -->
             <div v-if="hasToken" class="mt-3">
-              <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">TOKEN</div>
+              <div class="text-[13px] text-font-secondary font-medium mb-1">TOKEN</div>
               <NuxtLink :to="`/token/${moduleName}`" class="inline-flex items-center gap-2 text-[#6AB5DB] hover:text-[#9ccee7]">
                 <img v-if="tokenIconSrc" :src="tokenIconSrc" alt="Token icon" class="w-7 h-7 rounded-full" />
                 <span class="text-[14px]">{{ moduleName }}</span>
@@ -289,41 +289,41 @@ watch([moduleName, () => selectedNetwork.value?.id], () => { checkHasToken() }, 
 
       <!-- More Info -->
       <div class="bg-surface-primary border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
-        <h3 class="text-[#f5f5f5] font-semibold mb-4">More Info</h3>
+        <h3 class="text-font-primary font-semibold mb-4">More Info</h3>
         <div class="space-y-4">
           <!-- Row: Type + Capability -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">TYPE</div>
+              <div class="text-[13px] text-font-secondary font-medium mb-1">TYPE</div>
               <div class="text-[14px]">
-                <span v-if="showOverviewLoading" class="text-[#888888] animate-pulse">Loading...</span>
-                <span v-else class="text-[#f5f5f5]">{{ declarationInfo?.type || 'N/A' }}</span>
+                <span v-if="showOverviewLoading" class="text-font-tertiary animate-pulse">Loading...</span>
+                <span v-else class="text-font-primary">{{ declarationInfo?.type || 'N/A' }}</span>
               </div>
             </div>
             <div>
-              <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">CAPABILITY</div>
+              <div class="text-[13px] text-font-secondary font-medium mb-1">CAPABILITY</div>
               <div class="text-[14px]">
-                <span v-if="showOverviewLoading" class="text-[#888888] animate-pulse">Loading...</span>
-                <span v-else class="text-[#f5f5f5]">{{ declarationInfo?.capability || 'N/A' }}</span>
+                <span v-if="showOverviewLoading" class="text-font-tertiary animate-pulse">Loading...</span>
+                <span v-else class="text-font-primary">{{ declarationInfo?.capability || 'N/A' }}</span>
               </div>
             </div>
           </div>
 
           <!-- Interfaces block (like guards UI) -->
           <div v-if="declarationInfo?.type !== 'Interface' && !showOverviewLoading">
-            <div class="text-[13px] text-[#bbbbbb] font-medium mb-2">INTERFACES</div>
+            <div class="text-[13px] text-font-secondary font-medium mb-2">INTERFACES</div>
             <div class="bg-surface-secondary border border-[#333333] rounded-lg p-3">
-              <div v-if="showOverviewLoading" class="text-[14px] text-[#888888] animate-pulse">Loading...</div>
+              <div v-if="showOverviewLoading" class="text-[14px] text-font-tertiary animate-pulse">Loading...</div>
               <div v-else-if="moduleInfo?.interfaces && moduleInfo.interfaces.length > 0" class="space-y-1">
                 <div 
                   v-for="(iface, index) in moduleInfo.interfaces" 
                   :key="index" 
-                  class="text-[14px] text-[#f5f5f5] font-mono break-all"
+                  class="text-[14px] text-font-primary font-mono break-all"
                 >
                   {{ iface }}
                 </div>
               </div>
-              <div v-else class="text-[14px] text-[#bbbbbb]">N/A</div>
+              <div v-else class="text-[14px] text-font-secondary">N/A</div>
             </div>
           </div>
         </div>
@@ -331,7 +331,7 @@ watch([moduleName, () => selectedNetwork.value?.id], () => { checkHasToken() }, 
 
       <!-- Multichain Info -->
       <div class="bg-surface-primary border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
-        <h3 class="text-[#f5f5f5] font-semibold mb-4">Multichain Info</h3>
+        <h3 class="text-font-primary font-semibold mb-4">Multichain Info</h3>
         <div class="space-y-4">
           <div class="flex items-center justify-between gap-2">
             <template v-if="!noChains">
@@ -345,15 +345,15 @@ watch([moduleName, () => selectedNetwork.value?.id], () => { checkHasToken() }, 
                 :fullWidth="false"
               >
                 <div class="inline-flex items-center gap-2">
-                  <Coins class="w-4 h-4 text-[#f5f5f5]" />
-                  <span class="text-[#f5f5f5] text-[14px]">{{ selectedChainSelect.label }}</span>
+                  <Coins class="w-4 h-4 text-font-primary" />
+                  <span class="text-font-primary text-[14px]">{{ selectedChainSelect.label }}</span>
                 </div>
               </Select>
             </template>
             <template v-else>
               <div class="inline-flex items-center gap-2 rounded-lg bg-surface-secondary border border-[#333333] px-3 py-2 select-none cursor-not-allowed">
-                <Coins class="w-4 h-4 text-[#f5f5f5]" />
-                <span class="text-[#f5f5f5] text-[14px]">Maybe in Kadena EVM?</span>
+                <Coins class="w-4 h-4 text-font-primary" />
+                <span class="text-font-primary text-[14px]">Maybe in Kadena EVM?</span>
               </div>
             </template>
           </div>
@@ -371,8 +371,8 @@ watch([moduleName, () => selectedNetwork.value?.id], () => { checkHasToken() }, 
           :class="[
             'px-3 py-1 rounded-lg text-[13px] font-medium transition-colors whitespace-nowrap relative',
             activeTab === tab.id 
-              ? 'bg-[#009367] text-[#f5f5f5]' 
-              : 'bg-surface-hover text-[#f5f5f5] hover:bg-[#333333]'
+              ? 'bg-[#009367] text-font-primary' 
+              : 'bg-surface-hover text-font-primary hover:bg-[#333333]'
           ]"
         >
           {{ tab.label }}

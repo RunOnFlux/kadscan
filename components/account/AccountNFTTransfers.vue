@@ -248,9 +248,9 @@ function downloadData() {
         />
         <button
           @click="downloadData"
-          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-surface-disabled border border-[#222222] rounded-md hover:bg-surface-hover whitespace-nowrap"
+          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-font-primary bg-surface-disabled border border-[#222222] rounded-md hover:bg-surface-hover whitespace-nowrap"
         >
-          <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
+          <IconDownload class="w-4 h-4 text-font-secondary" />
           <span class="hidden md:inline">Download</span>
         </button>
       </template>
@@ -264,14 +264,14 @@ function downloadData() {
         </div>
       </template>
       <template #height="{ item }">
-        <span v-if="item.time === 0 || item.height === 0" class="text-[#f5f5f5]">Genesis</span>
+        <span v-if="item.time === 0 || item.height === 0" class="text-font-primary">Genesis</span>
         <NuxtLink v-else :to="`/blocks/${item.height}/chain/${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.height }}</NuxtLink>
       </template>
       <template #sender="{ item }">
         <div class="flex items-center">
           <template v-if="item.sender && item.sender !== 'N/A'">
             <template v-if="item.sender === SYSTEM_ADDRESS">
-              <span class="text-[#f5f5f5]">{{ item.sender }}</span>
+              <span class="text-font-primary">{{ item.sender }}</span>
             </template>
             <template v-else>
               <Tooltip :value="item.sender" variant="hash">
@@ -280,11 +280,11 @@ function downloadData() {
               <Copy :value="item.sender" tooltipText="Copy Address" />
             </template>
           </template>
-          <span v-else class="text-[#f5f5f5]">NaN</span>
+          <span v-else class="text-font-primary">NaN</span>
         </div>
       </template>
       <template #action="{ item }">
-        <span class="px-2 py-1.5 rounded-md border border-[#333333] bg-surface-disabled text-[11px] text-[#f5f5f5] font-normal inline-flex items-center justify-center leading-none w-[92px]">
+        <span class="px-2 py-1.5 rounded-md border border-[#333333] bg-surface-disabled text-[11px] text-font-primary font-normal inline-flex items-center justify-center leading-none w-[92px]">
           {{ item.action }}
         </span>
       </template>
@@ -292,7 +292,7 @@ function downloadData() {
         <div class="flex items-center">
           <template v-if="item.receiver && item.receiver !== 'N/A'">
             <template v-if="item.receiver === SYSTEM_ADDRESS">
-              <span class="text-[#f5f5f5]">{{ item.receiver }}</span>
+              <span class="text-font-primary">{{ item.receiver }}</span>
             </template>
             <template v-else>
               <Tooltip :value="item.receiver" variant="hash">
@@ -301,7 +301,7 @@ function downloadData() {
               <Copy :value="item.receiver" tooltipText="Copy Address" />
             </template>
           </template>
-          <span v-else class="text-[#f5f5f5]">NaN</span>
+          <span v-else class="text-font-primary">NaN</span>
         </div>
       </template>
       <template #direction="{ item }">
@@ -310,7 +310,7 @@ function downloadData() {
             :class="[
               'py-1.5 text-[11px] rounded-md border inline-flex items-center justify-center leading-none w-[48px]',
               item.direction === 'IN' 
-                ? 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]'
+                ? 'bg-[#0f1f1d] border-[#00a18680] text-font-accent'
                 : 'bg-[#17150d] border-[#fbbf2480] text-[#fbbf24]'
             ]"
           >
@@ -320,13 +320,13 @@ function downloadData() {
       </template>
       <template #amount="{ item }">
         <div class="inline-flex items-center justify-start">
-          <span class="text-[#f5f5f5]">{{ item.amount }}</span>
+          <span class="text-font-primary">{{ item.amount }}</span>
         </div>
       </template>
       <template #token="{ item }">
         <div class="flex items-center">
           <Tooltip :value="item.token" variant="hash">
-            <span class="text-[#f5f5f5]">{{ truncateAddress(item.token, 8, 10) }}</span>
+            <span class="text-font-primary">{{ truncateAddress(item.token, 8, 10) }}</span>
           </Tooltip>
           <Copy :value="item.token" tooltipText="Copy Token ID" />
         </div>
@@ -337,8 +337,8 @@ function downloadData() {
     <div v-else class="bg-surface-primary border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
       <div class="flex flex-col items-center justify-center py-12">
         <img src="/empty/txs.png" alt="No token transfers" class="w-24 h-24 mb-4 opacity-50" />
-        <h3 class="text-[#f5f5f5] text-lg font-medium mb-2">No token transfers yet</h3>
-        <p class="text-[#bbbbbb] text-sm text-center">
+        <h3 class="text-font-primary text-lg font-medium mb-2">No token transfers yet</h3>
+        <p class="text-font-secondary text-sm text-center">
           This account hasn't made any token transfers yet.
         </p>
       </div>

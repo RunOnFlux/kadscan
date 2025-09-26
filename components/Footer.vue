@@ -44,7 +44,7 @@ const scrollToTop = () => {
           <div class="flex items-end gap-3">
             <IconLogoColor class="h-[38px] md:h-[42px] w-max" />
           </div>
-          <span class="hidden md:block text-sm text-[#f5f5f5] leading-[19.6px]">
+          <span class="hidden md:block text-sm text-font-primary leading-[19.6px]">
             Kadscan powers visibility into Kadena through block explorer and analytics.
             <NuxtLink
               to="https://forms.gle/f3RB1A8MUAf1Pvgx9"
@@ -62,7 +62,7 @@ const scrollToTop = () => {
             v-for="link in routes"
             :key="link.tag"
             :to="link.path"
-            class="text-[#f5f5f5] hover:text-white transition-colors text-sm"
+            class="text-font-primary hover:text-white transition-colors text-sm"
           >
             {{ link.label }}
           </NuxtLink>
@@ -70,7 +70,7 @@ const scrollToTop = () => {
 
         <button
           @click="scrollToTop"
-          class="md:hidden flex items-center gap-2 text-[#f5f5f5] bg-surface-secondary border border-[#333333] rounded-lg px-4 py-2"
+          class="md:hidden flex items-center gap-2 text-font-primary bg-surface-secondary border border-[#333333] rounded-lg px-4 py-2"
         >
           <IconBackToTop class="h-5 w-5" />
           <span>Back to Top</span>
@@ -86,7 +86,7 @@ const scrollToTop = () => {
             :key="social.name"
             :href="social.url"
             target="_blank"
-            class="text-[#f5f5f5] hover:text-white transition-colors"
+            class="text-font-primary hover:text-white transition-colors"
           >
             <component
               :is="social.icon"
@@ -98,7 +98,7 @@ const scrollToTop = () => {
         <a
           href="https://hackachain.io"
           target="_blank"
-          class="flex items-center gap-2 text-xs text-[#f5f5f5] hover:text-white transition-colors"
+          class="flex items-center gap-2 text-xs text-font-primary hover:text-white transition-colors"
         >
           <span>Powered by</span>
           <img
@@ -108,7 +108,7 @@ const scrollToTop = () => {
         </a>
 
         <div>
-          <span class="text-[#f5f5f5] text-xs">
+          <span class="text-font-primary text-xs">
             Kadscan © {{ new Date().getFullYear() }}
           </span>
         </div>

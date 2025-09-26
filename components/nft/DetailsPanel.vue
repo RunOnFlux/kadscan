@@ -94,14 +94,14 @@ const ownerDisplay = computed(() => {
 <template>
   <div v-if="selectedHolding" class="bg-surface-primary border border-[#222222] rounded-xl p-4 md:p-5 shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
     <div class="flex items-center justify-between mb-3">
-      <div class="text-[#f5f5f5] font-semibold">NFT Details</div>
+      <div class="text-font-primary font-semibold">NFT Details</div>
       <a
         v-if="externalUrl"
         :href="externalUrl"
         target="_blank"
         rel="noopener"
         aria-label="Open external site"
-        class="inline-flex items-center justify-center text-[#888888] hover:text-[#39a1d9]"
+        class="inline-flex items-center justify-center text-font-tertiary hover:text-[#39a1d9]"
       >
         <IconExternal class="w-5 h-5" />
       </a>
@@ -110,9 +110,9 @@ const ownerDisplay = computed(() => {
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="relative rounded-lg bg-surface-disabled border border-[#222222] aspect-square overflow-hidden flex items-center justify-center">
         <img v-show="imageUrl && !imageFailed" :src="imageUrl as any" alt="nft" class="block max-w-full max-h-full object-contain" @error="imageFailed = true" @load="imageFailed = false" />
-        <div v-if="!imageUrl || imageFailed" class="text-[#888888] text-center px-3">
+        <div v-if="!imageUrl || imageFailed" class="text-font-tertiary text-center px-3">
           <div>No image</div>
-          <div class="text-[#ff6b6b] text-xs mt-1 break-all">
+          <div class="text-font-danger text-xs mt-1 break-all">
             This URL is not available
           </div>
         </div>
@@ -123,29 +123,29 @@ const ownerDisplay = computed(() => {
 
       <div class="flex flex-col gap-3">
         <div v-if="ownerRoute">
-          <div class="text-xs text-[#bbbbbb] mb-[2px]">Owner</div>
+          <div class="text-xs text-font-secondary mb-[2px]">Owner</div>
           <NuxtLink :to="ownerRoute!.href" class="text-[15px] text-[#6ab5db] hover:text-[#9ccee7] break-all">{{ ownerDisplay }}</NuxtLink>
         </div>
         <div>
-          <div class="text-xs text-[#bbbbbb] mb-[2px]">Collection</div>
-          <div class="text-[15px] text-[#f5f5f5]">{{ collection }}</div>
+          <div class="text-xs text-font-secondary mb-[2px]">Collection</div>
+          <div class="text-[15px] text-font-primary">{{ collection }}</div>
         </div>
         <div>
-          <div class="text-xs text-[#bbbbbb] mb-[2px]">Name</div>
-          <div class="text-[15px] text-[#f5f5f5]">{{ title }}</div>
+          <div class="text-xs text-font-secondary mb-[2px]">Name</div>
+          <div class="text-[15px] text-font-primary">{{ title }}</div>
         </div>
         <div v-if="description">
-          <div class="text-xs text-[#bbbbbb] mb-[2px]">Description</div>
-          <div class="text-[14px] text-[#f5f5f5] leading-5">{{ description }}</div>
+          <div class="text-xs text-font-secondary mb-[2px]">Description</div>
+          <div class="text-[14px] text-font-primary leading-5">{{ description }}</div>
         </div>
         <div class="grid grid-cols-1 gap-3">
           <div>
-            <div class="text-xs text-[#bbbbbb] mb-[2px]">Chain</div>
-            <div class="text-[15px] text-[#f5f5f5]">{{ selectedHolding?.chainId }}</div>
+            <div class="text-xs text-font-secondary mb-[2px]">Chain</div>
+            <div class="text-[15px] text-font-primary">{{ selectedHolding?.chainId }}</div>
           </div>
           <div>
-            <div class="text-xs text-[#bbbbbb] mb-[2px]">TokenId</div>
-            <div class="text-[15px] text-[#f5f5f5] break-all">{{ selectedHolding?.tokenId }}</div>
+            <div class="text-xs text-font-secondary mb-[2px]">TokenId</div>
+            <div class="text-[15px] text-font-primary break-all">{{ selectedHolding?.tokenId }}</div>
           </div>
         </div>
         

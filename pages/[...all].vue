@@ -28,15 +28,15 @@ onMounted(() => {
 
       <div class="mb-4">
 
-        <h1 class="text-2xl md:text-3xl lg:text-4xl text-[#bbbbbb] mb-2">
+        <h1 class="text-2xl md:text-3xl lg:text-4xl text-font-secondary mb-2">
           Sorry! We encountered an unexpected error.
         </h1>
       
-        <p class="text-[#bbbbbb] text-[14px]">
+        <p class="text-font-secondary text-[14px]">
           An unexpected error occurred or the page you are looking for does not exist.
         </p>
 
-        <p class="text-[#bbbbbb] text-[14px]">
+        <p class="text-font-secondary text-[14px]">
           Please check again later.
         </p>
 
@@ -44,7 +44,7 @@ onMounted(() => {
       
       <div class="py-5">
         <NuxtLink to="/">
-          <button class="bg-[#009367] hover:bg-[#009367]/80 text-[#f5f5f5] px-3 py-1.5 rounded-lg transition-colors duration-200 text-[15px]">
+          <button class="bg-[#009367] hover:bg-[#009367]/80 text-font-primary px-3 py-1.5 rounded-lg transition-colors duration-200 text-[15px]">
             Back Home
           </button>
         </NuxtLink>

@@ -61,13 +61,13 @@ const formattedFee = computed(() => {
               {{ truncateAddress(props.hash) }}
             </NuxtLink>
           </Tooltip>
-          <div class="text-xs text-[#bbbbbb]">{{ timeAgo }}</div>
+          <div class="text-xs text-font-secondary">{{ timeAgo }}</div>
         </div>
       </div>
 
       <div class="flex items-center justify-between w-full md:w-7/12">
         <div class="text-sm text-left">
-            <div class="text-[#f5f5f5]">
+            <div class="text-font-primary">
               Sender
               <Tooltip :value="props.sender" variant="hash">
                 <NuxtLink :to="`/account/${props.sender}`" class="text-[#6ab5db] hover:text-[#9ccee7]">
@@ -76,14 +76,14 @@ const formattedFee = computed(() => {
               </Tooltip>
             </div>
           <div>
-            <div class="text-[#bbbbbb]">
-              Chain <span class="text-[#f5f5f5]">{{ props.chainId }}</span>
+            <div class="text-font-secondary">
+              Chain <span class="text-font-primary">{{ props.chainId }}</span>
             </div>
           </div>
         </div>
 
         <Tooltip value="Transaction Fee">
-          <div class="text-[11px] text-[#f5f5f5] border border-[#343636] bg-transparent rounded-md px-2 py-1">
+          <div class="text-[11px] text-font-primary border border-[#343636] bg-transparent rounded-md px-2 py-1">
             {{ formattedFee }} kda
           </div>
         </Tooltip>

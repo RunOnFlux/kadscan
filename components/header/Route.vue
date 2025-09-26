@@ -35,7 +35,7 @@ function open () {
     <NuxtLink
       :to="props.path"
       v-if="props.type === 'link'"
-      class="px-3 py-[15px] text-[15px] text-[#bbbbbb] hover:text-[#00e19d] block"
+      class="px-3 py-[15px] text-[15px] text-font-secondary hover:text-[#00e19d] block"
     >
       {{ props.label }}
     </NuxtLink>
@@ -49,7 +49,7 @@ function open () {
     >
       <NuxtLink
         :to="props.path || ''"
-        :class="data.open ? 'text-[#00e19d]' : 'text-[#bbbbbb]'"
+        :class="data.open ? 'text-[#00e19d]' : 'text-font-secondary'"
         class="hover:text-[#00e19d] flex items-center justify-center gap-2 px-3 py-2 ring-0 outline-none h-full"
       >
         <span
@@ -91,7 +91,7 @@ function open () {
                 @click="close"
                 :to="subroute.path"
                 :key="subroute.tag"
-                class="p-3 text-sm text-[#bbbbbb] hover:text-[#00e19d]"
+                class="p-3 text-sm text-font-secondary hover:text-[#00e19d]"
                 v-for="subroute in props.subroutes ?? []"
               >
                 {{ subroute.label }}

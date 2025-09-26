@@ -77,7 +77,7 @@ onUnmounted(() => {
     class="relative md:max-w-[675px] md:min-w-[500px] w-full md:w-auto"
     v-outside="close"
   >
-    <IconSearchMagnify class="absolute left-3 md:left-[10px] top-1/2 -translate-y-1/2 w-6 h-6 text-[#bbbbbb]" />
+    <IconSearchMagnify class="absolute left-3 md:left-[10px] top-1/2 -translate-y-1/2 w-6 h-6 text-font-secondary" />
     <input
       ref="searchInput"
       class="
@@ -91,8 +91,8 @@ onUnmounted(() => {
         h-[36.5px]
         min-h-[36.5px]
         w-full
-        text-[#f5f5f5]
-        placeholder:text-[#bbbbbb]
+        text-font-primary
+        placeholder:text-font-secondary
         border border-[#222222]
         rounded-[8px]
         outline-none
@@ -113,10 +113,10 @@ onUnmounted(() => {
       @click="cleanup()"
       class="absolute right-[52px] md:right-[60px] top-1/2 -translate-y-1/2 cursor-pointer"
     >
-      <IconSearchClose class="w-5 h-5 text-[#bbbbbb] hover:text-[#f5f5f5]" />
+      <IconSearchClose class="w-5 h-5 text-font-secondary hover:text-font-primary" />
     </div>
 
-    <kbd class="hidden md:block absolute right-2 top-1/2 -translate-y-1/2 bg-[#121212] bg-opacity-75 rounded-[6px] px-2 py-[2px] text-[#f5f5f5] text-[12.69px] font-semibold leading-[19px] min-w-[23.64px] h-[23.03px] flex items-center justify-center">
+    <kbd class="hidden md:block absolute right-2 top-1/2 -translate-y-1/2 bg-[#121212] bg-opacity-75 rounded-[6px] px-2 py-[2px] text-font-primary text-[12.69px] font-semibold leading-[19px] min-w-[23.64px] h-[23.03px] flex items-center justify-center">
       /
     </kbd>
 

@@ -49,15 +49,15 @@ const timeAgo = computed(() => {
           <NuxtLink :to="`/blocks/${props.height}`" class="text-[#6ab5db] hover:text-[#9ccee7] text-[15px]">
             {{ props.height }}
           </NuxtLink>
-          <div class="text-xs text-[#bbbbbb]">{{ timeAgo }}</div>
+          <div class="text-xs text-font-secondary">{{ timeAgo }}</div>
         </div>
       </div>
 
       <div class="flex items-center justify-between w-full md:w-2/3">
           <div class="text-sm">
             <Tooltip value="Amount of Chains included in this Block">
-              <div class="text-[#bbbbbb]">
-                Synced Chains <span class="text-[#f5f5f5]">{{ props.chainCount }}/20</span>
+              <div class="text-font-secondary">
+                Synced Chains <span class="text-font-primary">{{ props.chainCount }}/20</span>
               </div>
             </Tooltip>
             <div>
@@ -66,14 +66,14 @@ const timeAgo = computed(() => {
                   {{ props.totalTransactions }} {{ props.totalTransactions === 1 ? 'Transaction' : 'Transactions' }}
                 </NuxtLink>
               </Tooltip>
-              <div v-else class="text-[#bbbbbb]">
+              <div v-else class="text-font-secondary">
                 {{ props.totalTransactions }} {{ props.totalTransactions === 1 ? 'Transaction' : 'Transactions' }}
               </div>
             </div>
           </div>
 
         <Tooltip value="Block Reward">
-          <div class="text-[11px] text-[#f5f5f5] border border-[#343636] bg-transparent rounded-md px-2 py-1">
+          <div class="text-[11px] text-font-primary border border-[#343636] bg-transparent rounded-md px-2 py-1">
             {{ (props.totalRewards || 0).toFixed(1) }} kda
           </div>
         </Tooltip>

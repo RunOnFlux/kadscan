@@ -49,7 +49,7 @@ const formattedVariation = computed(() => {
 
 const variationColor = computed(() => {
   return kdaVariation.value && kdaVariation.value >= 0
-    ? 'text-[#00a186]'
+    ? 'text-font-accent'
     : 'text-[#dc3545]';
 });
 
@@ -100,7 +100,7 @@ onMounted(() => {
           'w-full max-w-[1400px] mx-auto flex items-center justify-between h-full px-3 md:px-5',
           route.path !== '/' ? 'py-2' : 'py-4'
         ]">
-        <div class="flex items-center text-[12.5px] text-[#bbbbbb] hidden md:flex">
+        <div class="flex items-center text-[12.5px] text-font-secondary hidden md:flex">
           <span class="mr-1">KDA Price:</span>
           <span class="text-[#6ab5db] hover:text-[#9ccee7]">{{ formattedKdaPrice }}</span>
           <span :class="variationColor" class="ml-1">{{ formattedVariation ? `(${formattedVariation})` : '' }}</span>
@@ -122,24 +122,24 @@ onMounted(() => {
           <!-- Theme selector between searchbar and network switch -->
           <Menu as="div" class="relative inline-block text-left">
             <div>
-              <MenuButton class="h-[36.5px] rounded-lg flex items-center gap-2 border border-[#222222] bg-surface-disabled hover:bg-surface-secondary px-3 text-[#f5f5f5]">
+              <MenuButton class="h-[36.5px] rounded-lg flex items-center gap-2 border border-[#222222] bg-surface-disabled hover:bg-surface-secondary px-3 text-font-primary">
                 <component :is="theme === 'light' ? ThemeLight : (theme === 'dim' ? ThemeDim : ThemeDark)" class="h-4 w-4" />
               </MenuButton>
             </div>
             <MenuItems class="absolute right-0 mt-1 border border-[#222222] w-36 origin-top-right rounded-lg bg-surface-primary shadow-[0_0_15px_rgba(255,255,255,0.0625)] ring-1 ring-black/5 focus:outline-none px-2 py-1">
               <div class="px-1 py-1">
                 <MenuItem v-slot="{ active }">
-                  <button @click="setTheme('light')" :class="[ active ? 'bg-surface-secondary' : '', 'group flex w-full items-center justify-start rounded-md px-3 py-2 text-sm gap-2', theme==='light' ? 'text-[#00e19d]' : 'text-[#f5f5f5]']">
+                  <button @click="setTheme('light')" :class="[ active ? 'bg-surface-secondary' : '', 'group flex w-full items-center justify-start rounded-md px-3 py-2 text-sm gap-2', theme==='light' ? 'text-[#00e19d]' : 'text-font-primary']">
                     <ThemeLight class="h-4 w-4" /><span>Light</span>
                   </button>
                 </MenuItem>
                 <MenuItem v-slot="{ active }">
-                  <button @click="setTheme('dim')" :class="[ active ? 'bg-surface-secondary' : '', 'group flex w-full items-center justify-start rounded-md px-3 py-2 text-sm gap-2', theme==='dim' ? 'text-[#00e19d]' : 'text-[#f5f5f5]']">
+                  <button @click="setTheme('dim')" :class="[ active ? 'bg-surface-secondary' : '', 'group flex w-full items-center justify-start rounded-md px-3 py-2 text-sm gap-2', theme==='dim' ? 'text-[#00e19d]' : 'text-font-primary']">
                     <ThemeDim class="h-4 w-4" /><span>Dim</span>
                   </button>
                 </MenuItem>
                 <MenuItem v-slot="{ active }">
-                  <button @click="setTheme('dark')" :class="[ active ? 'bg-surface-secondary' : '', 'group flex w-full items-center justify-start rounded-md px-3 py-2 text-sm gap-2', theme==='dark' ? 'text-[#00e19d]' : 'text-[#f5f5f5]']">
+                  <button @click="setTheme('dark')" :class="[ active ? 'bg-surface-secondary' : '', 'group flex w-full items-center justify-start rounded-md px-3 py-2 text-sm gap-2', theme==='dark' ? 'text-[#00e19d]' : 'text-font-primary']">
                     <ThemeDark class="h-4 w-4" /><span>Dark</span>
                   </button>
                 </MenuItem>
@@ -150,7 +150,7 @@ onMounted(() => {
           <div>
             <MenuButton :id="networkMenuButtonId" class="h-[36.5px] rounded-lg flex items-center gap-2 border border-[#222222] bg-surface-disabled hover:bg-surface-secondary px-3">
               <IconKadena class="h-4 w-4" />
-              <span v-if="selectedNetwork" class="text-[13px] text-[#f5f5f5]">{{ selectedNetwork.name }}</span>
+              <span v-if="selectedNetwork" class="text-[13px] text-font-primary">{{ selectedNetwork.name }}</span>
             </MenuButton>
           </div>
 
@@ -169,7 +169,7 @@ onMounted(() => {
                     @click="setNetwork(network)"
                     :class="[
                       active ? 'bg-surface-secondary' : '',
-                      selectedNetwork.id === network.id ? 'text-[#00e19d]' : 'text-[#f5f5f5]',
+                      selectedNetwork.id === network.id ? 'text-[#00e19d]' : 'text-font-primary',
                       'group flex w-full items-center hover:bg-surface-secondary justify-start rounded-md px-3 py-2 text-sm',
                     ]"
                   >

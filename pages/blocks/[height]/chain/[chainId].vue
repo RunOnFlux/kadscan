@@ -248,10 +248,10 @@ onMounted(() => {
   <ErrorOverlay v-if="error" :message="error?.message" />
   <div v-else>
     <div class="flex items-center pb-5 border-b border-[#222222] mb-6 gap-2">
-      <h1 class="text-[19px] font-semibold leading-[150%] text-[#f5f5f5]">
+      <h1 class="text-[19px] font-semibold leading-[150%] text-font-primary">
         Block
       </h1>
-      <span v-if="block" class="text-[15px] text-[#bbbbbb]"
+      <span v-if="block" class="text-[15px] text-font-secondary"
         >#{{ block.height }}</span
       >
     </div>
@@ -263,8 +263,8 @@ onMounted(() => {
         <button
           class="px-[10px] py-[5px] text-[13px] rounded-lg font-medium transition-colors"
           :class="{
-            'bg-[#009367] text-[#f5f5f5]': activeView === 'overview',
-            'bg-surface-hover text-[#bbbbbb] hover:bg-[#333333]':
+            'bg-[#009367] text-font-primary': activeView === 'overview',
+            'bg-surface-hover text-font-secondary hover:bg-[#333333]':
               activeView !== 'overview',
           }"
           @click="activeView = 'overview'"
@@ -297,7 +297,7 @@ onMounted(() => {
                           <button
                             @click="goToBlock(height - 1, chainId)"
                             :disabled="disablePrevBlock"
-                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-[#888888] transition-colors duration-300"
+                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-font-primary hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3 transform rotate-180" />
                           </button>
@@ -309,7 +309,7 @@ onMounted(() => {
                           <button
                             @click="goToBlock(height + 1, chainId)"
                             :disabled="disableNextBlock"
-                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-[#888888] transition-colors duration-300"
+                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-font-primary hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3" />
                           </button>
@@ -334,7 +334,7 @@ onMounted(() => {
                           <button
                             @click="goToBlock(height, chainId - 1)"
                             :disabled="disablePrevChain"
-                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-[#888888] transition-colors duration-300"
+                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-font-primary hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3 transform rotate-180" />
                           </button>
@@ -343,7 +343,7 @@ onMounted(() => {
                           <button
                             @click="goToBlock(height, chainId + 1)"
                             :disabled="disableNextChain"
-                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-[#888888] transition-colors duration-300"
+                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-font-primary hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3" />
                           </button>
@@ -389,7 +389,7 @@ onMounted(() => {
                           {{ block.transactions.totalCount }} {{ block.transactions.totalCount === 1 ? 'transaction' : 'transactions' }} in this block
                         </NuxtLink>
                       </Tooltip>
-                      <span v-else class="text-[#f5f5f5]">0 transactions in this block</span>
+                      <span v-else class="text-font-primary">0 transactions in this block</span>
                     </div>
                   </template>
                 </LabelValue>
@@ -430,7 +430,7 @@ onMounted(() => {
                         buttonClass="w-5 h-5"
                       />
                     </div>
-                    <span v-else class="text-[#f5f5f5]">N/A</span>
+                    <span v-else class="text-font-primary">N/A</span>
                   </template>
                 </LabelValue>
                 <LabelValue 
@@ -441,7 +441,7 @@ onMounted(() => {
                 >
                   <template #value>
                     <span v-if="blockReward != null">{{ blockReward }} KDA</span>
-                    <span v-else class="text-[#f5f5f5]">N/A</span>
+                    <span v-else class="text-font-primary">N/A</span>
                   </template>
                 </LabelValue>
                 <LabelValue 

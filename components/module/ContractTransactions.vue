@@ -283,9 +283,9 @@ function downloadData() {
       <template #actions>
         <button
           @click="downloadData"
-          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-surface-disabled border border-[#222222] rounded-md hover:bg-surface-hover whitespace-nowrap"
+          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-font-primary bg-surface-disabled border border-[#222222] rounded-md hover:bg-surface-hover whitespace-nowrap"
         >
-          <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
+          <IconDownload class="w-4 h-4 text-font-secondary" />
           <span class="hidden md:inline">Download</span>
         </button>
       </template>
@@ -299,7 +299,7 @@ function downloadData() {
         </div>
       </template>
       <template #height="{ item }">
-        <span v-if="item.time === 0 || item.height === 0" class="text-[#f5f5f5]">Genesis</span>
+        <span v-if="item.time === 0 || item.height === 0" class="text-font-primary">Genesis</span>
         <NuxtLink v-else :to="`/blocks/${item.height}/chain/${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.height }}</NuxtLink>
       </template>
       <template #status="{ item }">
@@ -313,8 +313,8 @@ function downloadData() {
             </Tooltip>
             <Copy :value="item.sender" tooltipText="Copy Address" />
           </template>
-          <span v-else-if="item.time === 0 || (item.sender === 'NaN' || !item.sender || item.sender === 'N/A')" class="text-[#f5f5f5]">Genesis</span>
-          <span v-else class="text-[#f5f5f5]">NaN</span>
+          <span v-else-if="item.time === 0 || (item.sender === 'NaN' || !item.sender || item.sender === 'N/A')" class="text-font-primary">Genesis</span>
+          <span v-else class="text-font-primary">NaN</span>
         </div>
       </template>
       <template #gas="{ item }">
@@ -323,14 +323,14 @@ function downloadData() {
       <template #method="{ item }">
         <div class="flex items-center">
           <Tooltip :value="formatMethodFull(item.method)">
-            <span class="px-2 py-1.5 bg-surface-disabled rounded-md border border-[#333333] text-[11px] text-[#f5f5f5] font-normal inline-flex items-center justify-center leading-none w-[120px]">
+            <span class="px-2 py-1.5 bg-surface-disabled rounded-md border border-[#333333] text-[11px] text-font-primary font-normal inline-flex items-center justify-center leading-none w-[120px]">
               {{ formatMethod(item.method) }}
             </span>
           </Tooltip>
         </div>
       </template>
       <template #fee="{ item }">
-        <span class="text-[#f5f5f5]">{{ getFeeInKda(item) }}</span>
+        <span class="text-font-primary">{{ getFeeInKda(item) }}</span>
       </template>
     </DataTable>
 
@@ -338,8 +338,8 @@ function downloadData() {
     <div v-else class="bg-surface-primary border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
       <div class="flex flex-col items-center justify-center py-12">
         <img src="/empty/txs.png" alt="No transactions" class="w-24 h-24 mb-4 opacity-50" />
-        <h3 class="text-[#f5f5f5] text-lg font-medium mb-2">No transactions yet</h3>
-        <p class="text-[#bbbbbb] text-sm text-center">
+        <h3 class="text-font-primary text-lg font-medium mb-2">No transactions yet</h3>
+        <p class="text-font-secondary text-sm text-center">
           This contract hasn't made any transactions yet.
         </p>
       </div>

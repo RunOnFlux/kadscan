@@ -48,7 +48,7 @@ const { recordHistory } = useSearch();
       class="flex flex-col truncate"
     >
       <span
-        class="text-[#f5f5f5] text-sm truncate block"
+        class="text-font-primary text-sm truncate block"
       >
         {{ hash }}
       </span>

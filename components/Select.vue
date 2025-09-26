@@ -49,18 +49,18 @@ provideUseId(() => useId())
             <div class="flex items-center gap-2 w-full">
               <slot />
               <IconArrow
-                class="transition shrink-0 h-5 w-5 text-[#bbbbbb] ml-auto"
+                class="transition shrink-0 h-5 w-5 text-font-secondary ml-auto"
                 :class="open ? 'rotate-90' : '-rotate-90'"
               />
             </div>
           </template>
           <template v-else>
             <div class="flex items-center gap-2 w-full">
-              <span class="whitespace-nowrap block text-[#f5f5f5]">
+              <span class="whitespace-nowrap block text-font-primary">
                 {{ modelValue.label }}
               </span>
               <IconArrow
-                class="transition shrink-0 h-5 w-5 text-[#bbbbbb] ml-auto"
+                class="transition shrink-0 h-5 w-5 text-font-secondary ml-auto"
                 :class="open ? 'rotate-90' : '-rotate-90'"
               />
             </div>

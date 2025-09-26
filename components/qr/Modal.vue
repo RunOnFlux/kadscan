@@ -69,7 +69,7 @@ watch(
               Account QR Code
             </h2>
             <button @click="closeModal">
-              <CloseIcon class="w-6 h-6 text-[#888888]" />
+              <CloseIcon class="w-6 h-6 text-font-tertiary" />
             </button>
           </div>
 
@@ -78,18 +78,18 @@ watch(
               class="rounded-lg p-3 bg-surface-disabled border border-surface-skeleton"
             >
               <img v-if="dataUrl" :src="dataUrl" alt="QR Code" class="w-[220px] h-[220px]" />
-              <div v-else class="w-[220px] h-[220px] grid place-items-center text-[#888888]">
+              <div v-else class="w-[220px] h-[220px] grid place-items-center text-font-tertiary">
                 Generating...
               </div>
             </div>
-            <div class="text-[14px] text-[#f5f5f5] break-all text-center">
+            <div class="text-[14px] text-font-primary break-all text-center">
               {{ address }}
             </div>
           </div>
 
           <div class="flex justify-end gap-2 p-4 bg-surface-disabled border-t border-surface-skeleton">
             <button
-              class="px-3 py-2 text-sm text-[#525454] rounded-lg hover:bg-surface-hover hover:text-[#f5f5f5]"
+              class="px-3 py-2 text-sm text-[#525454] rounded-lg hover:bg-surface-hover hover:text-font-primary"
               @click="closeModal"
             >
               Close

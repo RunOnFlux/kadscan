@@ -25,7 +25,7 @@ const goToModule = async () => {
     />
 
     <div class="flex flex-col truncate flex-1">
-      <span class="text-[#f5f5f5] text-sm truncate block">
+      <span class="text-font-primary text-sm truncate block">
         {{ name }}
       </span>
       <span class="text-[#939393] text-xs">

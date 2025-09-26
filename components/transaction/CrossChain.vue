@@ -86,7 +86,7 @@ const getTransactionStatus = (transaction: any) => {
     return {
       text: 'Pending',
       icon: IconHourglass,
-      classes: 'bg-[#17150d] border-[#444648] text-[#bbbbbb]'
+      classes: 'bg-[#17150d] border-[#444648] text-font-secondary'
     }
   }
   
@@ -102,14 +102,14 @@ const getTransactionStatus = (transaction: any) => {
     return {
       text: 'Success',
       icon: IconCheckmarkFill,
-      classes: 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]'
+      classes: 'bg-[#0f1f1d] border-[#00a18680] text-font-accent'
     }
   }
   
   return {
     text: 'Pending',
     icon: IconHourglass,
-    classes: 'bg-[#17150d] border-[#444648] text-[#bbbbbb]'
+    classes: 'bg-[#17150d] border-[#444648] text-font-secondary'
   }
 }
 
@@ -135,7 +135,7 @@ const crossChainStatus = computed(() => {
     return {
       text: 'Pending',
       icon: IconHourglass,
-      classes: 'bg-[#17150d] border-[#444648] text-[#bbbbbb]'
+      classes: 'bg-[#17150d] border-[#444648] text-font-secondary'
     }
   }
   
@@ -144,7 +144,7 @@ const crossChainStatus = computed(() => {
     return {
       text: 'Success',
       icon: IconCheckmarkFill,
-      classes: 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]'
+      classes: 'bg-[#0f1f1d] border-[#00a18680] text-font-accent'
     }
   }
   
@@ -152,7 +152,7 @@ const crossChainStatus = computed(() => {
   return {
     text: 'Pending',
     icon: IconHourglass,
-    classes: 'bg-[#17150d] border-[#444648] text-[#bbbbbb]'
+    classes: 'bg-[#17150d] border-[#444648] text-font-secondary'
   }
 })
 
@@ -274,13 +274,13 @@ const metadataRollback = computed(() => {
                   >
                     <Informational class="w-4 h-4 text-[#6366f1]" />
                   </Tooltip>
-                  <span class="text-[#bbbbbb] text-[15px]">
+                  <span class="text-font-secondary text-[15px]">
                     Transfer Flow:
                   </span>
                 </div>
               </div>
               
-              <div class="lg:block hidden text-[#f5f5f5] text-[15px] flex gap-2 flex-1 overflow-hidden">
+              <div class="lg:block hidden text-font-primary text-[15px] flex gap-2 flex-1 overflow-hidden">
                 <div class="w-full">
                   <!-- Modern Cross-Chain Flow Container -->
                   <div class="relative p-6 bg-gradient-to-br from-surface-primary via-surface-secondary to-surface-primary border border-[#333333] rounded-2xl shadow-2xl backdrop-blur-sm">
@@ -301,20 +301,20 @@ const metadataRollback = computed(() => {
                               <div class="px-4 py-2 bg-gradient-to-r from-[#333333] to-surface-secondary border border-[#444648] rounded-lg shadow-lg">
                                 <div class="flex items-center gap-2">
                                   <div class="w-2 h-2 rounded-full animate-pulse" :style="{ backgroundColor: sourceIndicatorColor }"></div>
-                                  <span class="text-[#f5f5f5] text-sm font-bold tracking-wide">Chain {{ sourceChainId }}</span>
+                                  <span class="text-font-primary text-sm font-bold tracking-wide">Chain {{ sourceChainId }}</span>
                                 </div>
                               </div>
                             </div>
                             
                             <!-- Source Label -->
                             <div class="text-center mb-2">
-                              <span class="text-[#888888] text-xs font-medium uppercase tracking-wider">Source Chain</span>
+                              <span class="text-font-tertiary text-xs font-medium uppercase tracking-wider">Source Chain</span>
                             </div>
                             
                             <!-- Address -->
                             <div class="flex items-center justify-center gap-2 p-3 bg-surface-primary/50 rounded-lg border border-[#333333]">
                               <div class="flex items-center justify-center min-w-0">
-                                <span class="text-[#bbbbbb] text-xs font-mono">
+                                <span class="text-font-secondary text-xs font-mono">
                                   {{ actualSender.length > 14 ? actualSender.substring(0, 8) + '...' + actualSender.substring(actualSender.length - 6) : actualSender }}
                                 </span>
                               </div>
@@ -351,7 +351,7 @@ const metadataRollback = computed(() => {
                                 <span class="text-white text-sm font-bold tracking-wide" v-if="transferAmount">
                                   {{ transferAmount }} KDA
                                 </span>
-                                <span class="text-[#bbbbbb] text-sm" v-else>-</span>
+                                <span class="text-font-secondary text-sm" v-else>-</span>
                             </div>
                           </div>
                         </div>
@@ -370,21 +370,21 @@ const metadataRollback = computed(() => {
                               <div class="px-4 py-2 bg-gradient-to-r from-[#333333] to-surface-secondary border border-[#444648] rounded-lg shadow-lg">
                                 <div class="flex items-center gap-2">
                                   <div class="w-2 h-2 rounded-full animate-pulse" :style="{ backgroundColor: destinationIndicatorColor }"></div>
-                                  <span class="text-[#f5f5f5] text-sm font-bold tracking-wide" v-if="destinationChainId !== null">Chain {{ destinationChainId }}</span>
-                                  <span class="text-[#f5f5f5] text-sm font-bold tracking-wide" v-else>Chain —</span>
+                                  <span class="text-font-primary text-sm font-bold tracking-wide" v-if="destinationChainId !== null">Chain {{ destinationChainId }}</span>
+                                  <span class="text-font-primary text-sm font-bold tracking-wide" v-else>Chain —</span>
                                 </div>
                               </div>
                             </div>
                             
                             <!-- Destination Label -->
                             <div class="text-center mb-2">
-                              <span class="text-[#888888] text-xs font-medium uppercase tracking-wider">Destination Chain</span>
+                              <span class="text-font-tertiary text-xs font-medium uppercase tracking-wider">Destination Chain</span>
                             </div>
                             
                             <!-- Address: finalized vs pending skeleton -->
                             <div v-if="actualReceiver" class="flex items-center justify-center gap-2 p-3 bg-surface-primary/50 rounded-lg border border-[#333333]">
                               <div class="flex items-center justify-center min-w-0">
-                                <span class="text-[#bbbbbb] text-xs font-mono">
+                                <span class="text-font-secondary text-xs font-mono">
                                   {{ actualReceiver.length > 14 ? actualReceiver.substring(0, 8) + '...' + actualReceiver.substring(actualReceiver.length - 6) : actualReceiver }}
                                 </span>
                               </div>
@@ -417,7 +417,7 @@ const metadataRollback = computed(() => {
               <template #value>
                 <div class="flex flex-col gap-3">
                   <div class="flex flex-col gap-1 lg:flex-row lg:gap-2">
-                    <span class="text-[#bbbbbb]">Request Key:</span>
+                    <span class="text-font-secondary">Request Key:</span>
                     <div class="flex items-center gap-2">
                       <NuxtLink 
                         :to="`/transactions/${sourceTransaction.hash}`" 
@@ -435,7 +435,7 @@ const metadataRollback = computed(() => {
                   </div>
                   
                   <div class="flex flex-col gap-1 lg:flex-row lg:gap-2">
-                    <span class="text-[#bbbbbb]">From:</span>
+                    <span class="text-font-secondary">From:</span>
                     <div class="flex items-center gap-2">
                       <NuxtLink 
                         :to="`/account/${actualSender}`" 
@@ -454,18 +454,18 @@ const metadataRollback = computed(() => {
                   
                   <div class="flex flex-wrap items-center gap-2">
                     <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
-                      <span class="text-[#bbbbbb]">Chain:</span>
-                      <span class="text-[#f5f5f5] ml-1">{{ sourceTransaction.cmd.meta.chainId }}</span>
+                      <span class="text-font-secondary">Chain:</span>
+                      <span class="text-font-primary ml-1">{{ sourceTransaction.cmd.meta.chainId }}</span>
                     </span>
 
                     <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
-                      <span class="text-[#bbbbbb]">Block:</span>
-                      <span class="text-[#f5f5f5] ml-1">{{ sourceTransaction.result.block.height }}</span>
+                      <span class="text-font-secondary">Block:</span>
+                      <span class="text-font-primary ml-1">{{ sourceTransaction.result.block.height }}</span>
                     </span>
 
                     <span v-if="sourceTransaction.cmd.meta.creationTime" class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
-                      <span class="text-[#bbbbbb]">Time:</span>
-                      <span class="text-[#f5f5f5] ml-1">{{ formatRelativeTime(sourceTransaction.cmd.meta.creationTime) }} ({{ new Date(sourceTransaction.cmd.meta.creationTime).toUTCString() }})</span>
+                      <span class="text-font-secondary">Time:</span>
+                      <span class="text-font-primary ml-1">{{ formatRelativeTime(sourceTransaction.cmd.meta.creationTime) }} ({{ new Date(sourceTransaction.cmd.meta.creationTime).toUTCString() }})</span>
                     </span>               
                   </div>
                 </div>
@@ -487,7 +487,7 @@ const metadataRollback = computed(() => {
               <template #value>
                 <div class="flex flex-col gap-3">
                   <div class="flex flex-col gap-1 lg:flex-row lg:gap-2">
-                    <span class="text-[#bbbbbb]">Request Key:</span>
+                    <span class="text-font-secondary">Request Key:</span>
                     <div class="flex items-center gap-2">
                       <NuxtLink 
                         :to="`/transactions/${destinationTransaction.hash}`" 
@@ -505,7 +505,7 @@ const metadataRollback = computed(() => {
                   </div>
                   
                   <div class="flex flex-col gap-1 lg:flex-row lg:gap-2">
-                    <span class="text-[#bbbbbb]">To:</span>
+                    <span class="text-font-secondary">To:</span>
                     <div class="flex items-center gap-2">
                       <NuxtLink 
                         :to="`/account/${actualReceiver}`" 
@@ -524,18 +524,18 @@ const metadataRollback = computed(() => {
                   
                   <div class="flex flex-wrap items-center gap-2">
                     <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
-                      <span class="text-[#bbbbbb]">Chain:</span>
-                      <span class="text-[#f5f5f5] ml-1">{{ destinationTransaction.cmd.meta.chainId }}</span>
+                      <span class="text-font-secondary">Chain:</span>
+                      <span class="text-font-primary ml-1">{{ destinationTransaction.cmd.meta.chainId }}</span>
                     </span>
 
                     <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
-                      <span class="text-[#bbbbbb]">Block:</span>
-                      <span class="text-[#f5f5f5] ml-1">{{ destinationTransaction.result.block.height }}</span>
+                      <span class="text-font-secondary">Block:</span>
+                      <span class="text-font-primary ml-1">{{ destinationTransaction.result.block.height }}</span>
                     </span>
                     
                     <span v-if="destinationTransaction.cmd.meta.creationTime" class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
-                      <span class="text-[#bbbbbb]">Time:</span>
-                      <span class="text-[#f5f5f5] ml-1">{{ formatRelativeTime(destinationTransaction.cmd.meta.creationTime) }} ({{ new Date(destinationTransaction.cmd.meta.creationTime).toUTCString() }})</span>
+                      <span class="text-font-secondary">Time:</span>
+                      <span class="text-font-primary ml-1">{{ formatRelativeTime(destinationTransaction.cmd.meta.creationTime) }} ({{ new Date(destinationTransaction.cmd.meta.creationTime).toUTCString() }})</span>
                     </span>
                   </div>
                 </div>
@@ -574,7 +574,7 @@ const metadataRollback = computed(() => {
             >
               <template #value>
                 <div class="flex items-center gap-2">
-                  <span class="text-[#f5f5f5] text-[15px] break-all">{{ metadataPactId }}</span>
+                  <span class="text-font-primary text-[15px] break-all">{{ metadataPactId }}</span>
                 </div>
               </template>
             </LabelValue>
@@ -588,12 +588,12 @@ const metadataRollback = computed(() => {
               <template #value>
                 <div class="flex items-center gap-2">
                   <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
-                    <span class="text-[#bbbbbb]">Step:</span>
-                    <span class="text-[#f5f5f5] ml-1">{{ metadataStep ?? '-' }}</span>
+                    <span class="text-font-secondary">Step:</span>
+                    <span class="text-font-primary ml-1">{{ metadataStep ?? '-' }}</span>
                   </span>
                   <span class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
-                    <span class="text-[#bbbbbb]">Rollback:</span>
-                    <span class="text-[#f5f5f5] ml-1">{{ metadataRollback ? 'Yes' : 'No' }}</span>
+                    <span class="text-font-secondary">Rollback:</span>
+                    <span class="text-font-primary ml-1">{{ metadataRollback ? 'Yes' : 'No' }}</span>
                   </span>
                 </div>
               </template>
@@ -610,18 +610,18 @@ const metadataRollback = computed(() => {
                   >
                     <Informational class="w-4 h-4" />
                   </Tooltip>
-                  <span class="text-[#bbbbbb] text-[15px] font-normal">
+                  <span class="text-font-secondary text-[15px] font-normal">
                     Continuation Data:
                   </span>
                 </div>
               </div>
               
-              <div class="text-[#f5f5f5] text-[15px] fix w-full md:flex-1 overflow-hidden">
+              <div class="text-font-primary text-[15px] fix w-full md:flex-1 overflow-hidden">
                 <div class="w-full">
                   <textarea
                     readonly
                     :value="formatContinuationData(metadataSource.result.continuation)"
-                    class="break-all w-full bg-surface-disabled border border-[#222222] rounded-lg text-[#bbbbbb] text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto min-h-[150px]"
+                    class="break-all w-full bg-surface-disabled border border-[#222222] rounded-lg text-font-secondary text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto min-h-[150px]"
                   ></textarea>
                 </div>
               </div>
@@ -638,18 +638,18 @@ const metadataRollback = computed(() => {
                   >
                     <Informational class="w-4 h-4" />
                   </Tooltip>
-                  <span class="text-[#bbbbbb] text-[15px] font-normal">
+                  <span class="text-font-secondary text-[15px] font-normal">
                     Proof:
                   </span>
                 </div>
               </div>
               
-              <div class="text-[#f5f5f5] text-[15px] fix w-full md:flex-1 overflow-hidden">
+              <div class="text-font-primary text-[15px] fix w-full md:flex-1 overflow-hidden">
                 <div class="w-full">
                   <textarea
                     readonly
                     :value="destinationTransaction.cmd.payload.proof"
-                    class="break-all w-full bg-surface-disabled border border-[#222222] rounded-lg text-[#bbbbbb] text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto min-h-[100px]"
+                    class="break-all w-full bg-surface-disabled border border-[#222222] rounded-lg text-font-secondary text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto min-h-[100px]"
                   ></textarea>
                 </div>
               </div>
@@ -666,18 +666,18 @@ const metadataRollback = computed(() => {
                   >
                     <Informational class="w-4 h-4" />
                   </Tooltip>
-                  <span class="text-[#bbbbbb] text-[15px] font-normal">
+                  <span class="text-font-secondary text-[15px] font-normal">
                     Payload Data:
                   </span>
                 </div>
               </div>
               
-              <div class="text-[#f5f5f5] text-[15px] fix w-full md:flex-1 overflow-hidden">
+              <div class="text-font-primary text-[15px] fix w-full md:flex-1 overflow-hidden">
                 <div class="w-full">
                   <textarea
                     readonly
                     :value="formatJsonPretty(metadataSource.cmd.payload.data)"
-                    class="break-all w-full bg-surface-disabled border border-[#222222] rounded-lg text-[#bbbbbb] text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto min-h-[100px]"
+                    class="break-all w-full bg-surface-disabled border border-[#222222] rounded-lg text-font-secondary text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto min-h-[100px]"
                   ></textarea>
                 </div>
               </div>
@@ -687,7 +687,7 @@ const metadataRollback = computed(() => {
       </Divide>
     </div>
     
-    <div v-else-if="props.loadingCrossChain" class="text-center py-8 text-[#bbbbbb]">
+    <div v-else-if="props.loadingCrossChain" class="text-center py-8 text-font-secondary">
       Loading related transaction data...
     </div>
 
@@ -713,14 +713,14 @@ const metadataRollback = computed(() => {
               </div>
             </div>
           </div>
-          <div class="mt-3 text-[#bbbbbb] text-sm">
+          <div class="mt-3 text-font-secondary text-sm">
             Destination transaction not processed yet. This view will update once it is mined.
           </div>
         </div>
       </div>
     </div>
 
-    <div v-else class="text-center py-8 text-[#bbbbbb]">
+    <div v-else class="text-center py-8 text-font-secondary">
       No cross-chain transfer data found for this transaction
     </div>
   </div>

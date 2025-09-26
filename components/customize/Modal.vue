@@ -69,12 +69,12 @@ watch(() => props.isOpen, (isOpen) => {
               Custom Card
             </h2>
             <button @click="closeModal">
-              <CloseIcon class="w-6 h-6 text-[#888888]" />
+              <CloseIcon class="w-6 h-6 text-font-tertiary" />
             </button>
           </div>
 
           <div class="p-4">
-            <p class="mb-4 text-sm text-[#f5f5f5]">
+            <p class="mb-4 text-sm text-font-primary">
               Customize your view by choosing one of the options.
             </p>
 
@@ -95,7 +95,7 @@ watch(() => props.isOpen, (isOpen) => {
 
           <div class="flex justify-end gap-2 p-4 bg-surface-disabled border-t border-surface-skeleton">
             <button
-              class="px-3 py-2 text-sm rounded-lg bg-surface-hover hover:bg-surface-secondary text-[#f5f5f5]"
+              class="px-3 py-2 text-sm rounded-lg bg-surface-hover hover:bg-surface-secondary text-font-primary"
               @click="closeModal"
             >
               Close

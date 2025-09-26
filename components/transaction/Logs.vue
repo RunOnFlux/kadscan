@@ -60,7 +60,7 @@ function makeEventKey(edge: any, index: number): string {
           >
             <template #value>
               <div class="flex items-center gap-2">
-                <span class="text-[#f5f5f5] text-[15px] break-all">{{ transaction.result.logs }}</span>
+                <span class="text-font-primary text-[15px] break-all">{{ transaction.result.logs }}</span>
               </div>
             </template>
           </LabelValue>
@@ -81,7 +81,7 @@ function makeEventKey(edge: any, index: number): string {
             >
               <template #value>
                 <div class="flex items-center gap-2">
-                  <span class="text-[#f5f5f5] text-[15px] break-all">{{ eventEdge.node.qualifiedName }}</span>
+                  <span class="text-font-primary text-[15px] break-all">{{ eventEdge.node.qualifiedName }}</span>
                   <Copy 
                     :value="eventEdge.node.qualifiedName" 
                     tooltipText="Copy Qualified Name"
@@ -101,20 +101,20 @@ function makeEventKey(edge: any, index: number): string {
               <template #value>
                 <div class="flex items-center gap-2 w-full">
                   <span v-if="eventEdge.node.orderIndex !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
-                    <span class="text-[#bbbbbb]">Order Indexer:</span>
-                    <span class="text-[#f5f5f5] ml-1">{{ eventEdge.node.orderIndex }}</span>
+                    <span class="text-font-secondary">Order Indexer:</span>
+                    <span class="text-font-primary ml-1">{{ eventEdge.node.orderIndex }}</span>
                   </span>
                   <span v-if="eventEdge.node.moduleName !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
-                    <span class="text-[#bbbbbb]">Module:</span>
+                    <span class="text-font-secondary">Module:</span>
                     <NuxtLink :to="`/module/${eventEdge.node.moduleName}`" class="text-[#6ab5db] ml-1 hover:text-[#9ccee7]">{{ eventEdge.node.moduleName }}</NuxtLink>
                   </span>
                   <span v-if="eventEdge.node.name !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
-                    <span class="text-[#bbbbbb]">Event:</span>
-                    <span class="text-[#f5f5f5] ml-1">{{ eventEdge.node.name }}</span>
+                    <span class="text-font-secondary">Event:</span>
+                    <span class="text-font-primary ml-1">{{ eventEdge.node.name }}</span>
                   </span>
                   <button
                     @click="toggleExpand(makeEventKey(eventEdge, index))"
-                    class="ml-auto flex items-center justify-center w-8 h-8 text-[#f5f5f5] bg-surface-disabled border border-[#222222] rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-surface-disabled active:text-[#f5f5f5]"
+                    class="ml-auto flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-[#222222] rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-surface-disabled active:text-font-primary"
                     aria-label="Enlarge parameters"
                   >
                     <IconEnlarge class="w-4 h-4" />
@@ -135,17 +135,17 @@ function makeEventKey(edge: any, index: number): string {
                   >
                     <Informational class="w-4 h-4" />
                   </Tooltip>
-                  <span class="text-[#bbbbbb] text-[15px] font-normal">
+                  <span class="text-font-secondary text-[15px] font-normal">
                     {{ textContent.parameters.label }}
                   </span>
                 </div>
               </div>
               
               <!-- Parameters Container with proper boundaries -->
-              <div class="text-[#f5f5f5] text-[15px] fix w-full md:flex-1 overflow-hidden">
+              <div class="text-font-primary text-[15px] fix w-full md:flex-1 overflow-hidden">
                 <div v-if="eventEdge.node.parameterText" class="w-full">
                   <div v-if="!isExpanded(makeEventKey(eventEdge, index))"
-                    class="grid w-full text-sm text-[#bbbbbb]
+                    class="grid w-full text-sm text-font-secondary
                            [&>textarea]:text-inherit
                            [&>textarea]:resize-none
                            [&>textarea]:[grid-area:1/1/2/2]"
@@ -158,7 +158,7 @@ function makeEventKey(edge: any, index: number): string {
                   </div>
                   <div
                     v-else
-                    class="grid w-full text-sm text-[#bbbbbb]
+                    class="grid w-full text-sm text-font-secondary
                            [&>textarea]:text-inherit
                            [&>textarea]:resize-none
                            [&>textarea]:overflow-hidden
@@ -177,14 +177,14 @@ function makeEventKey(edge: any, index: number): string {
                     ></textarea>
                   </div>
                 </div>
-                <span v-else class="text-[#f5f5f5] text-xs">No parameters</span>
+                <span v-else class="text-font-primary text-xs">No parameters</span>
               </div>
             </div>
           </div>
         </DivideItem>
       </Divide>
     </div>
-    <div v-else class="text-center py-8 text-[#bbbbbb]">
+    <div v-else class="text-center py-8 text-font-secondary">
       No events or logs found for this transaction
     </div>
   </div>

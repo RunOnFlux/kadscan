@@ -38,7 +38,7 @@ defineProps<{
           <Informational class="w-4 h-4" />
         </Tooltip>
         <span
-          class="text-[#bbbbbb] text-[15px] font-normal"
+          class="text-font-secondary text-[15px] font-normal"
         >
           {{ label }}
         </span>
@@ -47,7 +47,7 @@ defineProps<{
 
     <div
       :class="[!value && 'flex-col', value && 'items-center']"
-      class="text-[#f5f5f5] text-[15px] fix flex gap-2 break-words flex-1 min-w-0"
+      class="text-font-primary text-[15px] fix flex gap-2 break-words flex-1 min-w-0"
     >
       <slot
         name="value"

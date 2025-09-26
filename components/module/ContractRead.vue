@@ -99,17 +99,17 @@ const vAutosize = {
   <div>
     <div class="flex flex-col md:flex-row gap-y-2 justify-between items-start md:items-center mb-4">
       <div>
-        <h2 class="text-[15px] text-normal text-[#f5f5f5]">Interacting with this Contract<span v-if="chainDisplay"> on chain {{ chainDisplay }}</span></h2>
-        <p class="text-[13px] text-[#bbbbbb]">Call read-only functions of this module.</p>
+        <h2 class="text-[15px] text-normal text-font-primary">Interacting with this Contract<span v-if="chainDisplay"> on chain {{ chainDisplay }}</span></h2>
+        <p class="text-[13px] text-font-secondary">Call read-only functions of this module.</p>
       </div>
     </div>
 
-    <div v-if="loadingModule" class="text-[#bbbbbb] text-sm">Loading module...</div>
+    <div v-if="loadingModule" class="text-font-secondary text-sm">Loading module...</div>
     <div v-else>
       <div class="flex flex-col md:flex-row gap-6">
         <!-- Left column: functions, inputs, query -->
         <div class="w-full md:flex-1 md:min-w-0">
-          <div class="text-[13px] text-[#bbbbbb] mb-2">Functions</div>
+          <div class="text-[13px] text-font-secondary mb-2">Functions</div>
           <div class="flex flex-wrap items-center gap-2 mb-3">
             <button
               v-for="fn in readFunctions"
@@ -117,7 +117,7 @@ const vAutosize = {
               @click="selected = fn.name"
               :class="[
                 'px-3 py-1 rounded-lg text-[13px] transition-colors whitespace-normal break-words text-left max-w-full',
-                selected === fn.name ? 'bg-[#009367] text-[#f5f5f5]' : 'bg-surface-hover text-[#f5f5f5] hover:bg-[#333333]'
+                selected === fn.name ? 'bg-[#009367] text-font-primary' : 'bg-surface-hover text-font-primary hover:bg-[#333333]'
               ]"
             >
               {{ fn.name }}
@@ -127,15 +127,15 @@ const vAutosize = {
           <div v-if="selectedFn" class="space-y-3">
             <div class="grid grid-cols-1 gap-3 w-full">
               <div v-for="p in selectedFn.params" :key="p.name" class="space-y-1 w-full">
-                <div class="text-[12px] text-[#bbbbbb] whitespace-normal break-words">
-                  {{ p.name }}<span v-if="p.type" class="text-[#888888]">: {{ p.type }}</span>
+                <div class="text-[12px] text-font-secondary whitespace-normal break-words">
+                  {{ p.name }}<span v-if="p.type" class="text-font-tertiary">: {{ p.type }}</span>
                 </div>
-                <div class="w-full text-sm text-[#bbbbbb]">
+                <div class="w-full text-sm text-font-secondary">
                   <textarea
                     v-model="paramValues[p.name]"
                     v-autosize
                     rows="1"
-                    class="w-full bg-surface-disabled border border-[#222222] rounded-md text-[#bbbbbb] text-sm px-2 py-1 outline-none font-mono whitespace-pre-wrap break-words overflow-hidden resize-none"
+                    class="w-full bg-surface-disabled border border-[#222222] rounded-md text-font-secondary text-sm px-2 py-1 outline-none font-mono whitespace-pre-wrap break-words overflow-hidden resize-none"
                     placeholder='Enter Pact literal (eg "k:addr", 1.0, true, {"k":1})'
                     data-gramm="false"
                     data-gramm_editor="false"
@@ -152,12 +152,12 @@ const vAutosize = {
         <!-- Right column: result (stacks below on mobile) -->
         <div class="flex-1 min-w-0" v-if="selectedFn">
           <div class="space-y-2">
-            <div class="text-[13px] text-[#bbbbbb]">{{ resultLabel }}</div>
+            <div class="text-[13px] text-font-secondary">{{ resultLabel }}</div>
             <div class="flex items-center justify-between">
               <div>
                 <button
                   @click="onCall"
-                  class="px-3 py-1 rounded-lg bg-[#009367] text-[#f5f5f5] text-[13px] disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+                  class="px-3 py-1 rounded-lg bg-[#009367] text-font-primary text-[13px] disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
                   :disabled="loading"
                 >
                   <svg v-if="loading" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -169,21 +169,21 @@ const vAutosize = {
               </div>
               <button
                 @click="resultExpanded = !resultExpanded"
-                class="flex items-center justify-center w-8 h-8 text-[#f5f5f5] bg-surface-disabled border border-[#222222] rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-surface-disabled active:text-[#f5f5f5]"
+                class="flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-[#222222] rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-surface-disabled active:text-font-primary"
                 aria-label="Toggle result size"
                 :title="resultExpanded ? 'Collapse' : 'Expand'"
               >
                 <IconEnlarge class="w-4 h-4" />
               </button>
             </div>
-            <div class="text-[#f5f5f5] text-[15px] fix w-full md:flex-1 overflow-hidden">
+            <div class="text-font-primary text-[15px] fix w-full md:flex-1 overflow-hidden">
               <div v-if="loading" class="w-full">
                 <div class="relative overflow-hidden rounded-lg border border-[#222222] bg-surface-disabled h-[110px] md:h-[120px]">
                   <div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-[#333333] to-transparent animate-shimmer"></div>
                 </div>
               </div>
               <div v-else-if="!resultExpanded"
-                class="grid w-full text-sm text-[#bbbbbb]
+                class="grid w-full text-sm text-font-secondary
                        [&>textarea]:text-inherit
                        [&>textarea]:resize-none
                        [&>textarea]:[grid-area:1/1/2/2]"
@@ -195,7 +195,7 @@ const vAutosize = {
                 ></textarea>
               </div>
               <div v-else
-                class="grid w-full text-sm text-[#bbbbbb]
+                class="grid w-full text-sm text-font-secondary
                        [&>textarea]:text-inherit
                        [&>textarea]:resize-none
                        [&>textarea]:overflow-hidden

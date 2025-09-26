@@ -51,11 +51,11 @@ const onCopy = async () => {
       class="rounded-lg place-items-center grid group"
       :class="buttonClass || 'w-8 h-8'"
     >
-      <IconCheckmark v-if="isCopied" class="w-3 h-3 text-[#888888]" />
+      <IconCheckmark v-if="isCopied" class="w-3 h-3 text-font-tertiary" />
       <IconCopy
         v-else
         :sizeClass="iconSize || 'w-5 h-5'"
-        class="text-[#888888] group-hover:text-[#39a1d9]"
+        class="text-font-tertiary group-hover:text-[#39a1d9]"
       />
     </button>
   </Tooltip>
@@ -65,11 +65,11 @@ const onCopy = async () => {
     class="rounded-lg place-items-center grid group"
     :class="buttonClass || 'w-8 h-8'"
   >
-    <IconCheckmark v-if="isCopied" class="w-3 h-3 text-[#888888]" />
+    <IconCheckmark v-if="isCopied" class="w-3 h-3 text-font-tertiary" />
     <IconCopy
       v-else
       :sizeClass="iconSize || 'w-5 h-5'"
-      class="text-[#888888] group-hover:text-[#39a1d9]"
+      class="text-font-tertiary group-hover:text-[#39a1d9]"
     />
   </button>
 </template>

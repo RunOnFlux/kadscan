@@ -157,7 +157,7 @@ const externalTooltipHandler = (context: any) => {
     const label = labels.value[index]
     const value = dataValues.value[index]
     const pct = totalBalance.value > 0 ? ((value / totalBalance.value) * 100).toFixed(2) : '0.00'
-    tooltipEl.innerHTML = `<div class=\"flex items-center gap-2\" style=\"white-space:nowrap\">\n      <div class=\"w-2.5 h-2.5 rounded-full\" style=\"background:${backgroundColors.value[index]}\"></div>\n      <div class=\"font-medium uppercase\">${label}</div>\n    </div>\n    <div class=\"text-[#bbbbbb] mt-1\" style=\"white-space:nowrap\">USD: $${Number(value).toFixed(2)}</div>\n    <div class=\"text-[#bbbbbb]\" style=\"white-space:nowrap\">Share: ${pct}%</div>`
+    tooltipEl.innerHTML = `<div class=\"flex items-center gap-2\" style=\"white-space:nowrap\">\n      <div class=\"w-2.5 h-2.5 rounded-full\" style=\"background:${backgroundColors.value[index]}\"></div>\n      <div class=\"font-medium uppercase\">${label}</div>\n    </div>\n    <div class=\"text-font-secondary mt-1\" style=\"white-space:nowrap\">USD: $${Number(value).toFixed(2)}</div>\n    <div class=\"text-font-secondary\" style=\"white-space:nowrap\">Share: ${pct}%</div>`
   }
 
   const { offsetLeft: positionX, offsetTop: positionY } = chart.canvas
@@ -201,7 +201,7 @@ const chartOptions = reactive({
             />
             <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
               <div class="text-center">
-                <div class="text-[12px] text-[#bbbbbb]">Total</div>
+                <div class="text-[12px] text-font-secondary">Total</div>
                 <div class="text-[16px] text-white font-semibold">${{ Number(totalBalance).toFixed(2) }}</div>
               </div>
             </div>
@@ -214,18 +214,18 @@ const chartOptions = reactive({
             <div v-for="(s, idx) in slices" :key="idx" class="flex items-center justify-between flex-wrap">
               <div class="flex items-center gap-3 min-w-0">
                 <div class="w-3 h-3 rounded-full" :style="{ background: (s.module === 'others' ? '#4b5563' : backgroundColors[idx]) }"></div>
-                <div class="truncate text-[#f5f5f5] text-[12px]" :ref="el => setLabelRef(el as HTMLElement | null, idx)">
-                  <span class="text-[#bbbbbb] mr-1">{{ ((s.usd / (totalBalance || 1)) * 100).toFixed(2) }}%</span>
+                <div class="truncate text-font-primary text-[12px]" :ref="el => setLabelRef(el as HTMLElement | null, idx)">
+                  <span class="text-font-secondary mr-1">{{ ((s.usd / (totalBalance || 1)) * 100).toFixed(2) }}%</span>
                   <span class="uppercase">{{ s.label }}</span>
                 </div>
               </div>
-              <div class="text-[#f5f5f5] text-[12px] font-medium" :class="{ 'basis-full mt-1 text-right': shouldWrapAmount[idx] }">${{ Number(s.usd).toFixed(2) }}</div>
+              <div class="text-font-primary text-[12px] font-medium" :class="{ 'basis-full mt-1 text-right': shouldWrapAmount[idx] }">${{ Number(s.usd).toFixed(2) }}</div>
             </div>
           </div>
         </div>
       </div>
     </template>
-    <div v-else class="py-12 text-center text-[#bbbbbb] text-sm">No tokens breakdown to be displayed.</div>
+    <div v-else class="py-12 text-center text-font-secondary text-sm">No tokens breakdown to be displayed.</div>
   </div>
 </template>
 

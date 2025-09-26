@@ -18,7 +18,7 @@ const emit = defineEmits(['customize'])
       class="flex items-center justify-between p-4 border-b border-[#222222]"
     >
       <span
-        class="text-[15px] font-semibold text-[#f5f5f5]"
+        class="text-[15px] font-semibold text-font-primary"
       >
         {{ label }}
       </span>
@@ -28,8 +28,8 @@ const emit = defineEmits(['customize'])
         class="flex items-start gap-1 px-[6px] pb-[4px] pt-[3px] text-sm border border-[#222222] rounded-lg bg-surface-disabled hover:bg-surface-secondary"
         @click="emit('customize')"
       >
-        <CustomizeIcon class="mt-[1px] text-[#f5f5f5] w-4 h-4" />
-        <span class="text-[0.75rem] text-[#f5f5f5]">Customize</span>
+        <CustomizeIcon class="mt-[1px] text-font-primary w-4 h-4" />
+        <span class="text-[0.75rem] text-font-primary">Customize</span>
       </button>
     </div>
 
@@ -41,7 +41,7 @@ const emit = defineEmits(['customize'])
       <NuxtLink
         v-if="path"
         :to="path"
-        class="text-[12px] font-semibold text-[#bbbbbb] hover:text-[#00e19d]"
+        class="text-[12px] font-semibold text-font-secondary hover:text-[#00e19d]"
       >
         {{ label.includes('Blocks') ? 'ALL BLOCKS' : 'ALL TRANSACTIONS' }} &rarr;
       </NuxtLink>

@@ -6,7 +6,7 @@ const topOne = computed(() => (props.items || []).slice(0, 1));
 <template>
   <div class="flex flex-col gap-2">
     <div class="pb-1 px-2 pt-3">
-      <span class="text-[11px] font-medium text-[#bbbbbb] mb-[1px]">MODULE</span>
+      <span class="text-[11px] font-medium text-font-secondary mb-[1px]">MODULE</span>
     </div>
 
     <div class="flex flex-col gap-2">

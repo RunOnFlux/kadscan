@@ -29,7 +29,7 @@ function select() {
       />
     </div>
     <span
-      class="text-sm text-[#bbbbbb]"
+      class="text-sm text-font-secondary"
     >
       {{ label }}
     </span>

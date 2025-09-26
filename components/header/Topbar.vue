@@ -91,7 +91,7 @@ const {
                     @click="setNetwork(network)"
                     :class="[
                       active ? 'bg-surface-secondary' : '',
-                      selectedNetwork.id === network.id ? 'text-[#6ab5db]' : 'text-[#f5f5f5]',
+                      selectedNetwork.id === network.id ? 'text-[#6ab5db]' : 'text-font-primary',
                       'group flex w-full items-center hover:bg-surface-secondary justify-start rounded-md px-3 py-2 text-sm',
                     ]"
                   >

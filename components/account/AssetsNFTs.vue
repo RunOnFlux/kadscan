@@ -192,9 +192,9 @@ onBeforeUnmount(() => {
       <template #actions>
         <button
           @click="downloadData"
-          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-surface-disabled border border-[#222222] rounded-md hover:bg-surface-hover whitespace-nowrap"
+          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-font-primary bg-surface-disabled border border-[#222222] rounded-md hover:bg-surface-hover whitespace-nowrap"
         >
-          <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
+          <IconDownload class="w-4 h-4 text-font-secondary" />
           <span class="hidden md:inline">Download</span>
         </button>
       </template>
@@ -213,18 +213,18 @@ onBeforeUnmount(() => {
             <span v-else-if="!item._metaErr && !isMiniBroken(item)" class="inline-block">
               <span class="block w-[12px] h-[12px] border-2 border-[#bbbbbb] border-t-transparent rounded-full animate-spin"></span>
             </span>
-            <span v-else class="text-[10px] text-[#ff6b6b] text-center">IPFS</span>
+            <span v-else class="text-[10px] text-font-danger text-center">IPFS</span>
             <div v-if="item._holding?.balance && Number(item._holding.balance) > 1" class="absolute bottom-[2px] left-[2px] bg-black/70 text-white text-[10px] px-[4px] py-[1px] rounded">
               x{{ item._holding.balance }}
             </div>
           </div>
-          <span class="text-[#f5f5f5]">{{ item.name }}</span>
+          <span class="text-font-primary">{{ item.name }}</span>
         </div>
       </template>
       <template #tokenId="{ item }">
         <div class="flex items-center gap-1">
           <Tooltip :value="item.tokenId" variant="hash">
-            <span class="text-[#f5f5f5]">{{ shortenString(item.tokenId, 10, 10) }}</span>
+            <span class="text-font-primary">{{ shortenString(item.tokenId, 10, 10) }}</span>
           </Tooltip>
           <Copy :value="item.tokenId" tooltipText="Copy Token ID" />
         </div>
@@ -234,8 +234,8 @@ onBeforeUnmount(() => {
     <div v-else class="bg-surface-primary border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
       <div class="flex flex-col items-center justify-center py-12">
         <img src="/empty/nft.png" alt="No NFTs" class="w-24 h-24 mb-4 opacity-50" />
-        <div class="text-[#f5f5f5] text-lg font-medium mb-2">No NFTs yet</div>
-        <p class="text-[#bbbbbb] text-sm text-center">
+        <div class="text-font-primary text-lg font-medium mb-2">No NFTs yet</div>
+        <p class="text-font-secondary text-sm text-center">
           This account doesn’t hold any NFTs on this chain.
         </p>
       </div>

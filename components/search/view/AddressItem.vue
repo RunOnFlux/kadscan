@@ -21,7 +21,7 @@ const { recordHistory } = useSearch();
       class="flex truncate"
     >
       <span
-        class="text-sm text-[#f5f5f5] truncate block"
+        class="text-sm text-font-primary truncate block"
       >
         {{ account }}
       </span>
