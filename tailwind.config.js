@@ -43,6 +43,8 @@ export default {
         'surface-secondary': withOpacityValue('--surface-secondary'),
         'surface-hover': withOpacityValue('--surface-hover'),
         'surface-disabled': withOpacityValue('--surface-disabled'),
+        'surface-white': withOpacityValue('--surface-white'),
+        'surface-black': withOpacityValue('--surface-black'),
 
         // Lines / borders
         'line-default': withOpacityValue('--line-default'),
