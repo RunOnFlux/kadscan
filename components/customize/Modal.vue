@@ -61,10 +61,10 @@ watch(() => props.isOpen, (isOpen) => {
         @click="closeModal"
       >
         <div
-          class="bg-surface-primary border border-[#292B2C] rounded-xl shadow-xl w-full max-w-lg overflow-hidden"
+          class="bg-surface-primary border border-surface-skeleton rounded-xl shadow-xl w-full max-w-lg overflow-hidden"
           @click.stop
         >
-          <div class="flex items-center justify-between p-4 border-b border-[#292B2C]">
+          <div class="flex items-center justify-between p-4 border-b border-surface-skeleton">
             <h2 class="text-[15px] font-semibold text-white">
               Custom Card
             </h2>
@@ -93,7 +93,7 @@ watch(() => props.isOpen, (isOpen) => {
             </div>
           </div>
 
-          <div class="flex justify-end gap-2 p-4 bg-surface-disabled border-t border-[#292B2C]">
+          <div class="flex justify-end gap-2 p-4 bg-surface-disabled border-t border-surface-skeleton">
             <button
               class="px-3 py-2 text-sm rounded-lg bg-surface-hover hover:bg-surface-secondary text-[#f5f5f5]"
               @click="closeModal"

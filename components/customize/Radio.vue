@@ -16,7 +16,7 @@ function select() {
 
 <template>
   <label
-    class="flex items-center gap-2 px-2 py-1 text-sm border rounded-lg cursor-pointer border-[#292B2C]"
+    class="flex items-center gap-2 px-2 py-1 text-sm border rounded-lg cursor-pointer border-surface-skeleton"
     @click="select"
   >
     <div

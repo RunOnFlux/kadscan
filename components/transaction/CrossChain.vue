@@ -541,10 +541,10 @@ const metadataRollback = computed(() => {
                 </div>
               </template>
             </LabelValue>
-            <!-- Section 3: Token Transfers -->
+            <!-- Section 3: Token Transfers Skeleton -->
             <div v-else class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
               <div class="w-[300px] flex-shrink-0">
-                <div class="h-5 w-36 bg-[#292B2C] rounded"></div>
+                <div class="h-5 w-36 bg-surface-skeleton rounded"></div>
               </div>
               <div class="flex flex-col gap-2">
                 <div class="flex items-center gap-2">
@@ -554,9 +554,9 @@ const metadataRollback = computed(() => {
                   <div class="h-5 w-[540px] bg-[#343636] rounded"></div>
                 </div>
                 <div class="flex items-center gap-2">
-                  <div class="h-5 w-36 bg-[#292B2C] rounded"></div>
-                  <div class="h-5 w-36 bg-[#292B2C] rounded"></div>
-                  <div class="h-5 w-36 bg-[#292B2C] rounded"></div>
+                  <div class="h-5 w-36 bg-surface-skeleton rounded"></div>
+                  <div class="h-5 w-36 bg-surface-skeleton rounded"></div>
+                  <div class="h-5 w-36 bg-surface-skeleton rounded"></div>
                 </div>
               </div>
             </div>

@@ -8,8 +8,8 @@
       <div class="flex p-4 rounded-t-lg">
         <div v-for="i in 7" :key="i" class="flex-1 h-4 bg-[#343636] rounded mx-2"></div>
       </div>
-      <div v-for="row in 5" :key="row" class="flex items-center p-4 border-t border-[#292B2C]">
-        <div v-for="col in 7" :key="col" class="flex-1 h-4 bg-[#292B2C] rounded mx-2"></div>
+      <div v-for="row in 5" :key="row" class="flex items-center p-4 border-t border-surface-skeleton">
+        <div v-for="col in 7" :key="col" class="flex-1 h-4 bg-surface-skeleton rounded mx-2"></div>
       </div>
     </div>
     <div class="flex justify-between items-center p-4 mb-4">

@@ -49,7 +49,7 @@ const formattedFee = computed(() => {
   <div class="px-4">
     <div
       class="flex items-center justify-between py-[14px]"
-      :class="{ 'border-b border-[#292B2C]': index !== totalItems - 1 }"
+      :class="{ 'border-b border-surface-skeleton': index !== totalItems - 1 }"
     >
       <div class="flex items-center md:w-5/12 md:gap-2 w-[160px]">
         <div class="bg-surface-disabled rounded-md p-3 hidden md:block">
