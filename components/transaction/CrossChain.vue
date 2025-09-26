@@ -86,7 +86,7 @@ const getTransactionStatus = (transaction: any) => {
     return {
       text: 'Pending',
       icon: IconHourglass,
-      classes: 'bg-badge-bg-warning border-line-muted text-font-secondary'
+      classes: 'bg-badge-bg-warning border-badge-bg-pending text-font-secondary'
     }
   }
   
@@ -109,7 +109,7 @@ const getTransactionStatus = (transaction: any) => {
   return {
     text: 'Pending',
     icon: IconHourglass,
-    classes: 'bg-badge-bg-warning border-line-muted text-font-secondary'
+    classes: 'bg-badge-bg-warning border-badge-bg-pending text-font-secondary'
   }
 }
 
@@ -135,7 +135,7 @@ const crossChainStatus = computed(() => {
     return {
       text: 'Pending',
       icon: IconHourglass,
-      classes: 'bg-badge-bg-warning border-line-muted text-font-secondary'
+      classes: 'bg-badge-bg-warning border-badge-bg-pending text-font-secondary'
     }
   }
   
@@ -152,7 +152,7 @@ const crossChainStatus = computed(() => {
   return {
     text: 'Pending',
     icon: IconHourglass,
-    classes: 'bg-badge-bg-warning border-line-muted text-font-secondary'
+    classes: 'bg-badge-bg-warning border-badge-bg-pending text-font-secondary'
   }
 })
 
@@ -694,7 +694,7 @@ const metadataRollback = computed(() => {
     <!-- Pending skeleton when we know it's cross-chain but no transfer data yet -->
     <div v-else-if="props.isCrossChain" class="py-5">
       <div class="flex flex-col gap-4">
-        <div class="flex items-center gap-2 w-fit px-2 py-1 rounded-lg border text-xs bg-badge-bg-warning border-line-muted text-badge-text-warning">
+        <div class="flex items-center gap-2 w-fit px-2 py-1 rounded-lg border text-xs bg-badge-bg-warning border-badge-bg-pending text-badge-text-warning">
           <IconHourglass class="w-3 h-3" />
           Pending cross-chain transfer
         </div>

@@ -64,7 +64,7 @@ export function useStatus(providedLastBlockHeight?: Ref<number | null>) {
       text: 'Pending',
       placement: 'top',
       icon: IconHourglass,
-      classes: 'bg-badge-bg-warning border-line-muted text-font-secondary',
+      classes: 'bg-badge-bg-warning border-badge-bg-pending text-font-secondary',
       description: 'Transaction is pending to be finalized',
     }
   }
@@ -99,7 +99,7 @@ export function useStatus(providedLastBlockHeight?: Ref<number | null>) {
       text: 'Pending',
       placement: 'top',
       icon: IconHourglass,
-      classes: 'bg-badge-bg-warning border-line-muted text-font-secondary',
+      classes: 'bg-badge-bg-warning border-badge-bg-pending text-font-secondary',
       description: 'Block is not part of the canonical chain and is pending to be finalized or orphaned',
     }
   }
@@ -130,7 +130,7 @@ export function useStatus(providedLastBlockHeight?: Ref<number | null>) {
       text: 'Cross Chain Transfer',
       placement: 'top',
       icon: IconHourglass,
-      classes: 'bg-badge-bg-warning border-line-muted text-font-secondary',
+      classes: 'bg-badge-bg-warning border-badge-bg-pending text-font-secondary',
       description: 'Cross-chain transaction is pending to be finalized or failed',
     }
   }
