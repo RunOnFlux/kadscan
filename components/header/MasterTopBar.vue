@@ -92,7 +92,7 @@ onMounted(() => {
   <div>
     <div
       :class="[
-        'w-full z-50 bg-[#111111] border-b border-[#222222] fixed top-0 left-0 flex',
+        'w-full z-50 bg-surface-primary border-b border-[#222222] fixed top-0 left-0 flex',
         route.path !== '/' ? 'h-[55px]' : 'h-[47px]'
       ]"
     >
@@ -126,7 +126,7 @@ onMounted(() => {
                 <component :is="theme === 'light' ? ThemeLight : (theme === 'dim' ? ThemeDim : ThemeDark)" class="h-4 w-4" />
               </MenuButton>
             </div>
-            <MenuItems class="absolute right-0 mt-1 border border-[#222222] w-36 origin-top-right rounded-lg bg-[#111111] shadow-[0_0_15px_rgba(255,255,255,0.0625)] ring-1 ring-black/5 focus:outline-none px-2 py-1">
+            <MenuItems class="absolute right-0 mt-1 border border-[#222222] w-36 origin-top-right rounded-lg bg-surface-primary shadow-[0_0_15px_rgba(255,255,255,0.0625)] ring-1 ring-black/5 focus:outline-none px-2 py-1">
               <div class="px-1 py-1">
                 <MenuItem v-slot="{ active }">
                   <button @click="setTheme('light')" :class="[ active ? 'bg-[#222222]' : '', 'group flex w-full items-center justify-start rounded-md px-3 py-2 text-sm gap-2', theme==='light' ? 'text-[#00e19d]' : 'text-[#f5f5f5]']">
@@ -162,7 +162,7 @@ onMounted(() => {
             leave-from-class="transform scale-100 opacity-100"
             leave-to-class="transform scale-95 opacity-0"
           >
-            <MenuItems class="absolute right-0 mt-1 border border-[#222222] w-32 origin-top-right rounded-lg bg-[#111111] shadow-[0_0_15px_rgba(255,255,255,0.0625)] ring-1 ring-black/5 focus:outline-none px-2 py-1">
+            <MenuItems class="absolute right-0 mt-1 border border-[#222222] w-32 origin-top-right rounded-lg bg-surface-primary shadow-[0_0_15px_rgba(255,255,255,0.0625)] ring-1 ring-black/5 focus:outline-none px-2 py-1">
               <div class="px-1 py-1">
                 <MenuItem v-for="network in availableNetworks" :key="network.id" v-slot="{ active }">
                   <button

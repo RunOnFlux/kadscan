@@ -258,7 +258,7 @@ onBeforeUnmount(() => {
           border border-[#222222]
           rounded-lg
           absolute
-          bg-[#111111]
+          bg-surface-primary
           shadow-[0_0_15px_rgba(255,255,255,0.0625)]
           left-0 top-[calc(100%+8px)]
           origin-top-left

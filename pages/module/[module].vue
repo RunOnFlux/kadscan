@@ -229,7 +229,7 @@ watch([moduleName, () => selectedNetwork.value?.id], () => { checkHasToken() }, 
     <!-- Top Blocks -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6 items-stretch">
       <!-- Overview -->
-      <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+      <div class="bg-surface-primary border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
         <h3 class="text-[#f5f5f5] font-semibold mb-4">
           Overview <span class="text-[#bbbbbb] font-normal">— {{ overviewChainLabel }}</span>
         </h3>
@@ -288,7 +288,7 @@ watch([moduleName, () => selectedNetwork.value?.id], () => { checkHasToken() }, 
       </div>
 
       <!-- More Info -->
-      <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+      <div class="bg-surface-primary border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
         <h3 class="text-[#f5f5f5] font-semibold mb-4">More Info</h3>
         <div class="space-y-4">
           <!-- Row: Type + Capability -->
@@ -330,7 +330,7 @@ watch([moduleName, () => selectedNetwork.value?.id], () => { checkHasToken() }, 
       </div>
 
       <!-- Multichain Info -->
-      <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+      <div class="bg-surface-primary border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
         <h3 class="text-[#f5f5f5] font-semibold mb-4">Multichain Info</h3>
         <div class="space-y-4">
           <div class="flex items-center justify-between gap-2">

@@ -243,7 +243,7 @@ const metadataRollback = computed(() => {
 </script>
 
 <template>
-  <div class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
+  <div class="bg-surface-primary border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
     <div v-if="props.crossChainTransfers.length > 0 || props.isCrossChain">
       <Divide>
         <!-- Cross Chain Transfer Overview -->
@@ -283,7 +283,7 @@ const metadataRollback = computed(() => {
               <div class="lg:block hidden text-[#f5f5f5] text-[15px] flex gap-2 flex-1 overflow-hidden">
                 <div class="w-full">
                   <!-- Modern Cross-Chain Flow Container -->
-                  <div class="relative p-6 bg-gradient-to-br from-[#111111] via-[#222222] to-[#111111] border border-[#333333] rounded-2xl shadow-2xl backdrop-blur-sm">
+                  <div class="relative p-6 bg-gradient-to-br from-surface-primary via-[#222222] to-surface-primary border border-[#333333] rounded-2xl shadow-2xl backdrop-blur-sm">
                     <!-- Animated Background Elements -->
                     <div class="absolute inset-0 bg-gradient-to-r from-[#00a186]/5 via-transparent to-[#00a186]/5 rounded-2xl"></div>
                     
@@ -295,7 +295,7 @@ const metadataRollback = computed(() => {
                           <div class="absolute -inset-1 bg-gradient-to-r from-[#00a186]/20 to-[#00a186]/10 rounded-xl blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
                           
                           <!-- Main Card -->
-                          <div class="relative bg-gradient-to-br from-[#222222] to-[#111111] border border-[#333333] rounded-xl p-4 backdrop-blur-sm transform group-hover:scale-[1.02] transition-all duration-300">
+                          <div class="relative bg-gradient-to-br from-[#222222] to-surface-primary border border-[#333333] rounded-xl p-4 backdrop-blur-sm transform group-hover:scale-[1.02] transition-all duration-300">
                             <!-- Chain Badge -->
                             <div class="flex items-center justify-center mb-3">
                               <div class="px-4 py-2 bg-gradient-to-r from-[#333333] to-[#222222] border border-[#444648] rounded-lg shadow-lg">
@@ -312,7 +312,7 @@ const metadataRollback = computed(() => {
                             </div>
                             
                             <!-- Address -->
-                            <div class="flex items-center justify-center gap-2 p-3 bg-[#111111]/50 rounded-lg border border-[#333333]">
+                            <div class="flex items-center justify-center gap-2 p-3 bg-surface-primary/50 rounded-lg border border-[#333333]">
                               <div class="flex items-center justify-center min-w-0">
                                 <span class="text-[#bbbbbb] text-xs font-mono">
                                   {{ actualSender.length > 14 ? actualSender.substring(0, 8) + '...' + actualSender.substring(actualSender.length - 6) : actualSender }}
@@ -345,7 +345,7 @@ const metadataRollback = computed(() => {
                           <div class="absolute -inset-1 bg-gradient-to-r from-[#00a186]/20 to-[#00a186]/10 rounded-xl blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
                           
                           <!-- Subtle glass container matching site theme -->
-                          <div class="relative px-4 py-2 bg-gradient-to-br from-[#222222]/80 via-[#111111]/60 to-[#111111]/80 backdrop-blur-sm border border-[#333333]/50 rounded-xl shadow-lg transform group-hover:scale-[1.05] transition-all duration-300">
+                          <div class="relative px-4 py-2 bg-gradient-to-br from-[#222222]/80 via-surface-primary/60 to-surface-primary/80 backdrop-blur-sm border border-[#333333]/50 rounded-xl shadow-lg transform group-hover:scale-[1.05] transition-all duration-300">
                             <div class="flex items-center gap-2">
                                 <!-- Amount text -->
                                 <span class="text-white text-sm font-bold tracking-wide" v-if="transferAmount">
@@ -364,7 +364,7 @@ const metadataRollback = computed(() => {
                           <div class="absolute -inset-1 bg-gradient-to-r from-[#555555]/20 to-[#444648]/10 rounded-xl blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
                           
                           <!-- Main Card -->
-                          <div class="relative bg-gradient-to-br from-[#222222] to-[#111111] border border-[#333333] rounded-xl p-4 backdrop-blur-sm transform group-hover:scale-[1.02] transition-all duration-300">
+                          <div class="relative bg-gradient-to-br from-[#222222] to-surface-primary border border-[#333333] rounded-xl p-4 backdrop-blur-sm transform group-hover:scale-[1.02] transition-all duration-300">
                             <!-- Chain Badge -->
                             <div class="flex items-center justify-center mb-3">
                               <div class="px-4 py-2 bg-gradient-to-r from-[#333333] to-[#222222] border border-[#444648] rounded-lg shadow-lg">
@@ -382,7 +382,7 @@ const metadataRollback = computed(() => {
                             </div>
                             
                             <!-- Address: finalized vs pending skeleton -->
-                            <div v-if="actualReceiver" class="flex items-center justify-center gap-2 p-3 bg-[#111111]/50 rounded-lg border border-[#333333]">
+                            <div v-if="actualReceiver" class="flex items-center justify-center gap-2 p-3 bg-surface-primary/50 rounded-lg border border-[#333333]">
                               <div class="flex items-center justify-center min-w-0">
                                 <span class="text-[#bbbbbb] text-xs font-mono">
                                   {{ actualReceiver.length > 14 ? actualReceiver.substring(0, 8) + '...' + actualReceiver.substring(actualReceiver.length - 6) : actualReceiver }}
@@ -699,7 +699,7 @@ const metadataRollback = computed(() => {
           Pending cross-chain transfer
         </div>
 
-        <div class="bg-[#111111] border border-[#222222] rounded-xl p-4">
+        <div class="bg-surface-primary border border-[#222222] rounded-xl p-4">
           <div class="animate-pulse">
             <div class="flex items-center justify-between gap-8">
               <div class="flex-1">

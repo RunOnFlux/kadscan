@@ -46,7 +46,7 @@ const activeProps = computed(() => ({ modulename: props.modulename, chain: props
 </script>
 
 <template>
-  <div class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5">
+  <div class="bg-surface-primary border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5">
     <div class="flex items-center justify-between mb-4 overflow-x-auto">
       <div class="flex items-center gap-2">
         <button

@@ -125,9 +125,9 @@ const showHistory = computed(() => {
   <div
     v-if="open"
     ref="modalRef"
-    class="absolute top-full left-0 right-[52px] bg-[#111111] border border-[#222222] rounded-b-md max-h-[344px] overflow-auto z-[99] w-full"
+    class="absolute top-full left-0 right-[52px] bg-surface-primary border border-[#222222] rounded-b-md max-h-[344px] overflow-auto z-[99] w-full"
   >
-    <div class="sticky top-0 z-10 px-4 pt-3 border-b border-b-[#222222] bg-[#111111]">
+    <div class="sticky top-0 z-10 px-4 pt-3 border-b border-b-[#222222] bg-surface-primary">
       <!-- History header -->
       <div v-if="showHistory">
         <span class="text-white text-sm">Recent searches</span>

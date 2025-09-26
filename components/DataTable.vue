@@ -77,7 +77,7 @@ const formatTotalItems = (num: number) => {
 </script>
 
 <template>
-  <div class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
+  <div class="bg-surface-primary border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
     <div class="flex justify-between mb-4" :class="preventHeaderWrap ? 'flex-row items-center gap-2 flex-nowrap' : 'flex-col md:flex-row gap-y-2 items-start md:items-center'">
       <div>
         <h2 class="text-[15px] text-normal text-[#f5f5f5]">

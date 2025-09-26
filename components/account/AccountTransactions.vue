@@ -333,7 +333,7 @@ function downloadData() {
     </DataTable>
     
     <!-- Empty state -->
-    <div v-else class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
+    <div v-else class="bg-surface-primary border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
       <div class="flex flex-col items-center justify-center py-12">
         <img src="/empty/txs.png" alt="No transactions" class="w-24 h-24 mb-4 opacity-50" />
         <h3 class="text-[#f5f5f5] text-lg font-medium mb-2">No transactions yet</h3>

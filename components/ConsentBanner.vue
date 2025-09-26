@@ -46,7 +46,7 @@ onMounted(() => {
     leave-to-class="transform translate-y-4 opacity-0"
   >
     <div v-if="isVisible" class="fixed bottom-3 left-1/2 -translate-x-1/2 z-[100] w-[calc(100%-24px)] md:w-auto">
-      <div class="mx-auto flex max-w-3xl items-start gap-3 rounded-xl border border-[#222222] bg-[#111111]/95 px-4 py-3 shadow-[0_0_15px_rgba(255,255,255,0.0625)] backdrop-blur">
+      <div class="mx-auto flex max-w-3xl items-start gap-3 rounded-xl border border-[#222222] bg-surface-primary/95 px-4 py-3 shadow-[0_0_15px_rgba(255,255,255,0.0625)] backdrop-blur">
         <div class="flex-1 text-sm text-[#d6d6d6]">
           <p class="leading-5">
             We use analytics and session replay to improve Kadscan. Data is anonymized; inputs are masked. You can change your choice anytime in your browser storage.

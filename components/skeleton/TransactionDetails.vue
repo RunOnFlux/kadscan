@@ -9,7 +9,7 @@
     </div>
 
     <!-- Main Transaction Details Card Skeleton -->
-    <div class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
+    <div class="bg-surface-primary border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
       <div class="flex flex-col gap-6">
         <!-- Section 1: Basic Information -->
         <div class="flex flex-col gap-4">
@@ -148,7 +148,7 @@
     </div>
 
     <!-- More Details Card Skeleton -->
-    <div class="bg-[#111111] border border-[#222222] rounded-xl p-5 mb-2">
+    <div class="bg-surface-primary border border-[#222222] rounded-xl p-5 mb-2">
       <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
         <div class="w-[300px] flex-shrink-0">
           <div class="h-4 w-24 bg-[#292B2C] rounded"></div>

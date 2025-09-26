@@ -275,7 +275,7 @@ onMounted(() => {
 
       <div v-if="activeView === 'overview'">
         <div
-          class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-1"
+          class="bg-surface-primary border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-1"
         >
           <Divide>
             <!-- Section 1: Core Information -->
@@ -297,7 +297,7 @@ onMounted(() => {
                           <button
                             @click="goToBlock(height - 1, chainId)"
                             :disabled="disablePrevBlock"
-                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
+                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3 transform rotate-180" />
                           </button>
@@ -309,7 +309,7 @@ onMounted(() => {
                           <button
                             @click="goToBlock(height + 1, chainId)"
                             :disabled="disableNextBlock"
-                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
+                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3" />
                           </button>
@@ -334,7 +334,7 @@ onMounted(() => {
                           <button
                             @click="goToBlock(height, chainId - 1)"
                             :disabled="disablePrevChain"
-                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
+                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3 transform rotate-180" />
                           </button>
@@ -343,7 +343,7 @@ onMounted(() => {
                           <button
                             @click="goToBlock(height, chainId + 1)"
                             :disabled="disableNextChain"
-                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-[#111111] text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
+                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-[#222222] bg-surface-primary text-xs font-normal text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3" />
                           </button>
@@ -506,7 +506,7 @@ onMounted(() => {
         <!-- More Details -->
         <div
           v-if="!loading && !error && block"
-          class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5"
+          class="bg-surface-primary border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5"
         >
           <div 
             ref="contentRef"

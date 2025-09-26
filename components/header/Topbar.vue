@@ -33,7 +33,7 @@ const {
   <Disclosure
     as="header"
     v-slot="{ open }"
-    class="w-full bg-[#111111] border-b border-[#222222] shadow-[0_4px_10px_-5px_rgba(255,255,255,0.0625)] z-[10]"
+    class="w-full bg-surface-primary border-b border-[#222222] shadow-[0_4px_10px_-5px_rgba(255,255,255,0.0625)] z-[10]"
   >
     <div
       class="w-full max-w-[1400px] mx-auto px-3 md:px-4 flex items-center justify-between h-[62px] md:h-[56px]"
@@ -84,7 +84,7 @@ const {
             leave-from-class="transform scale-100 opacity-100"
             leave-to-class="transform scale-95 opacity-0"
           >
-            <MenuItems class="absolute right-0 mt-1 border border-[#222222] w-32 origin-top-right rounded-lg bg-[#111111] shadow-[0_0_15px_rgba(255,255,255,0.0625)] ring-1 ring-black/5 focus:outline-none px-2 py-1">
+            <MenuItems class="absolute right-0 mt-1 border border-[#222222] w-32 origin-top-right rounded-lg bg-surface-primary shadow-[0_0_15px_rgba(255,255,255,0.0625)] ring-1 ring-black/5 focus:outline-none px-2 py-1">
               <div class="px-1 py-1">
                 <MenuItem v-for="network in availableNetworks" :key="network.id" v-slot="{ active }">
                   <button
@@ -120,7 +120,7 @@ const {
       leave-to-class="transform scale-95 opacity-0"
     >
       <DisclosurePanel
-        class="flex md:hidden w-full gap-2 flex-col pt-1 pb-3 px-4 bg-[#111111]"
+        class="flex md:hidden w-full gap-2 flex-col pt-1 pb-3 px-4 bg-surface-primary"
       >
         <HeaderRouteMobile
           :key="route.tag + i + '-mobile'"

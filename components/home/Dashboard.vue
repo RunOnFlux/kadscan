@@ -61,7 +61,7 @@ const marketCapInKda = computed(() => {
 </script>
 
 <template>
-  <div class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] mb-4 py-5">
+  <div class="bg-surface-primary border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] mb-4 py-5">
     <div class="grid grid-cols-1 md:grid-cols-3 divide-x divide-[#222222]">
       <div class="flex flex-col justify-center px-5">
         <div class="flex items-start">

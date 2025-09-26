@@ -47,7 +47,7 @@ function makeEventKey(edge: any, index: number): string {
 </script>
 
 <template>
-  <div class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
+  <div class="bg-surface-primary border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
     <div v-if="transaction?.result?.logs || sortedEvents.length">
       <Divide>
         <!-- Logs Hash Section -->

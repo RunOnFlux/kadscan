@@ -365,7 +365,7 @@ onUnmounted(() => {
 
         <!-- Transaction Details -->
         <div v-else-if="activeTab.startsWith('Overview')" :key="'overview'">
-          <div class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
+          <div class="bg-surface-primary border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
           <Divide>
             <!-- Section 1: Basic Information -->
             <DivideItem>
@@ -637,7 +637,7 @@ onUnmounted(() => {
           </div>
 
           <!-- More Details Section (now inside Overview branch) -->
-          <div class="bg-[#111111] border border-[#222222] rounded-xl p-5 mb-2 shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+          <div class="bg-surface-primary border border-[#222222] rounded-xl p-5 mb-2 shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
           <div 
             ref="contentRef"
             class="overflow-hidden transition-all duration-300 ease-out"
