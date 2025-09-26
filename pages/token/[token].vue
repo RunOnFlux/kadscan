@@ -268,7 +268,7 @@ watch([selectedNetwork, () => route.query.chain, () => moduleName.value], async 
             'px-3 py-1 rounded-lg text-[14px] font-medium transition-colors whitespace-nowrap relative',
             activeTab === tab.id 
               ? 'bg-accent-strong text-font-primary' 
-              : 'bg-surface-hover text-font-primary hover:bg-[#333333]'
+              : 'bg-surface-hover text-font-primary hover:bg-tab-bg-hover'
           ]"
         >
           {{ tab.label }}

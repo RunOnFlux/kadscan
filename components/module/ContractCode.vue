@@ -142,21 +142,21 @@ const declarationInfo = computed<DeclarationInfo | null>(() => {
             <div v-if="!effectiveLoading && !effectiveError" class="flex items-center gap-2 w-full md:w-fit justify-end mt-2 md:mt-0">
             <button
               @click="onDownload"
-              class="flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-surface-disabled active:text-font-primary"
+              class="flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-btn-cta-hover-bg hover:text-surface-black transition-colors active:bg-surface-disabled active:text-font-primary"
               aria-label="Download code"
             >
               <IconDownload class="w-4 h-4" />
             </button>
             <button
               @click="onCopy"
-              class="flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-surface-disabled active:text-font-primary"
+              class="flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-btn-cta-hover-bg hover:text-surface-black transition-colors active:bg-surface-disabled active:text-font-primary"
               aria-label="Copy code"
             >
               <IconCopy class="w-4 h-4" />
             </button>
             <button
               @click="toggleEnlarge"
-              class="flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-surface-disabled active:text-font-primary"
+              class="flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-btn-cta-hover-bg hover:text-surface-black transition-colors active:bg-surface-disabled active:text-font-primary"
               aria-label="Enlarge editor"
             >
               <IconEnlarge class="w-4 h-4" />
@@ -169,11 +169,11 @@ const declarationInfo = computed<DeclarationInfo | null>(() => {
 
     <div v-if="effectiveLoading" class="w-full bg-surface-disabled border border-line-default rounded-lg px-[10px] py-[40px]">
       <div class="flex items-center justify-center">
-        <div class="h-8 w-8 rounded-full border-2 border-line-strong border-t-[#009367] animate-spin"></div>
+        <div class="h-8 w-8 rounded-full border-2 border-line-strong border-t-accent-strong animate-spin"></div>
       </div>
     </div>
 
-    <div v-else-if="effectiveError" class="w-full bg-surface-disabled border border-[#402222] rounded-lg text-[#ffaaaa] text-sm px-[10px] py-[10px] font-mono">
+    <div v-else-if="effectiveError" class="w-full bg-surface-disabled border border-badge-bg-error rounded-lg text-badge-text-error text-sm px-[10px] py-[10px] font-mono">
       Failed to load module code
     </div>
 

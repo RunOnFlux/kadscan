@@ -153,10 +153,10 @@ watch(() => props.balances, (arr) => {
 
     <div 
       v-if="open"
-      class="absolute z-30 mt-2 w-full max-h-[420px] rounded-md border border-[#222] bg-[#0f0f0f] shadow-[0_0_20px_rgba(255,255,255,0.0625)] flex flex-col overflow-hidden"
+      class="absolute z-30 mt-2 w-full max-h-[420px] rounded-md border border-[#222] bg-surface-black shadow-[0_0_20px_rgba(255,255,255,0.0625)] flex flex-col overflow-hidden"
     >
       <!-- Search -->
-      <div class="px-3 py-3 bg-[#0f0f0f] border-b border-line-default">
+      <div class="px-3 py-3 bg-surface-black border-b border-line-default">
         <input
           v-model="search"
           type="text"
@@ -219,7 +219,7 @@ watch(() => props.balances, (arr) => {
               <div class="w-6 h-6 rounded bg-[#222] grid place-items-center overflow-hidden">
                 <img v-if="item.icon && !isMiniBroken(item)" :src="item.icon" alt="nft" class="w-full h-full object-cover" @error="markMiniBroken(item)" />
                 <span v-else-if="!item.metaErr && !isMiniBroken(item)" class="inline-block">
-                  <span class="block w-[10px] h-[10px] border-2 border-[#bbbbbb] border-t-transparent rounded-full animate-spin"></span>
+                  <span class="block w-[10px] h-[10px] border-2 border-font-secondary border-t-transparent rounded-full animate-spin"></span>
                 </span>
                 <span v-else class="text-[9px] text-font-danger leading-none">IPFS</span>
               </div>

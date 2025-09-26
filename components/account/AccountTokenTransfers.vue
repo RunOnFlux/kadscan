@@ -297,8 +297,8 @@ function downloadData() {
             :class="[
               'py-1.5 text-[10px] rounded-md border inline-flex items-center justify-center leading-none w-[48px]',
               item.direction === 'IN' 
-                ? 'bg-[#0f1f1d] border-[#00a18680] text-font-accent'
-                : 'bg-[#17150d] border-[#fbbf2480] text-[#fbbf24]'
+                ? 'bg-badge-bg-success border-badge-bg-success-soft text-font-accent'
+                : 'bg-badge-bg-warning border-badge-bg-warning-soft text-badge-text-warning'
             ]"
           >
             {{ item.direction }}

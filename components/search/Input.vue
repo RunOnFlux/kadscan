@@ -106,7 +106,7 @@ onUnmounted(() => {
 
       <div
         @click="submit()"
-        class="flex items-center justify-center bg-accent-strong hover:bg-[#00805b] rounded-lg w-[36px] h-[34px] shrink-0 cursor-pointer"
+        class="flex items-center justify-center bg-accent-strong hover:bg-accent-strong rounded-lg w-[36px] h-[34px] shrink-0 cursor-pointer"
       >
         <IconSearch
           class="w-5 h-5 text-font-primary"

@@ -44,7 +44,7 @@ const { recordHistory } = useSearch();
         </span>
 
         <span
-          class="text-[#939393] text-xs truncate"
+          class="text-font-tertiary text-xs truncate"
         >
           {{ module }}
         </span>

@@ -86,7 +86,7 @@ const getTransactionStatus = (transaction: any) => {
     return {
       text: 'Pending',
       icon: IconHourglass,
-      classes: 'bg-[#17150d] border-line-muted text-font-secondary'
+      classes: 'bg-badge-bg-warning border-line-muted text-font-secondary'
     }
   }
   
@@ -94,7 +94,7 @@ const getTransactionStatus = (transaction: any) => {
     return {
       text: 'Failed',
       icon: IconCancel,
-      classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]'
+      classes: 'bg-badge-bg-error border-badge-bg-error-strong text-badge-text-error'
     }
   }
   
@@ -102,14 +102,14 @@ const getTransactionStatus = (transaction: any) => {
     return {
       text: 'Success',
       icon: IconCheckmarkFill,
-      classes: 'bg-[#0f1f1d] border-[#00a18680] text-font-accent'
+      classes: 'bg-badge-bg-success border-badge-bg-success-soft text-font-accent'
     }
   }
   
   return {
     text: 'Pending',
     icon: IconHourglass,
-    classes: 'bg-[#17150d] border-line-muted text-font-secondary'
+    classes: 'bg-badge-bg-warning border-line-muted text-font-secondary'
   }
 }
 
@@ -126,7 +126,7 @@ const crossChainStatus = computed(() => {
     return {
       text: 'Failed',
       icon: IconCancel,
-      classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]'
+      classes: 'bg-badge-bg-error border-badge-bg-error-strong text-badge-text-error'
     }
   }
   
@@ -135,7 +135,7 @@ const crossChainStatus = computed(() => {
     return {
       text: 'Pending',
       icon: IconHourglass,
-      classes: 'bg-[#17150d] border-line-muted text-font-secondary'
+      classes: 'bg-badge-bg-warning border-line-muted text-font-secondary'
     }
   }
   
@@ -144,7 +144,7 @@ const crossChainStatus = computed(() => {
     return {
       text: 'Success',
       icon: IconCheckmarkFill,
-      classes: 'bg-[#0f1f1d] border-[#00a18680] text-font-accent'
+      classes: 'bg-badge-bg-success border-badge-bg-success-soft text-font-accent'
     }
   }
   
@@ -152,7 +152,7 @@ const crossChainStatus = computed(() => {
   return {
     text: 'Pending',
     icon: IconHourglass,
-    classes: 'bg-[#17150d] border-line-muted text-font-secondary'
+    classes: 'bg-badge-bg-warning border-line-muted text-font-secondary'
   }
 })
 
@@ -298,7 +298,7 @@ const metadataRollback = computed(() => {
                           <div class="relative bg-gradient-to-br from-surface-secondary to-surface-primary border border-line-strong rounded-xl p-4 backdrop-blur-sm transform group-hover:scale-[1.02] transition-all duration-300">
                             <!-- Chain Badge -->
                             <div class="flex items-center justify-center mb-3">
-                              <div class="px-4 py-2 bg-gradient-to-r from-[#333333] to-surface-secondary border border-line-muted rounded-lg shadow-lg">
+                              <div class="px-4 py-2 bg-gradient-to-r from-line-strong to-surface-secondary border border-line-muted rounded-lg shadow-lg">
                                 <div class="flex items-center gap-2">
                                   <div class="w-2 h-2 rounded-full animate-pulse" :style="{ backgroundColor: sourceIndicatorColor }"></div>
                                   <span class="text-font-primary text-sm font-bold tracking-wide">Chain {{ sourceChainId }}</span>
@@ -361,13 +361,13 @@ const metadataRollback = computed(() => {
                       <div class="flex-1 group">
                         <div class="relative">
                           <!-- Glow Effect -->
-                          <div class="absolute -inset-1 bg-gradient-to-r from-[#555555]/20 to-[#444648]/10 rounded-xl blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
+                          <div class="absolute -inset-1 bg-gradient-to-r from-line-muted/20 to-line-muted/10 rounded-xl blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
                           
                           <!-- Main Card -->
                           <div class="relative bg-gradient-to-br from-surface-secondary to-surface-primary border border-line-strong rounded-xl p-4 backdrop-blur-sm transform group-hover:scale-[1.02] transition-all duration-300">
                             <!-- Chain Badge -->
                             <div class="flex items-center justify-center mb-3">
-                              <div class="px-4 py-2 bg-gradient-to-r from-[#333333] to-surface-secondary border border-line-muted rounded-lg shadow-lg">
+                              <div class="px-4 py-2 bg-gradient-to-r from-line-strong to-surface-secondary border border-line-muted rounded-lg shadow-lg">
                                 <div class="flex items-center gap-2">
                                   <div class="w-2 h-2 rounded-full animate-pulse" :style="{ backgroundColor: destinationIndicatorColor }"></div>
                                   <span class="text-font-primary text-sm font-bold tracking-wide" v-if="destinationChainId !== null">Chain {{ destinationChainId }}</span>
@@ -694,7 +694,7 @@ const metadataRollback = computed(() => {
     <!-- Pending skeleton when we know it's cross-chain but no transfer data yet -->
     <div v-else-if="props.isCrossChain" class="py-5">
       <div class="flex flex-col gap-4">
-        <div class="flex items-center gap-2 w-fit px-2 py-1 rounded-lg border text-xs bg-[#17150d] border-line-muted text-[#fbbf24]">
+        <div class="flex items-center gap-2 w-fit px-2 py-1 rounded-lg border text-xs bg-badge-bg-warning border-line-muted text-badge-text-warning">
           <IconHourglass class="w-3 h-3" />
           Pending cross-chain transfer
         </div>

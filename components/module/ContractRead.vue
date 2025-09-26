@@ -117,7 +117,7 @@ const vAutosize = {
               @click="selected = fn.name"
               :class="[
                 'px-3 py-1 rounded-lg text-[13px] transition-colors whitespace-normal break-words text-left max-w-full',
-                selected === fn.name ? 'bg-accent-strong text-font-primary' : 'bg-surface-hover text-font-primary hover:bg-[#333333]'
+                selected === fn.name ? 'bg-accent-strong text-font-primary' : 'bg-surface-hover text-font-primary hover:bg-tab-bg-hover'
               ]"
             >
               {{ fn.name }}
@@ -169,7 +169,7 @@ const vAutosize = {
               </div>
               <button
                 @click="resultExpanded = !resultExpanded"
-                class="flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-surface-disabled active:text-font-primary"
+                class="flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-btn-cta-hover-bg hover:text-surface-black transition-colors active:bg-surface-disabled active:text-font-primary"
                 aria-label="Toggle result size"
                 :title="resultExpanded ? 'Collapse' : 'Expand'"
               >
@@ -179,7 +179,7 @@ const vAutosize = {
             <div class="text-font-primary text-[15px] fix w-full md:flex-1 overflow-hidden">
               <div v-if="loading" class="w-full">
                 <div class="relative overflow-hidden rounded-lg border border-line-default bg-surface-disabled h-[110px] md:h-[120px]">
-                  <div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-[#333333] to-transparent animate-shimmer"></div>
+                  <div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-line-strong to-transparent animate-shimmer"></div>
                 </div>
               </div>
               <div v-else-if="!resultExpanded"
@@ -214,7 +214,7 @@ const vAutosize = {
                 ></textarea>
               </div>
             </div>
-            <div v-if="error" class="text-[#ffaaaa] text-[12px]">Request failed. Please verify your inputs and try again.</div>
+            <div v-if="error" class="text-badge-text-error text-[12px]">Request failed. Please verify your inputs and try again.</div>
           </div>
         </div>
       </div>

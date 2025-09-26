@@ -754,8 +754,8 @@ onUnmounted(() => {
                               >
                                 <!-- Simple diagonal grip lines -->
                                 <div class="absolute bottom-1 right-1 w-3 h-3">
-                                  <div class="absolute bottom-0 right-0 w-[1px] h-1.5 bg-[#bbbbbb] transform rotate-45 origin-bottom-right translate-y-[-5px] translate-x-[-4px]"></div>
-                                  <div class="absolute bottom-0 right-0 w-[1px] h-2.5 bg-[#bbbbbb] transform rotate-45 origin-bottom-right translate-y-[-5px] translate-x-[-7px]"></div>
+                                  <div class="absolute bottom-0 right-0 w-[1px] h-1.5 bg-font-secondary transform rotate-45 origin-bottom-right translate-y-[-5px] translate-x-[-4px]"></div>
+                                  <div class="absolute bottom-0 right-0 w-[1px] h-2.5 bg-font-secondary transform rotate-45 origin-bottom-right translate-y-[-5px] translate-x-[-7px]"></div>
                                 </div>
                               </div>
                             </div>
@@ -768,7 +768,7 @@ onUnmounted(() => {
                                   'px-3 py-1.5 text-xs rounded-md transition-colors bg-surface-secondary',
                                   codeView === 'default' 
                                     ? 'text-font-primary cursor-default' 
-                                    : 'bg-surface-secondary text-font-secondary hover:bg-[#dadfe3] hover:text-[#000000]'
+                                    : 'bg-surface-secondary text-font-secondary hover:bg-btn-cta-hover-bg hover:text-surface-black'
                                 ]"
                               >
                                 Default View
@@ -779,7 +779,7 @@ onUnmounted(() => {
                                   'px-3 py-1.5 text-xs rounded-md transition-colors bg-surface-secondary',
                                   codeView === 'raw' 
                                     ? 'text-font-primary cursor-default' 
-                                    : 'bg-surface-secondary text-font-secondary hover:bg-[#dadfe3] hover:text-[#000000]'
+                                    : 'bg-surface-secondary text-font-secondary hover:bg-btn-cta-hover-bg hover:text-surface-black'
                                 ]"
                               >
                                 Original
@@ -790,7 +790,7 @@ onUnmounted(() => {
                                   'px-3 py-1.5 text-xs rounded-md transition-colors bg-surface-secondary',
                                   codeView === 'data' 
                                     ? 'text-font-primary cursor-default' 
-                                    : 'bg-surface-secondary text-font-secondary hover:bg-[#dadfe3] hover:text-[#000000]'
+                                    : 'bg-surface-secondary text-font-secondary hover:bg-btn-cta-hover-bg hover:text-surface-black'
                                 ]"
                               >
                                 Data
@@ -801,7 +801,7 @@ onUnmounted(() => {
                                   'px-3 py-1.5 text-xs rounded-md transition-colors bg-surface-secondary',
                                   codeView === 'signatures' 
                                     ? 'text-font-primary cursor-default' 
-                                    : 'bg-surface-secondary text-font-secondary hover:bg-[#dadfe3] hover:text-[#000000]'
+                                    : 'bg-surface-secondary text-font-secondary hover:bg-btn-cta-hover-bg hover:text-surface-black'
                                 ]"
                               >
                                 Signatures

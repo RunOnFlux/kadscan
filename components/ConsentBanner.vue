@@ -54,7 +54,7 @@ onMounted(() => {
         </div>
         <div class="flex shrink-0 items-center gap-2">
           <button @click="decline" class="px-3 py-2 text-sm rounded-lg border border-line-default bg-surface-disabled hover:bg-surface-secondary text-font-primary">Decline</button>
-          <button @click="accept" class="px-3 py-2 text-sm rounded-lg bg-[#6ab5db] hover:bg-[#9ccee7] text-[#0b0b0b]">Allow</button>
+          <button @click="accept" class="px-3 py-2 text-sm rounded-lg bg-link hover:bg-link-hover text-surface-black">Allow</button>
         </div>
       </div>
     </div>

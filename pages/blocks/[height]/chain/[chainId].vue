@@ -264,7 +264,7 @@ onMounted(() => {
           class="px-[10px] py-[5px] text-[13px] rounded-lg font-medium transition-colors"
           :class="{
             'bg-accent-strong text-font-primary': activeView === 'overview',
-            'bg-surface-hover text-font-secondary hover:bg-[#333333]':
+            'bg-surface-hover text-font-secondary hover:bg-tab-bg-hover':
               activeView !== 'overview',
           }"
           @click="activeView = 'overview'"
@@ -297,7 +297,7 @@ onMounted(() => {
                           <button
                             @click="goToBlock(height - 1, chainId)"
                             :disabled="disablePrevBlock"
-                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-line-default bg-surface-primary text-xs font-normal text-link hover:text-font-primary hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
+                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-line-default bg-surface-primary text-xs font-normal text-link hover:text-font-primary hover:bg-btn-cta-bg disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3 transform rotate-180" />
                           </button>
@@ -309,7 +309,7 @@ onMounted(() => {
                           <button
                             @click="goToBlock(height + 1, chainId)"
                             :disabled="disableNextBlock"
-                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-line-default bg-surface-primary text-xs font-normal text-link hover:text-font-primary hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
+                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-line-default bg-surface-primary text-xs font-normal text-link hover:text-font-primary hover:bg-btn-cta-bg disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3" />
                           </button>
@@ -334,7 +334,7 @@ onMounted(() => {
                           <button
                             @click="goToBlock(height, chainId - 1)"
                             :disabled="disablePrevChain"
-                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-line-default bg-surface-primary text-xs font-normal text-link hover:text-font-primary hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
+                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-line-default bg-surface-primary text-xs font-normal text-link hover:text-font-primary hover:bg-btn-cta-bg disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3 transform rotate-180" />
                           </button>
@@ -343,7 +343,7 @@ onMounted(() => {
                           <button
                             @click="goToBlock(height, chainId + 1)"
                             :disabled="disableNextChain"
-                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-line-default bg-surface-primary text-xs font-normal text-link hover:text-font-primary hover:bg-[#0784c3] disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
+                            class="relative whitespace-nowrap inline-flex items-center p-1 rounded-md border border-line-default bg-surface-primary text-xs font-normal text-link hover:text-font-primary hover:bg-btn-cta-bg disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
                           >
                             <IconChevron class="h-3 w-3" />
                           </button>
@@ -513,7 +513,7 @@ onMounted(() => {
             class="overflow-hidden transition-all duration-300 ease-out"
             :style="{ height: showMore ? contentHeight + 'px' : '0px' }"
           >
-            <div class="mb-4 pb-4 border-b border-[#333]">
+            <div class="mb-4 pb-4 border-b border-line-strong">
               <Divide>
                 <!-- Epoch -->
                 <DivideItem>
@@ -672,7 +672,7 @@ onMounted(() => {
                       </template>
                     </LabelValue>
                   </div>
-                  <div v-else class="text-[#444648]">No neighbors found for this block.</div>
+                  <div v-else class="text-line-muted">No neighbors found for this block.</div>
                 </DivideItem>
               </Divide>
             </div>

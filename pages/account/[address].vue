@@ -479,7 +479,7 @@ watch(
             <div class="text-[13px] text-font-secondary font-medium mb-1">TRANSACTIONS SENT</div>
             <div class="space-y-1">
               <div class="flex items-center">
-                <span class="text-[#bbb] text-[14px] mr-1">Latest:</span>
+                <span class="text-font-secondary text-[14px] mr-1">Latest:</span>
                 <template v-if="showTransfersLoading">
                   <span class="text-font-tertiary text-[14px] animate-pulse">Loading...</span>
                 </template>
@@ -491,10 +491,10 @@ watch(
                   >
                     {{ account.lastTransactionCreationTime }}
                   </NuxtLink>
-                  <span v-else class="text-[#bbb] text-[14px]">N/A</span>
+                  <span v-else class="text-font-secondary text-[14px]">N/A</span>
                 </template>
 
-                <span class="text-[#bbb] text-[14px] mr-1 ml-4">First:</span>
+                <span class="text-font-secondary text-[14px] mr-1 ml-4">First:</span>
                 <template v-if="showTransfersLoading">
                   <span class="text-font-tertiary text-[14px] animate-pulse">Loading...</span>
                 </template>
@@ -506,7 +506,7 @@ watch(
                   >
                     {{ account.firstTransactionCreationTime }}
                   </NuxtLink>
-                  <span v-else class="text-[#bbb] text-[14px]">N/A</span>
+                  <span v-else class="text-font-secondary text-[14px]">N/A</span>
                 </template>
               </div>
             </div>
@@ -525,7 +525,7 @@ watch(
                   >
                     {{ truncateAddress(account.fundedBy, 10, 10) }}
                   </NuxtLink>
-                  <div class="text-[14px] text-[#bbb]">
+                  <div class="text-[14px] text-font-secondary">
                     <span>At Height </span>
                     <NuxtLink 
                       :to="`/blocks/${account.height}/chain/${account.chainId}`"
@@ -542,7 +542,7 @@ watch(
                     </NuxtLink>
                   </div>
                 </template>
-                <span v-else class="text-[#bbb] text-[14px]">N/A</span>
+                <span v-else class="text-font-secondary text-[14px]">N/A</span>
               </template>
             </div>
           </div>
@@ -613,7 +613,7 @@ watch(
             'px-3 py-1 rounded-lg text-[14px] font-medium transition-colors whitespace-nowrap relative',
             activeTab === tab.id 
               ? 'bg-accent-strong text-font-primary' 
-              : 'bg-surface-hover text-font-primary hover:bg-[#333333]'
+              : 'bg-surface-hover text-font-primary hover:bg-tab-bg-hover'
           ]"
         >
           {{ tab.label }}

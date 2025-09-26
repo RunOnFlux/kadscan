@@ -114,7 +114,7 @@ function makeEventKey(edge: any, index: number): string {
                   </span>
                   <button
                     @click="toggleExpand(makeEventKey(eventEdge, index))"
-                    class="ml-auto flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-surface-disabled active:text-font-primary"
+                    class="ml-auto flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-btn-cta-hover-bg hover:text-surface-black transition-colors active:bg-surface-disabled active:text-font-primary"
                     aria-label="Enlarge parameters"
                   >
                     <IconEnlarge class="w-4 h-4" />

@@ -77,7 +77,7 @@ const scrollToTop = () => {
         </button>
       </div>
 
-      <div class="border-t border-t-[#222222] my-4" />
+      <div class="border-t border-t-line-default my-4" />
 
       <div class="flex justify-between items-center flex-wrap">
         <div class="flex items-center gap-4">

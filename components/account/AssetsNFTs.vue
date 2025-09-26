@@ -211,7 +211,7 @@ onBeforeUnmount(() => {
           <div class="relative w-8 h-8 rounded-md overflow-hidden bg-surface-secondary border border-line-default grid place-items-center">
             <img v-if="item._image && !isMiniBroken(item)" :src="item._image" alt="nft" class="w-full h-full object-cover" @error="markMiniBroken(item)" />
             <span v-else-if="!item._metaErr && !isMiniBroken(item)" class="inline-block">
-              <span class="block w-[12px] h-[12px] border-2 border-[#bbbbbb] border-t-transparent rounded-full animate-spin"></span>
+              <span class="block w-[12px] h-[12px] border-2 border-font-secondary border-t-transparent rounded-full animate-spin"></span>
             </span>
             <span v-else class="text-[10px] text-font-danger text-center">IPFS</span>
             <div v-if="item._holding?.balance && Number(item._holding.balance) > 1" class="absolute bottom-[2px] left-[2px] bg-black/70 text-white text-[10px] px-[4px] py-[1px] rounded">
