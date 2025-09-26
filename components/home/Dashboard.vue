@@ -27,7 +27,7 @@ const transactionsCountRef = toRef(props, 'transactionsCount');
 
 const variationClass = computed(() => {
   if (!props.kadenaPriceVariation) return '';
-  return props.kadenaPriceVariation > 0 ? 'text-font-accent' : 'text-[#dc3545]';
+  return props.kadenaPriceVariation > 0 ? 'text-font-accent' : 'text-font-danger';
 });
 
 const formattedVariation = computed(() => {

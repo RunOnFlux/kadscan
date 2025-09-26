@@ -53,7 +53,7 @@ const formattedFee = computed(() => {
     >
       <div class="flex items-center md:w-5/12 md:gap-2 w-[160px]">
         <div class="bg-surface-disabled rounded-md p-3 hidden md:block">
-          <TransactionList class="w-6 h-6 text-[#b0b0b0]" />
+          <TransactionList class="w-6 h-6 text-font-secondary" />
         </div>
         <div>
           <Tooltip :value="props.hash" variant="hash">

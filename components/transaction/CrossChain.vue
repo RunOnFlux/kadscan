@@ -272,7 +272,7 @@ const metadataRollback = computed(() => {
                     placement="right"
                     :offset-distance="16"
                   >
-                    <Informational class="w-4 h-4 text-[#6366f1]" />
+                    <Informational class="w-4 h-4 text-btn-cta-bg" />
                   </Tooltip>
                   <span class="text-font-secondary text-[15px]">
                     Transfer Flow:

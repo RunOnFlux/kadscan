@@ -50,7 +50,7 @@ const formattedVariation = computed(() => {
 const variationColor = computed(() => {
   return kdaVariation.value && kdaVariation.value >= 0
     ? 'text-font-accent'
-    : 'text-[#dc3545]';
+    : 'text-font-danger';
 });
 
 const medGasPrice = computed(() => {
