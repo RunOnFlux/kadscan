@@ -43,6 +43,7 @@ export default {
         'surface-secondary': withOpacityValue('--surface-secondary'),
         'surface-hover': withOpacityValue('--surface-hover'),
         'surface-disabled': withOpacityValue('--surface-disabled'),
+        'surface-skeleton': withOpacityValue('--surface-skeleton'),
         'surface-white': withOpacityValue('--surface-white'),
         'surface-black': withOpacityValue('--surface-black'),
 

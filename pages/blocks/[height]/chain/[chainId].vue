@@ -672,7 +672,7 @@ onMounted(() => {
                       </template>
                     </LabelValue>
                   </div>
-                  <div v-else class="text-[#3E4041]">No neighbors found for this block.</div>
+                  <div v-else class="text-[#444648]">No neighbors found for this block.</div>
                 </DivideItem>
               </Divide>
             </div>

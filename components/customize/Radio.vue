@@ -21,7 +21,7 @@ function select() {
   >
     <div
       class="w-4 h-4 border-2 rounded-full flex items-center justify-center"
-      :class="isChecked ? 'border-[#009367]' : 'border-[#3E4041]'"
+      :class="isChecked ? 'border-[#009367]' : 'border-[#444648]'"
     >
       <div
         v-if="isChecked"

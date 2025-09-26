@@ -5,6 +5,7 @@
   --surface-secondary: 34 34 34; /* #222222 */
   --surface-hover: 37 37 37; /* #252525 */
   --surface-disabled: 21 21 21; /* #151515 */
+  --surface-skeleton: 41 43 44; /* #292B2C */
   --surface-white: 255 255 255; /* #ffffff */
   --surface-black: 0 0 0; /* #000000 */
 
@@ -62,6 +63,7 @@
   --surface-secondary: 34 34 34; /* #222222 */
   --surface-hover: 37 37 37; /* #252525 */
   --surface-disabled: 21 21 21; /* #151515 */
+  --surface-skeleton: 41 43 44; /* #292B2C */
   --surface-white: 255 255 255; /* #ffffff */
   --surface-black: 0 0 0; /* #000000 */
 
@@ -119,6 +121,7 @@
   --surface-secondary: 34 34 34; /* #222222 */
   --surface-hover: 37 37 37; /* #252525 */
   --surface-disabled: 21 21 21; /* #151515 */
+  --surface-skeleton: 41 43 44; /* #292B2C */
   --surface-white: 255 255 255; /* #ffffff */
   --surface-black: 0 0 0; /* #000000 */
 
