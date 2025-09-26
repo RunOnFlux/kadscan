@@ -65,7 +65,7 @@ const marketCapInKda = computed(() => {
     <div class="grid grid-cols-1 md:grid-cols-3 divide-x divide-line-default">
       <div class="flex flex-col justify-center px-5">
         <div class="flex items-start">
-          <KadenaIcon class="w-7 h-7 ml-[3px] mr-[9px]" />
+          <KadenaIcon class="w-7 h-7 ml-[3px] mr-[9px] text-font-secondary" />
           <div>
             <div class="text-xs text-font-secondary mb-[1px]">KADENA PRICE</div>
             <div class="text-[15px] text-font-primary">
@@ -77,7 +77,7 @@ const marketCapInKda = computed(() => {
         <div class="border-t border-line-default my-5"></div>
         <div class="flex items-start justify-between">
           <div class="flex items-start">
-            <NetworkIcon class="w-7 h-7 mr-[12px]" />
+            <NetworkIcon class="w-7 h-7 mr-[12px] text-font-secondary" />
             <div>
               <div class="text-xs text-font-secondary mb-[1px]">MARKET CAP</div>
               <div class="text-[15px] text-font-primary mt-[1px] mb-[3px]">
@@ -95,7 +95,7 @@ const marketCapInKda = computed(() => {
       <div class="flex flex-col justify-center px-5 pt-4 md:pt-0">
         <div class="flex justify-between items-start">
           <div class="flex items-start">
-            <ServerIcon class="w-7 h-7 ml-[3px] mr-[12px]" />
+            <ServerIcon class="w-7 h-7 ml-[3px] mr-[12px] text-font-secondary" />
             <div>
               <div class="text-xs text-font-secondary mb-[1px]">TRANSACTIONS</div>
               <div class="text-[15px] text-font-primary">
@@ -129,7 +129,7 @@ const marketCapInKda = computed(() => {
         <div class="border-t border-line-default my-5"></div>
         <div class="flex justify-between items-start">
           <div class="flex items-start">
-            <MeterIcon class="w-7 h-7 ml-[3px] mr-[12px]" />
+            <MeterIcon class="w-7 h-7 ml-[3px] mr-[12px] text-font-secondary" />
             <div>
               <div class="text-xs text-font-secondary mb-[1px]">LAST CONFIRMED BLOCK</div>
               <div class="text-[15px] text-font-primary mt-[1px] mb-[3px]">{{ lastFinalizedBlock ? lastFinalizedBlock : '—' }}</div>

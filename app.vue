@@ -59,7 +59,7 @@ useHead({
 
 <style>
   body {
-    background-color: #171717;
+    background-color: rgb(var(--surface-tertiary));
     height: 100%;
   }
 
@@ -74,8 +74,8 @@ useHead({
 
   body::-webkit-scrollbar-thumb {
     border-radius: 20px !important;
-    background-color: #525454 !important;
-    -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, 0.836) !important;
+    background-color: rgb(var(--font-tertiary)) !important;
+    -webkit-box-shadow: 0 0 1px rgb(var(--surface-white) / 0.836) !important;
   }
 
  .scrollbar-custom::-webkit-scrollbar {
@@ -85,7 +85,7 @@ useHead({
 
   .scrollbar-custom::-webkit-scrollbar-thumb {
     border-radius: 20px !important;
-    background-color: #202327cc !important;
-    -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, 0.5) !important;
+    background-color: rgb(var(--surface-secondary) / 0.8) !important;
+    -webkit-box-shadow: 0 0 1px rgb(var(--surface-white) / 0.5) !important;
   }
 </style>

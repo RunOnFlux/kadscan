@@ -42,7 +42,7 @@ const scrollToTop = () => {
       <div class="flex justify-between items-center gap-8 flex-wrap">
         <div class="flex flex-col gap-3">
           <div class="flex items-end gap-3">
-            <IconLogoColor class="h-[38px] md:h-[42px] w-max" />
+            <IconLogoColor class="h-[38px] md:h-[42px] w-max text-font-primary" />
           </div>
           <span class="hidden md:block text-sm text-font-primary leading-[19.6px]">
             Kadscan powers visibility into Kadena through block explorer and analytics.
@@ -98,12 +98,11 @@ const scrollToTop = () => {
         <a
           href="https://hackachain.io"
           target="_blank"
-          class="flex items-center gap-2 text-xs text-font-primary hover:text-white transition-colors"
+          class="flex items-center gap-2 text-xs text-font-primary transition-colors"
         >
           <span>Powered by</span>
-          <img
-            src="public/hackachain.svg"
-            class="h-[22px]"
+          <IconHackachain
+            class="h-[22px] w-max mb-1 text-font-secondary"
           />
         </a>
 

@@ -43,7 +43,7 @@ const timeAgo = computed(() => {
     >
       <div class="flex items-center md:w-1/3 gap-2 w-[160px]">
         <div class="bg-surface-disabled rounded-md p-3 hidden md:block">
-          <KadenaIcon class="w-6 h-6" />
+          <KadenaIcon class="w-6 h-6 text-font-secondary" />
         </div>
         <div>
           <NuxtLink :to="`/blocks/${props.height}`" class="text-link hover:text-link-hover text-[15px]">

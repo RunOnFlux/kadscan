@@ -15,8 +15,12 @@
       target="_blank"
       rel="noopener noreferrer"
       style="
-        background: linear-gradient(100deg, #009367 66%, #134237 100%);
-        box-shadow: 0px 0px 15px 0px #1c955080;
+        background: linear-gradient(
+          100deg,
+          rgb(var(--accent-strong)) 66%,
+          color-mix(in oklab, rgb(var(--accent-strong)), rgb(var(--surface-black)) 25%) 100%
+        );
+        box-shadow: 0 0 15px 0 rgb(var(--accent-strong) / 0.5);
       "
       class="relative hidden lg:flex p-4 rounded-xl text-white w-[400px] h-[125px] flex-shrink-0 mx-[60px] self-center"
     >

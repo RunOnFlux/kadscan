@@ -109,7 +109,7 @@ onUnmounted(() => {
         class="flex items-center justify-center bg-accent-strong hover:bg-accent-strong rounded-lg w-[36px] h-[34px] shrink-0 cursor-pointer"
       >
         <IconSearch
-          class="w-5 h-5 text-font-primary"
+          class="w-5 h-5 text-btn-text"
         />
         
       </div>
@@ -124,7 +124,7 @@ input {
   border-width: 2px !important;
 }
 input:focus {
-  border-color: #333333 !important;
+  border-color: rgb(var(--line-strong)) !important;
   border-width: 2px !important;
   outline: none !important;
 }

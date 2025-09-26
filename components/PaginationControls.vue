@@ -84,14 +84,14 @@ const goToNext = () => {
       v-if="!unknownTotal"
       :disabled="!canGoFirst || loadingPage"
       @click="goToFirst"
-      class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-line-default bg-surface-primary text-xs font-normal text-link hover:text-font-primary hover:bg-btn-cta-bg disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
+      class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-line-default bg-surface-primary text-xs font-normal text-link hover:text-btn-text hover:bg-btn-cta-bg disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
     >
       First
     </button>
     <button
       :disabled="!canGoPrev || loadingPage"
       @click="goToPrevious"
-      class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-line-default bg-surface-primary text-xs font-normal text-link hover:text-font-primary hover:bg-btn-cta-bg disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
+      class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-line-default bg-surface-primary text-xs font-normal text-link hover:text-btn-text hover:bg-btn-cta-bg disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
     >
       <IconChevron class="h-4 w-4 transform rotate-180" />
     </button>
@@ -102,7 +102,7 @@ const goToNext = () => {
     <button
       :disabled="!canGoNext || loadingPage"
       @click="goToNext"
-      class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-line-default bg-surface-primary text-xs font-normal text-link hover:text-font-primary hover:bg-btn-cta-bg disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
+      class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-line-default bg-surface-primary text-xs font-normal text-link hover:text-btn-text hover:bg-btn-cta-bg disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
     >
       <IconChevron class="h-4 w-4" />
     </button>
@@ -110,7 +110,7 @@ const goToNext = () => {
       v-if="!unknownTotal"
       :disabled="!canGoLast || loadingPage"
       @click="goToLast"
-      class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-line-default bg-surface-primary text-xs font-normal text-link hover:text-font-primary hover:bg-btn-cta-bg disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
+      class="relative whitespace-nowrap inline-flex items-center px-2 py-1 rounded-md border border-line-default bg-surface-primary text-xs font-normal text-link hover:text-btn-text hover:bg-btn-cta-bg disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
     >
       Last
     </button>

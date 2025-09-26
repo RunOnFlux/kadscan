@@ -3,9 +3,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import * as THREE from 'three'
 import * as anime from 'animejs'
+import { useTheme } from '~/composables/useTheme'
 
 const container = ref<HTMLDivElement | null>(null)
 let renderer: THREE.WebGLRenderer | undefined
@@ -24,8 +25,28 @@ onMounted(() => {
   const camera = new THREE.PerspectiveCamera(65, width / height, 0.1, 20)
 
   const geometry = new THREE.BoxGeometry(1, 1, 1)
-  const wireframeMaterial = new THREE.MeshBasicMaterial({ color: '#ffffff', wireframe: true });
-  const solidMaterial = new THREE.MeshBasicMaterial({ color: 0x00e19d, wireframe: true });
+  const wireframeMaterial = new THREE.MeshBasicMaterial({ wireframe: true });
+  const solidMaterial = new THREE.MeshBasicMaterial({ wireframe: true });
+
+  const { theme } = useTheme()
+  const accentStrong = '#00e19d'
+  const white = '#ffffff'
+
+  function applyThemeToMaterials(current: 'light' | 'dim' | 'dark') {
+    if (current === 'light') {
+      wireframeMaterial.color.set(accentStrong)
+      solidMaterial.color.set(accentStrong)
+    } else if (current === 'dim') {
+      wireframeMaterial.color.set(white)
+      solidMaterial.color.set(white)
+    } else {
+      wireframeMaterial.color.set(white)
+      solidMaterial.color.set(accentStrong)
+    }
+  }
+
+  applyThemeToMaterials(theme.value)
+  watch(theme, (t) => applyThemeToMaterials(t))
 
   renderer.setSize(width, height)
   renderer.setPixelRatio(window.devicePixelRatio)

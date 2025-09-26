@@ -130,14 +130,14 @@ const showHistory = computed(() => {
     <div class="sticky top-0 z-10 px-4 pt-3 border-b border-b-line-default bg-surface-primary">
       <!-- History header -->
       <div v-if="showHistory">
-        <span class="text-white text-sm">Recent searches</span>
+        <span class="text-font-primary text-sm">Recent searches</span>
       </div>
       <div
         v-if="loading || (items && items.__bgLoading)"
         class="pb-4"
       >
         <div class="flex flex-col gap-1">
-          <span class="text-sm text-white">Loading...</span>
+          <span class="text-sm text-font-primary">Loading...</span>
         </div>
       </div>
 
@@ -146,7 +146,7 @@ const showHistory = computed(() => {
         v-else-if="isEmpty && !showHistory && !(items && items.__bgLoading)"
       >
         <span
-          class="text-white text-sm"
+          class="text-font-primary text-sm"
         >
           No results found.
         </span>

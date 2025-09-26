@@ -10,6 +10,9 @@ import {
   MenuItem,
 } from '@headlessui/vue'
 import { useSharedData } from '~/composables/useSharedData';
+import IconLogoWhite from '~/components/icon/LogoWhite.vue'
+import IconLogoColor from '~/components/icon/LogoColor.vue'
+import { useTheme } from '~/composables/useTheme'
 import IconKadena from '~/components/icon/Kadena.vue';
 
 const routes = [
@@ -21,6 +24,7 @@ const routes = [
 provideUseId(() => useId());
 
 const route = useRoute()
+const { theme } = useTheme()
 
 const { 
   availableNetworks,
@@ -42,12 +46,10 @@ const {
         to="/"
         class="flex items-end"
       >
-        <IconLogoWhite
-          class="h-7"
-        />
+        <component :is="theme === 'light' ? IconLogoColor : IconLogoWhite" class="w-max h-7 text-font-primary mx-2" />
         <span
           v-if="selectedNetwork"
-          class="text-xs font-bold text-line-muted"
+          class="text-xs font-bold text-font-secondary"
         >
           {{ selectedNetwork.name }}
         </span>

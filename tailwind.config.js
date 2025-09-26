@@ -41,6 +41,7 @@ export default {
         // Surfaces
         'surface-primary': withOpacityValue('--surface-primary'),
         'surface-secondary': withOpacityValue('--surface-secondary'),
+        'surface-tertiary': withOpacityValue('--surface-tertiary'),
         'surface-hover': withOpacityValue('--surface-hover'),
         'surface-disabled': withOpacityValue('--surface-disabled'),
         'surface-skeleton': withOpacityValue('--surface-skeleton'),

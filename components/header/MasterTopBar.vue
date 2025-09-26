@@ -7,6 +7,7 @@ import SelectOptions from '~/components/SelectOptions.vue';
 import ThemeLight from '~/components/icon/ThemeLight.vue';
 import ThemeDim from '~/components/icon/ThemeDim.vue';
 import ThemeDark from '~/components/icon/ThemeDark.vue';
+import { useTheme } from '~/composables/useTheme';
 
 const route = useRoute();
 // Stable id for Headless UI MenuButton to prevent SSR/client mismatch
@@ -60,32 +61,8 @@ const medGasPrice = computed(() => {
   return avg.toFixed(10).replace(/\.?0+$/, '');
 });
 
-// Theme control using data-theme attribute (light | dim | dark)
-const theme = ref<'light' | 'dim' | 'dark'>('light');
-
-function applyThemeAttribute() {
-  const root = document.documentElement;
-  root.removeAttribute('class'); // ensure legacy .dark not interfering
-  root.setAttribute('data-theme', theme.value);
-}
-
-function setTheme(next: 'light' | 'dim' | 'dark') {
-  theme.value = next;
-  try {
-    localStorage.setItem('theme', theme.value);
-  } catch {}
-  applyThemeAttribute();
-}
-
-onMounted(() => {
-  try {
-    const saved = localStorage.getItem('theme') as 'light' | 'dim' | 'dark' | null;
-    theme.value = saved === 'dim' || saved === 'dark' ? saved : 'light';
-  } catch {
-    theme.value = 'light';
-  }
-  applyThemeAttribute();
-});
+// Theme control via shared composable
+const { theme, setTheme } = useTheme();
 </script>
 
 <template>
@@ -149,7 +126,7 @@ onMounted(() => {
           <Menu as="div" class="relative inline-block text-left hidden md:block">
           <div>
             <MenuButton :id="networkMenuButtonId" class="h-[36.5px] rounded-lg flex items-center gap-2 border border-line-default bg-surface-disabled hover:bg-surface-secondary px-3">
-              <IconKadena class="h-4 w-4" />
+              <IconKadena class="h-4 w-4 text-font-secondary" />
               <span v-if="selectedNetwork" class="text-[13px] text-font-primary">{{ selectedNetwork.name }}</span>
             </MenuButton>
           </div>
