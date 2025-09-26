@@ -267,10 +267,15 @@ function downloadData() {
       <template #sender="{ item }">
         <div class="flex items-center">
           <template v-if="item.sender && item.sender !== 'N/A'">
-            <Tooltip :value="item.sender" variant="hash">
-              <NuxtLink :to="`/account/${item.sender}`" class="text-link hover:text-link-hover">{{ truncateAddress(item.sender, 10, 10) }}</NuxtLink>
-            </Tooltip>
-            <Copy :value="item.sender" tooltipText="Copy Address" />
+            <template v-if="item.sender === 'k:system'">
+              <span class="text-font-primary">k:system</span>
+            </template>
+            <template v-else>
+              <Tooltip :value="item.sender" variant="hash">
+                <NuxtLink :to="`/account/${item.sender}`" class="text-link hover:text-link-hover">{{ truncateAddress(item.sender, 10, 10) }}</NuxtLink>
+              </Tooltip>
+              <Copy :value="item.sender" tooltipText="Copy Address" />
+            </template>
           </template>
           <span v-else class="text-font-primary">NaN</span>
         </div>
@@ -283,10 +288,15 @@ function downloadData() {
       <template #receiver="{ item }">
         <div class="flex items-center">
           <template v-if="item.receiver && item.receiver !== 'N/A'">
-            <Tooltip :value="item.receiver" variant="hash">
-              <NuxtLink :to="`/account/${item.receiver}`" class="text-link hover:text-link-hover">{{ truncateAddress(item.receiver, 10, 10) }}</NuxtLink>
-            </Tooltip>
-            <Copy :value="item.receiver" tooltipText="Copy Address" />
+            <template v-if="item.receiver === 'k:system'">
+              <span class="text-font-primary">k:system</span>
+            </template>
+            <template v-else>
+              <Tooltip :value="item.receiver" variant="hash">
+                <NuxtLink :to="`/account/${item.receiver}`" class="text-link hover:text-link-hover">{{ truncateAddress(item.receiver, 10, 10) }}</NuxtLink>
+              </Tooltip>
+              <Copy :value="item.receiver" tooltipText="Copy Address" />
+            </template>
           </template>
           <span v-else class="text-font-primary">NaN</span>
         </div>

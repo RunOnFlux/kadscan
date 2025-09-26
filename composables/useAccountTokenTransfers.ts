@@ -67,6 +67,15 @@ export const useAccountTokenTransfers = () => {
       if (!receiver) receiver = cross.receiverAccount || null;
     }
 
+    // - Coinbase mints (module coin) should display "coinbase" as the sender
+    // - Any remaining empty endpoint should default to k:system for clarity
+    if (!sender || sender === '') {
+      sender = node.moduleName === 'coin' ? 'coinbase' : 'k:system';
+    }
+    if (!receiver || receiver === '') {
+      receiver = 'k:system';
+    }
+
     const isCross = !!cross;
     const action = isCross ? 'Cross-Chain' : 'Transfer';
 
