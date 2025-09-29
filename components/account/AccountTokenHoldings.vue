@@ -153,10 +153,10 @@ watch(() => props.balances, (arr) => {
 
     <div 
       v-if="open"
-      class="absolute z-30 mt-2 w-full max-h-[420px] rounded-md border border-line-default bg-surface-black shadow-[0_0_20px_rgba(255,255,255,0.0625)] flex flex-col overflow-hidden"
+      class="absolute z-30 mt-2 w-full max-h-[420px] rounded-md border border-line-default bg-surface-primary shadow-[0_0_20px_rgba(255,255,255,0.0625)] flex flex-col overflow-hidden"
     >
       <!-- Search -->
-      <div class="px-3 py-3 bg-surface-black border-b border-line-default">
+      <div class="px-3 py-3 bg-surface-primary border-b border-line-default">
         <input
           v-model="search"
           type="text"
@@ -169,7 +169,7 @@ watch(() => props.balances, (arr) => {
       <div class="flex-1 overflow-y-auto">
         <!-- Tokens Group -->
         <div class="px-3 pt-3 pb-2">
-          <div class="flex items-center justify-between px-3 py-2 rounded-md bg-surface-disabled text-font-primary text-[15px] font-semibold">
+          <div class="flex items-center justify-between px-3 py-2 rounded-md bg-surface-disabled text-font-secondary text-[15px] font-semibold">
             <span>Tokens ({{ tokensCount }})</span>
           </div>
         </div>
@@ -204,7 +204,7 @@ watch(() => props.balances, (arr) => {
 
         <!-- NFTs Group -->
         <div class="px-3 pt-3 pb-2">
-          <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-surface-disabled text-font-primary text-[15px] font-semibold">
+          <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-surface-disabled text-font-secondary text-[15px] font-semibold">
             <span>NFTs ({{ nftsCount }})</span>
           </div>
         </div>

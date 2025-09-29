@@ -138,16 +138,16 @@ onUnmounted(() => {
 
 <style scoped>
 input {
-  border-color: #222222 !important;
+  border-color: rgb(var(--line-default)) !important;
   border-width: 1px !important;
   transition-property: border-color, box-shadow !important;
   transition-duration: 0.15s !important;
   transition-timing-function: ease-in-out !important;
 }
 input:focus {
-  border-color: #333333 !important;
+  border-color: rgb(var(--line-strong)) !important;
   border-width: 1px !important;
-  box-shadow: 0 0 0 2px #333333 !important;
+  box-shadow: 0 0 0 2px rgb(var(--line-strong)) !important;
   outline: none !important;
 }
 </style> 

@@ -4,6 +4,7 @@ import { useAccountBalances } from '~/composables/useAccountBalances'
 import { useAssetUsdPrices } from '~/composables/useAssetUsdPrices'
 import { staticTokens } from '~/constants/tokens'
 import AssetsPieChartSkeleton from '~/components/skeleton/AssetsPieChart.vue'
+import { useTheme } from '~/composables/useTheme'
 
 const { balances, loading, hasFetched } = useAccountBalances()
 const { getUsdPerUnit } = useAssetUsdPrices()
@@ -83,15 +84,29 @@ const labels = computed(() => slices.value.map(s => s.label))
 const dataValues = computed(() => slices.value.map(s => s.usd))
 const backgroundColors = computed(() => slices.value.map((s, i) => (s.module === 'others' ? OTHERS_COLOR : PALETTE[i % PALETTE.length])))
 
+const HOVER_OFFSET = 6
+const BORDER_WIDTH = 2
+const SAFE_RADIUS = Math.floor(chartSize / 2 - (HOVER_OFFSET + BORDER_WIDTH + 4))
+
+const { theme } = useTheme()
+
+function cssVarRgb(name: string): string {
+  if (typeof window === 'undefined') return ''
+  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+  return v ? `rgb(${v})` : ''
+}
+
 const chartData = computed(() => ({
   labels: labels.value,
   datasets: [
     {
       data: dataValues.value,
       backgroundColor: backgroundColors.value,
-      borderColor: '#111111',
-      borderWidth: 2,
-      hoverOffset: 6,
+      // Match chart seam color to the current surface color per theme
+      borderColor: cssVarRgb('--surface-primary'),
+      borderWidth: BORDER_WIDTH,
+      hoverOffset: HOVER_OFFSET,
+      radius: SAFE_RADIUS,
     }
   ]
 }))
@@ -136,11 +151,12 @@ const externalTooltipHandler = (context: any) => {
     tooltipEl.style.opacity = '0'
     tooltipEl.style.position = 'absolute'
     tooltipEl.style.pointerEvents = 'none'
-    tooltipEl.style.background = '#111111'
-    tooltipEl.style.border = '1px solid #333333'
+    // Theme-aware tooltip using tokens
+    tooltipEl.style.background = 'rgb(var(--surface-primary))'
+    tooltipEl.style.border = '1px solid rgb(var(--line-strong))'
     tooltipEl.style.borderRadius = '8px'
     tooltipEl.style.padding = '8px 10px'
-    tooltipEl.style.color = '#f5f5f5'
+    tooltipEl.style.color = 'rgb(var(--font-primary))'
     tooltipEl.style.fontSize = '12px'
     tooltipEl.style.whiteSpace = 'normal'
     tooltipEl.style.zIndex = '50'
@@ -202,7 +218,7 @@ const chartOptions = reactive({
             <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
               <div class="text-center">
                 <div class="text-[12px] text-font-secondary">Total</div>
-                <div class="text-[16px] text-white font-semibold">${{ Number(totalBalance).toFixed(2) }}</div>
+                <div class="text-[16px] text-font-primary font-semibold">${{ Number(totalBalance).toFixed(2) }}</div>
               </div>
             </div>
           </div>

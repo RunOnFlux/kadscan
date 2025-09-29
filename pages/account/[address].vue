@@ -473,7 +473,7 @@ watch(
       </div>
 
       <div class="bg-surface-primary border border-line-default rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
-        <h3 class="text-font-primary font-semibold mb-4">More Info</h3>
+        <h3 class="text-font-primary font-semibold mb-4">Extra Info</h3>
         <div class="space-y-4">
           <div>
             <div class="text-[13px] text-font-secondary font-medium mb-1">TRANSACTIONS SENT</div>
@@ -550,7 +550,7 @@ watch(
       </div>
 
       <div class="bg-surface-primary border border-line-default rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
-        <h3 class="text-font-primary font-semibold mb-4">Multichain Info</h3>
+        <h3 class="text-font-primary font-semibold mb-4">Cross Chain Info</h3>
         <div class="space-y-4">
           <div class="flex items-center justify-between gap-2">
             <Select
@@ -612,8 +612,8 @@ watch(
           :class="[
             'px-3 py-1 rounded-lg text-[14px] font-medium transition-colors whitespace-nowrap relative',
             activeTab === tab.id 
-              ? 'bg-accent-strong text-font-primary' 
-              : 'bg-surface-hover text-font-primary hover:bg-tab-bg-hover'
+              ? 'bg-accent-strong text-btn-text' 
+              : 'bg-surface-hover text-font-secondary hover:bg-tab-bg-hover'
           ]"
         >
           {{ tab.label }}

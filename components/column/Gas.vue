@@ -41,7 +41,7 @@ const shouldShowProgressBar = computed(() => {
     </div>
     <div class="md:w-full max-w-[80px] bg-line-strong rounded-full h-[2px]" v-if="shouldShowProgressBar">
       <div
-        class="bg-[#57ff90] h-[2px] rounded-full"
+        class="bg-font-accent-strong h-[2px] rounded-full"
         :style="{ width: `${percentage}%` }"
       ></div>
     </div>

@@ -12,6 +12,11 @@ const routes = [
 
 const socials = [
   {
+    name: 'Twitter',
+    url: 'https://x.com/hackachain',
+    icon: IconTwitter
+  },
+  {
     name: 'Github',
     url: 'https://github.com/hack-a-chain-software/indexer-kadena',
     icon: IconGithub
@@ -20,11 +25,6 @@ const socials = [
     name: 'Gitbook',
     url: 'https://kadindexer.gitbook.io/docs/',
     icon: IconGitbook
-  },
-  {
-    name: 'Twitter',
-    url: 'https://x.com/hackachain',
-    icon: IconTwitter
   }
 ]
 
@@ -62,7 +62,7 @@ const scrollToTop = () => {
             v-for="link in routes"
             :key="link.tag"
             :to="link.path"
-            class="text-font-primary hover:text-white transition-colors text-sm"
+            class="text-font-primary hover:text-font-accent-strong transition-colors text-sm"
           >
             {{ link.label }}
           </NuxtLink>
@@ -86,7 +86,7 @@ const scrollToTop = () => {
             :key="social.name"
             :href="social.url"
             target="_blank"
-            class="text-font-primary hover:text-white transition-colors"
+            class="text-font-primary hover:text-font-accent-strong transition-colors"
           >
             <component
               :is="social.icon"

@@ -4,7 +4,7 @@
   --surface-primary: 255 255 255; /* #ffffff */
   --surface-secondary: 248 250 252; /* #f8fafc */
   --surface-tertiary: 248 250 252; /* #f8fafc */
-  --surface-hover: 243 244 246; /* #f3f4f6 */
+  --surface-hover: 236 238 240; /* #f0f0f0 */
   --surface-disabled: 249 250 251; /* #f9fafb */
   --surface-skeleton: 229 231 235; /* #e5e7eb */
   --surface-white: 255 255 255; /* #ffffff */
@@ -19,13 +19,13 @@
   --font-primary: 31 41 55; /* #1f2937 */
   --font-secondary: 75 85 99; /* #4b5563 */
   --font-tertiary: 156 163 175; /* #9ca3af */
-  --font-accent-strong: 0 225 157; /* #00e19d */
+  --font-accent-strong: 0 178 140; /* #00b28c */
   --font-accent: 0 161 134; /* #00a186 */
   --font-danger: 255 107 107; /* #ff6b6b */
 
   /* Links */
-  --link: 106 181 219; /* #6ab5db */
-  --link-hover: 156 206 231; /* #9ccee7 */
+  --link: 7 132 195; /* #0784c3 */
+  --link-hover: 5 105 156; /* #05699c */
 
   /* Buttons */
   --btn-bg: 21 21 21; /* #151515 */
@@ -40,7 +40,7 @@
   --tab-text-active: 245 245 245; /* #f5f5f5 */
   --tab-bg-inactive: 37 37 37; /* #252525 */
   --tab-text-inactive: 187 187 187; /* #bbbbbb */
-  --tab-bg-hover: 51 51 51; /* #333333 */
+  --tab-bg-hover: 230 230 230; /* #e6e6e6 */
 
   /* Badges / Status */
   --badge-bg-success: 15 31 29; /* #0f1f1d */
