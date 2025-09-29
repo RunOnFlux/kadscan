@@ -214,7 +214,7 @@ onBeforeUnmount(() => {
               <span class="block w-[12px] h-[12px] border-2 border-font-secondary border-t-transparent rounded-full animate-spin"></span>
             </span>
             <span v-else class="text-[10px] text-font-danger text-center">IPFS</span>
-            <div v-if="item._holding?.balance && Number(item._holding.balance) > 1" class="absolute bottom-[2px] left-[2px] bg-black/70 text-white text-[10px] px-[4px] py-[1px] rounded">
+            <div v-if="item._holding?.balance && Number(item._holding.balance) > 1" class="absolute bottom-[2px] left-[2px] bg-black/70 text-font-primary text-[10px] px-[4px] py-[1px] rounded">
               x{{ item._holding.balance }}
             </div>
           </div>

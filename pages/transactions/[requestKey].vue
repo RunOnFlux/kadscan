@@ -336,7 +336,7 @@ onUnmounted(() => {
             :class="[
               'px-[10px] py-[5px] text-[13px] rounded-lg font-medium transition-colors',
               activeTab === label
-                ? 'bg-accent-strong text-font-primary'
+                ? 'bg-accent-strong text-btn-text'
                 : 'bg-surface-hover text-font-secondary hover:bg-surface-hover'
             ]"
             @click="activeTab = label"
@@ -576,7 +576,7 @@ onUnmounted(() => {
                         />
                         <div 
                           v-else
-                          class="w-5 h-5 bg-line-muted rounded-full flex items-center justify-center text-xs font-bold text-white"
+                          class="w-5 h-5 bg-line-muted rounded-full flex items-center justify-center text-xs font-bold text-font-primary"
                         >
                           {{ getTokenMetadata(transferEdge.node.moduleName).symbol.charAt(0) }}
                         </div>
@@ -700,15 +700,15 @@ onUnmounted(() => {
                     >
                       <template #value>
                         <div class="flex flex-wrap gap-2">
-                          <span v-if="transaction?.cmd?.meta?.ttl !== undefined" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+                          <span v-if="transaction?.cmd?.meta?.ttl !== null" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
                             <span class="text-font-secondary">TTL:</span>
                             <span class="text-font-primary ml-1">{{ transaction?.cmd?.meta?.ttl }}</span>
                           </span>
-                          <span v-if="transaction?.cmd?.nonce !== undefined" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+                          <span v-if="transaction?.cmd?.nonce !== null" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
                             <span class="text-font-secondary">Nonce:</span>
                             <span class="text-font-primary ml-1">{{ transaction?.cmd?.nonce }}</span>
                           </span>
-                          <span v-if="transaction?.result?.transactionId !== undefined" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+                          <span v-if="transaction?.result?.transactionId !== null" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
                             <span class="text-font-secondary">TXID:</span>
                             <span class="text-font-primary ml-1">{{ transaction?.result?.transactionId }}</span>
                           </span>

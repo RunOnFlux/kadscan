@@ -56,7 +56,7 @@ const activeProps = computed(() => ({ modulename: props.modulename, chain: props
           :class="[
             'px-3 py-1 rounded-lg text-[13px] font-medium transition-colors whitespace-nowrap relative',
             activeTab === tab.id
-              ? 'bg-accent-strong text-font-primary'
+              ? 'bg-accent-strong text-btn-text'
               : 'bg-surface-hover text-font-primary hover:bg-tab-bg-hover'
           ]"
         >

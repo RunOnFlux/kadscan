@@ -88,7 +88,7 @@ function markBroken(key: string) {
             <SplideSlide v-for="(item, idx) in displayable" :key="`${item.key}-${idx}`">
               <div class="relative aspect-square rounded-lg overflow-hidden bg-surface-disabled border border-line-default">
                 <img :src="item.image" alt="nft" class="w-full h-full object-cover" @error="markBroken(item.key)" />
-                <div v-if="item.holding?.balance && Number(item.holding.balance) > 1" class="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-[2px] rounded">
+                <div v-if="item.holding?.balance && Number(item.holding.balance) > 1" class="absolute bottom-2 left-2 bg-black/70 text-font-primary text-xs px-2 py-[2px] rounded">
                   x{{ item.holding.balance }}
                 </div>
               </div>
@@ -99,7 +99,7 @@ function markBroken(key: string) {
         <div v-else class="grid grid-cols-4 gap-2">
           <div v-for="(item, idx) in displayable" :key="`${item.key}-${idx}`" class="relative aspect-square rounded-lg overflow-hidden bg-surface-disabled border border-line-default">
             <img :src="item.image" alt="nft" class="w-full h-full object-cover" @error="markBroken(item.key)" />
-            <div v-if="item.holding?.balance && Number(item.holding.balance) > 1" class="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-[2px] rounded">
+            <div v-if="item.holding?.balance && Number(item.holding.balance) > 1" class="absolute bottom-2 left-2 bg-black/70 text-font-primary text-xs px-2 py-[2px] rounded">
               x{{ item.holding.balance }}
             </div>
           </div>

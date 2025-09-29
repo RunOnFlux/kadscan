@@ -116,7 +116,7 @@ const ownerDisplay = computed(() => {
             This URL is not available
           </div>
         </div>
-        <div v-if="selectedHolding?.balance && Number(selectedHolding.balance) > 1" class="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-[2px] rounded">
+        <div v-if="selectedHolding?.balance && Number(selectedHolding.balance) > 1" class="absolute bottom-2 left-2 bg-black/70 text-font-primary text-xs px-2 py-[2px] rounded">
           x{{ selectedHolding.balance }}
         </div>
       </div>

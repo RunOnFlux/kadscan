@@ -5,6 +5,7 @@ import IconEnlarge from '~/components/icon/Enlarge.vue'
 import { useContractPact } from '~/composables/useContractPact'
 import type { PactModuleInfo } from '~/composables/useContractPact'
 import { ref, computed, watch, defineAsyncComponent } from 'vue'
+import { useTheme } from '~/composables/useTheme'
 const editorOptions = {
   readOnly: true,
   minimap: { enabled: true },
@@ -18,6 +19,9 @@ const MonacoEditor = process.client
   : undefined
 
 defineOptions({ name: 'ContractCode' })
+
+const { theme } = useTheme()
+const monacoTheme = computed(() => (theme.value === 'light' ? 'vs' : 'vs-dark'))
 
 const props = defineProps<{
   modulename?: string
@@ -187,7 +191,7 @@ const declarationInfo = computed<DeclarationInfo | null>(() => {
           :is="MonacoEditor"
           v-model:value="codeContent"
           language="pact"
-          theme="vs-dark"
+          :theme="monacoTheme"
           :options="editorOptions"
           @editorWillMount="async (m:any) => {
             try {

@@ -217,12 +217,6 @@ watch(
 // Tab management - similar to pages/transactions/[requestKey].vue
 const activeTab = ref('assets')
 
-const tabLabels = computed(() => [
-  'Transactions',
-  'Token Transfers', 
-  'NFT Transfers'
-])
-
 const tabs = computed(() => [
   { id: 'assets', label: 'Assets' },
   { id: 'transactions', label: 'Transactions' },

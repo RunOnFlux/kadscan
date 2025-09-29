@@ -65,7 +65,7 @@ watch(() => props.isOpen, (isOpen) => {
           @click.stop
         >
           <div class="flex items-center justify-between p-4 border-b border-surface-skeleton">
-            <h2 class="text-[15px] font-semibold text-white">
+            <h2 class="text-[15px] font-semibold text-font-primary">
               Custom Card
             </h2>
             <button @click="closeModal">
@@ -101,7 +101,7 @@ watch(() => props.isOpen, (isOpen) => {
               Close
             </button>
             <button
-              class="px-3 py-2 text-sm text-white bg-accent-strong rounded-lg hover:bg-accent-strong"
+              class="px-3 py-2 text-sm text-font-primary bg-accent-strong rounded-lg hover:bg-accent-strong"
               @click="saveChanges"
             >
               Save changes

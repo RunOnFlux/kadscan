@@ -49,7 +49,8 @@ const { isMobile } = useScreenSize();
 const { selectedNetwork } = useSharedData();
 const { lastBlockHeight, fetchLastBlockHeight } = useBlocks();
 
-const activeView = ref('overview');
+const tabs = ref([{ id: 'overview', label: 'Overview' }]);
+const activeTab = ref('overview');
 const showMore = ref(false);
 const height = computed(() => Number(route.params.height));
 const chainId = computed(() => Number(route.params.chainId));
@@ -259,21 +260,25 @@ onMounted(() => {
     <SkeletonBlockDetails v-if="loading && !pollingInterval" />
 
     <div v-else-if="block && !error">
-      <div class="flex items-center gap-2 pb-3">
-        <button
-          class="px-[10px] py-[5px] text-[13px] rounded-lg font-medium transition-colors"
-          :class="{
-            'bg-accent-strong text-font-primary': activeView === 'overview',
-            'bg-surface-hover text-font-secondary hover:bg-tab-bg-hover':
-              activeView !== 'overview',
-          }"
-          @click="activeView = 'overview'"
-        >
-          Overview
-        </button>
+      <div class="flex items-center justify-between pb-3">
+        <div class="flex gap-2">
+          <button 
+            v-for="tab in tabs" 
+            :key="tab.id"
+            @click="activeTab = tab.id"
+            :class="[
+              'px-[10px] py-[5px] text-[13px] rounded-lg font-medium transition-colors',
+              activeTab === tab.id 
+                ? 'bg-accent-strong text-btn-text' 
+                : 'bg-surface-hover text-font-secondary hover:bg-tab-bg-hover'
+            ]"
+          >
+            {{ tab.label }}
+          </button>
+        </div>
       </div>
 
-      <div v-if="activeView === 'overview'">
+      <div v-if="activeTab === 'overview'">
         <div
           class="bg-surface-primary border border-line-default rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-1"
         >
@@ -366,7 +371,7 @@ onMounted(() => {
                   topAlign="true"
                 >
                   <template #value>
-                    <div class="flex items-center gap-1 text-white">
+                    <div class="flex items-center gap-1 text-font-primary">
                       <IconClock class="w-4 h-4" />
                       <span>{{ formatFullDate(block.creationTime) }}</span>
                     </div>

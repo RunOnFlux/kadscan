@@ -22,7 +22,7 @@
         );
         box-shadow: 0 0 15px 0 rgb(var(--accent-strong) / 0.5);
       "
-      class="relative hidden lg:flex p-4 rounded-xl text-white w-[400px] h-[125px] flex-shrink-0 mx-[60px] self-center"
+      class="relative hidden lg:flex p-4 rounded-xl text-surface-white w-[400px] h-[125px] flex-shrink-0 mx-[60px] self-center"
     >
       <div class="flex items-center gap-4 h-full">
         <div class="flex flex-col">

@@ -348,7 +348,7 @@ const metadataRollback = computed(() => {
                           <div class="relative px-4 py-2 bg-gradient-to-br from-surface-secondary/80 via-surface-primary/60 to-surface-primary/80 backdrop-blur-sm border border-line-strong/50 rounded-xl shadow-lg transform group-hover:scale-[1.05] transition-all duration-300">
                             <div class="flex items-center gap-2">
                                 <!-- Amount text -->
-                                <span class="text-white text-sm font-bold tracking-wide" v-if="transferAmount">
+                                <span class="text-font-primary text-sm font-bold tracking-wide" v-if="transferAmount">
                                   {{ transferAmount }} KDA
                                 </span>
                                 <span class="text-font-secondary text-sm" v-else>-</span>

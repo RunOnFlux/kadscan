@@ -65,7 +65,7 @@ watch(
           @click.stop
         >
           <div class="flex items-center justify-between p-4 border-b border-surface-skeleton">
-            <h2 class="text-[15px] font-semibold text-white">
+            <h2 class="text-[15px] font-semibold text-font-primary">
               Account QR Code
             </h2>
             <button @click="closeModal">

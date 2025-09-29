@@ -42,16 +42,17 @@
   --tab-text-inactive: 187 187 187; /* #bbbbbb */
   --tab-bg-hover: 230 230 230; /* #e6e6e6 */
 
-  /* Badges / Status */
-  --badge-bg-success: 15 31 29; /* #0f1f1d */
+  /* Badges / Status (light theme tuned) */
+  --badge-bg-success: 230 246 242; /* #e6f6f2 */
   --badge-text-success: 0 161 134; /* #00a186 */
-  --badge-bg-success-soft: 0 161 134 / 0.5; /* #00a18680 */
-  --badge-bg-warning: 23 21 13; /* #17150d */
-  --badge-bg-pending: 68 70 72; /* #444648 */
+  --badge-bg-success-soft: 0 161 134 / 0.15; /* #00a18626 */
+  /* Pending uses bg-badge-bg-warning in components, so tune it to a neutral tone for light mode */
+  --badge-bg-warning: 238 242 246; /* #eef2f6 */
+  --badge-bg-pending: 238 242 246; /* #eef2f6 */
   --badge-text-warning: 251 191 36; /* #fbbf24 */
-  --badge-bg-warning-soft: 251 191 36 / 0.5; /* #fbbf2480 */
-  --badge-bg-error: 127 29 29 / 0.4; /* #7f1d1d66 */
-  --badge-bg-error-strong: 248 113 113 / 0.5; /* #f8717180 */
+  --badge-bg-warning-soft: 251 191 36 / 0.15; /* #fbbf2426 */
+  --badge-bg-error: 254 226 226; /* #fee2e2 */
+  --badge-bg-error-strong: 248 113 113 / 0.25; /* #f8717140 */
   --badge-text-error: 248 113 113; /* #f87171 */
 
   /* Accents */

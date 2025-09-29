@@ -117,7 +117,7 @@ const vAutosize = {
               @click="selected = fn.name"
               :class="[
                 'px-3 py-1 rounded-lg text-[13px] transition-colors whitespace-normal break-words text-left max-w-full',
-                selected === fn.name ? 'bg-accent-strong text-font-primary' : 'bg-surface-hover text-font-primary hover:bg-tab-bg-hover'
+                selected === fn.name ? 'bg-accent-strong text-btn-text' : 'bg-surface-hover text-font-primary hover:bg-tab-bg-hover'
               ]"
             >
               {{ fn.name }}
@@ -157,10 +157,10 @@ const vAutosize = {
               <div>
                 <button
                   @click="onCall"
-                  class="px-3 py-1 rounded-lg bg-accent-strong text-font-primary text-[13px] disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+                  class="px-3 py-1 rounded-lg bg-accent-strong text-btn-text text-[13px] disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
                   :disabled="loading"
                 >
-                  <svg v-if="loading" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg v-if="loading" class="animate-spin h-4 w-4 text-font-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
                   </svg>
