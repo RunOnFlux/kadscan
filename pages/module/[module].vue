@@ -6,11 +6,13 @@ import Coins from '~/components/icon/Coins.vue'
 import ContractTransactions from '~/components/module/ContractTransactions.vue'
 import ContractEvents from '~/components/module/ContractEvents.vue'
 import ContractView from '~/components/module/ContractView.vue'
+import Tooltip from '~/components/Tooltip.vue'
 import { useContractPact } from '~/composables/useContractPact'
 import UpperRightArrow from '~/components/icon/UpperRightArrow.vue'
 import { staticTokens } from '~/constants/tokens'
 import { useSharedData } from '~/composables/useSharedData'
 import { useScreenSize } from '~/composables/useScreenSize'
+import { useFormat } from '~/composables/useFormat'
 
 definePageMeta({
   layout: 'app',
@@ -19,6 +21,7 @@ definePageMeta({
 const route = useRoute()
 const { selectedNetwork } = useSharedData()
 const { isMobile } = useScreenSize()
+const { truncateAddress } = useFormat()
 
 const contractSlug = computed(() => route.params.module as string)
 // Use the slug as-is; modules may legitimately contain hyphens. Decode URI components for safety.
@@ -211,7 +214,9 @@ watch([moduleName, () => selectedNetwork.value?.id], () => { checkHasToken() }, 
           <h1 class="text-[19px] font-semibold leading-[150%] text-font-primary">Module</h1>
         </div>
         <div class="flex flex-col md:flex-row md:items-center md:gap-3">
-          <div class="text-[15px] text-font-primary break-all">{{ moduleName }}</div>
+          <Tooltip :value="moduleName" variant="hash">
+            <span class="text-[15px] text-font-primary break-all">{{ truncateAddress(moduleName, 10, 10) }}</span>
+          </Tooltip>
           <div class="flex items-center gap-3 pt-2 md:pt-0">
             <Copy 
               v-if="!isMobile"
@@ -240,14 +245,18 @@ watch([moduleName, () => selectedNetwork.value?.id], () => { checkHasToken() }, 
               <div class="text-[13px] text-font-secondary font-medium mb-1">NAMESPACE</div>
               <div class="text-[14px]">
                 <span v-if="showOverviewLoading" class="text-font-tertiary animate-pulse">Loading...</span>
-                <span v-else class="text-font-primary">{{ namespaceLabel }}</span>
+                <Tooltip v-else :value="namespaceLabel" variant="hash">
+                  <span class="text-font-primary">{{ truncateAddress(namespaceLabel, 10, 10) }}</span>
+                </Tooltip>
               </div>
             </div>
             <div>
               <div class="text-[13px] text-font-secondary font-medium mb-1">MODULE NAME</div>
               <div class="text-[14px]">
                 <span v-if="showOverviewLoading" class="text-font-tertiary animate-pulse">Loading...</span>
-                <span v-else class="text-font-primary">{{ declarationInfo?.name || moduleInfo?.name || 'N/A' }}</span>
+                <Tooltip v-else :value="declarationInfo?.name || moduleInfo?.name || 'N/A'" variant="hash">
+                  <span class="text-font-primary">{{ truncateAddress(declarationInfo?.name || moduleInfo?.name || 'N/A', 10, 10) }}</span>
+                </Tooltip>
               </div>
             </div>
           </div>
