@@ -14,7 +14,7 @@ const { recordHistory } = useSearch();
   <NuxtLink
     :to="`/token/${encodeURIComponent(module)}`"
     @click="recordHistory(module, 'tokens')"
-    class="py-2 px-2 flex items-center gap-2 w-full hover:bg-[#1d1d1d] hover:rounded-md"
+    class="py-2 px-2 flex items-center gap-2 w-full hover:bg-surface-secondary hover:rounded-md"
   >
     <div
       class="flex items-center gap-2"
@@ -30,7 +30,7 @@ const { recordHistory } = useSearch();
 
         <div
           v-else
-          class="w-full h-full bg-gray-300 rounded"
+          class="w-full h-full bg-line-muted rounded"
         />
       </div>
 
@@ -38,13 +38,13 @@ const { recordHistory } = useSearch();
         class="flex flex-col w-full truncate"
       >
         <span
-          class="text-sm text-[#f5f5f5] font-medium uppercase truncate block"
+          class="text-sm text-font-primary font-medium uppercase truncate block"
         >
           {{ metadata?.symbol ? `$${metadata.symbol}` : module }}
         </span>
 
         <span
-          class="text-font-500 text-xs truncate"
+          class="text-font-tertiary text-xs truncate"
         >
           {{ module }}
         </span>

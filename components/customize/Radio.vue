@@ -16,20 +16,20 @@ function select() {
 
 <template>
   <label
-    class="flex items-center gap-2 px-2 py-1 text-sm border rounded-lg cursor-pointer border-gray-700"
+    class="flex items-center gap-2 px-2 py-1 text-sm border rounded-lg cursor-pointer border-surface-skeleton"
     @click="select"
   >
     <div
       class="w-4 h-4 border-2 rounded-full flex items-center justify-center"
-      :class="isChecked ? 'border-[#009367]' : 'border-gray-500'"
+      :class="isChecked ? 'border-accent-strong' : 'border-line-muted'"
     >
       <div
         v-if="isChecked"
-        class="w-2 h-2 bg-[#009367] rounded-full"
+        class="w-2 h-2 bg-accent-strong rounded-full"
       />
     </div>
     <span
-      class="text-sm text-[#b8b8b8]"
+      class="text-sm text-font-secondary"
     >
       {{ label }}
     </span>

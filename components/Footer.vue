@@ -12,6 +12,11 @@ const routes = [
 
 const socials = [
   {
+    name: 'Twitter',
+    url: 'https://x.com/hackachain',
+    icon: IconTwitter
+  },
+  {
     name: 'Github',
     url: 'https://github.com/hack-a-chain-software/indexer-kadena',
     icon: IconGithub
@@ -20,11 +25,6 @@ const socials = [
     name: 'Gitbook',
     url: 'https://kadindexer.gitbook.io/docs/',
     icon: IconGitbook
-  },
-  {
-    name: 'Twitter',
-    url: 'https://x.com/hackachain',
-    icon: IconTwitter
   }
 ]
 
@@ -37,20 +37,20 @@ const scrollToTop = () => {
 </script>
 
 <template>
-  <div class="w-full bg-[#111111] border-t border-[#222222]">
+  <div class="w-full bg-surface-primary border-t border-line-default">
     <div class="w-full max-w-[1400px] mx-auto px-5 pt-8 pb-4 flex flex-col">
       <div class="flex justify-between items-center gap-8 flex-wrap">
         <div class="flex flex-col gap-3">
           <div class="flex items-end gap-3">
-            <IconLogoColor class="h-[38px] md:h-[42px] w-max" />
+            <IconLogoColor class="h-[38px] md:h-[42px] w-max text-font-primary" />
           </div>
-          <span class="hidden md:block text-sm text-[#f5f5f5] leading-[19.6px]">
+          <span class="hidden md:block text-sm text-font-primary leading-[19.6px]">
             Kadscan powers visibility into Kadena through block explorer and analytics.
             <NuxtLink
               to="https://forms.gle/f3RB1A8MUAf1Pvgx9"
               target="_blank"
               rel="noopener noreferrer"
-              class="text-[#6ab5db] hover:text-[#9ccee7]"
+              class="text-link hover:text-link-hover"
             >
               Provide a Feedback!
             </NuxtLink>
@@ -62,7 +62,7 @@ const scrollToTop = () => {
             v-for="link in routes"
             :key="link.tag"
             :to="link.path"
-            class="text-[#f5f5f5] hover:text-white transition-colors text-sm"
+            class="text-font-primary hover:text-font-accent-strong transition-colors text-sm"
           >
             {{ link.label }}
           </NuxtLink>
@@ -70,14 +70,14 @@ const scrollToTop = () => {
 
         <button
           @click="scrollToTop"
-          class="md:hidden flex items-center gap-2 text-[#f5f5f5] bg-[#1a1a1a] border border-[#2d2d2d] rounded-lg px-4 py-2"
+          class="md:hidden flex items-center gap-2 text-font-primary bg-surface-secondary border border-line-strong rounded-lg px-4 py-2"
         >
           <IconBackToTop class="h-5 w-5" />
           <span>Back to Top</span>
         </button>
       </div>
 
-      <div class="border-t border-t-[#222222] my-4" />
+      <div class="border-t border-t-line-default my-4" />
 
       <div class="flex justify-between items-center flex-wrap">
         <div class="flex items-center gap-4">
@@ -86,7 +86,7 @@ const scrollToTop = () => {
             :key="social.name"
             :href="social.url"
             target="_blank"
-            class="text-[#f5f5f5] hover:text-white transition-colors"
+            class="text-font-primary hover:text-font-accent-strong transition-colors"
           >
             <component
               :is="social.icon"
@@ -98,17 +98,16 @@ const scrollToTop = () => {
         <a
           href="https://hackachain.io"
           target="_blank"
-          class="flex items-center gap-2 text-xs text-[#f5f5f5] hover:text-white transition-colors"
+          class="flex items-center gap-2 text-xs text-font-primary transition-colors"
         >
           <span>Powered by</span>
-          <img
-            src="public/hackachain.svg"
-            class="h-[22px]"
+          <IconHackachain
+            class="h-[22px] w-max mb-1 text-font-secondary"
           />
         </a>
 
         <div>
-          <span class="text-[#f5f5f5] text-xs">
+          <span class="text-font-primary text-xs">
             Kadscan © {{ new Date().getFullYear() }}
           </span>
         </div>

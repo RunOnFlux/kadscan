@@ -61,20 +61,20 @@ watch(() => props.isOpen, (isOpen) => {
         @click="closeModal"
       >
         <div
-          class="bg-[#111111] border border-gray-700 rounded-xl shadow-xl w-full max-w-lg overflow-hidden"
+          class="bg-surface-primary border border-surface-skeleton rounded-xl shadow-xl w-full max-w-lg overflow-hidden"
           @click.stop
         >
-          <div class="flex items-center justify-between p-4 border-b border-gray-700">
-            <h2 class="text-[15px] font-semibold text-white">
+          <div class="flex items-center justify-between p-4 border-b border-surface-skeleton">
+            <h2 class="text-[15px] font-semibold text-font-primary">
               Custom Card
             </h2>
             <button @click="closeModal">
-              <CloseIcon class="w-6 h-6 text-[#888888]" />
+              <CloseIcon class="w-6 h-6 text-font-tertiary" />
             </button>
           </div>
 
           <div class="p-4">
-            <p class="mb-4 text-sm text-[#f5f5f5]">
+            <p class="mb-4 text-sm text-font-primary">
               Customize your view by choosing one of the options.
             </p>
 
@@ -93,15 +93,15 @@ watch(() => props.isOpen, (isOpen) => {
             </div>
           </div>
 
-          <div class="flex justify-end gap-2 p-4 bg-[#151515] border-t border-gray-700">
+          <div class="flex justify-end gap-2 p-4 bg-surface-disabled border-t border-surface-skeleton">
             <button
-              class="px-3 py-2 text-sm rounded-lg bg-[#252525] hover:bg-[#222222] text-[#f5f5f5]"
+              class="px-3 py-2 text-sm rounded-lg bg-surface-hover hover:bg-surface-secondary text-font-primary"
               @click="closeModal"
             >
               Close
             </button>
             <button
-              class="px-3 py-2 text-sm text-white bg-[#009367] rounded-lg hover:bg-[#007a56]"
+              class="px-3 py-2 text-sm text-font-primary bg-accent-strong rounded-lg hover:bg-accent-strong"
               @click="saveChanges"
             >
               Save changes

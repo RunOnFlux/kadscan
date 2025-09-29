@@ -53,10 +53,10 @@ const positionClasses = computed(() => {
       z-[99999]
       px-3
       py-2
-      border border-[#222222]
+      border border-line-default
       rounded-lg
       absolute
-      bg-[#111111]
+      bg-surface-primary
       shadow-[0_0_15px_rgba(255,255,255,0.0625)]
       overflow-y-auto no-scrollbar
     "
@@ -70,7 +70,7 @@ const positionClasses = computed(() => {
       as="template"
     >
       <li
-        class="group flex w-full items-center hover:bg-[#222222] text-[#f5f5f5] hover:text-[#00e19d] justify-start rounded-md px-3 py-2 text-sm"
+        class="group flex w-full items-center hover:bg-surface-secondary text-font-primary hover:text-font-accent-strong justify-start rounded-md px-3 py-2 text-sm"
       >
         <span
           class="

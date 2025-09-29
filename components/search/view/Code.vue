@@ -14,7 +14,7 @@ const goToMore = async () => {
 <template>
   <div class="flex flex-col gap-2">
     <div class="pb-1 px-2 pt-3">
-      <span class="text-[11px] font-medium text-[#bbbbbb] mb-[1px]">CODE</span>
+      <span class="text-[11px] font-medium text-font-secondary mb-[1px]">CODE</span>
     </div>
 
     <div class="flex flex-col gap-2">
@@ -28,10 +28,10 @@ const goToMore = async () => {
       <button
         v-if="hasMore"
         type="button"
-        class="py-2 px-2 flex items-center justify-center hover:bg-[#1d1d1d] hover:rounded-md w-full"
+        class="py-2 px-2 flex items-center justify-center hover:bg-surface-secondary hover:rounded-md w-full"
         @click.prevent="goToMore"
       >
-        <span class="text-[#6ab5db] text-sm">Show more</span>
+        <span class="text-link text-sm">Show more</span>
       </button>
     </div>
   </div>

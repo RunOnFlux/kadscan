@@ -35,7 +35,7 @@ function open () {
     <NuxtLink
       :to="props.path"
       v-if="props.type === 'link'"
-      class="px-3 py-[15px] text-[15px] text-[#cccccc] hover:text-[#00e19d] block"
+      class="px-3 py-[15px] text-[15px] text-font-secondary hover:text-font-accent-strong block"
     >
       {{ props.label }}
     </NuxtLink>
@@ -49,8 +49,8 @@ function open () {
     >
       <NuxtLink
         :to="props.path || ''"
-        :class="data.open ? 'text-[#00e19d]' : 'text-[#cccccc]'"
-        class="hover:text-[#00e19d] flex items-center justify-center gap-2 px-3 py-2 ring-0 outline-none h-full"
+        :class="data.open ? 'text-font-accent-strong' : 'text-font-secondary'"
+        class="hover:text-font-accent-strong flex items-center justify-center gap-2 px-3 py-2 ring-0 outline-none h-full"
       >
         <span
           class="text-sm"
@@ -81,7 +81,7 @@ function open () {
               px-2
               pb-3
               pt-2
-              border-t-[2px] border-t-[#00e19d] bg-gray-700 rounded-b-lg w-[240px]
+              border-t-[2px] border-t-font-accent-strong bg-surface-skeleton rounded-b-lg w-[240px]
             "
           >
             <div
@@ -91,7 +91,7 @@ function open () {
                 @click="close"
                 :to="subroute.path"
                 :key="subroute.tag"
-                class="p-3 text-sm text-[#cccccc] hover:text-[#00e19d]"
+                class="p-3 text-sm text-font-secondary hover:text-font-accent-strong"
                 v-for="subroute in props.subroutes ?? []"
               >
                 {{ subroute.label }}

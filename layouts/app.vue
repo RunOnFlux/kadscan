@@ -46,22 +46,22 @@ body.modal-open {
 }
 
 ::-webkit-scrollbar-track {
-  background: #2d2d2d;
+  background: rgb(var(--line-strong));
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #2d2d2d;
+  background-color: rgb(var(--line-strong));
   border-radius: 8px;
-  border: 1px solid #3d3d3d;
+  border: 1px solid rgb(var(--line-strong));
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #4a4a4a;
+  background-color: rgb(var(--font-tertiary));
 }
 
 /* For Firefox */
 html {
   scrollbar-width: auto; /* 'auto' is the default, 'thin' is the other option */
-  scrollbar-color: #6b6b6b #2d2d2d;
+  scrollbar-color: rgb(var(--font-tertiary)) rgb(var(--line-strong));
 }
 </style>

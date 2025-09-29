@@ -46,7 +46,7 @@ const activeProps = computed(() => ({ modulename: props.modulename, chain: props
 </script>
 
 <template>
-  <div class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5">
+  <div class="bg-surface-primary border border-line-default rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5">
     <div class="flex items-center justify-between mb-4 overflow-x-auto">
       <div class="flex items-center gap-2">
         <button
@@ -56,8 +56,8 @@ const activeProps = computed(() => ({ modulename: props.modulename, chain: props
           :class="[
             'px-3 py-1 rounded-lg text-[13px] font-medium transition-colors whitespace-nowrap relative',
             activeTab === tab.id
-              ? 'bg-[#009367] text-[#f5f5f5]'
-              : 'bg-[#252525] text-[#f5f5f5] hover:bg-[#333333]'
+              ? 'bg-accent-strong text-btn-text'
+              : 'bg-surface-hover text-font-primary hover:bg-tab-bg-hover'
           ]"
         >
           {{ tab.label }}

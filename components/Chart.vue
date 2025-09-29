@@ -22,7 +22,7 @@ const chartData = ref({
       return value
     }),
     fill: false,
-    borderColor: '#E0E0E0',
+    borderColor: '#bbbbbb',
     borderWidth: 1,
     tension: 0.2,
     pointRadius: 0,

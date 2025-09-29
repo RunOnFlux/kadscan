@@ -106,8 +106,8 @@ function downloadData() {
 <template>
   <ErrorOverlay v-if="error" :message="error?.message" />
   <div v-else>
-    <div class="flex items-center justify-between pb-5 border-b border-[#222222] mb-6">
-      <h1 class="text-[19px] font-semibold leading-[150%] text-[#f5f5f5]">
+    <div class="flex items-center justify-between pb-5 border-b border-line-default mb-6">
+      <h1 class="text-[19px] font-semibold leading-[150%] text-font-primary">
         Blocks
       </h1>
     </div>
@@ -132,29 +132,29 @@ function downloadData() {
       <template #actions>
         <button
           @click="downloadData"
-          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
+          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-surface-hover whitespace-nowrap"
         >
-          <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
+          <IconDownload class="w-4 h-4 text-font-secondary" />
           <span class="hidden md:inline">Download</span>
         </button>
       </template>
 
       <template #height="{ item }">
-        <NuxtLink :to="`/blocks/${item.height}/chain/${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.height }}</NuxtLink>
+        <NuxtLink :to="`/blocks/${item.height}/chain/${item.chainId}`" class="text-link hover:text-link-hover">{{ item.height }}</NuxtLink>
       </template>
       <template #status="{ item }">
         <StatusBadge :status="blockStatus(item.height, item.canonical)" />
       </template>
       <template #txn="{ item }">
-        <NuxtLink :to="`/transactions?block=${item.height}&chain=${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.txn }}</NuxtLink>
+        <NuxtLink :to="`/transactions?block=${item.height}&chain=${item.chainId}`" class="text-link hover:text-link-hover">{{ item.txn }}</NuxtLink>
       </template>
       <template #miner="{ item }">
         <div class="flex items-center">
           <Tooltip v-if="item.miner!=='N/A'" :value="item.miner" variant="hash">
-            <NuxtLink :to="`/account/${item.miner}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.miner, 10, 10) }}</NuxtLink>
+            <NuxtLink :to="`/account/${item.miner}`" class="text-link hover:text-link-hover">{{ truncateAddress(item.miner, 10, 10) }}</NuxtLink>
           </Tooltip>
           <Copy v-if="item.miner!=='N/A'" :value="item.miner" tooltipText="Copy Address" />
-            <span v-else class="text-[#f5f5f5]">{{ item.miner }}</span>
+            <span v-else class="text-font-primary">{{ item.miner }}</span>
         </div>
       </template>
     </DataTable>

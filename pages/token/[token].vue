@@ -165,12 +165,12 @@ watch([selectedNetwork, () => route.query.chain, () => moduleName.value], async 
 <template>
   <div>
     <!-- Header -->
-    <div class="pb-5 border-b border-[#222222] mb-6 px-1">
+    <div class="pb-5 border-b border-line-default mb-6 px-1">
       <div class="flex flex-col gap-1 md:flex-row md:items-center md:gap-3">
         <div class="flex items-center gap-2 mb-1 md:mb-0">
           <img v-if="tokenIconSrc" :src="tokenIconSrc" alt="Token icon" class="w-8 h-8 rounded-full" />
-          <h1 class="text-[19px] font-semibold leading-[150%] text-[#f5f5f5]">Token</h1>
-          <div class="text-[15px] text-[#f5f5f5] break-all">{{ moduleName }}</div>
+          <h1 class="text-[19px] font-semibold leading-[150%] text-font-primary">Token</h1>
+          <div class="text-[15px] text-font-primary break-all">{{ moduleName }}</div>
         </div>
         <div class="flex items-center gap-3 pt-2 md:pt-0">
           <Copy 
@@ -187,22 +187,22 @@ watch([selectedNetwork, () => route.query.chain, () => moduleName.value], async 
     <!-- Top Blocks -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6 items-stretch">
       <!-- Overview -->
-      <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
-        <h3 class="text-[#f5f5f5] font-semibold mb-4">
-          Overview <span class="text-[#bbbbbb] font-normal">— {{ overviewChainLabel }}</span>
+      <div class="bg-surface-primary border border-line-default rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+        <h3 class="text-font-primary font-semibold mb-4">
+          Overview <span class="text-font-secondary font-normal">— {{ overviewChainLabel }}</span>
         </h3>
         <div class="flex-1 flex flex-col justify-between gap-4">
           <div>
-            <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">TOTAL SUPPLY</div>
-            <div class="text-[14px] text-[#888888]">Coming soon...</div>
+            <div class="text-[13px] text-font-secondary font-medium mb-1">TOTAL SUPPLY</div>
+            <div class="text-[14px] text-font-tertiary">Coming soon...</div>
           </div>
           <div>
-            <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">HOLDERS</div>
-            <div class="text-[14px] text-[#888888]">Coming soon...</div>
+            <div class="text-[13px] text-font-secondary font-medium mb-1">HOLDERS</div>
+            <div class="text-[14px] text-font-tertiary">Coming soon...</div>
           </div>
           <div>
-            <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">PRICE</div>
-            <div class="text-[14px] text-[#f5f5f5]">
+            <div class="text-[13px] text-font-secondary font-medium mb-1">PRICE</div>
+            <div class="text-[14px] text-font-primary">
               <template v-if="formattedUnitUsd !== null">{{ formattedUnitUsd }}</template>
               <template v-else>N/A</template>
             </div>
@@ -210,30 +210,30 @@ watch([selectedNetwork, () => route.query.chain, () => moduleName.value], async 
         </div>
       </div>
 
-      <!-- More Info -->
-      <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
-        <h3 class="text-[#f5f5f5] font-semibold mb-4">More Info</h3>
+      <!-- Extra Info -->
+      <div class="bg-surface-primary border border-line-default rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+        <h3 class="text-font-primary font-semibold mb-4">Extra Info</h3>
         <div class="space-y-4">
           <div>
-            <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">TOKEN MODULE</div>
-            <NuxtLink :to="`/module/${moduleName}`" class="inline-flex items-center gap-1 text-[#6AB5DB] hover:text-[#9ccee7] break-all text-[14px]">
+            <div class="text-[13px] text-font-secondary font-medium mb-1">TOKEN MODULE</div>
+            <NuxtLink :to="`/module/${moduleName}`" class="inline-flex items-center gap-1 text-link hover:text-link-hover break-all text-[14px]">
               <span>{{ moduleName }}</span>
               <UpperRightArrow class="w-4 h-4" />
             </NuxtLink>
           </div>
           <div>
-            <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">TOTAL TRANSFERS</div>
-            <div class="text-[14px] text-[#f5f5f5]">
-              <template v-if="transfersLoading"> <span class="text-[#888888] animate-pulse">Loading...</span> </template>
+            <div class="text-[13px] text-font-secondary font-medium mb-1">TOTAL TRANSFERS</div>
+            <div class="text-[14px] text-font-primary">
+              <template v-if="transfersLoading"> <span class="text-font-tertiary animate-pulse">Loading...</span> </template>
               <template v-else>{{ new Intl.NumberFormat().format(transfersTotalCount || 0) }}</template>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Multichain Info -->
-      <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
-        <h3 class="text-[#f5f5f5] font-semibold mb-4">Multichain Info</h3>
+      <!-- Cross Chain Info -->
+      <div class="bg-surface-primary border border-line-default rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+        <h3 class="text-font-primary font-semibold mb-4">Cross Chain Info</h3>
         <div class="space-y-4">
           <div class="flex items-center justify-between gap-2">
             <Select
@@ -246,8 +246,8 @@ watch([selectedNetwork, () => route.query.chain, () => moduleName.value], async 
               :fullWidth="false"
             >
               <div class="inline-flex items-center gap-2">
-                <Coins class="w-4 h-4 text-[#f5f5f5]" />
-                <span class="text-[#f5f5f5] text-[14px]">
+                <Coins class="w-4 h-4 text-font-primary" />
+                <span class="text-font-primary text-[14px]">
                   {{ selectedChainSelect.label }}
                 </span>
               </div>
@@ -267,8 +267,8 @@ watch([selectedNetwork, () => route.query.chain, () => moduleName.value], async 
           :class="[
             'px-3 py-1 rounded-lg text-[14px] font-medium transition-colors whitespace-nowrap relative',
             activeTab === tab.id 
-              ? 'bg-[#009367] text-[#f5f5f5]' 
-              : 'bg-[#252525] text-[#f5f5f5] hover:bg-[#333333]'
+              ? 'bg-accent-strong text-btn-text' 
+              : 'bg-surface-hover text-font-primary hover:bg-tab-bg-hover'
           ]"
         >
           {{ tab.label }}

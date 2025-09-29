@@ -77,7 +77,7 @@ onUnmounted(() => {
     class="relative md:max-w-[675px] md:min-w-[500px] w-full md:w-auto"
     v-outside="close"
   >
-    <IconSearchMagnify class="absolute left-3 md:left-[10px] top-1/2 -translate-y-1/2 w-6 h-6 text-[#bbbbbb]" />
+    <IconSearchMagnify class="absolute left-3 md:left-[10px] top-1/2 -translate-y-1/2 w-6 h-6 text-font-secondary" />
     <input
       ref="searchInput"
       class="
@@ -87,13 +87,13 @@ onUnmounted(() => {
         text-[15px]
         font-normal
         leading-[22.5px]
-        bg-[#151515]
+        bg-surface-disabled
         h-[36.5px]
         min-h-[36.5px]
         w-full
-        text-[#f5f5f5]
-        placeholder:text-[#bbbbbb]
-        border border-[#222222]
+        text-font-primary
+        placeholder:text-font-secondary
+        border border-line-default
         rounded-[8px]
         outline-none
         box-border
@@ -113,10 +113,10 @@ onUnmounted(() => {
       @click="cleanup()"
       class="absolute right-[52px] md:right-[60px] top-1/2 -translate-y-1/2 cursor-pointer"
     >
-      <IconSearchClose class="w-5 h-5 text-[#bbbbbb] hover:text-[#f5f5f5]" />
+      <IconSearchClose class="w-5 h-5 text-font-secondary hover:text-font-primary" />
     </div>
 
-    <kbd class="hidden md:block absolute right-2 top-1/2 -translate-y-1/2 bg-[#121212] bg-opacity-75 rounded-[6px] px-2 py-[2px] text-[#f5f5f5] text-[12.69px] font-semibold leading-[19px] min-w-[23.64px] h-[23.03px] flex items-center justify-center">
+    <kbd class="hidden md:block absolute right-2 top-1/2 -translate-y-1/2 bg-surface-primary bg-opacity-75 rounded-[6px] px-2 py-[2px] text-font-primary text-[12.69px] font-semibold leading-[19px] min-w-[23.64px] h-[23.03px] flex items-center justify-center">
       /
     </kbd>
 
@@ -138,16 +138,16 @@ onUnmounted(() => {
 
 <style scoped>
 input {
-  border-color: #222222 !important;
+  border-color: rgb(var(--line-default)) !important;
   border-width: 1px !important;
   transition-property: border-color, box-shadow !important;
   transition-duration: 0.15s !important;
   transition-timing-function: ease-in-out !important;
 }
 input:focus {
-  border-color: #292929 !important;
+  border-color: rgb(var(--line-strong)) !important;
   border-width: 1px !important;
-  box-shadow: 0 0 0 2px #292929 !important;
+  box-shadow: 0 0 0 2px rgb(var(--line-strong)) !important;
   outline: none !important;
 }
 </style> 

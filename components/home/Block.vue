@@ -39,41 +39,41 @@ const timeAgo = computed(() => {
   <div class="px-4">
     <div
       class="flex items-center justify-between py-[14px]"
-      :class="{ 'border-b border-[#222222]': index !== totalItems - 1 }"
+      :class="{ 'border-b border-line-default': index !== totalItems - 1 }"
     >
       <div class="flex items-center md:w-1/3 gap-2 w-[160px]">
-        <div class="bg-[#151515] rounded-md p-3 hidden md:block">
-          <KadenaIcon class="w-6 h-6" />
+        <div class="bg-surface-disabled rounded-md p-3 hidden md:block">
+          <KadenaIcon class="w-6 h-6 text-font-secondary" />
         </div>
         <div>
-          <NuxtLink :to="`/blocks/${props.height}`" class="text-[#6ab5db] hover:text-[#9ccee7] text-[15px]">
+          <NuxtLink :to="`/blocks/${props.height}`" class="text-link hover:text-link-hover text-[15px]">
             {{ props.height }}
           </NuxtLink>
-          <div class="text-xs text-[#bbbbbb]">{{ timeAgo }}</div>
+          <div class="text-xs text-font-secondary">{{ timeAgo }}</div>
         </div>
       </div>
 
       <div class="flex items-center justify-between w-full md:w-2/3">
           <div class="text-sm">
             <Tooltip value="Amount of Chains included in this Block">
-              <div class="text-[#bbbbbb]">
-                Synced Chains <span class="text-[#f5f5f5]">{{ props.chainCount }}/20</span>
+              <div class="text-font-secondary">
+                Synced Chains <span class="text-font-primary">{{ props.chainCount }}/20</span>
               </div>
             </Tooltip>
             <div>
               <Tooltip v-if="props.totalTransactions > 0" value="Transactions in this block">
-                <NuxtLink :to="`/transactions?block=${props.height}`" class="text-[#6ab5db] hover:text-[#9ccee7]">
+                <NuxtLink :to="`/transactions?block=${props.height}`" class="text-link hover:text-link-hover">
                   {{ props.totalTransactions }} {{ props.totalTransactions === 1 ? 'Transaction' : 'Transactions' }}
                 </NuxtLink>
               </Tooltip>
-              <div v-else class="text-[#bbbbbb]">
+              <div v-else class="text-font-secondary">
                 {{ props.totalTransactions }} {{ props.totalTransactions === 1 ? 'Transaction' : 'Transactions' }}
               </div>
             </div>
           </div>
 
         <Tooltip value="Block Reward">
-          <div class="text-[11px] text-[#f5f5f5] border border-gray-600 bg-transparent rounded-md px-2 py-1">
+          <div class="text-[11px] text-font-primary border border-line-strong bg-transparent rounded-md px-2 py-1">
             {{ (props.totalRewards || 0).toFixed(1) }} kda
           </div>
         </Tooltip>

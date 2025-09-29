@@ -316,8 +316,8 @@ onUnmounted(() => {
   <ErrorOverlay v-if="error" :message="error?.message" />
   <div v-else>
     <!-- Header -->
-    <div class="flex items-center pb-5 border-b border-[#222222] mb-6 gap-2">
-      <h1 class="text-[19px] font-semibold leading-[150%] text-[#f5f5f5]">
+    <div class="flex items-center pb-5 border-b border-line-default mb-6 gap-2">
+      <h1 class="text-[19px] font-semibold leading-[150%] text-font-primary">
         Transaction Details
       </h1>
     </div>
@@ -336,8 +336,8 @@ onUnmounted(() => {
             :class="[
               'px-[10px] py-[5px] text-[13px] rounded-lg font-medium transition-colors',
               activeTab === label
-                ? 'bg-[#009367] text-[#f5f5f5]'
-                : 'bg-[#252525] text-[#bbbbbb] hover:bg-[#333333]'
+                ? 'bg-accent-strong text-btn-text'
+                : 'bg-surface-hover text-font-secondary hover:bg-surface-hover'
             ]"
             @click="activeTab = label"
           >
@@ -365,7 +365,7 @@ onUnmounted(() => {
 
         <!-- Transaction Details -->
         <div v-else-if="activeTab.startsWith('Overview')" :key="'overview'">
-          <div class="bg-[#111111] border border-[#222222] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
+          <div class="bg-surface-primary border border-line-default rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
           <Divide>
             <!-- Section 1: Basic Information -->
             <DivideItem>
@@ -378,7 +378,7 @@ onUnmounted(() => {
                 >
                   <template #value>
                     <div class="flex items-center gap-2">
-                      <span class="text-[#f5f5f5] break-all text-[15px]">{{ displayHash }}</span>
+                      <span class="text-font-primary break-all text-[15px]">{{ displayHash }}</span>
                       <Copy 
                         v-if="!isMobile"
                         :value="transaction.hash" 
@@ -405,11 +405,11 @@ onUnmounted(() => {
                 <LabelValue :row="isMobile" :label="textContent.block.label" :description="textContent.block.description" tooltipPos="right">
                  <template #value>
                    <div class="flex items-center gap-2">
-                     <IconHourglass v-if="transactionStatus.text === 'Pending'" class="w-3 h-3 text-[#bbbbbb]" />
-                     <NuxtLink v-if="transaction?.result?.block?.height" :to="`/blocks/${transaction.result.block.height}/chain/${transaction.result.block.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ transaction.result.block.height }}</NuxtLink>
-                     <span v-else-if="!transaction?.result?.block?.height && transaction?.cmd?.meta?.chainId && (transaction?.cmd?.meta?.creationTime === 0 || new Date(transaction?.cmd?.meta?.creationTime).getTime() < new Date('1970-01-02').getTime())" class="text-[#f5f5f5]">Genesis</span>
-                     <span v-else class="text-[#f5f5f5]">-</span>
-                     <span v-if="blockConfirmations !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] text-[#f5f5f5] font-semibold flex items-center leading-none">
+                     <IconHourglass v-if="transactionStatus.text === 'Pending'" class="w-3 h-3 text-font-secondary" />
+                     <NuxtLink v-if="transaction?.result?.block?.height" :to="`/blocks/${transaction.result.block.height}/chain/${transaction.result.block.chainId}`" class="text-link hover:text-link-hover">{{ transaction.result.block.height }}</NuxtLink>
+                     <span v-else-if="!transaction?.result?.block?.height && transaction?.cmd?.meta?.chainId && (transaction?.cmd?.meta?.creationTime === 0 || new Date(transaction?.cmd?.meta?.creationTime).getTime() < new Date('1970-01-02').getTime())" class="text-font-primary">Genesis</span>
+                     <span v-else class="text-font-primary">-</span>
+                     <span v-if="blockConfirmations !== null" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] text-font-primary font-semibold flex items-center leading-none">
                       {{ blockConfirmations }} Block Confirmations
                      </span>
                    </div>
@@ -417,7 +417,7 @@ onUnmounted(() => {
                </LabelValue>
               <LabelValue :row="isMobile" :label="textContent.chainId.label" :description="textContent.chainId.description" tooltipPos="right">
                 <template #value>
-                  <span class="text-[#f5f5f5] text-[15px]">
+                  <span class="text-font-primary text-[15px]">
                     {{ displayChainId }}
                   </span>
                 </template>
@@ -432,13 +432,13 @@ onUnmounted(() => {
                    <div class="flex items-center gap-2">
                      <!-- Show just "Genesis" for Genesis transactions without clock icon -->
                      <template v-if="!transaction?.result?.block?.height && transaction?.cmd?.meta?.chainId && (transaction?.cmd?.meta?.creationTime === 0 || new Date(transaction?.cmd?.meta?.creationTime).getTime() < new Date('1970-01-02').getTime())">
-                       <span class="text-[#f5f5f5] text-[15px]">Genesis</span>
+                       <span class="text-font-primary text-[15px]">Genesis</span>
                      </template>
                      <!-- Normal timestamp display with clock icon -->
                      <template v-else>
-                       <Clock class="w-4 h-4 text-[#bbbbbb]" />
-                       <span v-if="age && transaction?.cmd?.meta?.creationTime" class="text-[#f5f5f5] text-[15px]">{{ age }} ({{ new Date(transaction.cmd.meta.creationTime).toUTCString() }})</span>
-                       <span v-else class="text-[#f5f5f5] text-[15px]">-</span>
+                       <Clock class="w-4 h-4 text-font-secondary" />
+                       <span v-if="age && transaction?.cmd?.meta?.creationTime" class="text-font-primary text-[15px]">{{ age }} ({{ new Date(transaction.cmd.meta.creationTime).toUTCString() }})</span>
+                       <span v-else class="text-font-primary text-[15px]">-</span>
                      </template>
                    </div>
                  </template>
@@ -464,7 +464,7 @@ onUnmounted(() => {
                         class="flex items-center gap-2"
                       >
                         <template v-if="signer.address">
-                          <NuxtLink :to="`/account/${signer.address}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ signer.address }}</NuxtLink>
+                          <NuxtLink :to="`/account/${signer.address}`" class="text-link hover:text-link-hover">{{ signer.address }}</NuxtLink>
                           <Copy 
                             :value="signer.address" 
                             tooltipText="Copy Signer Address"
@@ -473,7 +473,7 @@ onUnmounted(() => {
                           />
                         </template>
                         <template v-else>
-                          <span class="text-[#f5f5f5] break-all">{{ smartTruncateAddress(signer.pubkey) }}</span>
+                          <span class="text-font-primary break-all">{{ smartTruncateAddress(signer.pubkey) }}</span>
                           <Copy 
                             :value="signer.pubkey" 
                             tooltipText="Copy Signer Pubkey"
@@ -494,7 +494,7 @@ onUnmounted(() => {
                 >
                   <template #value>
                     <div class="flex items-center gap-2">
-                      <NuxtLink :to="`/account/${feePayer}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ feePayer }}</NuxtLink>
+                      <NuxtLink :to="`/account/${feePayer}`" class="text-link hover:text-link-hover">{{ feePayer }}</NuxtLink>
                       <Copy 
                         :value="feePayer" 
                         tooltipText="Copy Fee Payer Address"
@@ -523,11 +523,11 @@ onUnmounted(() => {
                       class="flex flex-wrap items-center gap-1.5 text-[15px]"
                     >
                       <!-- From Address -->
-                      <span class="text-[#f5f5f5] font-medium">From</span>
+                      <span class="text-font-primary font-medium">From</span>
                       <template v-if="getActualSender(transferEdge.node) !== 'k:system'">
                         <NuxtLink 
                           :to="`/account/${getActualSender(transferEdge.node)}`" 
-                          class="text-[#6ab5db] hover:text-[#9ccee7]"
+                          class="text-link hover:text-link-hover"
                         >{{ smartTruncateAddress(getActualSender(transferEdge.node)) }}</NuxtLink>
                         <Copy 
                           :value="getActualSender(transferEdge.node)" 
@@ -536,14 +536,14 @@ onUnmounted(() => {
                           buttonClass="w-5 h-5 hover:opacity-100"
                         />
                       </template>
-                      <span v-else class="text-[#f5f5f5]">{{ getActualSender(transferEdge.node) }}</span>
+                      <span v-else class="text-font-primary">{{ getActualSender(transferEdge.node) }}</span>
                       
                       <!-- To Address -->
-                      <span class="text-[#f5f5f5] font-medium">To</span>
+                      <span class="text-font-primary font-medium">To</span>
                       <NuxtLink 
                         v-if="getActualReceiver(transferEdge.node) !== 'k:system'"
                         :to="`/account/${getActualReceiver(transferEdge.node)}`" 
-                        class="text-[#6ab5db] hover:text-[#9ccee7]"
+                        class="text-link hover:text-link-hover"
                       >{{ smartTruncateAddress(getActualReceiver(transferEdge.node)) }}</NuxtLink>
                       <Copy 
                         v-if="getActualReceiver(transferEdge.node) !== 'k:system'"
@@ -552,16 +552,16 @@ onUnmounted(() => {
                         iconSize="h-5 w-5"
                         buttonClass="w-5 h-5 hover:opacity-100"
                       />
-                      <span v-else class="text-[#f5f5f5]">{{ getActualReceiver(transferEdge.node) }}</span>
+                      <span v-else class="text-font-primary">{{ getActualReceiver(transferEdge.node) }}</span>
                       
                       <!-- Amount and Token Info -->
-                      <span class="text-[#f5f5f5] font-medium">For</span>
-                      <span class="text-[#f5f5f5]">{{ transferEdge.node.amount }}</span>
+                      <span class="text-font-primary font-medium">For</span>
+                      <span class="text-font-primary">{{ transferEdge.node.amount }}</span>
                       
                       <!-- USD Value for KDA -->
                       <span 
                         v-if="calculateKdaUsdValue(transferEdge.node.amount, transferEdge.node.moduleName === 'coin', kadenaPrice)" 
-                        class="text-[#bbbbbb]"
+                        class="text-font-secondary"
                       >
                         (${{ calculateKdaUsdValue(transferEdge.node.amount, transferEdge.node.moduleName === 'coin', kadenaPrice) }})
                       </span>
@@ -576,7 +576,7 @@ onUnmounted(() => {
                         />
                         <div 
                           v-else
-                          class="w-5 h-5 bg-gray-400 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                          class="w-5 h-5 bg-line-muted rounded-full flex items-center justify-center text-xs font-bold text-font-primary"
                         >
                           {{ getTokenMetadata(transferEdge.node.moduleName).symbol.charAt(0) }}
                         </div>
@@ -584,7 +584,7 @@ onUnmounted(() => {
                         <!-- Token Name -->
                         <NuxtLink 
                           :to="`/token/${transferEdge.node.moduleName}`" 
-                          class="text-[#6ab5db] hover:text-[#9ccee7] font-medium"
+                          class="text-link hover:text-link-hover font-medium"
                         >
                           {{ getTokenMetadata(transferEdge.node.moduleName).symbol }}
                         </NuxtLink>
@@ -609,8 +609,8 @@ onUnmounted(() => {
                 <LabelValue :row="isMobile" :label="textContent.value.label" :description="textContent.value.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-2">
-                      <span class="text-[#f5f5f5]">{{ signerTransferValue }} KDA</span>
-                      <span v-if="signerTransferValue > 0" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(signerTransferValue, true, kadenaPrice) }})</span>
+                      <span class="text-font-primary">{{ signerTransferValue }} KDA</span>
+                      <span v-if="signerTransferValue > 0" class="text-font-secondary">(${{ calculateKdaUsdValue(signerTransferValue, true, kadenaPrice) }})</span>
                     </div>
                   </template>
                 </LabelValue>
@@ -618,8 +618,8 @@ onUnmounted(() => {
                 <LabelValue :row="isMobile" :label="textContent.transactionFee.label" :description="textContent.transactionFee.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-2">
-                      <span class="text-[#f5f5f5]">{{ transactionFee }} KDA</span>
-                      <span v-if="transactionFee > 0" class="text-[#bbbbbb]">(${{ calculateKdaUsdValue(transactionFee, true, kadenaPrice) }})</span>
+                      <span class="text-font-primary">{{ transactionFee }} KDA</span>
+                      <span v-if="transactionFee > 0" class="text-font-secondary">(${{ calculateKdaUsdValue(transactionFee, true, kadenaPrice) }})</span>
                     </div>
                   </template>
                 </LabelValue>
@@ -627,7 +627,7 @@ onUnmounted(() => {
                 <LabelValue :row="isMobile" :label="textContent.gasPrice.label" :description="textContent.gasPrice.description" tooltipPos="right">
                   <template #value>
                     <div class="flex items-center gap-2">
-                      <span class="text-[#f5f5f5]">{{ gasPriceFormatted || '-' }}</span>
+                      <span class="text-font-primary">{{ gasPriceFormatted || '-' }}</span>
                     </div>
                   </template>
                 </LabelValue>
@@ -637,13 +637,13 @@ onUnmounted(() => {
           </div>
 
           <!-- More Details Section (now inside Overview branch) -->
-          <div class="bg-[#111111] border border-[#222222] rounded-xl p-5 mb-2 shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+          <div class="bg-surface-primary border border-line-default rounded-xl p-5 mb-2 shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
           <div 
             ref="contentRef"
             class="overflow-hidden transition-all duration-300 ease-out"
             :style="{ height: showMoreDetails ? contentHeight + contentHeightCodeVariation + 'px' : '0px' }"
           >
-            <div class="mb-4 pb-4 border-b border-[#222222]">
+            <div class="mb-4 pb-4 border-b border-line-default">
               <Divide>
                 <!-- More Details -->
                 <DivideItem>
@@ -651,7 +651,7 @@ onUnmounted(() => {
                     <LabelValue :row="isMobile" :label="textContent.kadenaPrice.label" :description="textContent.kadenaPrice.description" tooltipPos="right">
                       <template #value>
                         <div class="flex items-center gap-2">
-                          <span class="text-[#f5f5f5]">{{ formattedKadenaPrice || '-' }}</span>
+                          <span class="text-font-primary">{{ formattedKadenaPrice || '-' }}</span>
                         </div>
                       </template>
                     </LabelValue>
@@ -663,7 +663,7 @@ onUnmounted(() => {
                     >
                       <template #value>
                         <div class="flex items-center gap-2">
-                          <span class="text-[#f5f5f5]">{{ formattedGasInfo }}</span>
+                          <span class="text-font-primary">{{ formattedGasInfo }}</span>
                         </div>
                       </template>
                     </LabelValue>
@@ -680,7 +680,7 @@ onUnmounted(() => {
                           <div class="shrink-0">
                             <StatusBadge :status="executionResultBadge" />
                           </div>
-                          <div class="flex-1 text-[#f5f5f5]">
+                          <div class="flex-1 text-font-primary">
                             {{ transactionExecutionResult.value }}
                           </div>
                         </div>
@@ -700,17 +700,17 @@ onUnmounted(() => {
                     >
                       <template #value>
                         <div class="flex flex-wrap gap-2">
-                          <span v-if="transaction?.cmd?.meta?.ttl !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
-                            <span class="text-[#bbbbbb]">TTL:</span>
-                            <span class="text-[#f5f5f5] ml-1">{{ transaction?.cmd?.meta?.ttl }}</span>
+                          <span v-if="transaction?.cmd?.meta?.ttl !== null" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+                            <span class="text-font-secondary">TTL:</span>
+                            <span class="text-font-primary ml-1">{{ transaction?.cmd?.meta?.ttl }}</span>
                           </span>
-                          <span v-if="transaction?.cmd?.nonce !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
-                            <span class="text-[#bbbbbb]">Nonce:</span>
-                            <span class="text-[#f5f5f5] ml-1">{{ transaction?.cmd?.nonce }}</span>
+                          <span v-if="transaction?.cmd?.nonce !== null" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+                            <span class="text-font-secondary">Nonce:</span>
+                            <span class="text-font-primary ml-1">{{ transaction?.cmd?.nonce }}</span>
                           </span>
-                          <span v-if="transaction?.result?.transactionId !== undefined" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
-                            <span class="text-[#bbbbbb]">TXID:</span>
-                            <span class="text-[#f5f5f5] ml-1">{{ transaction?.result?.transactionId }}</span>
+                          <span v-if="transaction?.result?.transactionId !== null" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+                            <span class="text-font-secondary">TXID:</span>
+                            <span class="text-font-primary ml-1">{{ transaction?.result?.transactionId }}</span>
                           </span>
                         </div>
                       </template>
@@ -727,14 +727,14 @@ onUnmounted(() => {
                           >
                             <Informational class="w-4 h-4" />
                           </Tooltip>
-                          <span class="text-[#bbbbbb] text-[15px] font-normal">
+                          <span class="text-font-secondary text-[15px] font-normal">
                             {{ textContent.inputData.label }}
                           </span>
                         </div>
                       </div>
                       
                       <!-- Code Container with proper boundaries -->
-                      <div class="text-[#f5f5f5] text-[15px] fix w-full md:flex-1 overflow-hidden">
+                      <div class="text-font-primary text-[15px] fix w-full md:flex-1 overflow-hidden">
                         <div class="w-full">
                           <!-- Resizable Code Container -->
                           <div class="relative">
@@ -742,7 +742,7 @@ onUnmounted(() => {
                               <textarea
                                 readonly
                                 :value="displayedCode"
-                                class="break-all w-full bg-[#151515] border border-[#222222] rounded-lg text-[#bbbbbb] text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto"
+                                class="break-all w-full bg-surface-disabled border border-line-default rounded-lg text-font-secondary text-sm px-[10px] py-[5px] resize-none outline-none font-mono whitespace-pre-wrap overflow-auto"
                                 :style="{ height: codeContainerHeight + 'px' }"
                               ></textarea>
                               
@@ -754,8 +754,8 @@ onUnmounted(() => {
                               >
                                 <!-- Simple diagonal grip lines -->
                                 <div class="absolute bottom-1 right-1 w-3 h-3">
-                                  <div class="absolute bottom-0 right-0 w-[1px] h-1.5 bg-[#bbbbbb] transform rotate-45 origin-bottom-right translate-y-[-5px] translate-x-[-4px]"></div>
-                                  <div class="absolute bottom-0 right-0 w-[1px] h-2.5 bg-[#bbbbbb] transform rotate-45 origin-bottom-right translate-y-[-5px] translate-x-[-7px]"></div>
+                                  <div class="absolute bottom-0 right-0 w-[1px] h-1.5 bg-font-secondary transform rotate-45 origin-bottom-right translate-y-[-5px] translate-x-[-4px]"></div>
+                                  <div class="absolute bottom-0 right-0 w-[1px] h-2.5 bg-font-secondary transform rotate-45 origin-bottom-right translate-y-[-5px] translate-x-[-7px]"></div>
                                 </div>
                               </div>
                             </div>
@@ -765,10 +765,10 @@ onUnmounted(() => {
                               <button 
                                 @click="codeView = 'default'"
                                 :class="[
-                                  'px-3 py-1.5 text-xs rounded-md transition-colors bg-[#222222]',
+                                  'px-3 py-1.5 text-xs rounded-md transition-colors bg-surface-secondary',
                                   codeView === 'default' 
-                                    ? 'text-[#f5f5f5] cursor-default' 
-                                    : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dadfe3] hover:text-[#000000]'
+                                    ? 'text-font-primary cursor-default' 
+                                    : 'bg-surface-secondary text-font-secondary hover:bg-btn-cta-hover-bg hover:text-surface-black'
                                 ]"
                               >
                                 Default View
@@ -776,10 +776,10 @@ onUnmounted(() => {
                               <button 
                                 @click="codeView = 'raw'"
                                 :class="[
-                                  'px-3 py-1.5 text-xs rounded-md transition-colors bg-[#222222]',
+                                  'px-3 py-1.5 text-xs rounded-md transition-colors bg-surface-secondary',
                                   codeView === 'raw' 
-                                    ? 'text-[#f5f5f5] cursor-default' 
-                                    : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dadfe3] hover:text-[#000000]'
+                                    ? 'text-font-primary cursor-default' 
+                                    : 'bg-surface-secondary text-font-secondary hover:bg-btn-cta-hover-bg hover:text-surface-black'
                                 ]"
                               >
                                 Original
@@ -787,10 +787,10 @@ onUnmounted(() => {
                               <button 
                                 @click="codeView = 'data'"
                                 :class="[
-                                  'px-3 py-1.5 text-xs rounded-md transition-colors bg-[#222222]',
+                                  'px-3 py-1.5 text-xs rounded-md transition-colors bg-surface-secondary',
                                   codeView === 'data' 
-                                    ? 'text-[#f5f5f5] cursor-default' 
-                                    : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dadfe3] hover:text-[#000000]'
+                                    ? 'text-font-primary cursor-default' 
+                                    : 'bg-surface-secondary text-font-secondary hover:bg-btn-cta-hover-bg hover:text-surface-black'
                                 ]"
                               >
                                 Data
@@ -798,10 +798,10 @@ onUnmounted(() => {
                               <button 
                                 @click="codeView = 'signatures'"
                                 :class="[
-                                  'px-3 py-1.5 text-xs rounded-md transition-colors bg-[#222222]',
+                                  'px-3 py-1.5 text-xs rounded-md transition-colors bg-surface-secondary',
                                   codeView === 'signatures' 
-                                    ? 'text-[#f5f5f5] cursor-default' 
-                                    : 'bg-[#222222] text-[#bbbbbb] hover:bg-[#dadfe3] hover:text-[#000000]'
+                                    ? 'text-font-primary cursor-default' 
+                                    : 'bg-surface-secondary text-font-secondary hover:bg-btn-cta-hover-bg hover:text-surface-black'
                                 ]"
                               >
                                 Signatures
@@ -826,7 +826,7 @@ onUnmounted(() => {
                 <template #value>
                   <button 
                     @click="toggleMoreDetails"
-                    class="flex items-center gap-1 transition-colors text-[15px] hover:text-[#9ccee7] text-[#6AB5DB]"
+                    class="flex items-center gap-1 transition-colors text-[15px] hover:text-link-hover text-link"
                   >
                     <svg 
                       class="w-3 h-3 transition-transform duration-300" 

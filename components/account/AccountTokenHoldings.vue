@@ -137,14 +137,14 @@ watch(() => props.balances, (arr) => {
 <template>
   <div class="relative" v-outside="close">
     <button 
-      class="w-full px-3 py-2 rounded-md border border-[#222] bg-[#151515] text-[#f5f5f5] text-[14px] hover:bg-[#222] transition-colors flex items-center justify-between"
+      class="w-full px-3 py-2 rounded-md border border-line-default bg-surface-disabled text-font-primary text-[14px] hover:bg-surface-secondary transition-colors flex items-center justify-between"
       @click.prevent="open = !open"
       aria-haspopup="true"
       :aria-expanded="open ? 'true' : 'false'"
     >
       <div class="flex items-center gap-2">
         <span>{{ formatUsd(totalUsd || 0) }}</span>
-        <span class="text-[#bbbbbb] text-[13px]"> ({{ assetsCount }} Assets)</span>
+        <span class="text-font-secondary text-[13px]"> ({{ assetsCount }} Assets)</span>
       </div>
       <svg class="w-4 h-4" fill="none" viewBox="0 0 16 16">
         <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -153,15 +153,15 @@ watch(() => props.balances, (arr) => {
 
     <div 
       v-if="open"
-      class="absolute z-30 mt-2 w-full max-h-[420px] rounded-md border border-[#222] bg-[#0f0f0f] shadow-[0_0_20px_rgba(255,255,255,0.0625)] flex flex-col overflow-hidden"
+      class="absolute z-30 mt-2 w-full max-h-[420px] rounded-md border border-line-default bg-surface-primary shadow-[0_0_20px_rgba(255,255,255,0.0625)] flex flex-col overflow-hidden"
     >
       <!-- Search -->
-      <div class="px-3 py-3 bg-[#0f0f0f] border-b border-[#1f1f1f]">
+      <div class="px-3 py-3 bg-surface-primary border-b border-line-default">
         <input
           v-model="search"
           type="text"
           placeholder="Search for Token or NFT"
-          class="w-full px-3 py-2 rounded-lg bg-[#151515] border border-[#222] text-[#f5f5f5] placeholder-[#777] text-[14px] outline-none focus:ring-2 focus:ring-[#2a2a2a]"
+          class="w-full px-3 py-2 rounded-lg bg-surface-disabled border border-line-default text-font-primary placeholder-font-tertiary text-[14px] outline-none focus:ring-2 focus:ring-line-strong"
         />
       </div>
 
@@ -169,76 +169,76 @@ watch(() => props.balances, (arr) => {
       <div class="flex-1 overflow-y-auto">
         <!-- Tokens Group -->
         <div class="px-3 pt-3 pb-2">
-          <div class="flex items-center justify-between px-3 py-2 rounded-md bg-[#141414] text-[#f5f5f5] text-[15px] font-semibold">
+          <div class="flex items-center justify-between px-3 py-2 rounded-md bg-surface-disabled text-font-secondary text-[15px] font-semibold">
             <span>Tokens ({{ tokensCount }})</span>
           </div>
         </div>
 
-        <div v-if="loading" class="px-3 py-2 text-[14px] text-[#888888]">Loading...</div>
-        <div v-else-if="filteredTokenItems.length === 0" class="px-5 pb-2 text-[13px] text-[#888]">No Tokens</div>
+        <div v-if="loading" class="px-3 py-2 text-[14px] text-font-tertiary">Loading...</div>
+        <div v-else-if="filteredTokenItems.length === 0" class="px-5 pb-2 text-[13px] text-font-tertiary">No Tokens</div>
         <div v-else>
           <NuxtLink 
             v-for="(item, idx) in filteredTokenItems" 
             :key="`token-${idx}`"
             :to="`/token/${item.module}`"
-            class="px-5 py-2 text-[14px] text-[#f5f5f5] flex items-center justify-between border-b border-[#1f1f1f] last:border-b-0 hover:bg-[#151515]"
+            class="px-5 py-2 text-[14px] text-font-primary flex items-center justify-between border-b border-line-default last:border-b-0 hover:bg-surface-disabled"
           >
             <div class="flex items-center gap-3 min-w-0">
-              <div class="w-7 h-7 rounded-full bg-[#222222] overflow-hidden grid place-items-center">
+              <div class="w-7 h-7 rounded-full bg-surface-secondary overflow-hidden grid place-items-center">
                 <img v-if="item.icon" :src="item.icon" alt="icon" class="w-7 h-7 object-contain" />
-                <span v-else class="text-[12px] text-[#f5f5f5]">
+                <span v-else class="text-[12px] text-font-primary">
                   {{ (item.name || 'U')[0]?.toUpperCase() }}
                 </span>
               </div>
               <div class="min-w-0">
-                <div class="text-[14px] text-[#6ab5db] truncate">{{ item.name }}</div>
-                <div class="text-[13px] text-[#bbbbbb] truncate">Chain <b>{{ item.chainId }}</b></div>
+                <div class="text-[14px] text-link truncate">{{ item.name }}</div>
+                <div class="text-[13px] text-font-secondary truncate">Chain <b>{{ item.chainId }}</b></div>
               </div>
             </div>
             <div class="text-right">
               <div class="text-[14px]">{{ formatUsd(item.usd || 0) }}</div>
-              <div v-if="Number(item.amount) > 0" class="text-[12px] text-[#bbbbbb]">{{ formatAmount12(item.amount) }}</div>
+              <div v-if="Number(item.amount) > 0" class="text-[12px] text-font-secondary">{{ formatAmount12(item.amount) }}</div>
             </div>
           </NuxtLink>
         </div>
 
         <!-- NFTs Group -->
         <div class="px-3 pt-3 pb-2">
-          <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-[#141414] text-[#f5f5f5] text-[15px] font-semibold">
+          <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-surface-disabled text-font-secondary text-[15px] font-semibold">
             <span>NFTs ({{ nftsCount }})</span>
           </div>
         </div>
-        <div v-if="filteredNftItems.length === 0" class="px-5 pb-2 text-[13px] text-[#888]">No NFTs</div>
+        <div v-if="filteredNftItems.length === 0" class="px-5 pb-2 text-[13px] text-font-tertiary">No NFTs</div>
         <div v-else>
           <div
             v-for="(item, idx) in filteredNftItems"
             :key="`nft-${idx}`"
-            class="px-5 py-2 text-[14px] text-[#f5f5f5] flex items-center justify-between border-b border-[#1f1f1f] last:border-b-0"
+            class="px-5 py-2 text-[14px] text-font-primary flex items-center justify-between border-b border-line-default last:border-b-0"
           >
             <div class="flex items-center gap-3 min-w-0">
-              <div class="w-6 h-6 rounded bg-[#222] grid place-items-center overflow-hidden">
+              <div class="w-6 h-6 rounded bg-surface-secondary grid place-items-center overflow-hidden">
                 <img v-if="item.icon && !isMiniBroken(item)" :src="item.icon" alt="nft" class="w-full h-full object-cover" @error="markMiniBroken(item)" />
                 <span v-else-if="!item.metaErr && !isMiniBroken(item)" class="inline-block">
-                  <span class="block w-[10px] h-[10px] border-2 border-[#bbbbbb] border-t-transparent rounded-full animate-spin"></span>
+                  <span class="block w-[10px] h-[10px] border-2 border-font-secondary border-t-transparent rounded-full animate-spin"></span>
                 </span>
-                <span v-else class="text-[9px] text-[#ff6b6b] leading-none">IPFS</span>
+                <span v-else class="text-[9px] text-font-danger leading-none">IPFS</span>
               </div>
               <div class="min-w-0">
-                <div class="text-[14px] text-[#f5f5f5] truncate">{{ item.name || 'Unknown' }}</div>
-                <div class="text-[13px] text-[#bbbbbb] truncate">Chain <b>{{ item.chainId }}</b> · #{{ item.tokenId }}</div>
+                <div class="text-[14px] text-font-primary truncate">{{ item.name || 'Unknown' }}</div>
+                <div class="text-[13px] text-font-secondary truncate">Chain <b>{{ item.chainId }}</b> · #{{ item.tokenId }}</div>
               </div>
             </div>
             <div class="text-right">
-              <div class="text-[12px] text-[#bbbbbb]">{{ item.amount }}</div>
+              <div class="text-[12px] text-font-secondary">{{ item.amount }}</div>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Footer CTA (sticky bottom, styled like List.vue) -->
-      <div class="px-6 py-3 text-center bg-[#151515] rounded-b-md border-t border-[#222222]">
+      <div class="px-6 py-3 text-center bg-surface-disabled rounded-b-md border-t border-line-default">
         <button 
-          class="text-[12px] font-semibold text-[#b8b8b8] hover:text-[#00e19d]"
+          class="text-[12px] font-semibold text-font-secondary hover:text-font-accent-strong"
           @click.prevent="onViewAll"
         >
           VIEW ALL ASSETS &rarr;

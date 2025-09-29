@@ -125,19 +125,19 @@ const showHistory = computed(() => {
   <div
     v-if="open"
     ref="modalRef"
-    class="absolute top-full left-0 right-[52px] bg-[#111111] border border-[#222222] rounded-b-md max-h-[344px] overflow-auto z-[99] w-full"
+    class="absolute top-full left-0 right-[52px] bg-surface-primary border border-line-default rounded-b-md max-h-[344px] overflow-auto z-[99] w-full"
   >
-    <div class="sticky top-0 z-10 px-4 pt-3 border-b border-b-[#222222] bg-[#111111]">
+    <div class="sticky top-0 z-10 px-4 pt-3 border-b border-b-line-default bg-surface-primary">
       <!-- History header -->
       <div v-if="showHistory">
-        <span class="text-white text-sm">Recent searches</span>
+        <span class="text-font-primary text-sm">Recent searches</span>
       </div>
       <div
         v-if="loading || (items && items.__bgLoading)"
         class="pb-4"
       >
         <div class="flex flex-col gap-1">
-          <span class="text-sm text-white">Loading...</span>
+          <span class="text-sm text-font-primary">Loading...</span>
         </div>
       </div>
 
@@ -146,7 +146,7 @@ const showHistory = computed(() => {
         v-else-if="isEmpty && !showHistory && !(items && items.__bgLoading)"
       >
         <span
-          class="text-white text-sm"
+          class="text-font-primary text-sm"
         >
           No results found.
         </span>
@@ -206,13 +206,13 @@ const showHistory = computed(() => {
         <button
           v-for="(h, idx) in (history || [])"
           :key="h.query + ':' + idx"
-          class="text-left w-full px-3 py-2 hover:bg-[#151515] rounded-md transition-colors"
+          class="text-left w-full px-3 py-2 hover:bg-surface-disabled rounded-md transition-colors"
           @click.prevent="onSelectHistory && onSelectHistory(h.query)"
         >
           <div class="flex items-center gap-2">
-            <IconSearch class="w-4 h-4 text-[#bbbbbb] shrink-0" />
-            <span class="text-sm text-[#f5f5f5] flex-1 min-w-0 truncate">{{ h.query }}</span>
-            <span class="text-xs text-[#9aa0a6] ml-4 shrink-0 w-24 text-right truncate">{{ h.type || '' }}</span>
+            <IconSearch class="w-4 h-4 text-font-secondary shrink-0" />
+            <span class="text-sm text-font-primary flex-1 min-w-0 truncate">{{ h.query }}</span>
+            <span class="text-xs text-font-tertiary ml-4 shrink-0 w-24 text-right truncate">{{ h.type || '' }}</span>
           </div>
         </button>
       </div>

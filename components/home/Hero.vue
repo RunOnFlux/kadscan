@@ -3,7 +3,7 @@
 <template>
   <div class="grid lg:grid-cols-[1fr_auto] mb-10">
     <div class="flex flex-col justify-between w-full py-6">
-      <h1 class="text-[#f5f5f5] font-semibold text-[20px] mb-2 my-2">
+      <h1 class="text-font-primary font-semibold text-[20px] mb-2 my-2">
         Kadena Block Explorer
       </h1>
 
@@ -15,10 +15,14 @@
       target="_blank"
       rel="noopener noreferrer"
       style="
-        background: linear-gradient(100deg, #009367 66%, #134237 100%);
-        box-shadow: 0px 0px 15px 0px #1c955080;
+        background: linear-gradient(
+          100deg,
+          rgb(var(--accent-strong)) 66%,
+          color-mix(in oklab, rgb(var(--accent-strong)), rgb(var(--surface-black)) 25%) 100%
+        );
+        box-shadow: 0 0 15px 0 rgb(var(--accent-strong) / 0.5);
       "
-      class="relative hidden lg:flex p-4 rounded-xl text-white w-[400px] h-[125px] flex-shrink-0 mx-[60px] self-center"
+      class="relative hidden lg:flex p-4 rounded-xl text-surface-white w-[400px] h-[125px] flex-shrink-0 mx-[60px] self-center"
     >
       <div class="flex items-center gap-4 h-full">
         <div class="flex flex-col">

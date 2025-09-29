@@ -5,6 +5,7 @@ import IconEnlarge from '~/components/icon/Enlarge.vue'
 import { useContractPact } from '~/composables/useContractPact'
 import type { PactModuleInfo } from '~/composables/useContractPact'
 import { ref, computed, watch, defineAsyncComponent } from 'vue'
+import { useTheme } from '~/composables/useTheme'
 const editorOptions = {
   readOnly: true,
   minimap: { enabled: true },
@@ -18,6 +19,9 @@ const MonacoEditor = process.client
   : undefined
 
 defineOptions({ name: 'ContractCode' })
+
+const { theme } = useTheme()
+const monacoTheme = computed(() => (theme.value === 'light' ? 'vs' : 'vs-dark'))
 
 const props = defineProps<{
   modulename?: string
@@ -117,46 +121,46 @@ const declarationInfo = computed<DeclarationInfo | null>(() => {
 <template>
   <div>
     <div class="mb-4">
-      <div class="divide-y divide-[#222222]">
+      <div class="divide-y divide-line-default">
         <div class="pb-3 md:pb-4">
-          <h2 class="text-[15px] text-normal text-[#f5f5f5]">Contract Code</h2>
-          <p class="text-[13px] text-[#bbbbbb]">Pact source code of the module</p>
+          <h2 class="text-[15px] text-normal text-font-primary">Contract Code</h2>
+          <p class="text-[13px] text-font-secondary">Pact source code of the module</p>
         </div>
         <div class="pt-3 md:pt-4 flex flex-col gap-2">
-          <p v-if="docString" class="text-[15px] text-[#f5f5f5]">{{ docString }}</p>
+          <p v-if="docString" class="text-[15px] text-font-primary">{{ docString }}</p>
           <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
             <div v-if="declarationInfo" class="flex flex-wrap gap-2">
-            <span v-if="declarationInfo?.type" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
-              <span class="text-[#bbbbbb]">Type:</span>
-              <span class="text-[#f5f5f5] ml-1">{{ declarationInfo?.type }}</span>
+            <span v-if="declarationInfo?.type" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+              <span class="text-font-secondary">Type:</span>
+              <span class="text-font-primary ml-1">{{ declarationInfo?.type }}</span>
             </span>
-            <span v-if="(declarationInfo?.name || moduleInfo?.name)" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
-              <span class="text-[#bbbbbb]">Module Name:</span>
-              <span class="text-[#f5f5f5] ml-1">{{ declarationInfo?.name || effectiveModuleInfo?.name }}</span>
+            <span v-if="(declarationInfo?.name || moduleInfo?.name)" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+              <span class="text-font-secondary">Module Name:</span>
+              <span class="text-font-primary ml-1">{{ declarationInfo?.name || effectiveModuleInfo?.name }}</span>
             </span>
-            <span v-if="declarationInfo?.capability" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
-              <span class="text-[#bbbbbb]">Capability:</span>
-              <span class="text-[#f5f5f5] ml-1">{{ declarationInfo?.capability }}</span>
+            <span v-if="declarationInfo?.capability" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+              <span class="text-font-secondary">Capability:</span>
+              <span class="text-font-primary ml-1">{{ declarationInfo?.capability }}</span>
             </span>
             </div>
             <div v-if="!effectiveLoading && !effectiveError" class="flex items-center gap-2 w-full md:w-fit justify-end mt-2 md:mt-0">
             <button
               @click="onDownload"
-              class="flex items-center justify-center w-8 h-8 text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-[#151515] active:text-[#f5f5f5]"
+              class="flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-btn-cta-hover-bg hover:text-surface-black transition-colors active:bg-surface-disabled active:text-font-primary"
               aria-label="Download code"
             >
               <IconDownload class="w-4 h-4" />
             </button>
             <button
               @click="onCopy"
-              class="flex items-center justify-center w-8 h-8 text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-[#151515] active:text-[#f5f5f5]"
+              class="flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-btn-cta-hover-bg hover:text-surface-black transition-colors active:bg-surface-disabled active:text-font-primary"
               aria-label="Copy code"
             >
               <IconCopy class="w-4 h-4" />
             </button>
             <button
               @click="toggleEnlarge"
-              class="flex items-center justify-center w-8 h-8 text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-[#151515] active:text-[#f5f5f5]"
+              class="flex items-center justify-center w-8 h-8 text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-btn-cta-hover-bg hover:text-surface-black transition-colors active:bg-surface-disabled active:text-font-primary"
               aria-label="Enlarge editor"
             >
               <IconEnlarge class="w-4 h-4" />
@@ -167,19 +171,19 @@ const declarationInfo = computed<DeclarationInfo | null>(() => {
       </div>
     </div>
 
-    <div v-if="effectiveLoading" class="w-full bg-[#151515] border border-[#222222] rounded-lg px-[10px] py-[40px]">
+    <div v-if="effectiveLoading" class="w-full bg-surface-disabled border border-line-default rounded-lg px-[10px] py-[40px]">
       <div class="flex items-center justify-center">
-        <div class="h-8 w-8 rounded-full border-2 border-[#333333] border-t-[#009367] animate-spin"></div>
+        <div class="h-8 w-8 rounded-full border-2 border-line-strong border-t-accent-strong animate-spin"></div>
       </div>
     </div>
 
-    <div v-else-if="effectiveError" class="w-full bg-[#151515] border border-[#402222] rounded-lg text-[#ffaaaa] text-sm px-[10px] py-[10px] font-mono">
+    <div v-else-if="effectiveError" class="w-full bg-surface-disabled border border-badge-bg-error rounded-lg text-badge-text-error text-sm px-[10px] py-[10px] font-mono">
       Failed to load module code
     </div>
 
     <ClientOnly v-else>
       <div
-        class="w-full bg-[#151515] border border-[#222222] rounded-lg text-[#bbbbbb] text-sm overflow-auto resize-y"
+        class="w-full bg-surface-disabled border border-line-default rounded-lg text-font-secondary text-sm overflow-auto resize-y"
         :style="{ height: (isEnlarged ? 700 : 500) + 'px' }"
         @contextmenu.prevent
       >
@@ -187,7 +191,7 @@ const declarationInfo = computed<DeclarationInfo | null>(() => {
           :is="MonacoEditor"
           v-model:value="codeContent"
           language="pact"
-          theme="vs-dark"
+          :theme="monacoTheme"
           :options="editorOptions"
           @editorWillMount="async (m:any) => {
             try {

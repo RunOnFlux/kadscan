@@ -49,41 +49,41 @@ const formattedFee = computed(() => {
   <div class="px-4">
     <div
       class="flex items-center justify-between py-[14px]"
-      :class="{ 'border-b border-gray-700': index !== totalItems - 1 }"
+      :class="{ 'border-b border-surface-skeleton': index !== totalItems - 1 }"
     >
       <div class="flex items-center md:w-5/12 md:gap-2 w-[160px]">
-        <div class="bg-[#151515] rounded-md p-3 hidden md:block">
-          <TransactionList class="w-6 h-6 text-[#b0b0b0]" />
+        <div class="bg-surface-disabled rounded-md p-3 hidden md:block">
+          <TransactionList class="w-6 h-6 text-font-secondary" />
         </div>
         <div>
           <Tooltip :value="props.hash" variant="hash">
-            <NuxtLink :to="`/transactions/${props.hash}`" class="text-[#6ab5db] hover:text-[#9ccee7] text-[15px]">
+            <NuxtLink :to="`/transactions/${props.hash}`" class="text-link hover:text-link-hover text-[15px]">
               {{ truncateAddress(props.hash) }}
             </NuxtLink>
           </Tooltip>
-          <div class="text-xs text-[#bbbbbb]">{{ timeAgo }}</div>
+          <div class="text-xs text-font-secondary">{{ timeAgo }}</div>
         </div>
       </div>
 
       <div class="flex items-center justify-between w-full md:w-7/12">
         <div class="text-sm text-left">
-            <div class="text-[#f5f5f5]">
+            <div class="text-font-primary">
               Sender
               <Tooltip :value="props.sender" variant="hash">
-                <NuxtLink :to="`/account/${props.sender}`" class="text-[#6ab5db] hover:text-[#9ccee7]">
+                <NuxtLink :to="`/account/${props.sender}`" class="text-link hover:text-link-hover">
                   {{ truncateAddress(props.sender) }}
                 </NuxtLink>
               </Tooltip>
             </div>
           <div>
-            <div class="text-[#bbbbbb]">
-              Chain <span class="text-[#f5f5f5]">{{ props.chainId }}</span>
+            <div class="text-font-secondary">
+              Chain <span class="text-font-primary">{{ props.chainId }}</span>
             </div>
           </div>
         </div>
 
         <Tooltip value="Transaction Fee">
-          <div class="text-[11px] text-[#f5f5f5] border border-gray-600 bg-transparent rounded-md px-2 py-1">
+          <div class="text-[11px] text-font-primary border border-line-strong bg-transparent rounded-md px-2 py-1">
             {{ formattedFee }} kda
           </div>
         </Tooltip>

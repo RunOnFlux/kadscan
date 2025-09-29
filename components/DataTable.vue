@@ -77,10 +77,10 @@ const formatTotalItems = (num: number) => {
 </script>
 
 <template>
-  <div class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
+  <div class="bg-surface-primary border border-line-default rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
     <div class="flex justify-between mb-4" :class="preventHeaderWrap ? 'flex-row items-center gap-2 flex-nowrap' : 'flex-col md:flex-row gap-y-2 items-start md:items-center'">
       <div>
-        <h2 class="text-[15px] text-normal text-[#f5f5f5]">
+        <h2 class="text-[15px] text-normal text-font-primary">
           <template v-if="!unknownTotal">
             Total of {{ formatTotalItems(totalItems) }} {{ itemNamePlural }}
           </template>
@@ -89,7 +89,7 @@ const formatTotalItems = (num: number) => {
           </template>
           <slot name="titleSuffix" />
         </h2>
-        <p class="text-[13px] text-[#bbbbbb]">
+        <p class="text-[13px] text-font-secondary">
           {{ subtitle }}
         </p>
       </div>
@@ -110,21 +110,21 @@ const formatTotalItems = (num: number) => {
     </div>
 
     <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-[#222222]">
+      <table class="min-w-full divide-y divide-line-default">
         <thead class="bg-transparent">
           <tr>
             <th
               v-for="header in headers"
               :key="header.key"
               scope="col"
-              class="px-2 py-[9px] text-left text-[12px] font-bold text-[#f5f5f5] whitespace-nowrap"
+              class="px-2 py-[9px] text-left text-[12px] font-bold text-font-primary whitespace-nowrap"
               :class="header.class"
             >
               {{ header.label }}
             </th>
           </tr>
         </thead>
-        <tbody class="bg-transparent divide-y divide-[#222222]">
+        <tbody class="bg-transparent divide-y divide-line-default">
           <tr v-for="(item, index) in items" :key="index">
             <td
               v-for="header in headers"
@@ -133,7 +133,7 @@ const formatTotalItems = (num: number) => {
               :class="header.class"
             >
               <slot :name="header.key" :item="item">
-                <span class="text-[#f5f5f5]">{{ item[header.key] }}</span>
+                <span class="text-font-primary">{{ item[header.key] }}</span>
               </slot>
             </td>
           </tr>
@@ -143,8 +143,8 @@ const formatTotalItems = (num: number) => {
 
     <div class="pt-4 flex items-center justify-end md:justify-between">
       <div class="hidden md:flex items-center gap-2">
-        <span class="text-[15px] text-[#bbbbbb]">Show rows:</span>
-        <div class="border border-[#222222] rounded-md">
+        <span class="text-[15px] text-font-secondary">Show rows:</span>
+        <div class="border border-line-default rounded-md">
           <Select
             :modelValue="selectedRows"
             @update:modelValue="emit('update:selectedRows', $event)"

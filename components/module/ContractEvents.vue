@@ -213,24 +213,24 @@ function downloadData() {
 <template>
   <!-- Show only the skeleton while loading -->
   <SkeletonTable v-if="loading" />
-  <div v-else class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
+  <div v-else class="bg-surface-primary border border-line-default rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
     <!-- Header (DataTable-like) -->
     <div class="flex justify-between mb-4 flex-col md:flex-row gap-y-2 items-start md:items-center">
       <div>
-        <h2 v-if="loading" class="text-[15px] text-normal text-[#f5f5f5]">
+        <h2 v-if="loading" class="text-[15px] text-normal text-font-primary">
           Loading...
         </h2>
-        <h2 v-else class="text-[15px] text-normal text-[#f5f5f5]">
+        <h2 v-else class="text-[15px] text-normal text-font-primary">
           Total of {{ new Intl.NumberFormat('en-US').format(totalCount || 0) }} events in chain {{ route.query.chain }}
         </h2>
-        <p class="text-[13px] text-[#bbbbbb]">{{ subtitle }}</p>
+        <p class="text-[13px] text-font-secondary">{{ subtitle }}</p>
       </div>
       <div class="flex items-center gap-2 w-full md:w-fit justify-end">
         <button
           @click="downloadData"
-          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
+          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-surface-hover whitespace-nowrap"
         >
-          <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
+          <IconDownload class="w-4 h-4 text-font-secondary" />
           <span class="hidden md:inline">Download</span>
         </button>
         <PaginationControls
@@ -247,14 +247,14 @@ function downloadData() {
 
     <!-- Body -->
     <div v-if="events && events.length > 0" class="flex flex-col gap-3">
-        <div v-for="(ev, index) in events" :key="makeEventKey(ev, index)" class="bg-transparent border border-[#222222] rounded-lg p-3 flex flex-col gap-2">
+        <div v-for="(ev, index) in events" :key="makeEventKey(ev, index)" class="bg-transparent border border-line-default rounded-lg p-3 flex flex-col gap-2">
           <!-- Row 1: Request Key -->
           <LabelValue :label="textContent.requestKey.label" :description="textContent.requestKey.description"
           tooltipPos="right"
           topAlign="true">
             <template #value>
               <div class="flex items-center gap-2">
-                <NuxtLink :to="`/transactions/${ev.requestKey}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ ev.requestKey }}</NuxtLink>
+                <NuxtLink :to="`/transactions/${ev.requestKey}`" class="text-link hover:text-link-hover">{{ ev.requestKey }}</NuxtLink>
                 <Copy 
                   v-if="!isMobile"
                   :value="ev.requestKey" 
@@ -271,7 +271,7 @@ function downloadData() {
           tooltipPos="right"
           topAlign="true">
             <template #value>
-              <div class="text-[#f5f5f5] text-[15px] break-all">{{ ev.qualifiedName }}</div>
+              <div class="text-font-primary text-[15px] break-all">{{ ev.qualifiedName }}</div>
             </template>
           </LabelValue>
 
@@ -282,21 +282,21 @@ function downloadData() {
             <template #value>
               <div class="flex items-center gap-2 w-full flex-wrap">
                 <StatusBadge :status="eventTransactionStatus(ev)" :tooltip="false" />
-                <span v-if="ev.height !== undefined && ev.height !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
-                  <span class="text-[#bbbbbb]">Height:</span>
-                  <NuxtLink :to="`/blocks/${ev.height}/chain/${ev.chainId}`" class="text-[#f5f5f5] ml-1 hover:underline">{{ ev.height }}</NuxtLink>
+                <span v-if="ev.height !== undefined && ev.height !== null" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+                  <span class="text-font-secondary">Height:</span>
+                  <NuxtLink :to="`/blocks/${ev.height}/chain/${ev.chainId}`" class="text-font-primary ml-1 hover:underline">{{ ev.height }}</NuxtLink>
                 </span>
-                <span v-if="ev.chainId !== undefined && ev.chainId !== null" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
-                  <span class="text-[#bbbbbb]">Chain:</span>
-                  <span class="text-[#f5f5f5] ml-1">{{ ev.chainId }}</span>
+                <span v-if="ev.chainId !== undefined && ev.chainId !== null" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+                  <span class="text-font-secondary">Chain:</span>
+                  <span class="text-font-primary ml-1">{{ ev.chainId }}</span>
                 </span>
-                <span v-if="ev.time" class="px-2 py-1.5 rounded-md border border-[#444648] bg-[#212122] text-[11px] font-semibold flex items-center leading-none">
-                  <span class="text-[#bbbbbb]">Time:</span>
-                  <span class="text-[#f5f5f5] ml-1">{{ ev.time }}</span>
+                <span v-if="ev.time" class="px-2 py-1.5 rounded-md border border-line-muted bg-surface-secondary text-[11px] font-semibold flex items-center leading-none">
+                  <span class="text-font-secondary">Time:</span>
+                  <span class="text-font-primary ml-1">{{ ev.time }}</span>
                 </span>
                 <button
                   @click="toggleExpand(makeEventKey(ev, index))"
-                  class="ml-auto flex items-center justify-center w-7 h-7 text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#dadfe3] hover:text-[#000000] transition-colors active:bg-[#151515] active:text-[#f5f5f5]"
+                  class="ml-auto flex items-center justify-center w-7 h-7 text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-btn-cta-hover-bg hover:text-surface-black transition-colors active:bg-surface-disabled active:text-font-primary"
                   aria-label="Enlarge parameters"
                 >
                   <IconEnlarge class="w-4 h-4" />
@@ -310,10 +310,10 @@ function downloadData() {
           tooltipPos="right"
           topAlign="true">
             <template #value>
-              <div class="text-[#f5f5f5] text-[15px] fix w-full md:flex-1 overflow-hidden">
+              <div class="text-font-primary text-[15px] fix w-full md:flex-1 overflow-hidden">
                 <div v-if="ev.parameterText" class="w-full">
                   <div v-if="!isExpanded(makeEventKey(ev, index))"
-                    class="grid w-full text-sm text-[#bbbbbb]
+                    class="grid w-full text-sm text-font-secondary
                            [&>textarea]:text-inherit
                            [&>textarea]:resize-none
                            [&>textarea]:[grid-area:1/1/2/2]"
@@ -321,12 +321,12 @@ function downloadData() {
                     <textarea
                       readonly
                       :value="formatJsonPretty(ev.parameterText)"
-                      class="break-all w-full bg-[#151515] border border-[#222222] rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-auto h-[110px] m-0"
+                      class="break-all w-full bg-surface-disabled border border-line-default rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-auto h-[110px] m-0"
                     ></textarea>
                   </div>
                   <div
                     v-else
-                    class="grid w-full text-sm text-[#bbbbbb]
+                    class="grid w-full text-sm text-font-secondary
                            [&>textarea]:text-inherit
                            [&>textarea]:resize-none
                            [&>textarea]:overflow-hidden
@@ -341,11 +341,11 @@ function downloadData() {
                     <textarea
                       readonly
                       :value="formatJsonPretty(ev.parameterText)"
-                      class="break-all w-full bg-[#151515] border border-[#222222] rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-hidden min-h-[110px]"
+                      class="break-all w-full bg-surface-disabled border border-line-default rounded-lg text-sm px-[10px] py-[5px] outline-none font-mono whitespace-pre-wrap overflow-hidden min-h-[110px]"
                     ></textarea>
                   </div>
                 </div>
-                <span v-else class="text-[#f5f5f5] text-xs">No parameters</span>
+                <span v-else class="text-font-primary text-xs">No parameters</span>
               </div>
             </template>
           </LabelValue>
@@ -354,8 +354,8 @@ function downloadData() {
         <!-- Footer controls -->
         <div class="pt-1 flex items-center justify-end md:justify-between">
           <div class="hidden md:flex items-center gap-2">
-            <span class="text-[15px] text-[#bbbbbb]">Show rows:</span>
-            <div class="border border-[#222222] rounded-md">
+            <span class="text-[15px] text-font-secondary">Show rows:</span>
+            <div class="border border-line-default rounded-md">
               <Select
                 :modelValue="selectedRowOption"
                 v-model:modelValue="selectedRowOption"
@@ -376,11 +376,11 @@ function downloadData() {
           />
         </div>
       </div>
-      <div v-else class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
+      <div v-else class="bg-surface-primary border border-line-default rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
         <div class="flex flex-col items-center justify-center py-12">
           <img src="/empty/txs.png" alt="No events" class="w-24 h-24 mb-4 opacity-50" />
-          <h3 class="text-[#f5f5f5] text-lg font-medium mb-2">No events yet</h3>
-          <p class="text-[#bbbbbb] text-sm text-center">No events found for this contract.</p>
+          <h3 class="text-font-primary text-lg font-medium mb-2">No events yet</h3>
+          <p class="text-font-secondary text-sm text-center">No events found for this contract.</p>
         </div>
       </div>
     

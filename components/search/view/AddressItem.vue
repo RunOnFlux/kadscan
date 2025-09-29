@@ -10,7 +10,7 @@ const { recordHistory } = useSearch();
   <NuxtLink
     :to="`/account/${account}`"
     @click="recordHistory(account, 'account')"
-    class="py-3 px-2 flex gap-2 hover:bg-[#1d1d1d] hover:rounded-md flex items-center"
+    class="py-3 px-2 flex gap-2 hover:bg-surface-secondary hover:rounded-md flex items-center"
   >
     <IconStatus
       status="success"
@@ -21,7 +21,7 @@ const { recordHistory } = useSearch();
       class="flex truncate"
     >
       <span
-        class="text-sm text-[#f5f5f5] truncate block"
+        class="text-sm text-font-primary truncate block"
       >
         {{ account }}
       </span>

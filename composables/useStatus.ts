@@ -35,7 +35,7 @@ export function useStatus(providedLastBlockHeight?: Ref<number | null>) {
         text: 'Failed',
         placement: 'top',
         icon: IconCancel,
-        classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]',
+        classes: 'bg-badge-bg-error border-badge-bg-error-strong text-badge-text-error',
         description: 'Transaction failed to execute',
       }
     }
@@ -45,7 +45,7 @@ export function useStatus(providedLastBlockHeight?: Ref<number | null>) {
         text: 'Failed',
         placement: 'top',
         icon: IconCancel,
-        classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]',
+        classes: 'bg-badge-bg-error border-badge-bg-error-strong text-badge-text-error',
         description: 'Transaction failed to execute',
       }
     }
@@ -55,7 +55,7 @@ export function useStatus(providedLastBlockHeight?: Ref<number | null>) {
         text: 'Success',
         placement: 'top',
         icon: IconCheckmarkFill,
-        classes: 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]',
+        classes: 'bg-badge-bg-success border-badge-bg-success-soft text-badge-text-success',
         description: 'Transaction executed successfully',
       }
     }
@@ -64,7 +64,7 @@ export function useStatus(providedLastBlockHeight?: Ref<number | null>) {
       text: 'Pending',
       placement: 'top',
       icon: IconHourglass,
-      classes: 'bg-[#17150d] border-[#44464980] text-[#989898]',
+      classes: 'bg-badge-bg-warning border-badge-bg-pending text-font-secondary',
       description: 'Transaction is pending to be finalized',
     }
   }
@@ -80,7 +80,7 @@ export function useStatus(providedLastBlockHeight?: Ref<number | null>) {
         text: 'Orphaned',
         placement: 'top',
         icon: IconCancel,
-        classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]',
+        classes: 'bg-badge-bg-error border-badge-bg-error-strong text-badge-text-error',
         description: 'Block is not part of the canonical chain and is orphaned',
       }
     }
@@ -90,7 +90,7 @@ export function useStatus(providedLastBlockHeight?: Ref<number | null>) {
         text: 'Finalized',
         placement: 'top',
         icon: IconCheckmarkFill,
-        classes: 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]',
+        classes: 'bg-badge-bg-success border-badge-bg-success-soft text-badge-text-success',
         description: 'Block is part of the canonical chain and safe to use',
       }
     }
@@ -99,7 +99,7 @@ export function useStatus(providedLastBlockHeight?: Ref<number | null>) {
       text: 'Pending',
       placement: 'top',
       icon: IconHourglass,
-      classes: 'bg-[#17150d] border-[#44464980] text-[#989898]',
+      classes: 'bg-badge-bg-warning border-badge-bg-pending text-font-secondary',
       description: 'Block is not part of the canonical chain and is pending to be finalized or orphaned',
     }
   }
@@ -113,7 +113,7 @@ export function useStatus(providedLastBlockHeight?: Ref<number | null>) {
         text: 'Cross Chain Transfer',
         placement: 'top',
         icon: IconCancel,
-        classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]',
+        classes: 'bg-badge-bg-error border-badge-bg-error-strong text-badge-text-error',
         description: 'Cross-chain transaction failed to execute',
       }
     }
@@ -122,7 +122,7 @@ export function useStatus(providedLastBlockHeight?: Ref<number | null>) {
         text: 'Cross Chain Transfer',
         placement: 'top',
         icon: IconCheckmarkFill,
-        classes: 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]',
+        classes: 'bg-badge-bg-success border-badge-bg-success-soft text-badge-text-success',
         description: 'Cross-chain transaction executed successfully',
       }
     }
@@ -130,7 +130,7 @@ export function useStatus(providedLastBlockHeight?: Ref<number | null>) {
       text: 'Cross Chain Transfer',
       placement: 'top',
       icon: IconHourglass,
-      classes: 'bg-[#17150d] border-[#44464980] text-[#989898]',
+      classes: 'bg-badge-bg-warning border-badge-bg-pending text-font-secondary',
       description: 'Cross-chain transaction is pending to be finalized or failed',
     }
   }
@@ -144,7 +144,7 @@ export function useStatus(providedLastBlockHeight?: Ref<number | null>) {
         text: 'Bad',
         placement: 'top',
         icon: IconCancel,
-        classes: 'bg-[#7f1d1d66] border-[#f8717180] text-[#f87171]',
+        classes: 'bg-badge-bg-error border-badge-bg-error-strong text-badge-text-error',
         description: 'Transaction returned a bad result',
       }
     }
@@ -153,7 +153,7 @@ export function useStatus(providedLastBlockHeight?: Ref<number | null>) {
         text: 'Good',
         placement: 'top',
         icon: IconCheckmarkFill,
-        classes: 'bg-[#0f1f1d] border-[#00a18680] text-[#00a186]',
+        classes: 'bg-badge-bg-success border-badge-bg-success-soft text-badge-text-success',
         description: 'Transaction returned a good result',
       }
     }

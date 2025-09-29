@@ -13,7 +13,7 @@ const props = defineProps<{
       class="pb-1 px-2 pt-3"
     >
       <span
-        class="text-[11px] font-medium text-[#bbbbbb] mb-[1px]"
+        class="text-[11px] font-medium text-font-secondary mb-[1px]"
       >
         TRANSACTIONS
       </span>

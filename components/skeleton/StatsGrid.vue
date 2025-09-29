@@ -3,11 +3,11 @@
     <div
       v-for="n in 4"
       :key="`skeleton-stats-card-${n}`"
-      class="bg-[#111111] border border-[#222222] rounded-xl p-4 shadow-[0_0_20px_rgba(255,255,255,0.0625)]"
+      class="bg-surface-primary border border-line-default rounded-xl p-4 shadow-[0_0_20px_rgba(255,255,255,0.0625)]"
     >
       <div class="animate-pulse">
-        <div class="h-4 bg-gray-600 rounded w-1/3 mb-2"></div>
-        <div class="h-6 bg-gray-700 rounded w-1/2"></div>
+        <div class="h-4 bg-line-strong rounded w-1/3 mb-2"></div>
+        <div class="h-6 bg-surface-skeleton rounded w-1/2"></div>
       </div>
     </div>
   </div>

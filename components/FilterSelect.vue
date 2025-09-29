@@ -236,9 +236,9 @@ onBeforeUnmount(() => {
     <!-- Filter Button -->
     <button
       @click="toggleDropdown"
-      class="flex items-center justify-center px-2 py-[5px] text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap ring-0 outline-none"
+      class="flex items-center justify-center px-2 py-[5px] text-[12px] font-normal text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-surface-hover whitespace-nowrap ring-0 outline-none"
     >
-      <IconFilter class="w-4 h-4 text-[#bbbbbb]" />
+      <IconFilter class="w-4 h-4 text-font-secondary" />
     </button>
 
     <!-- Dropdown with 1x2 layout -->
@@ -255,10 +255,10 @@ onBeforeUnmount(() => {
         class="
           z-[99999]
           p-3
-          border border-[#222222]
+          border border-line-default
           rounded-lg
           absolute
-          bg-[#111111]
+          bg-surface-primary
           shadow-[0_0_15px_rgba(255,255,255,0.0625)]
           left-0 top-[calc(100%+8px)]
           origin-top-left
@@ -271,7 +271,7 @@ onBeforeUnmount(() => {
                      <!-- All Chains Button (left side) -->
            <button
              @click="selectAll"
-             class="px-2 py-1 text-[12px] font-normal text-[#6ab5db] bg-[#151515] border border-[#222222] rounded-md hover:text-[#f5f5f5] hover:bg-[#0784c3] whitespace-nowrap transition-colors duration-300"
+             class="px-2 py-1 text-[12px] font-normal text-link bg-surface-disabled border border-line-default rounded-md hover:text-font-primary hover:bg-btn-cta-bg whitespace-nowrap transition-colors duration-300"
            >
              All Chains
            </button>
@@ -281,7 +281,7 @@ onBeforeUnmount(() => {
                         <!-- Decrement Button -->
             <button
               @click="decrementChain"
-              class="flex items-center justify-center w-8 h-8 border border-[#222222] bg-[#151515] rounded-md text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
+              class="flex items-center justify-center w-8 h-8 border border-line-default bg-surface-disabled rounded-md text-link hover:text-font-primary hover:bg-btn-cta-bg disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
               :disabled="currentChain === null || currentChain <= 0"
             >
               <IconChevron class="h-4 w-4 transform rotate-180" />
@@ -295,14 +295,14 @@ onBeforeUnmount(() => {
               :value="currentChain"
               @input="handleInputChange"
               @focus="$event.target.select()"
-              class="w-12 h-8 text-center text-sm bg-[#151515] border border-[#222222] rounded-md text-[#f5f5f5] focus:outline-none transition-colors duration-300 hover:border-[#0784c3] focus:border-[#0784c3] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              class="w-12 h-8 text-center text-sm bg-surface-disabled border border-line-default rounded-md text-font-primary focus:outline-none transition-colors duration-300 hover:border-btn-cta-bg focus:border-btn-cta-bg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="0"
             />
 
             <!-- Increment Button -->
             <button
               @click="incrementChain"
-              class="flex items-center justify-center w-8 h-8 border border-[#222222] bg-[#151515] rounded-md text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
+              class="flex items-center justify-center w-8 h-8 border border-line-default bg-surface-disabled rounded-md text-link hover:text-font-primary hover:bg-btn-cta-bg disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
               :disabled="currentChain !== null && currentChain >= 19"
             >
               <IconChevron class="h-4 w-4" />
@@ -314,7 +314,7 @@ onBeforeUnmount(() => {
           <div v-if="enableBlockFilter" class="flex gap-2 items-center">
             <button
               @click="() => { currentBlock = null; updateBlockUrl(null); }"
-              class="px-2 py-1 text-[12px] font-normal text-[#6ab5db] bg-[#151515] border border-[#222222] rounded-md hover:text-[#f5f5f5] hover:bg-[#0784c3] whitespace-nowrap transition-colors duration-300"
+              class="px-2 py-1 text-[12px] font-normal text-link bg-surface-disabled border border-line-default rounded-md hover:text-font-primary hover:bg-btn-cta-bg whitespace-nowrap transition-colors duration-300"
             >
               All Blocks
             </button>
@@ -325,12 +325,12 @@ onBeforeUnmount(() => {
                 min="0"
                 @keyup.enter="() => { updateBlockUrl(currentBlock ?? null); }"
                 @focus="$event.target.select()"
-                class="w-full h-8 px-2 text-sm bg-[#151515] border border-[#222222] rounded-md text-[#f5f5f5] focus:outline-none transition-colors duration-300 hover:border-[#0784c3] focus:border-[#0784c3] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                class="w-full h-8 px-2 text-sm bg-surface-disabled border border-line-default rounded-md text-font-primary focus:outline-none transition-colors duration-300 hover:border-btn-cta-bg focus:border-btn-cta-bg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 placeholder="Height"
               />
               <button
                 @click="() => { updateBlockUrl(currentBlock ?? null); }"
-                class="flex items-center justify-center w-8 h-8 border border-[#222222] bg-[#151515] rounded-md text-[#6ab5db] hover:text-[#f5f5f5] hover:bg-[#0784c3] disabled:hover:bg-[#151515] disabled:bg-[#151515] disabled:text-[#888888] transition-colors duration-300"
+                class="flex items-center justify-center w-8 h-8 border border-line-default bg-surface-disabled rounded-md text-link hover:text-font-primary hover:bg-btn-cta-bg disabled:hover:bg-surface-disabled disabled:bg-surface-disabled disabled:text-font-tertiary transition-colors duration-300"
               >
                 <IconChevron class="h-4 w-4" />
               </button>

@@ -44,7 +44,7 @@ const tooltipClass = computed(() => {
 });
 
 const arrowClass = computed(() => {
-  const base = '-z-10 absolute w-3 h-3 bg-[#313131] rotate-45';
+  const base = '-z-10 absolute w-3 h-3 bg-line-strong rotate-45';
   switch (props.placement) {
     case 'top':
       return `${base} left-1/2 -translate-x-1/2 bottom-[-4px]`;
@@ -75,7 +75,7 @@ const arrowClass = computed(() => {
           v-show="isVisible"
           :class="tooltipClass"
         >
-          <div class="z-[10] bg-[#313131] text-[#e5e5e5] text-xs px-2 py-1 rounded-md shadow-lg relative text-center isolate">
+          <div class="z-[10] bg-line-strong text-font-primary text-xs px-2 py-1 rounded-md shadow-lg relative text-center isolate">
             {{ value }}
             <div :class="arrowClass"></div>
           </div>

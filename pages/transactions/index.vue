@@ -364,8 +364,8 @@ function downloadData() {
 <template>
   <ErrorOverlay v-if="transactionsError || blocksError || codeError" :message="(transactionsError || blocksError || codeError)?.message" />
   <div v-else>
-    <div class="flex items-center justify-between pb-5 border-b border-[#222222] mb-6">
-      <h1 class="text-[19px] font-semibold leading-[150%] text-[#f5f5f5]">
+    <div class="flex items-center justify-between pb-5 border-b border-line-default mb-6">
+      <h1 class="text-[19px] font-semibold leading-[150%] text-font-primary">
         Transactions
       </h1>
     </div>
@@ -394,10 +394,10 @@ function downloadData() {
           <button
             v-if="incomingCount > 0"
             @click="refreshTopPage"
-            class="hidden lg:flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
+            class="hidden lg:flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-surface-hover whitespace-nowrap"
           >
             <IconRefresh class="w-4 h-4" style="color: #00a186;" />
-            <span class="text-[#00a186] font-medium">+{{ incomingCount }} New Transactions</span>
+            <span class="text-font-accent font-medium">+{{ incomingCount }} New Transactions</span>
           </button>
           <FilterSelect
             :modelValue="selectedChain"
@@ -410,9 +410,9 @@ function downloadData() {
         </template>
         <button
           @click="downloadData"
-          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
+          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-surface-hover whitespace-nowrap"
         >
-          <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
+          <IconDownload class="w-4 h-4 text-font-secondary" />
           <span class="hidden md:inline">Download</span>
         </button>
       </template>
@@ -420,14 +420,14 @@ function downloadData() {
       <template #requestKey="{ item }">
         <div class="flex items-center">
           <Tooltip :value="item.requestKey" variant="hash">
-            <NuxtLink :to="`/transactions/${item.requestKey}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.requestKey, 10, 10) }}</NuxtLink>
+            <NuxtLink :to="`/transactions/${item.requestKey}`" class="text-link hover:text-link-hover">{{ truncateAddress(item.requestKey, 10, 10) }}</NuxtLink>
           </Tooltip>
           <Copy :value="item.requestKey" tooltipText="Copy Transaction Request Key" />
         </div>
       </template>
       <template #height="{ item }">
-        <span v-if="item.time === 0 || item.height === 0" class="text-[#f5f5f5]">Genesis</span>
-        <NuxtLink v-else :to="`/blocks/${item.height}/chain/${item.chainId}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ item.height }}</NuxtLink>
+        <span v-if="item.time === 0 || item.height === 0" class="text-font-primary">Genesis</span>
+        <NuxtLink v-else :to="`/blocks/${item.height}/chain/${item.chainId}`" class="text-link hover:text-link-hover">{{ item.height }}</NuxtLink>
       </template>
       <template #status="{ item }">
         <StatusBadge :status="transactionStatus(item.height, item.canonical, item.badResult)" />
@@ -436,12 +436,12 @@ function downloadData() {
         <div class="flex items-center">
           <template v-if="item.sender && item.sender !== 'N/A'">
             <Tooltip :value="item.sender" variant="hash">
-              <NuxtLink :to="`/account/${item.sender}`" class="text-[#6ab5db] hover:text-[#9ccee7]">{{ truncateAddress(item.sender, 10, 10) }}</NuxtLink>
+              <NuxtLink :to="`/account/${item.sender}`" class="text-link hover:text-link-hover">{{ truncateAddress(item.sender, 10, 10) }}</NuxtLink>
             </Tooltip>
             <Copy :value="item.sender" tooltipText="Copy Address" />
           </template>
-          <span v-else-if="item.time === 0 || (item.sender === 'NaN' || !item.sender || item.sender === 'N/A')" class="text-[#f5f5f5]">Genesis</span>
-          <span v-else class="text-[#f5f5f5]">NaN</span>
+          <span v-else-if="item.time === 0 || (item.sender === 'NaN' || !item.sender || item.sender === 'N/A')" class="text-font-primary">Genesis</span>
+          <span v-else class="text-font-primary">NaN</span>
         </div>
       </template>
       <template #gas="{ item }">
@@ -451,14 +451,14 @@ function downloadData() {
       <template #method="{ item }">
         <div class="flex items-center">
           <Tooltip :value="formatTransactionMethodFull(item.method)">
-            <span class="px-2 py-1.5 bg-[#151515] rounded-md border border-[#292929] text-[11px] text-[#f5f5f5] font-normal inline-flex items-center justify-center leading-none w-[120px]">
+            <span class="px-2 py-1.5 bg-surface-disabled rounded-md border border-line-strong text-[11px] text-font-primary font-normal inline-flex items-center justify-center leading-none w-[120px]">
               {{ formatTransactionMethod(item.method) }}
             </span>
           </Tooltip>
         </div>
       </template>
       <template #fee="{ item }">
-        <span class="text-[#f5f5f5]">{{ formatKdaFee(item?.gas, item?.rawGasPrice) }}</span>
+        <span class="text-font-primary">{{ formatKdaFee(item?.gas, item?.rawGasPrice) }}</span>
       </template>
     </DataTable>
   </div>

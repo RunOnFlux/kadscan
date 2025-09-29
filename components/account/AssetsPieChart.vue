@@ -4,6 +4,7 @@ import { useAccountBalances } from '~/composables/useAccountBalances'
 import { useAssetUsdPrices } from '~/composables/useAssetUsdPrices'
 import { staticTokens } from '~/constants/tokens'
 import AssetsPieChartSkeleton from '~/components/skeleton/AssetsPieChart.vue'
+import { useTheme } from '~/composables/useTheme'
 
 const { balances, loading, hasFetched } = useAccountBalances()
 const { getUsdPerUnit } = useAssetUsdPrices()
@@ -33,7 +34,7 @@ const nameForModule = (module: string) => {
 
 // Palette: 8 harmonious colors tuned for dark backgrounds
 // Order follows the color wheel for smooth visual balance
-const PALETTE = ['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#10b981', '#06b6d4', '#3b82f6', '#8b5cf6']
+const PALETTE = ['#ff6b6b', '#f97316', '#f59e0b', '#84cc16', '#10b981', '#06b6d4', '#3b82f6', '#8b5cf6']
 const OTHERS_COLOR = '#4b5563'
 
 // When a specific chain is selected, only include that chain's balances; otherwise include all.
@@ -83,15 +84,29 @@ const labels = computed(() => slices.value.map(s => s.label))
 const dataValues = computed(() => slices.value.map(s => s.usd))
 const backgroundColors = computed(() => slices.value.map((s, i) => (s.module === 'others' ? OTHERS_COLOR : PALETTE[i % PALETTE.length])))
 
+const HOVER_OFFSET = 6
+const BORDER_WIDTH = 2
+const SAFE_RADIUS = Math.floor(chartSize / 2 - (HOVER_OFFSET + BORDER_WIDTH + 4))
+
+const { theme } = useTheme()
+
+function cssVarRgb(name: string): string {
+  if (typeof window === 'undefined') return ''
+  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+  return v ? `rgb(${v})` : ''
+}
+
 const chartData = computed(() => ({
   labels: labels.value,
   datasets: [
     {
       data: dataValues.value,
       backgroundColor: backgroundColors.value,
-      borderColor: '#111111',
-      borderWidth: 2,
-      hoverOffset: 6,
+      // Match chart seam color to the current surface color per theme
+      borderColor: cssVarRgb('--surface-primary'),
+      borderWidth: BORDER_WIDTH,
+      hoverOffset: HOVER_OFFSET,
+      radius: SAFE_RADIUS,
     }
   ]
 }))
@@ -136,11 +151,12 @@ const externalTooltipHandler = (context: any) => {
     tooltipEl.style.opacity = '0'
     tooltipEl.style.position = 'absolute'
     tooltipEl.style.pointerEvents = 'none'
-    tooltipEl.style.background = '#111111'
-    tooltipEl.style.border = '1px solid #333333'
+    // Theme-aware tooltip using tokens
+    tooltipEl.style.background = 'rgb(var(--surface-primary))'
+    tooltipEl.style.border = '1px solid rgb(var(--line-strong))'
     tooltipEl.style.borderRadius = '8px'
     tooltipEl.style.padding = '8px 10px'
-    tooltipEl.style.color = '#f5f5f5'
+    tooltipEl.style.color = 'rgb(var(--font-primary))'
     tooltipEl.style.fontSize = '12px'
     tooltipEl.style.whiteSpace = 'normal'
     tooltipEl.style.zIndex = '50'
@@ -157,7 +173,7 @@ const externalTooltipHandler = (context: any) => {
     const label = labels.value[index]
     const value = dataValues.value[index]
     const pct = totalBalance.value > 0 ? ((value / totalBalance.value) * 100).toFixed(2) : '0.00'
-    tooltipEl.innerHTML = `<div class=\"flex items-center gap-2\" style=\"white-space:nowrap\">\n      <div class=\"w-2.5 h-2.5 rounded-full\" style=\"background:${backgroundColors.value[index]}\"></div>\n      <div class=\"font-medium uppercase\">${label}</div>\n    </div>\n    <div class=\"text-[#bbbbbb] mt-1\" style=\"white-space:nowrap\">USD: $${Number(value).toFixed(2)}</div>\n    <div class=\"text-[#bbbbbb]\" style=\"white-space:nowrap\">Share: ${pct}%</div>`
+    tooltipEl.innerHTML = `<div class=\"flex items-center gap-2\" style=\"white-space:nowrap\">\n      <div class=\"w-2.5 h-2.5 rounded-full\" style=\"background:${backgroundColors.value[index]}\"></div>\n      <div class=\"font-medium uppercase\">${label}</div>\n    </div>\n    <div class=\"text-font-secondary mt-1\" style=\"white-space:nowrap\">USD: $${Number(value).toFixed(2)}</div>\n    <div class=\"text-font-secondary\" style=\"white-space:nowrap\">Share: ${pct}%</div>`
   }
 
   const { offsetLeft: positionX, offsetTop: positionY } = chart.canvas
@@ -201,8 +217,8 @@ const chartOptions = reactive({
             />
             <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
               <div class="text-center">
-                <div class="text-[12px] text-[#bbbbbb]">Total</div>
-                <div class="text-[16px] text-white font-semibold">${{ Number(totalBalance).toFixed(2) }}</div>
+                <div class="text-[12px] text-font-secondary">Total</div>
+                <div class="text-[16px] text-font-primary font-semibold">${{ Number(totalBalance).toFixed(2) }}</div>
               </div>
             </div>
           </div>
@@ -214,18 +230,18 @@ const chartOptions = reactive({
             <div v-for="(s, idx) in slices" :key="idx" class="flex items-center justify-between flex-wrap">
               <div class="flex items-center gap-3 min-w-0">
                 <div class="w-3 h-3 rounded-full" :style="{ background: (s.module === 'others' ? '#4b5563' : backgroundColors[idx]) }"></div>
-                <div class="truncate text-[#f5f5f5] text-[12px]" :ref="el => setLabelRef(el as HTMLElement | null, idx)">
-                  <span class="text-[#bbbbbb] mr-1">{{ ((s.usd / (totalBalance || 1)) * 100).toFixed(2) }}%</span>
+                <div class="truncate text-font-primary text-[12px]" :ref="el => setLabelRef(el as HTMLElement | null, idx)">
+                  <span class="text-font-secondary mr-1">{{ ((s.usd / (totalBalance || 1)) * 100).toFixed(2) }}%</span>
                   <span class="uppercase">{{ s.label }}</span>
                 </div>
               </div>
-              <div class="text-[#f5f5f5] text-[12px] font-medium" :class="{ 'basis-full mt-1 text-right': shouldWrapAmount[idx] }">${{ Number(s.usd).toFixed(2) }}</div>
+              <div class="text-font-primary text-[12px] font-medium" :class="{ 'basis-full mt-1 text-right': shouldWrapAmount[idx] }">${{ Number(s.usd).toFixed(2) }}</div>
             </div>
           </div>
         </div>
       </div>
     </template>
-    <div v-else class="py-12 text-center text-[#bbbbbb] text-sm">No tokens breakdown to be displayed.</div>
+    <div v-else class="py-12 text-center text-font-secondary text-sm">No tokens breakdown to be displayed.</div>
   </div>
 </template>
 

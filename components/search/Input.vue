@@ -42,7 +42,7 @@ onUnmounted(() => {
     v-outside="close"
   >
     <div
-      class="flex gap-2 items-center max-w-[675px] w-full p-[6px] bg-[#111111] rounded-lg border border-[#222222]"
+      class="flex gap-2 items-center max-w-[675px] w-full p-[6px] bg-surface-primary rounded-lg border border-line-default"
     >
       <div
         class="hidden sm:block"
@@ -67,8 +67,8 @@ onUnmounted(() => {
             text-[16px]
             bg-transparent
             h-full w-full
-            text-[#f5f5f5]
-            placeholder:text-[#bbbbbb]
+            text-font-primary
+            placeholder:text-font-secondary
             border rounded-lg
             outline-none
           "
@@ -86,7 +86,7 @@ onUnmounted(() => {
           @click="cleanup()"
           class="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer"
         >
-          <IconSearchClose class="w-5 h-5 text-[#bbbbbb] hover:text-[#f5f5f5]" />
+          <IconSearchClose class="w-5 h-5 text-font-secondary hover:text-font-primary" />
         </div>
 
     <SearchModal
@@ -106,10 +106,10 @@ onUnmounted(() => {
 
       <div
         @click="submit()"
-        class="flex items-center justify-center bg-[#009367] hover:bg-[#00805b] rounded-lg w-[36px] h-[34px] shrink-0 cursor-pointer"
+        class="flex items-center justify-center bg-accent-strong hover:bg-accent-strong rounded-lg w-[36px] h-[34px] shrink-0 cursor-pointer"
       >
         <IconSearch
-          class="w-5 h-5 text-[#f5f5f5]"
+          class="w-5 h-5 text-btn-text"
         />
         
       </div>
@@ -124,7 +124,7 @@ input {
   border-width: 2px !important;
 }
 input:focus {
-  border-color: #292929 !important;
+  border-color: rgb(var(--line-strong)) !important;
   border-width: 2px !important;
   outline: none !important;
 }

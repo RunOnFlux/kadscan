@@ -211,14 +211,14 @@ const displayHolders = computed(() => {
       customTitle="Searching holders"
     >
       <template #chainId="{ item }">
-        <span class="text-[#f5f5f5]">{{ item.chainId }}</span>
+        <span class="text-font-primary">{{ item.chainId }}</span>
       </template>
       <template #actions>
         <button
           @click="downloadData"
-          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-[#f5f5f5] bg-[#151515] border border-[#222222] rounded-md hover:bg-[#252525] whitespace-nowrap"
+          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-surface-hover whitespace-nowrap"
         >
-          <IconDownload class="w-4 h-4 text-[#bbbbbb]" />
+          <IconDownload class="w-4 h-4 text-font-secondary" />
           <span class="hidden md:inline">Download</span>
         </button>
       </template>
@@ -226,18 +226,18 @@ const displayHolders = computed(() => {
       <template #address="{ item }">
         <div class="flex items-center min-w-0 w-full">
           <Tooltip :value="item.address" variant="hash">
-            <NuxtLink :to="`/account/${item.address}`" class="text-[#6ab5db] hover:text-[#9ccee7] truncate max-w-full">{{ item.address }}</NuxtLink>
+            <NuxtLink :to="`/account/${item.address}`" class="text-link hover:text-link-hover truncate max-w-full">{{ item.address }}</NuxtLink>
           </Tooltip>
           <Copy :value="item.address" tooltipText="Copy Address" />
         </div>
       </template>
 
       <template #amount="{ item }">
-        <div class="text-left text-[#f5f5f5]">{{ formatKda(Number(item.balance || 0), 12) }}</div>
+        <div class="text-left text-font-primary">{{ formatKda(Number(item.balance || 0), 12) }}</div>
       </template>
 
       <template #valueKda="{ item }">
-        <div class="text-left text-[#f5f5f5]">
+        <div class="text-left text-font-primary">
           <template v-if="valueKdaOf(item.balance) !== null">
             {{ formatKda(Number(valueKdaOf(item.balance)), 12) }}
           </template>
@@ -246,7 +246,7 @@ const displayHolders = computed(() => {
       </template>
 
       <template #valueUsd="{ item }">
-        <div class="text-left text-[#f5f5f5]">
+        <div class="text-left text-font-primary">
           <template v-if="valueUsdOf(item.balance) !== null">
             ${{ Number(valueUsdOf(item.balance)).toFixed(6) }}
           </template>
@@ -255,11 +255,11 @@ const displayHolders = computed(() => {
       </template>
     </DataTable>
 
-    <div v-else class="bg-[#111111] border border-[#222222] rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
+    <div v-else class="bg-surface-primary border border-line-default rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
       <div class="flex flex-col items-center justify-center py-12">
         <img src="/empty/txs.png" alt="No holders" class="w-24 h-24 mb-4 opacity-50" />
-        <h3 class="text-[#f5f5f5] text-lg font-medium mb-2">No holders</h3>
-        <p class="text-[#bbbbbb] text-sm text-center">
+        <h3 class="text-font-primary text-lg font-medium mb-2">No holders</h3>
+        <p class="text-font-secondary text-sm text-center">
           No holders found for this token.
         </p>
       </div>

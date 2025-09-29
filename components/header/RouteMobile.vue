@@ -28,7 +28,7 @@ const props = defineProps<{
     <NuxtLink
       :to="props.path"
       v-if="props.type === 'link'"
-      class="px-3 py-2 text-[#cccccc] hover:text-[#00e19d] block"
+      class="px-3 py-2 text-font-secondary hover:text-font-accent-strong block"
     >
       {{ props.label }}
     </NuxtLink>
@@ -39,8 +39,8 @@ const props = defineProps<{
       v-slot="{ open }"
     >
       <DisclosureButton
-        :class="open ? 'text-[#00e19d]' : 'text-[#cccccc]'"
-        class="hover:text-[#00e19d] flex items-center justify-between w-full gap-2 px-3 py-2 ring-0 outline-none"
+        :class="open ? 'text-font-accent-strong' : 'text-font-secondary'"
+        class="hover:text-font-accent-strong flex items-center justify-between w-full gap-2 px-3 py-2 ring-0 outline-none"
       >
         <span
           class="text-sm"
@@ -63,7 +63,7 @@ const props = defineProps<{
         leave-to-class="transform scale-95 opacity-0"
       >
         <DisclosurePanel
-          class="flex bazk:hidden w-full gap-2 flex-col pt-[6px] pb-2 px-2 border-t-[2px] border-t-kadscan-500 bg-gray-700 rounded-b-lg w-[240px]"
+          class="flex bazk:hidden w-full gap-2 flex-col pt-[6px] pb-2 px-2 border-t-[2px] border-t-font-accent-strong bg-surface-secondary rounded-b-lg w-[240px]"
         >
           <div
             class="flex flex-col gap-2"
@@ -71,7 +71,7 @@ const props = defineProps<{
             <NuxtLink
               :to="subroute.path"
               :key="subroute.tag"
-              class="p-2 text-sm text-[#cccccc] hover:text-kadscan-500"
+              class="p-2 text-sm text-font-secondary hover:text-font-accent-strong"
               v-for="subroute in props.subroutes ?? []"
             >
               {{ subroute.label }}

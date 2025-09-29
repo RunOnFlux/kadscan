@@ -2,6 +2,7 @@
 export default defineNuxtConfig({
   css: [
     '@splidejs/vue-splide/css',
+    '~/assets/css/tokens.css',
   ],
   postcss: {
     plugins: {

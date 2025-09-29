@@ -16,7 +16,7 @@ const goToModule = async () => {
 <template>
   <button
     type="button"
-    class="py-3 px-2 flex gap-2 hover:bg-[#1d1d1d] hover:rounded-md w-full text-left"
+    class="py-3 px-2 flex gap-2 hover:bg-surface-secondary hover:rounded-md w-full text-left"
     @click.prevent="goToModule"
   >
     <IconStatus
@@ -25,10 +25,10 @@ const goToModule = async () => {
     />
 
     <div class="flex flex-col truncate flex-1">
-      <span class="text-[#f5f5f5] text-sm truncate block">
+      <span class="text-font-primary text-sm truncate block">
         {{ name }}
       </span>
-      <span class="text-font-500 text-xs">
+      <span class="text-font-tertiary text-xs">
         {{ allChains ? 'All chains' : `Available on ${chainsCount} chain${chainsCount === 1 ? '' : 's'}` }}
       </span>
     </div>

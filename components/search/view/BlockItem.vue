@@ -37,7 +37,7 @@ const { recordHistory } = useSearch();
   <NuxtLink
     :to="blockUrl"
     @click="recordHistory(hash || String(height), 'blocks')"
-    class="py-2 px-2 flex gap-2 hover:bg-[#1d1d1d] hover:rounded-md"
+    class="py-2 px-2 flex gap-2 hover:bg-surface-secondary hover:rounded-md"
   >
     <IconStatus
       :status="status"
@@ -48,14 +48,14 @@ const { recordHistory } = useSearch();
       class="flex flex-col truncate"
     >
       <span
-        class="text-[#f5f5f5] text-sm truncate block"
+        class="text-font-primary text-sm truncate block"
       >
         {{ hash }}
       </span>
 
       <div>
         <span
-          class="text-font-500 text-xs"
+          class="text-font-tertiary text-xs"
         >
           Block: {{ height }}
         </span>
@@ -63,7 +63,7 @@ const { recordHistory } = useSearch();
         -
 
         <span
-          class="text-font-500 text-xs"
+          class="text-font-tertiary text-xs"
         >
           Chain: {{ chainId }}
         </span>
@@ -71,7 +71,7 @@ const { recordHistory } = useSearch();
         -
 
         <span
-          class="text-font-500 text-xs"
+          class="text-font-tertiary text-xs"
         >
           Time: {{ timeAgo }} 
         </span>

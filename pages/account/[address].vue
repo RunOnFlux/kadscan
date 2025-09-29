@@ -217,12 +217,6 @@ watch(
 // Tab management - similar to pages/transactions/[requestKey].vue
 const activeTab = ref('assets')
 
-const tabLabels = computed(() => [
-  'Transactions',
-  'Token Transfers', 
-  'NFT Transfers'
-])
-
 const tabs = computed(() => [
   { id: 'assets', label: 'Assets' },
   { id: 'transactions', label: 'Transactions' },
@@ -397,7 +391,7 @@ watch(
   [selectedNetwork, address],
   async ([network, addr]) => {
     if (!network || !addr) return
-    await fetchAccountBalances({ networkId: network.id, accountName: addr })
+    await fetchAccountBalances({ networkId: network.id, accountName: addr, first: 200 })
   },
   { immediate: true }
 )
@@ -406,14 +400,14 @@ watch(
 <template>
   <div>
     <!-- Header -->
-    <div class="pb-5 border-b border-[#222222] mb-6 px-1">
+    <div class="pb-5 border-b border-line-default mb-6 px-1">
       <div class="flex flex-col gap-1 md:flex-row md:items-center md:gap-3">
         <div class="flex items-center gap-2 mb-1 md:mb-0">
           <AccountAddressIcon :address="address" class="w-6 h-6 rounded-full" />
-          <h1 class="text-[19px] font-semibold leading-[150%] text-[#f5f5f5]">Account</h1>
+          <h1 class="text-[19px] font-semibold leading-[150%] text-font-primary">Account</h1>
         </div>
         <div class="flex flex-col md:flex-row md:items-center md:gap-3">
-          <div class="text-[15px] text-[#f5f5f5] break-all">{{ address }}</div>
+          <div class="text-[15px] text-font-primary break-all">{{ address }}</div>
           <div class="flex items-center gap-3 pt-2 md:pt-0">
             <Copy 
               :value="address" 
@@ -428,7 +422,7 @@ watch(
                 @click.prevent="openQr"
                 aria-label="Show address QR"
               >
-                <QrIcon class="text-[#888888] group-hover:text-kadscan-400" />
+                <QrIcon class="text-font-tertiary group-hover:text-link" />
               </button>
             </Tooltip>
           </div>
@@ -438,23 +432,23 @@ watch(
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6 items-stretch">
       <!-- Card 1: Overview -->
-      <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
-        <h3 class="text-[#f5f5f5] font-semibold mb-4">
-          Overview <span class="text-[#bbbbbb] font-normal">— {{ overviewChainLabel }}</span>
+      <div class="bg-surface-primary border border-line-default rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+        <h3 class="text-font-primary font-semibold mb-4">
+          Overview <span class="text-font-secondary font-normal">— {{ overviewChainLabel }}</span>
         </h3>
         <div class="flex-1 flex flex-col justify-between gap-4">
           <div>
-            <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">KDA BALANCE</div>
+            <div class="text-[13px] text-font-secondary font-medium mb-1">KDA BALANCE</div>
             <div class="flex items-center gap-1">
-              <KadenaIcon class="w-4 h-4 text-[#bbbbbb]" />
-              <span v-if="showOverviewLoading" class="text-[14px] text-[#888888] animate-pulse">Loading...</span>
-              <span v-else class="text-[14px] text-[#f5f5f5]">{{ displayKdaBalance }} KDA</span>
+              <KadenaIcon class="w-4 h-4 text-font-secondary" />
+              <span v-if="showOverviewLoading" class="text-[14px] text-font-tertiary animate-pulse">Loading...</span>
+              <span v-else class="text-[14px] text-font-primary">{{ displayKdaBalance }} KDA</span>
             </div>
           </div>
           <div>
-            <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">KDA VALUE</div>
-            <div class="text-[#f5f5f5] text-[14px]">
-              <span v-if="showPriceLoading" class="text-[#888888] animate-pulse">Loading...</span>
+            <div class="text-[13px] text-font-secondary font-medium mb-1">KDA VALUE</div>
+            <div class="text-font-primary text-[14px]">
+              <span v-if="showPriceLoading" class="text-font-tertiary animate-pulse">Loading...</span>
               <span v-else>
                 ${{ account.kdaValue }}
                 <template v-if="shouldShowPerKda"> (${{ account.kdaPrice }}/KDA)</template>
@@ -462,7 +456,7 @@ watch(
             </div>
           </div>
           <div>
-            <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">TOKEN HOLDINGS</div>
+            <div class="text-[13px] text-font-secondary font-medium mb-1">TOKEN HOLDINGS</div>
             <AccountTokenHoldings
               :loading="balancesLoading"
               :balances="rawBalances"
@@ -472,85 +466,85 @@ watch(
         </div>
       </div>
 
-      <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
-        <h3 class="text-[#f5f5f5] font-semibold mb-4">More Info</h3>
+      <div class="bg-surface-primary border border-line-default rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+        <h3 class="text-font-primary font-semibold mb-4">Extra Info</h3>
         <div class="space-y-4">
           <div>
-            <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">TRANSACTIONS SENT</div>
+            <div class="text-[13px] text-font-secondary font-medium mb-1">TRANSACTIONS SENT</div>
             <div class="space-y-1">
               <div class="flex items-center">
-                <span class="text-[#bbb] text-[14px] mr-1">Latest:</span>
+                <span class="text-font-secondary text-[14px] mr-1">Latest:</span>
                 <template v-if="showTransfersLoading">
-                  <span class="text-[#888888] text-[14px] animate-pulse">Loading...</span>
+                  <span class="text-font-tertiary text-[14px] animate-pulse">Loading...</span>
                 </template>
                 <template v-else>
                   <NuxtLink 
                     v-if="lastTransaction?.requestKey" 
                     :to="`/transactions/${lastTransaction.requestKey}`"
-                    class="text-[#6AB5DB] text-[14px] hover:text-[#9ccee7] transition-colors"
+                    class="text-link text-[14px] hover:text-link-hover transition-colors"
                   >
                     {{ account.lastTransactionCreationTime }}
                   </NuxtLink>
-                  <span v-else class="text-[#bbb] text-[14px]">N/A</span>
+                  <span v-else class="text-font-secondary text-[14px]">N/A</span>
                 </template>
 
-                <span class="text-[#bbb] text-[14px] mr-1 ml-4">First:</span>
+                <span class="text-font-secondary text-[14px] mr-1 ml-4">First:</span>
                 <template v-if="showTransfersLoading">
-                  <span class="text-[#888888] text-[14px] animate-pulse">Loading...</span>
+                  <span class="text-font-tertiary text-[14px] animate-pulse">Loading...</span>
                 </template>
                 <template v-else>
                   <NuxtLink 
                     v-if="firstTransaction?.requestKey" 
                     :to="`/transactions/${firstTransaction.requestKey}`"
-                    class="text-[#6AB5DB] text-[14px] hover:text-[#9ccee7] transition-colors"
+                    class="text-link text-[14px] hover:text-link-hover transition-colors"
                   >
                     {{ account.firstTransactionCreationTime }}
                   </NuxtLink>
-                  <span v-else class="text-[#bbb] text-[14px]">N/A</span>
+                  <span v-else class="text-font-secondary text-[14px]">N/A</span>
                 </template>
               </div>
             </div>
           </div>
           <div>
-            <div class="text-[13px] text-[#bbbbbb] font-medium mb-1">FUNDED BY</div>
+            <div class="text-[13px] text-font-secondary font-medium mb-1">FUNDED BY</div>
             <div class="flex flex-col gap-1">
               <template v-if="showTransfersLoading">
-                <span class="text-[#888888] text-[14px] animate-pulse">Loading...</span>
+                <span class="text-font-tertiary text-[14px] animate-pulse">Loading...</span>
               </template>
               <template v-else>
                 <template v-if="account.fundedBy">
                   <NuxtLink 
                     :to="`/account/${account.fundedBy}`"
-                    class="text-[#6AB5DB] hover:text-[#9ccee7] text-[14px]"
+                    class="text-link hover:text-link-hover text-[14px]"
                   >
                     {{ truncateAddress(account.fundedBy, 10, 10) }}
                   </NuxtLink>
-                  <div class="text-[14px] text-[#bbb]">
+                  <div class="text-[14px] text-font-secondary">
                     <span>At Height </span>
                     <NuxtLink 
                       :to="`/blocks/${account.height}/chain/${account.chainId}`"
-                      class="text-[#6AB5DB] hover:text-[#9ccee7]"
+                      class="text-link hover:text-link-hover"
                     >
                       {{ account.height }}
                     </NuxtLink>
                     <span> and Chain ID </span>
                     <NuxtLink
                       :to="`/blocks?chain=${account.chainId}`"
-                      class="text-[#6AB5DB] hover:text-[#9ccee7]"
+                      class="text-link hover:text-link-hover"
                     >
                       {{ account.chainId }}
                     </NuxtLink>
                   </div>
                 </template>
-                <span v-else class="text-[#bbb] text-[14px]">N/A</span>
+                <span v-else class="text-font-secondary text-[14px]">N/A</span>
               </template>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="bg-[#111111] border border-[#222222] rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
-        <h3 class="text-[#f5f5f5] font-semibold mb-4">Multichain Info</h3>
+      <div class="bg-surface-primary border border-line-default rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+        <h3 class="text-font-primary font-semibold mb-4">Cross Chain Info</h3>
         <div class="space-y-4">
           <div class="flex items-center justify-between gap-2">
             <Select
@@ -563,10 +557,10 @@ watch(
               :fullWidth="false"
             >
               <div class="inline-flex items-center gap-2">
-                <Coins class="w-4 h-4 text-[#f5f5f5]" />
-                <span class="text-[#f5f5f5] text-[14px]">
+                <Coins class="w-4 h-4 text-font-primary" />
+                <span class="text-font-primary text-[14px]">
                   ${{ account.multichainPortfolio }}
-                  <span class="text-[#bbbbbb] text-[13px]">({{ multichainLabel }})</span>
+                  <span class="text-font-secondary text-[13px]">({{ multichainLabel }})</span>
                 </span>
               </div>
             </Select>
@@ -574,25 +568,25 @@ watch(
           
           <!-- Guards Information for selected chain only -->
           <div v-if="currentGuard">
-            <div class="text-[13px] text-[#bbbbbb] font-medium mb-2">GUARDS</div>
-            <div class="bg-[#222222] border border-[#333333] rounded-lg p-3">
+            <div class="text-[13px] text-font-secondary font-medium mb-2">GUARDS</div>
+            <div class="bg-surface-secondary border border-line-strong rounded-lg p-3">
               <div class="grid grid-cols-4 gap-4">
                 <!-- Predicate Column (1/4) -->
                 <div class="col-span-1">
-                  <div class="text-[13px] text-[#bbbbbb] font-medium mb-2">Predicate:</div>
-                  <div class="text-[14px] text-[#f5f5f5] font-mono">{{ currentGuard.predicate }}</div>
+                  <div class="text-[13px] text-font-secondary font-medium mb-2">Predicate:</div>
+                  <div class="text-[14px] text-font-primary font-mono">{{ currentGuard.predicate }}</div>
                 </div>
                 
                 <!-- Keys Column (3/4) -->
                 <div class="col-span-3">
-                  <div class="text-[13px] text-[#bbbbbb] font-medium mb-2">Keys:</div>
+                  <div class="text-[13px] text-font-secondary font-medium mb-2">Keys:</div>
                   <div class="space-y-1">
                     <div 
                       v-for="(key, index) in currentGuard.keys" 
                       :key="index"
                       class="flex items-center gap-2"
                     >
-                      <span class="text-[13px] text-[#f5f5f5] font-mono break-all">{{ key }}</span>
+                      <span class="text-[13px] text-font-primary font-mono break-all">{{ key }}</span>
                     </div>
                   </div>
                 </div>
@@ -612,8 +606,8 @@ watch(
           :class="[
             'px-3 py-1 rounded-lg text-[14px] font-medium transition-colors whitespace-nowrap relative',
             activeTab === tab.id 
-              ? 'bg-[#009367] text-[#f5f5f5]' 
-              : 'bg-[#252525] text-[#f5f5f5] hover:bg-[#333333]'
+              ? 'bg-accent-strong text-btn-text' 
+              : 'bg-surface-hover text-font-secondary hover:bg-tab-bg-hover'
           ]"
         >
           {{ tab.label }}

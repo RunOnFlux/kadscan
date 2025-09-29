@@ -1,6 +1,6 @@
 <template>
   <div
-    class="divide-y divide-[#222222]"
+    class="divide-y divide-line-default"
   >
     <slot />
   </div>
