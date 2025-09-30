@@ -8,6 +8,7 @@ import ThemeLight from '~/components/icon/ThemeLight.vue';
 import ThemeDim from '~/components/icon/ThemeDim.vue';
 import ThemeDark from '~/components/icon/ThemeDark.vue';
 import { useTheme } from '~/composables/useTheme';
+import type { AppTheme } from '~/composables/useTheme';
 
 const route = useRoute();
 // Stable id for Headless UI MenuButton to prevent SSR/client mismatch
@@ -63,6 +64,14 @@ const medGasPrice = computed(() => {
 
 // Theme control via shared composable
 const { theme, setTheme } = useTheme();
+
+// Click-to-cycle theme order: light -> dim -> dark -> light
+const cycleTheme = () => {
+  const order: AppTheme[] = ['light', 'dim', 'dark'];
+  const index = order.indexOf(theme.value);
+  const next = order[(index + 1) % order.length];
+  setTheme(next);
+};
 </script>
 
 <template>
@@ -96,7 +105,13 @@ const { theme, setTheme } = useTheme();
 
         <div class="flex items-center gap-2 w-full md:w-auto justify-center md:justify-end">
           <SearchInputHeader v-if="route.path !== '/'" />
-          <!-- Theme selector between searchbar and network switch -->
+          <!-- Theme icon toggle between searchbar and network switch -->
+          <button @click="cycleTheme" aria-label="Toggle theme" class="h-[36.5px] rounded-lg flex items-center gap-2 border border-line-default bg-surface-disabled hover:bg-surface-hover px-3 text-font-primary">
+            <component :is="theme === 'light' ? ThemeLight : (theme === 'dim' ? ThemeDim : ThemeDark)" class="h-4 w-4" />
+          </button>
+
+          <!--
+          Previous theme dropdown (kept for reference per request)
           <Menu as="div" class="relative inline-block text-left">
             <div>
               <MenuButton class="h-[36.5px] rounded-lg flex items-center gap-2 border border-line-default bg-surface-disabled hover:bg-surface-secondary px-3 text-font-primary">
@@ -123,9 +138,10 @@ const { theme, setTheme } = useTheme();
               </div>
             </MenuItems>
           </Menu>
+          -->
           <Menu as="div" class="relative inline-block text-left hidden md:block">
           <div>
-            <MenuButton :id="networkMenuButtonId" class="h-[36.5px] rounded-lg flex items-center gap-2 border border-line-default bg-surface-disabled hover:bg-surface-secondary px-3">
+            <MenuButton :id="networkMenuButtonId" class="h-[36.5px] rounded-lg flex items-center gap-2 border border-line-default bg-surface-disabled hover:bg-surface-hover px-3">
               <IconKadena class="h-4 w-4 text-font-secondary" />
               <span v-if="selectedNetwork" class="text-[13px] text-font-primary">{{ selectedNetwork.name }}</span>
             </MenuButton>
