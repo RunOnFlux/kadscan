@@ -60,6 +60,11 @@
   --accent-strong: 0 178 140; /* #00b28c */
 }
 
+/* Hide until theme is applied on the client to prevent flashing the wrong theme */
+html:not([data-theme-ready="1"]) body {
+  visibility: hidden !important;
+}
+
 /* Dim theme */
 [data-theme="dim"] {
   /* Backgrounds & Surfaces */

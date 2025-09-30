@@ -25,8 +25,6 @@ export function writeStoredTheme(theme: AppTheme): void {
 export function applyThemeAttribute(theme: AppTheme): void {
   if (!isClient()) return
   const root = document.documentElement
-  // Ensure legacy .dark class does not interfere
-  root.removeAttribute('class')
   root.setAttribute('data-theme', theme)
 }
 

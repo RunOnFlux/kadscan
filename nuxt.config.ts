@@ -38,7 +38,7 @@ export default defineNuxtConfig({
       posthogHost: process.env.NUXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com',
       posthogDefaults: process.env.NUXT_PUBLIC_POSTHOG_DEFAULTS || '2025-05-24',
       // Optional toggle; we will still guard by production in the plugin
-      posthogEnabled: process.env.NUXT_PUBLIC_POSTHOG_ENABLED || 'true',
+      posthogEnabled: process.env.NUXT_PUBLIC_POSTHOG_ENABLED || 'false',
     },
   },
 
