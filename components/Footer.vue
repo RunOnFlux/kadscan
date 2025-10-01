@@ -23,7 +23,7 @@ const socials = [
   },
   {
     name: 'Gitbook',
-    url: 'https://kadindexer.gitbook.io/docs/',
+    url: 'https://docs.kadindexer.io/',
     icon: IconGitbook
   }
 ]
