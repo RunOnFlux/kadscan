@@ -361,7 +361,7 @@ function downloadData() {
                 v-model:modelValue="selectedRowOption"
                 :items="rowOptions"
                 position="bot-left"
-                fontSize="12"
+                :fontSize="12"
               />
             </div>
           </div>

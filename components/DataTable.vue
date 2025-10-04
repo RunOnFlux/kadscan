@@ -150,7 +150,7 @@ const formatTotalItems = (num: number) => {
             @update:modelValue="emit('update:selectedRows', $event)"
             :items="rowOptions"
             position="bot-left"
-            fontSize="12"
+            :fontSize="12"
           />
         </div>
       </div>
