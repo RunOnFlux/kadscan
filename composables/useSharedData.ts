@@ -15,6 +15,8 @@ function kadenaCoinState() {
 
 // Function to fetch Kadena data
 export async function fetchSharedKadenaData() {
+  // Capture reactive state and app/context-bound composables before any await
+  const state = kadenaCoinState();
   const { $coingecko } = useNuxtApp();
   const { fetchKadenaTickerData } = useBinance();
   const { fetchCirculatingSupply } = useNetworkInfo();
@@ -26,28 +28,30 @@ export async function fetchSharedKadenaData() {
     ])) as [any, any];
 
     if (binanceData?.data && networkInfo?.coinsInCirculation) {
-      const state = kadenaCoinState()
       const price = parseFloat(binanceData.data.lastPrice);
       const circulatingSupply = networkInfo.coinsInCirculation;
 
       state.value.price = price;
       state.value.variation = parseFloat(binanceData.data.priceChangePercent);
       state.value.marketCap = price * circulatingSupply;
-      return;
+      return true;
     }
   } catch (error) {
-    console.error('Failed to fetch Kadena data from Binance or indexer:', error);
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('Failed to fetch Kadena data from Binance or indexer:', message);
   }
 
   try {
-    const state = kadenaCoinState()
     const data = await $coingecko.request('coins/kadena');
     state.value.price = data?.market_data?.current_price?.usd ?? null;
     state.value.variation = data?.market_data?.price_change_percentage_24h ?? null;
     state.value.marketCap = data?.market_data?.market_cap?.usd ?? null;
+    return true;
   } catch (error) {
-    console.error('Failed to fetch Kadena data from CoinGecko:', error);
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('Failed to fetch Kadena data from CoinGecko:', message);
   }
+  return true;
 }
 
 // --- Network State & Persistence ---
