@@ -77,15 +77,9 @@ const cycleTheme = () => {
 <template>
   <div>
     <div
-      :class="[
-        'w-full z-50 bg-surface-primary border-b border-line-default fixed top-0 left-0 flex',
-        route.path !== '/' ? 'h-[55px]' : 'h-[47px]'
-      ]"
+      class="w-full z-50 bg-surface-primary border-b border-line-default fixed top-0 left-0 flex h-[55px]"
     >
-        <div :class="[
-          'w-full max-w-[1400px] mx-auto flex items-center justify-between h-full px-3 md:px-5',
-          route.path !== '/' ? 'py-2' : 'py-4'
-        ]">
+        <div class="w-full max-w-[1400px] mx-auto flex items-center justify-between h-full py-4 px-3 md:px-5">
         <div class="flex items-center text-[12.5px] text-font-secondary hidden md:flex">
           <span class="mr-1">KDA Price:</span>
           <span class="text-link hover:text-link-hover">{{ formattedKdaPrice }}</span>
@@ -176,9 +170,6 @@ const cycleTheme = () => {
         </div>
       </div>
     </div>
-    <div :class="[
-      'block',
-      route.path !== '/' ? 'h-[55px]' : 'h-[47px]'
-    ]"></div>
+    <div class="block h-[55px]"></div>
   </div>
 </template> 

@@ -58,11 +58,6 @@ const {
       <div
         class="hidden md:block md:flex w-full items-center justify-end gap-2"
       >
-        <HeaderSearch
-          variant="secondary"
-          v-if="route.name !== 'index'"
-        />
-
         <HeaderRoute
           :key="route.tag + i"
           v-bind="route"
