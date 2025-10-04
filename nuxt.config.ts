@@ -40,8 +40,8 @@ export default defineNuxtConfig({
       // Optional toggle; we will still guard by production in the plugin
       posthogEnabled: process.env.NUXT_PUBLIC_POSTHOG_ENABLED || 'false',
       // Kadindexer WSS endpoints (public)
-      kadindexerMainnetWssUrl: process.env.NUXT_PUBLIC_KADINDEXER_MAINNET_WSS_URL || 'wss://devnet.kadindexer.io/mainnet/wss/graphql',
-      kadindexerTestnetWssUrl: process.env.NUXT_PUBLIC_KADINDEXER_TESTNET_WSS_URL || 'wss://devnet.kadindexer.io/testnet/wss/graphql',
+      kadindexerMainnetWssUrl: process.env.NUXT_PUBLIC_KADINDEXER_MAINNET_WSS_URL || 'wss://mainnet.kadindexer.io/wss/graphql',
+      kadindexerTestnetWssUrl: process.env.NUXT_PUBLIC_KADINDEXER_TESTNET_WSS_URL || 'wss://testnet.kadindexer.io/wss/graphql',
     },
   },
 
