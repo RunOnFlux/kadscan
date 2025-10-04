@@ -5,7 +5,10 @@ import HomeAnimation from '~/components/home/Animation.vue';
 const route = useRoute();
 
 // Fetch the data once globally.
-await useAsyncData('global-kda-fetch', () => fetchSharedKadenaData());
+await useAsyncData('global-kda-fetch', async () => {
+  await fetchSharedKadenaData();
+  return true;
+});
 </script>
 
 <template>

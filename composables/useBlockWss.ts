@@ -3,6 +3,17 @@ import { ref, onUnmounted, readonly, watch } from 'vue'
 import { useSharedData } from '~/composables/useSharedData';
 import { updateTransactionCount } from '~/composables/useTransactionCount';
 
+// Returns the appropriate public WSS URL based on network id with typed fallback
+const getWssUrlForNetwork = (networkId: string): string => {
+  const config = useRuntimeConfig();
+  const mainnet = (config.public as any)?.kadindexerMainnetWssUrl as string;
+  const testnet = (config.public as any)?.kadindexerTestnetWssUrl as string;
+  if (networkId === 'mainnet01') {
+    return mainnet;
+  }
+  return testnet;
+}
+
 /**
  * @description The singleton graphql-ws client instance.
  * It is initialized only on the client-side to avoid issues during server-side rendering.
@@ -119,9 +130,7 @@ export const useBlockWss = () => {
     newBlocks.value = [];
 
     // Setup new client
-    const wssUrl = network.id === 'mainnet01'
-      ? 'wss://devnet.kadindexer.io/mainnet/wss/graphql'
-      : 'wss://devnet.kadindexer.io/testnet/wss/graphql';
+    const wssUrl = getWssUrlForNetwork(network.id);
 
     client = createClient({
       url: wssUrl,
@@ -287,9 +296,7 @@ export const useBlockCountWss = () => {
     // Recreate client for current network
     const network = useSharedData().selectedNetwork.value;
     if (process.client && network) {
-      const wssUrl = network.id === 'mainnet01'
-        ? 'wss://devnet.kadindexer.io/mainnet/wss/graphql'
-        : 'wss://devnet.kadindexer.io/testnet/wss/graphql';
+      const wssUrl = getWssUrlForNetwork(network.id);
       countClient = createClient({ url: wssUrl, connectionParams: () => ({}) });
       // reset stream; client recreated
       startCountSubscription();
@@ -313,9 +320,7 @@ export const useBlockCountWss = () => {
     overLimit.value = false;
 
     // Setup new client
-    const wssUrl = network.id === 'mainnet01'
-      ? 'wss://devnet.kadindexer.io/mainnet/wss/graphql'
-      : 'wss://devnet.kadindexer.io/testnet/wss/graphql';
+    const wssUrl = getWssUrlForNetwork(network.id);
 
     countClient = createClient({
       url: wssUrl,

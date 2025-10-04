@@ -39,6 +39,9 @@ export default defineNuxtConfig({
       posthogDefaults: process.env.NUXT_PUBLIC_POSTHOG_DEFAULTS || '2025-05-24',
       // Optional toggle; we will still guard by production in the plugin
       posthogEnabled: process.env.NUXT_PUBLIC_POSTHOG_ENABLED || 'false',
+      // Kadindexer WSS endpoints (public)
+      kadindexerMainnetWssUrl: process.env.NUXT_PUBLIC_KADINDEXER_MAINNET_WSS_URL || 'wss://mainnet.kadindexer.io/wss/graphql',
+      kadindexerTestnetWssUrl: process.env.NUXT_PUBLIC_KADINDEXER_TESTNET_WSS_URL || 'wss://testnet.kadindexer.io/wss/graphql',
     },
   },
 
