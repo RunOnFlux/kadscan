@@ -2,6 +2,17 @@ import { createClient } from 'graphql-ws'
 import { ref, onUnmounted, readonly, watch } from 'vue'
 import { useSharedData } from '~/composables/useSharedData';
 
+// Returns the appropriate public WSS URL based on network id with typed fallback
+const getWssUrlForNetwork = (networkId: string): string => {
+  const config = useRuntimeConfig();
+  const mainnet = (config.public as any)?.kadindexerMainnetWssUrl as string;
+  const testnet = (config.public as any)?.kadindexerTestnetWssUrl as string;
+  if (networkId === 'mainnet01') {
+    return mainnet;
+  }
+  return testnet;
+}
+
 let client: any = null;
 let unsubscribe: (() => void) | null = null;
 const isConnected = ref(false);
@@ -89,9 +100,7 @@ export const useTransactionWss = () => {
     newTransactions.value = [];
 
     // Setup new client
-    const wssUrl = network.id === 'mainnet01'
-      ? 'wss://devnet.kadindexer.io/mainnet/wss/graphql'
-      : 'wss://devnet.kadindexer.io/testnet/wss/graphql';
+    const wssUrl = getWssUrlForNetwork(network.id);
 
     client = createClient({
       url: wssUrl,
@@ -250,9 +259,7 @@ export const useTransactionCountWss = () => {
     // Recreate client for current network
     const network = useSharedData().selectedNetwork.value;
     if (process.client && network) {
-      const wssUrl = network.id === 'mainnet01'
-        ? 'wss://devnet.kadindexer.io/mainnet/wss/graphql'
-        : 'wss://devnet.kadindexer.io/testnet/wss/graphql';
+      const wssUrl = getWssUrlForNetwork(network.id);
       countClient = createClient({ url: wssUrl, connectionParams: () => ({}) });
       // reset stream; client recreated
       startCountSubscription();
@@ -276,9 +283,7 @@ export const useTransactionCountWss = () => {
     overLimit.value = false;
 
     // Setup new client
-    const wssUrl = network.id === 'mainnet01'
-      ? 'wss://devnet.kadindexer.io/mainnet/wss/graphql'
-      : 'wss://devnet.kadindexer.io/testnet/wss/graphql';
+    const wssUrl = getWssUrlForNetwork(network.id);
 
     countClient = createClient({
       url: wssUrl,
