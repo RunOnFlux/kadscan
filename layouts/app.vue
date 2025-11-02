@@ -15,8 +15,10 @@ await useAsyncData('global-kda-fetch', async () => {
   <div
     class="h-screen flex flex-col items-center !font-sans"
   >
+    <AnnouncementBanner v-if="route.name === 'index'" />
     <HeaderMasterTopBar />
     <HeaderTopbar/>
+    <div v-if="route.name === 'index'" class="block h-[56px]"></div>
     <ConsentBanner />
 
     <div class="w-full grow relative">

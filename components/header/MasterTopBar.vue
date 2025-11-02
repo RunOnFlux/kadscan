@@ -77,7 +77,10 @@ const cycleTheme = () => {
 <template>
   <div>
     <div
-      class="w-full z-50 bg-surface-primary border-b border-line-default fixed top-0 left-0 flex h-[55px]"
+      :class="[
+        'w-full z-50 bg-surface-primary border-b border-line-default fixed left-0 flex h-[55px]',
+        route.name === 'index' ? 'top-[56px]' : 'top-0'
+      ]"
     >
         <div class="w-full max-w-[1400px] mx-auto flex items-center justify-between h-full py-4 px-3 md:px-5">
         <div class="flex items-center text-[12.5px] text-font-secondary hidden md:flex">
