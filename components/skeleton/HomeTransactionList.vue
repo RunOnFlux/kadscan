@@ -1,53 +1,31 @@
 <script setup lang="ts">
+import HomeList from '~/components/home/List.vue'
 </script>
 
 <template>
   <HomeList
     label="Recent Transactions"
+    is-customizable
   >
     <div
-      v-for="n in 5"
-      :key="`skeleton-recent-transactions-${n}`"
-      class="flex flex-wrap items-center gap-3 xl:gap-4 py-3 border-b lg:h-[111px] border-b-gray-300 xl:max-h-[82px]"
+      v-for="n in 6"
+      :key="`skeleton-recent-blocks-${n}`"
+      class="flex animate-pulse items-center justify-between border-b border-surface-skeleton px-6 py-4"
     >
-      <div
-        class="mb-auto xl:mb-0 bg-gray-200 rounded-lg h-12 w-12"
-      />
-
-      <div
-        class="flex xl:flex-col gap-4 grow xl:max-w-[190px]"
-      >
-        <Value
-          label="Request Key"
-          value=""
-        />
-
-        <Value
-          label="Chain"
-          value=""
-        />
+      <div class="flex w-1/3 items-center gap-4">
+        <div class="h-12 w-12 shrink-0 rounded-md bg-surface-skeleton" />
+        <div class="flex w-full flex-col gap-2">
+          <div class="h-4 w-1/3 rounded bg-surface-skeleton" />
+          <div class="h-3 w-1/2 rounded bg-surface-skeleton" />
+        </div>
       </div>
 
-      <div
-        class="flex xl:flex-col gap-4 xl:mx-auto grow xl:max-w-[130px]"
-      >
-        <Value
-          label="Sender"
-          value=""
-        />
-
-        <Value
-          label="Gas"
-          value=""
-        />
-      </div>
-
-      <div
-        class="flex h-full w-full xl:w-auto xl:justify-start xl:flex-col xl:ml-auto xl:max-w-[180px] xl:grow"
-      >
-        <Value
-          value=""
-        />
+      <div class="flex w-2/3 items-center justify-between gap-4">
+        <div class="flex w-full flex-col gap-2">
+          <div class="h-4 w-1/3 rounded bg-surface-skeleton" />
+          <div class="h-4 w-1/2 rounded bg-surface-skeleton" />
+        </div>
+        <div class="hidden h-7 w-20 shrink-0 rounded-md bg-surface-skeleton sm:block" />
       </div>
     </div>
   </HomeList>

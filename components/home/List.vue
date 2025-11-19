@@ -1,42 +1,50 @@
 <script setup lang="ts">
+import CustomizeIcon from '~/components/icon/Customize.vue'
+
 const props = defineProps<{
   label: string,
-  path?: string
+  path?: string,
+  isCustomizable?: boolean
 }>()
+
+const emit = defineEmits(['customize'])
 </script>
 
 <template>
-  <Container>
+  <div
+    class="bg-surface-primary border border-line-default rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)]"
+  >
     <div
-      class="flex justify-between items-center pb-2 lg:pb-4 border-b border-b-gray-300"
+      class="flex items-center justify-between p-4 border-b border-line-default"
     >
       <span
-        class="text-lg text-font-400 font-semibold leading-[26px] block lg:leading-[25.2px]"
+        class="text-[15px] font-semibold text-font-primary"
       >
         {{ label }}
       </span>
 
+      <button
+        v-if="isCustomizable"
+        class="flex items-start gap-1 px-[6px] pb-[4px] pt-[3px] text-sm border border-line-default rounded-lg bg-surface-disabled hover:bg-surface-secondary"
+        @click="emit('customize')"
+      >
+        <CustomizeIcon class="mt-[1px] text-font-primary w-4 h-4" />
+        <span class="text-[0.75rem] text-font-primary">Customize</span>
+      </button>
+    </div>
+
+    <div class="relative overflow-hidden">
+      <slot />
+    </div>
+
+    <div class="px-6 py-4 text-center bg-surface-disabled rounded-b-lg border-t border-line-default relative z-10">
       <NuxtLink
         v-if="path"
         :to="path"
-        class="flex items-center"
+        class="text-[12px] font-semibold text-font-secondary hover:text-font-accent-strong"
       >
-        <Button
-          label="View All"
-          size="medium"
-          class="hidden lg:flex"
-        />
-
-        <Button
-          label="View All"
-          size="small"
-          class="lg:hidden"
-        />
+        {{ label.includes('Blocks') ? 'ALL BLOCKS' : 'ALL TRANSACTIONS' }} &rarr;
       </NuxtLink>
     </div>
-
-    <div>
-      <slot />
-    </div>
-  </Container>
+  </div>
 </template>

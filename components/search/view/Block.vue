@@ -1,6 +1,7 @@
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   blocks: any,
+  onRecordHistory?: (q: string, type?: string | null) => void,
 }>()
 </script>
 
@@ -9,21 +10,23 @@ defineProps<{
     class="flex flex-col"
   >
     <div
-      class="pb-2"
+      class="pb-1 px-2 pt-3"
     >
       <span
-        class="text-white text-sm"
+        class="text-[11px] font-medium text-font-secondary mb-[1px]"
       >
-        Blocks
+        BLOCKS
       </span>
     </div>
 
-    <SearchViewBlockItem
-      v-bind="block"
-      class="py-3"
-      :key="'block:'+block.id"
-      v-for="(block, i) in blocks"
-      :class="[!((i + 1) === blocks.length) && '!border-b border-b-gray-300']"
-    />
+    <div class="flex flex-col gap-2">
+      <SearchViewBlockItem
+        v-bind="block"
+        class="py-2"
+        :key="'block:'+block.id"
+        v-for="(block, i) in blocks"
+        @select="props.onRecordHistory && props.onRecordHistory(block.hash || String(block.height), 'blocks')"
+      />
+    </div>
   </div>
 </template>

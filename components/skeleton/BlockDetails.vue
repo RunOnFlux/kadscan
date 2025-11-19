@@ -1,0 +1,180 @@
+<template>
+  <div>
+    <!-- Header Tab Skeleton -->
+    <div class="flex items-center gap-2 pb-3">
+      <div class="h-8 w-20 bg-line-strong rounded-lg animate-pulse"></div>
+    </div>
+
+    <!-- Main Block Details Card Skeleton -->
+    <div class="bg-surface-primary border border-line-default rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-1">
+      <div class="flex flex-col gap-6">
+        <!-- Section 1: Core Information -->
+        <div class="flex flex-col gap-4">
+          <!-- Block Height -->
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
+            <div class="w-[300px] flex-shrink-0">
+              <div class="h-4 w-24 bg-surface-skeleton rounded"></div>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="h-5 w-16 bg-line-strong rounded"></div>
+            </div>
+          </div>
+          
+          <!-- Chain ID -->
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
+            <div class="w-[300px] flex-shrink-0">
+              <div class="h-4 w-20 bg-surface-skeleton rounded"></div>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="h-5 w-8 bg-line-strong rounded"></div>
+            </div>
+          </div>
+          
+          <!-- Status -->
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
+            <div class="w-[300px] flex-shrink-0">
+              <div class="h-4 w-16 bg-surface-skeleton rounded"></div>
+            </div>
+            <div class="flex items-center">
+              <div class="h-6 w-20 bg-line-strong rounded-md"></div>
+            </div>
+          </div>
+          
+          <!-- Creation Time -->
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
+            <div class="w-[300px] flex-shrink-0">
+              <div class="h-4 w-28 bg-surface-skeleton rounded"></div>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="h-5 w-64 bg-line-strong rounded"></div>
+            </div>
+          </div>
+          
+          <!-- Transactions -->
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
+            <div class="w-[300px] flex-shrink-0">
+              <div class="h-4 w-24 bg-surface-skeleton rounded"></div>
+            </div>
+            <div class="flex items-center">
+              <div class="h-5 w-56 bg-line-strong rounded"></div>
+            </div>
+          </div>
+          
+          <!-- Events -->
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
+            <div class="w-[300px] flex-shrink-0">
+              <div class="h-4 w-16 bg-surface-skeleton rounded"></div>
+            </div>
+            <div class="flex items-center">
+              <div class="h-5 w-48 bg-line-strong rounded"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Divider -->
+        <div class="h-px bg-surface-skeleton"></div>
+        
+        <!-- Section 2: Miner and Difficulty -->
+        <div class="flex flex-col gap-4">
+          <!-- Miner Account -->
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
+            <div class="w-[300px] flex-shrink-0">
+              <div class="h-4 w-28 bg-surface-skeleton rounded"></div>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="h-5 w-40 bg-line-strong rounded"></div>
+            </div>
+          </div>
+          
+          <!-- Block Reward -->
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
+            <div class="w-[300px] flex-shrink-0">
+              <div class="h-4 w-24 bg-surface-skeleton rounded"></div>
+            </div>
+            <div class="flex items-center">
+              <div class="h-5 w-20 bg-line-strong rounded"></div>
+            </div>
+          </div>
+          
+          <!-- Difficulty -->
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
+            <div class="w-[300px] flex-shrink-0">
+              <div class="h-4 w-20 bg-surface-skeleton rounded"></div>
+            </div>
+            <div class="flex items-center">
+              <div class="h-5 w-32 bg-line-strong rounded"></div>
+            </div>
+          </div>
+          
+          <!-- Nonce -->
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
+            <div class="w-[300px] flex-shrink-0">
+              <div class="h-4 w-12 bg-surface-skeleton rounded"></div>
+            </div>
+            <div class="flex items-center">
+              <div class="h-5 w-24 bg-line-strong rounded"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Divider -->
+        <div class="h-px bg-surface-skeleton"></div>
+        
+        <!-- Section 3: Gas -->
+        <div class="flex flex-col gap-4">
+          <!-- Gas Used -->
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
+            <div class="w-[300px] flex-shrink-0">
+              <div class="h-4 w-20 bg-surface-skeleton rounded"></div>
+            </div>
+            <div class="flex items-center">
+              <div class="h-5 w-64 bg-line-strong rounded-md"></div>
+            </div>
+          </div>
+          
+          <!-- Gas Limit -->
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
+            <div class="w-[300px] flex-shrink-0">
+              <div class="h-4 w-20 bg-surface-skeleton rounded"></div>
+            </div>
+            <div class="flex items-center">
+              <div class="h-5 w-16 bg-line-strong rounded"></div>
+            </div>
+          </div>
+          
+          <!-- Gas Price -->
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
+            <div class="w-[300px] flex-shrink-0">
+              <div class="h-4 w-20 bg-surface-skeleton rounded"></div>
+            </div>
+            <div class="flex items-center">
+              <div class="h-5 w-24 bg-line-strong rounded"></div>
+            </div>
+          </div>
+          
+          <!-- Kadena Price -->
+          <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
+            <div class="w-[300px] flex-shrink-0">
+              <div class="h-4 w-28 bg-surface-skeleton rounded"></div>
+            </div>
+            <div class="flex items-center">
+              <div class="h-5 w-20 bg-line-strong rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- More Details Card Skeleton -->
+    <div class="bg-surface-primary border border-line-default rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5">
+      <div class="flex flex-col gap-2 md:gap-0 md:flex-row animate-pulse">
+        <div class="w-[300px] flex-shrink-0">
+          <div class="h-4 w-24 bg-surface-skeleton rounded"></div>
+        </div>
+        <div class="flex items-center gap-1">
+          <div class="h-5 w-36 bg-line-strong rounded"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template> 

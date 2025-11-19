@@ -1,0 +1,189 @@
+:root {
+  /* Light theme (default) */
+  /* Backgrounds & Surfaces */
+  --surface-primary: 255 255 255; /* #ffffff */
+  --surface-secondary: 248 250 252; /* #f8fafc */
+  --surface-tertiary: 248 250 252; /* #f8fafc */
+  --surface-hover: 236 238 240; /* #f0f0f0 */
+  --surface-disabled: 249 250 251; /* #f9fafb */
+  --surface-skeleton: 229 231 235; /* #e5e7eb */
+  --surface-white: 255 255 255; /* #ffffff */
+  --surface-black: 0 0 0; /* #000000 */
+
+  /* Borders */
+  --line-default: 229 231 235; /* #e5e7eb */
+  --line-strong: 209 213 219; /* #d1d5db */
+  --line-muted: 238 242 246; /* #eef2f6 */
+
+  /* Text */
+  --font-primary: 31 41 55; /* #1f2937 */
+  --font-secondary: 75 85 99; /* #4b5563 */
+  --font-tertiary: 156 163 175; /* #9ca3af */
+  --font-accent-strong: 0 178 140; /* #00b28c */
+  --font-accent: 0 161 134; /* #00a186 */
+  --font-danger: 255 107 107; /* #ff6b6b */
+
+  /* Links */
+  --link: 7 132 195; /* #0784c3 */
+  --link-hover: 5 105 156; /* #05699c */
+
+  /* Buttons */
+  --btn-bg: 21 21 21; /* #151515 */
+  --btn-text: 245 245 245; /* #f5f5f5 */
+  --btn-border: 34 34 34; /* #222222 */
+  --btn-hover-bg: 37 37 37; /* #252525 */
+  --btn-cta-bg: 7 132 195; /* #0784c3 */
+  --btn-cta-hover-bg: 218 223 227; /* #dadfe3 */
+
+  /* Tabs */
+  --tab-bg-active: 0 147 103; /* #009367 */
+  --tab-text-active: 245 245 245; /* #f5f5f5 */
+  --tab-bg-inactive: 37 37 37; /* #252525 */
+  --tab-text-inactive: 187 187 187; /* #bbbbbb */
+  --tab-bg-hover: 230 230 230; /* #e6e6e6 */
+
+  /* Badges / Status (light theme tuned) */
+  --badge-bg-success: 230 246 242; /* #e6f6f2 */
+  --badge-text-success: 0 161 134; /* #00a186 */
+  --badge-bg-success-soft: 0 161 134 / 0.15; /* #00a18626 */
+  /* Pending uses bg-badge-bg-warning in components, so tune it to a neutral tone for light mode */
+  --badge-bg-warning: 238 242 246; /* #eef2f6 */
+  --badge-bg-pending: 238 242 246; /* #eef2f6 */
+  --badge-text-warning: 251 191 36; /* #fbbf24 */
+  --badge-bg-warning-soft: 251 191 36 / 0.15; /* #fbbf2426 */
+  --badge-bg-error: 254 226 226; /* #fee2e2 */
+  --badge-bg-error-strong: 248 113 113 / 0.25; /* #f8717140 */
+  --badge-text-error: 248 113 113; /* #f87171 */
+
+  /* Accents */
+  --accent: 0 161 134; /* #00a186 */
+  --accent-strong: 0 178 140; /* #00b28c */
+}
+
+/* Hide until theme is applied on the client to prevent flashing the wrong theme */
+html:not([data-theme-ready="1"]) body {
+  visibility: hidden !important;
+}
+
+/* Dim theme */
+[data-theme="dim"] {
+  /* Backgrounds & Surfaces */
+  --surface-primary: 15 23 42; /* #0f172a */
+  --surface-secondary: 30 41 59; /* #1e293b */
+  --surface-tertiary: 17 24 39; /* #111827 */
+  --surface-hover: 31 41 55; /* #1f2937 */
+  --surface-disabled: 22 28 40; /* #161c28 */
+  --surface-skeleton: 51 65 85; /* #334155 */
+  --surface-white: 255 255 255; /* #ffffff */
+  --surface-black: 0 0 0; /* #000000 */
+
+  /* Borders */
+  --line-default: 71 85 105; /* #475569 */
+  --line-strong: 100 116 139; /* #64748b */
+  --line-muted: 51 65 85; /* #334155 */
+
+  /* Text */
+  --font-primary: 226 232 240; /* #e2e8f0 */
+  --font-secondary: 148 163 184; /* #94a3b8 */
+  --font-tertiary: 100 116 139; /* #64748b */
+  --font-accent-strong: 0 178 140; /* #00b28c */
+  --font-accent: 0 161 134; /* #00a186 */
+  --font-danger: 255 107 107; /* #ff6b6b */
+
+  /* Links */
+  --link: 147 197 253; /* #93c5fd */
+  --link-hover: 191 219 254; /* #bfdbfe */
+
+  /* Buttons */
+  --btn-bg: 21 21 21; /* #151515 */
+  --btn-text: 245 245 245; /* #f5f5f5 */
+  --btn-border: 34 34 34; /* #222222 */
+  --btn-hover-bg: 37 37 37; /* #252525 */
+  --btn-cta-bg: 7 132 195; /* #0784c3 */
+  --btn-cta-hover-bg: 218 223 227; /* #dadfe3 */
+
+  /* Tabs */
+  --tab-bg-active: 0 147 103; /* #009367 */
+  --tab-text-active: 245 245 245; /* #f5f5f5 */
+  --tab-bg-inactive: 37 37 37; /* #252525 */
+  --tab-text-inactive: 187 187 187; /* #bbbbbb */
+  --tab-bg-hover: 51 51 51; /* #333333 */
+
+  /* Badges / Status */
+  --badge-bg-success: 15 31 29; /* #0f1f1d */
+  --badge-text-success: 0 161 134; /* #00a186 */
+  --badge-bg-success-soft: 0 161 134 / 0.5; /* #00a18680 */
+  --badge-bg-warning: 23 21 13; /* #17150d */
+  --badge-bg-pending: 68 70 72; /* #444648 */
+  --badge-text-warning: 251 191 36; /* #fbbf24 */
+  --badge-bg-warning-soft: 251 191 36 / 0.5; /* #fbbf2480 */
+  --badge-bg-error: 127 29 29 / 0.4; /* #7f1d1d66 */
+  --badge-bg-error-strong: 248 113 113 / 0.5; /* #f8717180 */
+  --badge-text-error: 248 113 113; /* #f87171 */
+
+  /* Accents */
+  --accent: 0 161 134; /* #00a186 */
+  --accent-strong: 0 147 103; /* #009367 */
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+  /* Backgrounds & Surfaces */
+  --surface-primary: 17 17 17; /* #111111 */
+  --surface-secondary: 34 34 34; /* #222222 */
+  --surface-tertiary: 23 23 23; /* #171717 */
+  --surface-hover: 37 37 37; /* #252525 */
+  --surface-disabled: 21 21 21; /* #151515 */
+  --surface-skeleton: 41 43 44; /* #292B2C */
+  --surface-white: 255 255 255; /* #ffffff */
+  --surface-black: 0 0 0; /* #000000 */
+
+  /* Borders */
+  --line-default: 34 34 34; /* #222222 */
+  --line-strong: 51 51 51; /* #333333 */
+  --line-muted: 68 70 72; /* #444648 */
+
+  /* Text */
+  --font-primary: 245 245 245; /* #f5f5f5 */
+  --font-secondary: 187 187 187; /* #bbbbbb */
+  --font-tertiary: 136 136 136; /* #888888 */
+  --font-accent-strong: 0 225 157; /* #00e19d */
+  --font-accent: 0 161 134; /* #00a186 */
+  --font-danger: 255 107 107; /* #ff6b6b */
+
+  /* Links */
+  --link: 106 181 219; /* #6ab5db */
+  --link-hover: 156 206 231; /* #9ccee7 */
+
+  /* Buttons */
+  --btn-bg: 21 21 21; /* #151515 */
+  --btn-text: 245 245 245; /* #f5f5f5 */
+  --btn-border: 34 34 34; /* #222222 */
+  --btn-hover-bg: 37 37 37; /* #252525 */
+  --btn-cta-bg: 7 132 195; /* #0784c3 */
+  --btn-cta-hover-bg: 218 223 227; /* #dadfe3 */
+
+  /* Tabs */
+  --tab-bg-active: 0 147 103; /* #009367 */
+  --tab-text-active: 245 245 245; /* #f5f5f5 */
+  --tab-bg-inactive: 37 37 37; /* #252525 */
+  --tab-text-inactive: 187 187 187; /* #bbbbbb */
+  --tab-bg-hover: 51 51 51; /* #333333 */
+
+  /* Badges / Status */
+  --badge-bg-success: 15 31 29; /* #0f1f1d */
+  --badge-text-success: 0 161 134; /* #00a186 */
+  --badge-bg-success-soft: 0 161 134 / 0.5; /* #00a18680 */
+  --badge-bg-warning: 23 21 13; /* #17150d */
+  --badge-bg-pending: 68 70 72; /* #444648 */
+  --badge-text-warning: 251 191 36; /* #fbbf24 */
+  --badge-bg-warning-soft: 251 191 36 / 0.5; /* #fbbf2480 */
+  --badge-bg-error: 127 29 29 / 0.4; /* #7f1d1d66 */
+  --badge-bg-error-strong: 248 113 113 / 0.5; /* #f8717180 */
+  --badge-text-error: 248 113 113; /* #f87171 */
+
+  /* Accents */
+  --accent: 0 161 134; /* #00a186 */
+  --accent-strong: 0 147 103; /* #009367 */
+}
+

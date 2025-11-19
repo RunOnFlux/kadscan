@@ -1,0 +1,346 @@
+<script setup lang="ts">
+import { ref, watch, computed, onMounted } from 'vue';
+import IconDownload from '~/components/icon/Download.vue';
+import { useStatus } from '~/composables/useStatus';
+import StatusBadge from '~/components/StatusBadge.vue';
+import DataTable from '~/components/DataTable.vue';
+import FilterSelect from '~/components/FilterSelect.vue';
+import Tooltip from '~/components/Tooltip.vue';
+import Copy from '~/components/Copy.vue';
+import SkeletonTable from '~/components/skeleton/Table.vue';
+import ColumnGas from '~/components/column/Gas.vue';
+import { useAccountTransactions } from '~/composables/useAccountTransactions';
+import { useFormat } from '~/composables/useFormat';
+import { useSharedData } from '~/composables/useSharedData';
+import { useScreenSize } from '~/composables/useScreenSize';
+import { exportableToCsv, downloadCSV } from '~/composables/useCSV';
+import { useBlocks } from '~/composables/useBlocks';
+
+const props = defineProps<{
+  accountName: string;
+}>();
+
+const route = useRoute();
+const router = useRouter();
+const { truncateAddress } = useFormat();
+const { selectedNetwork } = useSharedData();
+const { isMobile } = useScreenSize();
+
+const { 
+  transactions,
+  loading,
+  fetchAccountTransactions,
+  pageInfo,
+  totalCount,
+  rowsToShow,
+  updateRowsToShow,
+  clearState: clearTransactionsState,
+} = useAccountTransactions();
+
+const { 
+  lastBlockHeight, 
+  fetchLastBlockHeight, 
+  error: blocksError, 
+  clearState: clearBlocksState 
+} = useBlocks();
+
+const selectedChain = ref({ label: 'All', value: null as string | null });
+const chainOptions = computed(() => {
+  const options = [{ label: 'All', value: null as string | null }];
+  for (let i = 0; i <= 19; i++) {
+    options.push({ label: i.toString(), value: i.toString() });
+  }
+  return options;
+});
+
+const initChainFromUrl = () => {
+  const q = route.query.chain as string | undefined;
+  if (q === undefined) return;
+  const n = parseInt(q, 10);
+  const isValid = !Number.isNaN(n) && n >= 0 && n <= 19;
+  if (isValid) {
+    selectedChain.value = { label: n.toString(), value: n.toString() };
+  } else {
+    const newQuery: Record<string, any> = { ...route.query };
+    delete newQuery.chain;
+    router.replace({ query: newQuery });
+    selectedChain.value = { label: 'All', value: null };
+  }
+};
+
+const tableHeaders = [
+  { key: 'requestKey', label: 'Request Key' },
+  { key: 'method', label: 'Method' },
+  { key: 'height', label: 'Block' },
+  { key: 'chainId', label: 'Chain' },
+  { key: 'status', label: 'Status' },
+  { key: 'time', label: 'Time' },
+  { key: 'sender', label: 'Sender' },
+  { key: 'gas', label: 'Gas' },
+  { key: 'gasLimit', label: 'Gas Limit' },
+  { key: 'fee', label: 'Fee' },
+];
+
+const rowOptions = [
+  { label: '10', value: 10 },
+  { label: '25', value: 25 },
+  { label: '50', value: 50 },
+];
+
+const currentPage = ref(1);
+const loadingPage = ref(false);
+
+const selectedRowOption = computed({
+  get: () => rowOptions.find(option => option.value === rowsToShow.value) || rowOptions[0],
+  set: (value) => {
+    if (value) updateRowsToShow(value);
+  },
+});
+
+const totalPages = computed(() => {
+  if (!totalCount.value) return 1;
+  return Math.ceil(totalCount.value / rowsToShow.value);
+});
+
+const subtitle = computed(() => {
+  if (!transactions.value || loading.value || !totalCount.value) return '';
+  const itemsBefore = (currentPage.value - 1) * rowsToShow.value;
+  const remaining = Math.max(totalCount.value - itemsBefore, 0);
+  const pageCount = Math.min(rowsToShow.value, remaining);
+  const newestTxIndex = totalCount.value - itemsBefore;
+  const oldestTxIndex = Math.max(newestTxIndex - pageCount + 1, 1);
+  const formattedNewest = new Intl.NumberFormat().format(newestTxIndex);
+  const formattedOldest = new Intl.NumberFormat().format(oldestTxIndex);
+  return `Showing transactions between #${formattedOldest} to #${formattedNewest}`;
+});
+
+function getFeeInKda(item: any) {
+  if (!item.gas || !item.rawGasPrice) return '0.0';
+  const feeInKda = item.gas * item.rawGasPrice;
+  if (feeInKda === 0) return '0.0';
+  const formattedFee = new Intl.NumberFormat('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 12 }).format(feeInKda);
+  return `${formattedFee}`;
+}
+
+// Method formatters (same as transactions list)
+const formatMethod = computed(() => (val?: string) => {
+  if (!val || val === '-') return 'Transaction'
+  const replaced = String(val).replace(/-/g, ' ')
+  const titleCased = replaced.replace(/\b([a-zA-Z])/g, (m) => m.toUpperCase())
+  return titleCased.length > 15 ? titleCased.slice(0, 15) + '...' : titleCased
+})
+
+const formatMethodFull = computed(() => (val?: string) => {
+  if (!val || val === '-') return 'Transaction'
+  const replaced = String(val).replace(/-/g, ' ')
+  return replaced.replace(/\b([a-zA-Z])/g, (m) => m.toUpperCase())
+})
+
+const { transactionStatus } = useStatus(lastBlockHeight);
+
+// Filter out transactions from orphaned blocks
+const filteredTransactions = computed(() => {
+  if (!transactions.value || !lastBlockHeight || !lastBlockHeight.value) return [] as any[];
+  return transactions.value.filter((tx: any) => !(lastBlockHeight.value - 6 >= tx.height && !tx.canonical));
+});
+
+// Clear state on mount to show skeleton
+onMounted(() => {
+  initChainFromUrl();
+  clearTransactionsState();
+  clearBlocksState();
+});
+
+// Keep selectedChain in sync with the URL even when the table is not rendered
+watch(() => route.query.chain, (q) => {
+  const str = typeof q === 'string' ? q : undefined;
+  if (str === undefined) {
+    selectedChain.value = { label: 'All', value: null };
+    return;
+  }
+  const n = parseInt(str, 10);
+  const isValid = !Number.isNaN(n) && n >= 0 && n <= 19;
+  selectedChain.value = isValid
+    ? { label: n.toString(), value: n.toString() }
+    : { label: 'All', value: null };
+});
+
+// 1) React to network or chain change: reset to page 1 and refresh counts
+watch(
+  [selectedNetwork, selectedChain],
+  async ([network], [oldNetwork, oldChain]) => {
+    if (!network || !props.accountName) return;
+
+    const networkChanged = !oldNetwork || network.id !== oldNetwork.id;
+    const chainChanged = !!oldChain && selectedChain.value.value !== oldChain.value;
+
+    if (networkChanged || chainChanged) {
+      clearTransactionsState();
+      clearBlocksState();
+      await fetchLastBlockHeight({ networkId: network.id });
+      currentPage.value = 1;
+      const params: { networkId: string; accountName: string; chainId?: string } = {
+        networkId: network.id,
+        accountName: props.accountName,
+      };
+      if (selectedChain.value.value !== null) params.chainId = selectedChain.value.value as string;
+      await fetchAccountTransactions(params);
+      loadingPage.value = false;
+    }
+  },
+  { immediate: true }
+);
+
+// 2) React to rows-per-page change: reset to page 1 and refetch
+watch(rowsToShow, async (newRows, oldRows) => {
+  const network = selectedNetwork.value;
+  if (!network || !props.accountName) return;
+  if (newRows === oldRows) return;
+  currentPage.value = 1;
+  const params: { networkId: string; accountName: string; chainId?: string } = {
+    networkId: network.id,
+    accountName: props.accountName,
+  };
+  if (selectedChain.value.value !== null) params.chainId = selectedChain.value.value as string;
+  await fetchAccountTransactions(params);
+  loadingPage.value = false;
+});
+
+// 3) React to page change only: fetch the next/prev page using cursors
+watch(currentPage, async (newPage, oldPage) => {
+  const network = selectedNetwork.value;
+  if (!network || !props.accountName) return;
+  if (!newPage || newPage === oldPage) return;
+
+  const params: { networkId: string; accountName: string; after?: string; before?: string; toLastPage?: boolean; chainId?: string } = {
+    networkId: network.id,
+    accountName: props.accountName,
+  };
+  if (selectedChain.value.value !== null) params.chainId = selectedChain.value.value as string;
+
+  if (newPage > oldPage) {
+    params.after = pageInfo.value?.endCursor;
+  } else if (newPage < oldPage) {
+    params.before = pageInfo.value?.startCursor;
+  }
+
+  if (newPage === totalPages.value) {
+    params.after = null as any;
+    params.before = null as any;
+    params.toLastPage = true;
+  }
+
+  await fetchAccountTransactions(params);
+  loadingPage.value = false;
+});
+
+// CSV download
+function downloadData() {
+  const rows = (filteredTransactions.value || []).map((item: any) => {
+    const statusText = transactionStatus(item.height, item.canonical, item.badResult)?.text || ''
+    const feeInKda = (() => {
+      if (!item?.gas || !item?.rawGasPrice) return '0.0'
+      const fee = item.gas * item.rawGasPrice
+      if (!Number.isFinite(fee) || fee === 0) return '0.0'
+      const formatted = new Intl.NumberFormat('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 12 }).format(fee)
+      return `${formatted}`
+    })()
+    return {
+      ...item,
+      time: item?.timeUtc || item?.time,
+      method: formatMethodFull.value(item.method),
+      status: statusText,
+      fee: feeInKda,
+      gasLimit: item?.rawGasLimit ?? item?.gasLimit ?? '',
+    }
+  })
+  const csv = exportableToCsv(rows, tableHeaders);
+  downloadCSV(csv, `kadena-account-transactions-page-${currentPage.value}.csv`);
+}
+</script>
+
+<template>
+  <div>
+    <SkeletonTable v-if="loading" />
+
+    <DataTable
+      v-else-if="filteredTransactions && filteredTransactions.length > 0"
+      :headers="tableHeaders"
+      :items="filteredTransactions"
+      :totalItems="totalCount"
+      itemNamePlural="transactions"
+      :subtitle="subtitle"
+      v-model:currentPage="currentPage"
+      :totalPages="totalPages"
+      v-model:selectedRows="selectedRowOption"
+      :rowOptions="rowOptions"
+      v-model:loadingPage="loadingPage"
+      :has-next-page="pageInfo?.hasNextPage"
+      :has-previous-page="pageInfo?.hasPreviousPage"
+    >
+      <template #actions>
+        <button
+          @click="downloadData"
+          class="flex items-center gap-2 px-2 py-1 text-[12px] font-normal text-font-primary bg-surface-disabled border border-line-default rounded-md hover:bg-surface-hover whitespace-nowrap"
+        >
+          <IconDownload class="w-4 h-4 text-font-secondary" />
+          <span class="hidden md:inline">Download</span>
+        </button>
+      </template>
+
+      <template #requestKey="{ item }">
+        <div class="flex items-center">
+          <Tooltip :value="item.requestKey" variant="hash">
+            <NuxtLink :to="`/transactions/${item.requestKey}`" class="text-link hover:text-link-hover">{{ truncateAddress(item.requestKey, 10, 10) }}</NuxtLink>
+          </Tooltip>
+          <Copy :value="item.requestKey" tooltipText="Copy Transaction Request Key" />
+        </div>
+      </template>
+      <template #height="{ item }">
+        <span v-if="item.time === 0 || item.height === 0" class="text-font-primary">Genesis</span>
+        <NuxtLink v-else :to="`/blocks/${item.height}/chain/${item.chainId}`" class="text-link hover:text-link-hover">{{ item.height }}</NuxtLink>
+      </template>
+      <template #status="{ item }">
+        <StatusBadge :status="transactionStatus(item.height, item.canonical, item.badResult)" />
+      </template>
+      <template #sender="{ item }">
+        <div class="flex items-center">
+          <template v-if="item.sender && item.sender !== 'N/A'">
+            <Tooltip :value="item.sender" variant="hash">
+              <NuxtLink :to="`/account/${item.sender}`" class="text-link hover:text-link-hover">{{ truncateAddress(item.sender, 10, 10) }}</NuxtLink>
+            </Tooltip>
+            <Copy :value="item.sender" tooltipText="Copy Address" />
+          </template>
+          <span v-else-if="item.time === 0 || (item.sender === 'NaN' || !item.sender || item.sender === 'N/A')" class="text-font-primary">Genesis</span>
+          <span v-else class="text-font-primary">NaN</span>
+        </div>
+      </template>
+      <template #gas="{ item }">
+        <ColumnGas :gas="item.gas" :gas-limit="item.rawGasLimit" />
+      </template>
+      <template #method="{ item }">
+        <div class="flex items-center">
+          <Tooltip :value="formatMethodFull(item.method)">
+            <span class="px-2 py-1.5 bg-surface-disabled rounded-md border border-line-strong text-[11px] text-font-primary font-normal inline-flex items-center justify-center leading-none w-[120px]">
+              {{ formatMethod(item.method) }}
+            </span>
+          </Tooltip>
+        </div>
+      </template>
+      <template #fee="{ item }">
+        <span class="text-font-primary">{{ getFeeInKda(item) }}</span>
+      </template>
+    </DataTable>
+    
+    <!-- Empty state -->
+    <div v-else class="bg-surface-primary border border-line-default rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-4">
+      <div class="flex flex-col items-center justify-center py-12">
+        <img src="/empty/txs.png" alt="No transactions" class="w-24 h-24 mb-4 opacity-50" />
+        <h3 class="text-font-primary text-lg font-medium mb-2">No transactions yet</h3>
+        <p class="text-font-secondary text-sm text-center">
+          This account hasn't made any transactions yet.
+        </p>
+      </div>
+    </div>
+  </div>
+</template>

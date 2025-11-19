@@ -1,0 +1,125 @@
+<template>
+  <div ref="container" class="container large grid square-grid"></div>
+</template>
+
+<script setup lang="ts">
+import { onMounted, onUnmounted, ref, watch } from 'vue'
+import * as THREE from 'three'
+import * as anime from 'animejs'
+import { useTheme } from '~/composables/useTheme'
+
+const container = ref<HTMLDivElement | null>(null)
+let renderer: THREE.WebGLRenderer | undefined
+
+onMounted(() => {
+  if (!container.value) {
+    return
+  }
+
+  anime.engine.useDefaultMainLoop = false
+
+  const { width, height } = container.value.getBoundingClientRect()
+
+  renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
+  const scene = new THREE.Scene()
+  const camera = new THREE.PerspectiveCamera(65, width / height, 0.1, 20)
+
+  const geometry = new THREE.BoxGeometry(1, 1, 1)
+  const wireframeMaterial = new THREE.MeshBasicMaterial({ wireframe: true });
+  const solidMaterial = new THREE.MeshBasicMaterial({ wireframe: true });
+
+  const { theme } = useTheme()
+  const accentStrong = '#00e19d'
+  const white = '#ffffff'
+
+  function applyThemeToMaterials(current: 'light' | 'dim' | 'dark') {
+    if (current === 'light') {
+      wireframeMaterial.color.set(accentStrong)
+      solidMaterial.color.set(accentStrong)
+    } else if (current === 'dim') {
+      wireframeMaterial.color.set(white)
+      solidMaterial.color.set(white)
+    } else {
+      wireframeMaterial.color.set(white)
+      solidMaterial.color.set(accentStrong)
+    }
+  }
+
+  applyThemeToMaterials(theme.value)
+  watch(theme, (t) => applyThemeToMaterials(t))
+
+  renderer.setSize(width, height)
+  renderer.setPixelRatio(window.devicePixelRatio)
+  container.value.appendChild(renderer.domElement)
+  camera.position.z = 5
+
+  function createAnimatedCube() {
+    const material = anime.utils.random(1, 10) === 1 ? solidMaterial : wireframeMaterial;
+    const cube = new THREE.Mesh(geometry, material)
+
+    const startX = -80;
+    const endX = 80;
+    
+    const startY = anime.utils.random(-15, 15);
+    const endY = anime.utils.random(-15, 15);
+
+    const startZ = anime.utils.random(-15, -5);
+    const endZ = anime.utils.random(-10, 7);
+
+    const r = () => anime.utils.random(-Math.PI * 2, Math.PI * 2)
+    const duration = 20000;
+    
+    anime.createTimeline({
+      delay: anime.utils.random(0, duration),
+      defaults: { loop: true, duration, ease: 'linear', },
+    })
+    .add(cube.position, { 
+      x: [startX, endX],
+      y: [startY, endY],
+      z: [startZ, endZ] 
+    }, 0)
+    .add(cube.rotation, { x: r, y: r, z: r }, 0)
+    .init();
+    
+    scene.add(cube)
+  }
+
+  for (let i = 0; i < 20; i++) {
+    createAnimatedCube()
+  }
+
+  function render() {
+    anime.engine.update()
+    if(renderer) {
+      renderer.render(scene, camera)
+    }
+  }
+
+  renderer.setAnimationLoop(render)
+
+  const onResize = () => {
+    if (container.value && renderer) {
+      const { width, height } = container.value.getBoundingClientRect();
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
+    }
+  }
+
+  window.addEventListener('resize', onResize)
+
+  onUnmounted(() => {
+    window.removeEventListener('resize', onResize)
+    if (renderer) {
+        renderer.setAnimationLoop(null)
+    }
+  })
+})
+</script>
+
+<style scoped>
+.container {
+  width: 100%;
+  color: #ffffff;
+}
+</style> 

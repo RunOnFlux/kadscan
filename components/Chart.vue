@@ -5,6 +5,14 @@ import { Line } from 'vue-chartjs'
 const props = defineProps<{
   prices: [number[]]
 }>()
+
+const yValues = props.prices.map(([_, value]) => value);
+const yMin = Math.min(...yValues);
+const yMax = Math.max(...yValues);
+
+const range = yMax - yMin;
+const margin = range * 0.2;
+
 const chartData = ref({
   labels: props.prices.map(([label]) => {
     return format(label, 'MMM dd')
@@ -13,28 +21,23 @@ const chartData = ref({
     data: props.prices.map(([_, value]) => {
       return value
     }),
-    fill: true,
-    borderColor: '#00F5AB',
-    backgroundColor: '#00F5AB',
-    borderWidth: 2,
-    tension: 0.4,
+    fill: false,
+    borderColor: '#bbbbbb',
+    borderWidth: 1,
+    tension: 0.2,
     pointRadius: 0,
     hoverRadius: 5,
     hoverOffset: 4,
-    gradient: {
-      backgroundColor: {
-        axis: 'y',
-        colors: {
-          0: 'rgba(0, 245, 171, 0.01)',
-          100: 'rgba(0, 245, 171, 0.2)'
-        }
-      },
-    }
   }]
 })
 const chartOptions = ref({
   maintainAspectRatio: false,
   responsive: true,
+  layout: {
+    padding: {
+      right: 20
+    }
+  },
   plugins: {
     legend: {
       display: false
@@ -67,31 +70,50 @@ const chartOptions = ref({
   },
   scales: {
     x: {
+      border: {
+        display: false,
+      },
       grid: {
         display: false,
       },
       ticks: {
-        maxTicksLimit: 5,
         color: '#939393',
-        background: '#fff',
         font: {
-          size: 12,
+          size: 11,
           family: 'Inter',
         },
+        padding: 5,
+        callback: function(value, index, ticks) {
+          const totalTicks = ticks.length;
+          // Show the first, middle, and last tick.
+          if (index === 0 || index === Math.floor(totalTicks / 2) || index === totalTicks - 1) {
+            return this.getLabelForValue(value);
+          }
+          return '';
+        },
+        minRotation: 0,
+        maxRotation: 0,
+        autoSkip: false,
       }
     },
 
     y: {
+      min: yMin - margin,
+      max: yMax + margin,
+      border: {
+        display: false,
+      },
       grid: {
-        display: false
+        display: false,
       },
       ticks: {
         color: '#939393',
-        maxTicksLimit: 5,
+        maxTicksLimit: 2,
         font: {
-          size: 12,
+          size: 11,
           family: 'Inter',
         },
+        padding: 5,
       }
     }
   }
@@ -100,7 +122,7 @@ const chartOptions = ref({
 
 <template>
   <div
-    class="w-full h-full cursor-pointer"
+    class="w-full h-full cursor-pointer pt-2"
   >
     <Line
       :data="chartData"

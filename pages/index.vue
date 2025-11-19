@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { gql } from 'nuxt-graphql-request/utils';
+import { useBlockFeed } from '~/composables/useBlockFeed';
+import { useTransactionFeed } from '~/composables/useTransactionFeed';
+import { useTransactionCount } from '~/composables/useTransactionCount';
+import { useGasPriceStats } from '~/composables/useAverageGasPrice';
+import { useCustomCardSettings } from '~/composables/useCustomCardSettings';
+import { useSharedData } from '~/composables/useSharedData';
+import { useBinance } from '~/composables/useBinance';
 
 definePageMeta({
   layout: 'app',
@@ -9,188 +15,192 @@ useHead({
   title: 'Kadscan'
 })
 
-const defaultChartData = {
-  market_caps: [],
-  prices: [],
-  total_volumes: []
-}
+const { $coingecko } = useNuxtApp();
+const { fetchKadenaCandlestickData } = useBinance();
+const { kdaPrice, kdaVariation, kdaMarketCap, gasPriceStats: sharedGasStats } = useSharedData();
 
-const { $graphql, $coingecko } = useNuxtApp();
+// This part is complex because the original fetch also gets chart data.
+// For now, we will fetch it separately here. A deeper refactor could move this too.
+const { data: chartData, status: cgStatus } = await useAsyncData('home-chart-etl', async () => {
+  try {
+    const binanceData = await fetchKadenaCandlestickData('1d', 14);
 
-const query = gql`
-  query GetLastBlockAndTransaction {
-    allTransactions(last: 5) {
-      nodes {
-        chainId
-        createdAt
-        id
-        metadata
-        nodeId
-        numEvents
-        requestkey
-        gasprice
-        result
-        sender
-        gas
-      }
+    if (binanceData && binanceData.data) {
+      const prices = binanceData.data.map((kline: any) => [
+        kline[0],
+        parseFloat(kline[4]),
+      ]);
+      return { prices };
     }
-    allBlocks(last: 5) {
-      nodes {
-        chainId
-        parent
-        createdAt
-        hash
-        height
-        id
-        nodeId
-        coinbase
-        minerData
-        transactionsCount
-      }
-    }
+  } catch (error) {
+    console.error('Failed to fetch from Binance, falling back to CoinGecko', error);
   }
-`
 
-const { data: cgData, status: cgStatus, error: cgError } = await useAsyncData('home-cg-etl', async () => {
-  const [
-    token,
-    chartData,
-  ] = await Promise.all([
-    $coingecko.request('coins/kadena'),
-    $coingecko.request('coins/kadena/market_chart', {
+  return await $coingecko.request('coins/kadena/market_chart', {
       days: 14,
       interval: 'daily',
       vs_currency: 'usd',
     })
-  ]);
-
-  return {
-    token,
-    chartData,
-  };
-}, {
-  // remove
-  lazy: true,
 });
 
-const { data, error, status } = await useAsyncData('home-transactions-blocks', async () => {
-  const [
-    apiRes,
-  ] = await Promise.all([
-    $graphql.default.request(query),
-  ]);
+const isCustomizeModalOpen = ref(false);
+const currentCardType = ref<import('~/composables/useCustomCardSettings').CardType>('blocks');
 
-  return {
-    ...apiRes
-  };
-}, {
-  // remove
-  lazy: true,
+watch(isCustomizeModalOpen, (isOpen) => {
+  if (isOpen) {
+    document.body.classList.add('modal-open');
+  } else {
+    document.body.classList.remove('modal-open');
+  }
+});
+
+onUnmounted(() => {
+  document.body.classList.remove('modal-open');
+});
+
+function openModal(cardType: import('~/composables/useCustomCardSettings').CardType) {
+  currentCardType.value = cardType;
+  isCustomizeModalOpen.value = true;
+}
+
+const { sortedBlockGroups } = useBlockFeed();
+const { sortedTransactionGroups } = useTransactionFeed();
+const { getPreset } = useCustomCardSettings();
+const transactionCardPreset = computed(() => getPreset('transactions').value);
+const gasPriceStats = useGasPriceStats();
+const transactionStats = useTransactionCount();
+
+const transactionListTitle = computed(() => {
+  return transactionCardPreset.value
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 });
 </script>
 
 <template>
   <div
-    class="flex flex-col gap-4 lg:gap-10 lg:pt-4"
+    class="flex flex-col"
   >
     <HomeHero />
 
-    <Container
-      class="lg:!p-8 gap-4 lg:gap-6 grid lg:grid-cols-2"
-    >
-      <div
-        class="
-          p-3 lg:p-4 gap-2 lg:gap-4 flex-grow grid lg:grid-cols-2 bg-gray-700 rounded-lg lg:rounded-xl
-        "
-      >
-        <HomeCard
-          :isLoading="cgStatus === 'pending'"
-          :label="'Kadena Price'"
-          :description="moneyCompact.format(cgData?.token?.market_data?.current_price?.usd || 0)"
-          :delta="cgData?.token?.market_data?.price_change_percentage_24h_in_currency?.usd || 0"
-        />
-
-        <HomeCard
-          isDark
-          label="Total volume 24h"
-          :isLoading="cgStatus === 'pending'"
-          :delta="cgData?.token?.market_data?.price_change_percentage_24h"
-          :description="moneyCompact.format(cgData?.token?.market_data?.total_volume?.usd || 0)"
-        />
-
-        <HomeCard
-          label="Market Capital"
-          :isLoading="cgStatus === 'pending'"
-          :description="moneyCompact.format(cgData?.token?.market_data?.market_cap?.usd || 0)"
-        />
-
-        <HomeCard
-          label="Circulating Supply"
-          :isLoading="cgStatus === 'pending'"
-          :description="moneyCompact.format(cgData?.token?.market_data?.circulating_supply || 0)"
-        />
-      </div>
-
-      <div
-        v-if="cgStatus !== 'pending'"
-        class="w-full h-full flex flex-col gap-3 lg:gap-6"
-      >
-        <span
-          class="text-font-400"
-        >
-          KDA Price 14 days
-        </span>
-
-        <div
-          class="h-full max-h-[216px]"
-        >
-          <Chart
-            :key="cgStatus"
-            v-bind="cgData?.chartData || defaultChartData"
-          />
-        </div>
-      </div>
-    </Container>
+    <HomeDashboard
+      :is-loading="cgStatus === 'pending'"
+      :chart-data="chartData"
+      :kadena-price="kdaPrice"
+      :kadena-price-variation="kdaVariation"
+      :market-cap="kdaMarketCap"
+      :block-groups="sortedBlockGroups"
+      :transactions-count="transactionStats"
+      :gas-price-stats="gasPriceStats"
+    />
 
     <div
-      v-if="status === 'pending'"
-      class="grid lg:grid-cols-2 gap-4 lg:gap-6"
+      class="grid lg:grid-cols-2 gap-4 mb-4"
     >
-      <SkeletonHomeTransactionList />
-
-      <SkeletonHomeBlockList />
-    </div>
-
-    <div
-      v-if="status !== 'error' && data"
-      class="grid lg:grid-cols-2 gap-4 lg:gap-6"
-    >
-      <HomeList
-        label="Recent Transactions"
-        path="/transactions"
+      <div
+        v-if="sortedBlockGroups.length === 0"
+        class="grid lg:grid-cols-1 gap-4 lg:gap-6"
       >
-        <HomeTransaction
-          v-bind="transaction"
-          :key="transaction.requestKey"
-          v-for="transaction in data?.allTransactions?.nodes ?? []"
-        />
-      </HomeList>
-
-      <HomeList
-        label="Recent Blocks"
-        path="/blocks"
+        <SkeletonHomeBlockList />
+      </div>
+      <div
+        v-else
+        class="grid lg:grid-cols-1 gap-4 lg:gap-6"
       >
-        <HomeBlock
-          v-bind="block"
-          :key="block.hash"
-          v-for="block in data?.allBlocks?.nodes ?? []"
-        />
-      </HomeList>
+        <HomeList
+          label="Recent Blocks"
+          path="/blocks"
+          :is-customizable="true"
+          @customize="openModal('blocks')"
+        >
+          <TransitionGroup name="block-list" tag="div">
+            <HomeBlock
+              :key="blockGroup.height"
+              :height="blockGroup.height"
+              :chain-count="blockGroup.chains.size"
+              :total-transactions="blockGroup.totalTransactions"
+              :created-at="blockGroup.createdAt"
+              :total-rewards="blockGroup.totalRewards"
+              v-for="(blockGroup, index) in sortedBlockGroups"
+              :index="index"
+              :total-items="sortedBlockGroups.length"
+            />
+          </TransitionGroup>
+        </HomeList>
+      </div>
+      <div
+        v-if="sortedTransactionGroups.length === 0"
+        class="grid lg:grid-cols-1 gap-4 lg:gap-6"
+      >
+        <SkeletonHomeTransactionList />
+      </div>
+      <div
+        v-else
+        class="grid lg:grid-cols-1 gap-4 lg:gap-6"
+      >
+        <HomeList
+          :label="transactionListTitle"
+          path="/transactions"
+          :is-customizable="true"
+          @customize="openModal('transactions')"
+        >
+        <TransitionGroup name="transaction-list" tag="div">
+            <HomeTransaction
+              :key="transaction.hash"
+              :hash="transaction.hash"
+              :sender="transaction.sender"
+              :chain-id="transaction.chainId"
+              :created-at="transaction.createdAt"
+              :fee="transaction.fee"
+              v-for="(transaction, index) in sortedTransactionGroups"
+              :index="index"
+              :total-items="sortedTransactionGroups.length"
+            />
+          </TransitionGroup>
+        </HomeList>
+      </div>
     </div>
-
-    <Error
-      v-else-if="status === 'error'"
-      :error="error"
+    <CustomizeModal
+      :is-open="isCustomizeModalOpen"
+      :card-type="currentCardType"
+      @close="isCustomizeModalOpen = false"
     />
   </div>
 </template>
+
+<style scoped>
+.transaction-list-move,
+.transaction-list-enter-active,
+.transaction-list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.transaction-list-enter-from,
+.transaction-list-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+
+.transaction-list-leave-active {
+  position: absolute;
+  width: 100%;
+}
+
+.block-list-move,
+.block-list-enter-active,
+.block-list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.block-list-enter-from,
+.block-list-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+
+.block-list-leave-active {
+  position: absolute;
+  width: 100%;
+}
+</style>

@@ -1,91 +1,98 @@
 <script setup lang="ts">
-withDefaults(
-  defineProps<{
+import { ref, computed, watch, nextTick } from 'vue';
+import { usePopper } from '~/composables/usePopper';
+
+const props = withDefaults(defineProps<{
   value?: string,
-  }>(),
-  {
-    value: 'Lorem ipsum dollor'
+  variant?: 'default' | 'hash',
+  offsetDistance?: number,
+  disabled?: boolean,
+  placement?: 'top' | 'right' | 'bottom' | 'left',
+}>(), {
+  offsetDistance: 4,
+  disabled: false,
+  placement: 'top',
+});
+
+const isVisible = ref(false);
+const [reference, popper, instance] = usePopper({
+  placement: props.placement,
+  offsetDistance: props.offsetDistance
+});
+
+watch(() => props.value, () => {
+  if (instance.value && isVisible.value) {
+    instance.value.update();
   }
-)
+});
 
-const open = ref(false)
-
-const [trigger, container] = usePopper({
-  placement: 'top'
-})
-
-let openTimeout: NodeJS.Timeout | null = null
-let closeTimeout: NodeJS.Timeout | null = null
-
-const onMouseEnter = () => {
-  if (closeTimeout) {
-    clearTimeout(closeTimeout)
-    closeTimeout = null
+watch(isVisible, async (visible) => {
+  if (visible) {
+    await nextTick();
+    if (instance.value) {
+      instance.value.update();
+    }
   }
+});
 
-  if (open.value) {
-    return
+const tooltipClass = computed(() => {
+  const base = 'z-10 w-max';
+  if (props.variant === 'hash') {
+    return `${base} max-w-md`;
   }
+  return `${base} max-w-[200px]`;
+});
 
-  openTimeout = openTimeout || setTimeout(() => {
-    open.value = true
-    openTimeout = null
-  }, 140)
-}
-
-const onMouseLeave = () => {
-  if (openTimeout) {
-    clearTimeout(openTimeout)
-    openTimeout = null
+const arrowClass = computed(() => {
+  const base = '-z-10 absolute w-3 h-3 bg-line-strong rotate-45';
+  switch (props.placement) {
+    case 'top':
+      return `${base} left-1/2 -translate-x-1/2 bottom-[-4px]`;
+    case 'right':
+      return `${base} left-[-4px] top-1/2 -translate-y-1/2`;
+    case 'bottom':
+      return `${base} left-1/2 -translate-x-1/2 top-[-4px]`;
+    case 'left':
+      return `${base} right-[-4px] top-1/2 -translate-y-1/2`;
+    default:
+      return '';
   }
-
-  if (!open.value) {
-    return
-  }
-  closeTimeout = closeTimeout || setTimeout(() => {
-    open.value = false
-    closeTimeout = null
-  }, 140)
-}
+});
 </script>
 
 <template>
   <div
-    ref="trigger"
-    @mouseenter="onMouseEnter"
-    @mouseleave="onMouseLeave"
+    ref="reference"
+    class="relative inline-block"
+    @mouseenter="!disabled && (isVisible = true)"
+    @mouseleave="isVisible = false"
   >
-    <div
-      v-if="open"
-      ref="container"
-    >
-      <div
-        class="
-          w-max
-          max-w-[336px]
-          text-center
-          p-2
-          bg-gray-400 rounded grid place-items-center
-        "
-      >
-        <span
-          class="text-white text-xs leading-[19.6px] relative font-[500]"
+    <slot />
+    <Teleport to="body">
+      <Transition name="fade">
+        <div
+          ref="popper"
+          v-show="isVisible"
+          :class="tooltipClass"
         >
-          {{ value }}
-        </span>
-      </div>
-
-      <div
-        class="hidden md:block w-[15px] h-[15px] bg-gray-400 rotate-45 z-[-1] absolute bottom-[-4px] left-1/2 -translate-x-1/2"
-      />
-    </div>
-
-    <div
-      class="group cursor-pointer"
-    >
-      <IconInformation
-        class="group-hover:text-kadscan-500 text-font-500"
-      />
-    </div>
+          <div class="z-[10] bg-line-strong text-font-primary text-xs px-2 py-1 rounded-md shadow-lg relative text-center isolate">
+            {{ value }}
+            <div :class="arrowClass"></div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

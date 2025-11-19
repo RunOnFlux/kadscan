@@ -7,13 +7,10 @@ defineProps<{
 
 <template>
   <div
-    class="border border-gray-300 px-3 py-1 rounded cursor-pointer"
-    :class="isActive ? 'bg-gray-300' : 'hover:bg-gray-200'"
+    class="cursor-pointer px-2 py-1 rounded-lg text-[12px] font-medium transition-colors whitespace-nowrap relative"
+    :class="isActive ? 'bg-accent-strong text-btn-text' : 'bg-surface-hover text-font-secondary hover:bg-tab-bg-hover'"
   >
-    <span
-      class="text-white text-sm"
-      :class="isActive && '!text-kadscan-500'"
-    >
+    <span>
       {{ label }}
     </span>
   </div>

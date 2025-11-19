@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { staticTokens, unknownToken } from '~/constants/tokens'
 const props = defineProps<{
   module: string,
 }>()
@@ -6,18 +7,20 @@ const props = defineProps<{
 const metadata = computed(() => {
   return staticTokens.find(({ module }) => module === props.module) || unknownToken
 })
+const { recordHistory } = useSearch();
 </script>
 
 <template>
   <NuxtLink
-    :to="metadata?.id ? `/tokens/${metadata.id}` : `/tokens/${module}`"
-    class="flex items-center justify-between w-full"
+    :to="`/token/${encodeURIComponent(module)}`"
+    @click="recordHistory(module, 'tokens')"
+    class="py-2 px-2 flex items-center gap-2 w-full hover:bg-surface-secondary hover:rounded-md"
   >
     <div
       class="flex items-center gap-2"
     >
       <div
-        class="h-6 w-6 rounded shrink-0"
+        class="h-7 w-7 rounded shrink-0"
       >
         <img
           v-if="metadata.icon"
@@ -27,34 +30,25 @@ const metadata = computed(() => {
 
         <div
           v-else
-          class="w-full h-full bg-gray-300 rounded"
+          class="w-full h-full bg-line-muted rounded"
         />
       </div>
 
       <div
-        class="flex gap-2 items-end w-full truncate"
+        class="flex flex-col w-full truncate"
       >
         <span
-          class="text-sm text-font-400 truncate block"
+          class="text-sm text-font-primary font-medium uppercase truncate block"
         >
-          {{ metadata.name }}
+          {{ metadata?.symbol ? `$${metadata.symbol}` : module }}
         </span>
 
         <span
-          v-if="metadata.symbol"
-          class="text-font-400 text-sm font-medium uppercase"
+          class="text-font-tertiary text-xs truncate"
         >
-          ({{ metadata.symbol }})
+          {{ module }}
         </span>
       </div>
-    </div>
-
-    <div>
-      <span
-        class="text-font-400 text-sm font-medium"
-      >
-        {{ module }}
-      </span>
     </div>
   </NuxtLink>
 </template>

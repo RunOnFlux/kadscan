@@ -1,6 +1,7 @@
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   addresses: any,
+  onRecordHistory?: (q: string, type?: string | null) => void,
 }>()
 </script>
 
@@ -9,21 +10,23 @@ defineProps<{
     class="flex flex-col"
   >
     <div
-      class="pb-2"
+      class="pb-1 px-2 pt-3"
     >
       <span
-        class="text-white text-sm"
+        class="text-[11px] font-medium text-font-secondary mb-[1px]"
       >
-        Addresses
+        ADDRESSES
       </span>
     </div>
 
-    <SearchViewAddressItem
-      v-bind="address"
-      class="py-3"
-      :key="'address:'+i+address.id"
-      v-for="(address, i) in addresses"
-      :class="[!((i + 1) === addresses.length) && '!border-b border-b-gray-300']"
-    />
+    <div class="flex flex-col gap-2">
+      <SearchViewAddressItem
+        v-bind="address"
+        class="py-2"
+        :key="'address:'+i+address.id"
+        v-for="(address, i) in addresses"
+        @select="props.onRecordHistory && props.onRecordHistory(address.account, 'account')"
+      />
+    </div>
   </div>
 </template>

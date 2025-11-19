@@ -1,6 +1,7 @@
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   transactions: any,
+  onRecordHistory?: (q: string, type?: string | null) => void,
 }>()
 </script>
 
@@ -9,21 +10,23 @@ defineProps<{
     class="flex flex-col gap-2"
   >
     <div
-      class="pb-2"
+      class="pb-1 px-2 pt-3"
     >
       <span
-        class="text-white text-sm"
+        class="text-[11px] font-medium text-font-secondary mb-[1px]"
       >
-        Transactions
+        TRANSACTIONS
       </span>
     </div>
 
-    <SearchViewTransactionItem
-      v-bind="transaction"
-      class="py-3"
-      :key="'transaction:'+transaction.id"
-      v-for="(transaction, i) in transactions"
-      :class="[!((i + 1) === transactions.length) && '!border-b border-b-gray-300']"
-    />
+    <div class="flex flex-col gap-2">
+      <SearchViewTransactionItem
+        v-bind="transaction"
+        class="py-2"
+        :key="'transaction:'+transaction.id"
+        v-for="(transaction, i) in transactions"
+        @select="props.onRecordHistory && props.onRecordHistory(transaction.requestkey, 'transactions')"
+      />
+    </div>
   </div>
 </template>

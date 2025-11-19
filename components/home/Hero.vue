@@ -1,33 +1,61 @@
 <script lang="ts" setup />
 
 <template>
-  <div
-    class="
-      flex items-center justify-between bg-[linear-gradient(180deg,_#01D796_0%,_#009367_105.48%)]
-      gap-2 rounded-xl lg:rounded-2xl py-6 lg:py-[52px] px-4 lg:px-[48px]"
-  >
-    <div
-      class="flex flex-col justify-between gap-4 lg:gap-6 w-full"
-    >
-      <h1
-        class="
-          text-font-400
-          font-semibold lg:font-[700]
-          text-xl lg:text-[40px]
-          leading-[28px] lg:leading-[140%]"
-      >
-        Explore Kadena Blockchain
+  <div class="grid lg:grid-cols-[1fr_auto] mb-10">
+    <div class="flex flex-col justify-between w-full py-6">
+      <h1 class="text-font-primary font-semibold text-[20px] mb-2 my-2">
+        Kadena Block Explorer
       </h1>
 
       <SearchInput />
     </div>
 
-    <div
-      class="hidden xl:flex bg-gray-800 rounded-xl w-full max-w-[420px] lg:h-[132px] items-center justify-center"
+    <a
+      href="https://www.kadindexer.io/"
+      target="_blank"
+      rel="noopener noreferrer"
+      style="
+        background: linear-gradient(
+          100deg,
+          rgb(var(--accent-strong)) 66%,
+          color-mix(in oklab, rgb(var(--accent-strong)), rgb(var(--surface-black)) 25%) 100%
+        );
+        box-shadow: 0 0 15px 0 rgb(var(--accent-strong) / 0.5);
+      "
+      class="relative hidden lg:flex p-4 rounded-xl text-surface-white w-[400px] h-[125px] flex-shrink-0 mx-[60px] self-center"
     >
-      <IconLogoWhite
-        class="h-10"
-      />
-    </div>
+      <div class="flex items-center gap-4 h-full">
+        <div class="flex flex-col">
+          <h2 class="font-bold text-lg leading-tight">
+            Kadscan is powered by Kadindexer
+          </h2>
+          <p class="text-xs font-light leading-tight mt-1">
+            Build better on Kadena using a fast, reliable and developer friendly GraphQL API with access to all of Kadena's data.
+          </p>
+          <div class="font-semibold text-sm flex items-center mt-2">
+            Kadindexer
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          </div>
+        </div>
+        <img
+          src="/kadindexer-logo.png"
+          alt="Kadindexer Logo"
+          class="h-12 w-12 flex-shrink-0 mb-[33px]"
+        />
+      </div>
+    </a>
   </div>
 </template>

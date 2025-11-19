@@ -4,60 +4,51 @@ definePageMeta({
 })
 
 useHead({
-  title: '404'
+  title: 'Page Not Found'
 })
 
+onMounted(() => {
+  const route = useRoute()
+  if (route.path !== '/error') {
+    navigateTo('/error', { replace: true })
+  }
+})
 </script>
 
 <template>
-  <div
-    class="flex flex-col h-[calc(100vh-120px)] flex items-center justify-center"
-  >
+  <div class="relative h-full z-0">
+    <!-- Background image (behind content only, not the footer) -->
     <div
-      class="flex flex-col items-center justify-center bg-gray-800 p-8 rounded-2xl max-w-[414px]"
-    >
-      <Icon404 />
+      class="absolute left-1/2 -translate-x-1/2 top-0 -bottom-10 md:-bottom-20 -z-10 w-[100vw] bg-cover bg-center opacity-100 pointer-events-none"
+      style="background-image: url('/404.svg');"
+      aria-hidden="true"
+    />
+    <!-- Content positioned like Etherscan - higher on page, not centered -->
+    <div class="pt-20 pb-16">
 
-      <div
-        class="pt-4 flex flex-col gap-2 text-center"
-      >
-        <h1
-          class="text-font-400 text-2xl font-semibold"
-        >
-          Oops! Page not found
+      <div class="mb-4">
+
+        <h1 class="text-2xl md:text-3xl lg:text-4xl text-font-secondary mb-2">
+          Sorry! We encountered an unexpected error.
         </h1>
+      
+        <p class="text-font-secondary text-[14px]">
+          An unexpected error occurred or the page you are looking for does not exist.
+        </p>
 
-        <span
-          class="text-font-400"
-        >
-          Sorry, we couldn't find the page you where looking for
-        </span>
+        <p class="text-font-secondary text-[14px]">
+          Please check again later.
+        </p>
+
       </div>
-
-      <div
-        class="pt-6"
-      >
-        <NuxtLink
-          to="/"
-        >
-          <Button
-            size="large"
-            type="filled"
-            label="Back home"
-          />
+      
+      <div class="py-5">
+        <NuxtLink to="/">
+          <button class="bg-accent-strong hover:bg-accent-strong/80 text-font-primary px-3 py-1.5 rounded-lg transition-colors duration-200 text-[15px]">
+            Back Home
+          </button>
         </NuxtLink>
       </div>
     </div>
-
-    <div
-      class="fixed bottom-0 blockskull shrink-0 w-full z-[-1]"
-    />
   </div>
 </template>
-
-<style >
-  .blockskull {
-    height: 420px;
-    background: linear-gradient(to bottom, #000000 25%, #004d00 100%);
-  }
-</style>

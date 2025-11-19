@@ -1,160 +1,628 @@
 <script setup lang="ts">
-import { TabPanel } from '@headlessui/vue'
-import { gql } from 'nuxt-graphql-request/utils';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { useAccountNFTs } from '~/composables/useAccountNFTs'
+import { formatDistanceToNowStrict } from 'date-fns'
+import { useScreenSize } from '~/composables/useScreenSize'
+import { useAccount } from '~/composables/useAccount'
+import { useBinance } from '~/composables/useBinance'
+import { useSharedData } from '~/composables/useSharedData'
+import KadenaIcon from '~/components/icon/Kadena.vue'
+import UpperRightArrow from '~/components/icon/UpperRightArrow.vue'
+import Coins from '~/components/icon/Coins.vue'
+import Copy from '~/components/Copy.vue'
+import AccountTransactions from '~/components/account/AccountTransactions.vue'
+import AccountTokenTransfers from '~/components/account/AccountTokenTransfers.vue'
+import AccountNFTTransfers from '~/components/account/AccountNFTTransfers.vue'
+import AccountAssets from '~/components/account/AccountAssets.vue'
+import AccountTokenHoldings from '~/components/account/AccountTokenHoldings.vue'
+import { useAccountBalances } from '~/composables/useAccountBalances'
+import { transformRawBalances } from '~/composables/useFormat'
+import { useFormat } from '~/composables/useFormat'
+import QrIcon from '~/components/icon/Qr.vue'
+import Tooltip from '~/components/Tooltip.vue'
+import QrModal from '~/components/qr/Modal.vue'
+import Select from '~/components/Select.vue'
+import AccountAddressIcon from '~/components/account/AccountAddressIcon.vue'
 
 definePageMeta({
   layout: 'app',
+  middleware: ['sanitize-chain'],
+})
+
+const { isMobile } = useScreenSize()
+const route = useRoute()
+
+// Get address from route params
+const address = computed(() => route.params.address as string)
+
+// Use composables
+const { 
+  accountData, 
+  accountLoading, 
+  transfersLoading,
+  firstTransaction,
+  lastTransaction,
+  fetchAccount,
+  fetchFirstAndLastTransfers,
+  clearState: clearAccountState,
+} = useAccount()
+const { fetchKadenaPrice } = useBinance()
+const { selectedNetwork } = useSharedData()
+const { truncateAddress, formatKda } = useFormat()
+const { fetchAccountNFTs, startMetadataQueue } = useAccountNFTs()
+
+// Reactive state for KDA price and time updates
+const kdaPrice = ref<number>(0)
+const isHydrated = ref(false)
+
+// Computed properties for time formatting
+const firstTransactionTimeAgo = computed(() => {
+  if (!firstTransaction.value?.creationTime) return 'N/A'
+  const time = new Date().value
+  const distance = formatDistanceToNowStrict(new Date(firstTransaction.value.creationTime), { addSuffix: true })
+  return distance.replace(' seconds', ' secs').replace(' second', ' sec')
+})
+
+const lastTransactionTimeAgo = computed(() => {
+  if (!lastTransaction.value?.creationTime) return 'N/A'
+  const time = new Date().value 
+  const distance = formatDistanceToNowStrict(new Date(lastTransaction.value.creationTime), { addSuffix: true })
+  return distance.replace(' seconds', ' secs').replace(' second', ' sec')
+})
+
+// Computed values based on real data
+const account = computed(() => {
+  if (!accountData.value) {
+    return {
+      address: address.value,
+      kdaBalance: '0',
+      kdaValue: '0',
+      kdaPrice: kdaPrice.value.toFixed(2),
+      tokenHoldings: '0',
+      tokenCount: '0',
+      lastTransactionCreationTime: null,
+      firstTransactionCreationTime: null,
+      fundedBy: null,
+      height: null,
+      chainId: null,
+      multichainPortfolio: '0',
+      guards: []
+    }
+  }
+
+  const data = accountData.value
+  const totalBalance = data.totalBalance || 0
+  // Validate chain from URL param
+  const q = route.query.chain as string | undefined
+  const n = q !== undefined ? parseInt(q, 10) : undefined
+  const isValidChain = n !== undefined && !Number.isNaN(n) && n >= 0 && n <= 19
+
+  // Build guards from chainAccounts
+  const allGuards = (data.chainAccounts?.map((chainAccount: any) => ({
+    chainId: chainAccount.chainId,
+    predicate: chainAccount.guard?.predicate || 'N/A',
+    keys: (Array.isArray(chainAccount.guard?.keys) && chainAccount.guard?.keys.length > 0)
+      ? chainAccount.guard.keys
+      : ["N/A"]
+  })) || []) as Array<{ chainId: number | string; predicate: string; keys: string[] }>
+
+  // Select chain-specific balance and guard if a valid chain is present
+  let displayBalance = totalBalance
+  // Only show guards when a specific valid chain is selected
+  let guardsForView: typeof allGuards = []
+  let displayChainId: string | null = null
+
+  if (isValidChain) {
+    const chainAccount = (data.chainAccounts || []).find((c: any) => `${c.chainId}` === `${n}`)
+    if (chainAccount) {
+      displayBalance = Number(chainAccount.balance || 0)
+      guardsForView = [{
+        chainId: chainAccount.chainId,
+        predicate: chainAccount.guard?.predicate || 'N/A',
+        keys: (Array.isArray(chainAccount.guard?.keys) && chainAccount.guard?.keys.length > 0)
+          ? chainAccount.guard.keys
+          : ["N/A"]
+      }]
+      displayChainId = `${chainAccount.chainId}`
+    } else {
+      // No data for that chain: show 0 balance and no guards
+      displayBalance = 0
+      guardsForView = []
+      displayChainId = `${n}`
+    }
+  }
+
+  const kdaValue = displayBalance * kdaPrice.value
+
+      
+  return {
+    address: data.accountName || address.value,
+    kdaBalance: formatKda(displayBalance, 12),
+    kdaValue: kdaValue.toFixed(2),
+    kdaPrice: kdaPrice.value.toFixed(2),
+    tokenHoldings: '0', // Will be implemented later
+    tokenCount: '0', // Will be implemented later
+    lastTransactionCreationTime: lastTransactionTimeAgo.value || null,
+    firstTransactionCreationTime: firstTransactionTimeAgo.value || null,
+    fundedBy: firstTransaction.value?.fundedBy || null,
+    height: firstTransaction.value?.height === 0 ? '0' : firstTransaction.value?.height || null,
+    chainId: displayChainId ?? (firstTransaction.value?.chainId === 0 ? '0' : firstTransaction.value?.chainId || null),
+    multichainPortfolio: kdaValue.toFixed(2),
+    guards: guardsForView
+  }
+})
+
+// Fetch KDA price on mount
+onMounted(async () => {
+  isHydrated.value = true
+  try {
+    const priceData = await fetchKadenaPrice()
+    if (priceData?.data?.price) {
+      kdaPrice.value = parseFloat(priceData.data.price)
+    }
+  } catch (error) {
+    console.error('Failed to fetch KDA price:', error)
+  }
+})
+
+// Reset cached state when switching to a different account or leaving the page
+watch(
+  () => address.value,
+  (newAddr, oldAddr) => {
+    if (newAddr && oldAddr && newAddr !== oldAddr) {
+      clearAccountState()
+      clearBalancesState()
+    }
+  }
+)
+
+onUnmounted(() => {
+  clearAccountState()
+  clearBalancesState()
+})
+
+// Watch for network changes and address changes to fetch account data
+watch(
+  [selectedNetwork, address],
+  async ([network, addr]) => {
+    if (network && addr) {
+      await fetchAccount({
+        networkId: network.id,
+        accountName: addr
+      })
+      // Prefetch NFTs and start metadata processing in the background
+      await fetchAccountNFTs({
+        networkId: network.id,
+        accountName: addr
+      })
+      startMetadataQueue(addr)
+    }
+  },
+  { immediate: true }
+)
+
+// Watch for chainId in URL to fetch chain-specific transfers (first/last/funded by)
+watch(
+  [selectedNetwork, address, () => route.query.chain, accountData],
+  async ([network, addr, chainId]) => {
+    if (!network || !addr || !accountData.value) return;
+    const q = typeof chainId === 'string' ? chainId : undefined
+    const n = q !== undefined ? parseInt(q, 10) : undefined
+    const isValid = n !== undefined && !Number.isNaN(n) && n >= 0 && n <= 19
+    const chainParam = isValid ? q : undefined
+    await fetchFirstAndLastTransfers({ networkId: network.id, accountName: addr, chainId: chainParam })
+  }
+)
+
+// Tab management - similar to pages/transactions/[requestKey].vue
+const activeTab = ref('assets')
+
+const tabs = computed(() => [
+  { id: 'assets', label: 'Assets' },
+  { id: 'transactions', label: 'Transactions' },
+  { id: 'token-transfers', label: 'Token Transfers' },
+  { id: 'nft-transfers', label: 'NFT Transfers' },
+])
+
+// Current guard for selected chain (if any)
+const currentGuard = computed(() => {
+  const guards = account.value.guards || []
+  return guards.length > 0 ? guards[0] : null
 })
 
 useHead({
-  title: 'Account Details'
+  title: 'Account'
 })
 
-const route = useRoute()
+// QR modal state
+const isQrOpen = ref(false)
+const openQr = () => { isQrOpen.value = true }
+const closeQr = () => { isQrOpen.value = false }
 
-const {
-  address
-} = route.params
+// Loading helpers
+const isOverviewLoading = computed(() => accountLoading.value)
+const isPriceLoading = computed(() => {
+  const balanceNumeric = parseFloat(account.value.kdaBalance)
+  const hasPositiveBalance = !Number.isNaN(balanceNumeric) && balanceNumeric > 0
+  return accountLoading.value || (kdaPrice.value === 0 && hasPositiveBalance)
+})
+const isTransfersLoading = computed(() => accountLoading.value || transfersLoading.value)
 
-const data = reactive({
-  tabs: [
-    {
-      key: 'assets',
-      label: 'Assets',
-    },
-    {
-      key: 'nft',
-      label: 'NFT',
-    },
-    {
-      key: 'transactions',
-      label: 'Transactions',
-    },
-    // {
-    //   key: 'statement',
-    //   label: 'Account Statement',
-    // },
-  ],
+// SSR-friendly gates to avoid N/A flash before hydration
+const showOverviewLoading = computed(() => !isHydrated.value || isOverviewLoading.value)
+const showPriceLoading = computed(() => !isHydrated.value || isPriceLoading.value)
+const showTransfersLoading = computed(() => !isHydrated.value || isTransfersLoading.value)
+
+// Display helpers
+const displayKdaBalance = computed(() => {
+  const numeric = parseFloat(account.value.kdaBalance)
+  if (Number.isNaN(numeric)) return account.value.kdaBalance
+  return numeric === 0 ? '0.0' : account.value.kdaBalance
 })
 
-/**
- * The API needs to be changed so that tokens can be computed using pagination,
- * Now, is necessary to load all tokens and compute on Front the balance of each token
- */
-const query = gql`
-  query GetBalanceByAccount($account: String!) {
-    allBalances(
-      condition: {tokenId: null, account: $account}
-    ) {
-      nodes {
-        account
-        balance
-        chainId
-        createdAt
-        module
-        nodeId
-        network
-        qualname
-        tokenId
-        updatedAt
-        transactionsCount
-        polyfungiblesCount
-        fungiblesCount
-      }
+// Show per-KDA price only when total KDA value is greater than 0
+const shouldShowPerKda = computed(() => {
+  const value = parseFloat(account.value.kdaValue)
+  return !Number.isNaN(value) && value > 0
+})
+
+// Dynamic component + KeepAlive to persist table state across tab switches
+const activeComponent = computed(() => {
+  switch (activeTab.value) {
+    case 'transactions':
+      return AccountTransactions
+    case 'token-transfers':
+      return AccountTokenTransfers
+    case 'nft-transfers':
+      return AccountNFTTransfers
+    case 'assets':
+      return AccountAssets
+    default:
+      return AccountTransactions
+  }
+})
+
+const activeProps = computed(() => {
+  if (activeTab.value === 'transactions') {
+    return { accountName: address.value }
+  }
+  return { address: address.value }
+})
+
+  // Overview chain label: "All" when no chain selected, otherwise the chain id
+  const overviewChainLabel = computed(() => {
+    const q = route.query.chain as string | undefined
+    if (q === undefined) return 'Showing All Chains'
+    const n = parseInt(q, 10)
+    const isValid = !Number.isNaN(n) && n >= 0 && n <= 19
+    return isValid ? `Showing Chain ${n}` : 'Showing All Chains'
+  })
+
+// Multichain Select helpers
+const multichainLabel = computed(() => {
+  const q = route.query.chain as string | undefined
+  const n = q !== undefined ? parseInt(q, 10) : undefined
+  const isValid = n !== undefined && !Number.isNaN(n) && n >= 0 && n <= 19
+  return isValid ? `Chain ${n}` : 'All Chains'
+})
+
+const selectedChainSelect = computed({
+  get() {
+    const q = route.query.chain as string | undefined
+    const n = q !== undefined ? parseInt(q, 10) : undefined
+    const isValid = n !== undefined && !Number.isNaN(n) && n >= 0 && n <= 19
+    // Compute dollar value for the selected chain or total
+    const allChains = accountData.value?.chainAccounts || []
+    if (!isValid) {
+      const totalBalance = allChains.reduce((acc: number, c: any) => acc + Number(c.balance || 0), 0)
+      const totalValue = (totalBalance * kdaPrice.value).toFixed(2)
+      return { label: `$${totalValue} (All Chains)`, value: null }
+    }
+    const chainAccount = allChains.find((c: any) => `${c.chainId}` === `${n}`)
+    const balance = Number(chainAccount?.balance || 0)
+    const value = (balance * kdaPrice.value).toFixed(2)
+    return { label: `$${value} (Chain ${n})`, value: `${n}` }
+  },
+  set(val: any) {}
+})
+
+const chainSelectOptions = computed(() => {
+  const opts: Array<{ label: string; value: any }> = []
+  const set = new Set<string>()
+  const arr = accountData.value?.chainAccounts || []
+  const totalBalance = arr.reduce((acc: number, c: any) => acc + Number(c.balance || 0), 0)
+  const totalValue = (totalBalance * kdaPrice.value).toFixed(2)
+  opts.push({ label: `$${totalValue} (All Chains)`, value: null })
+  for (const c of arr) {
+    const id = `${c.chainId}`
+    if (!set.has(id)) {
+      set.add(id)
+      const balance = Number(c.balance || 0)
+      const value = (balance * kdaPrice.value).toFixed(2)
+      opts.push({ label: `$${value} (Chain ${id})`, value: id })
     }
   }
-`
-
-const { $graphql, $coingecko } = useNuxtApp();
-
-const { data: queryData, error } = await useAsyncData('account-balances-etl', async () => {
-  const [
-    apiRes,
-    prices,
-  ] = await Promise.all([
-    $graphql.default.request(query, {
-      // "k:84acac0b72e81e617ee417a55b16cdaa9cbcd3ff8fffd1296cb09376a7916d40",
-      account: address,
-    }),
-    $coingecko.request('coins/markets', {
-      vs_currency: 'usd',
-      category: 'kadena-ecosystem',
-    })
-  ])
-
-  const {
-    allBalances,
-  } = apiRes
-
-  return {
-    balances: transformRawBalances({ allBalances, prices}),
-    fungiblesCount: allBalances?.nodes[0]?.fungiblesCount || 0,
-    totalTransactions: allBalances?.nodes[0]?.transactionsCount || 0,
-    polyfungiblesCount: allBalances?.nodes[0]?.polyfungiblesCount || 0
-  }
-});
-
-const tabs = computed(() => {
-  return [
-    {
-      key: 'assets',
-      label: `Assets (${queryData.value?.balances.length || 0})`,
-    },
-    {
-      key: 'nft',
-      label: `NFT (${queryData.value?.polyfungiblesCount})`,
-    },
-    {
-      key: 'transactions',
-      label: `Transactions (${queryData.value?.totalTransactions})`,
-    },
-  ]
+  return opts
 })
+
+const onChangeChainSelect = (option: any) => {
+  const query = { ...route.query }
+  delete (query as any).chainId
+  if (!option || option.value === null) {
+    delete query.chain
+  } else {
+    ;(query as any).chain = option.value
+  }
+  navigateTo({ query }, { replace: true })
+}
+
+// Balances fetching and computed views
+const {
+  balances: rawBalances,
+  loading: balancesLoading,
+  fetchAccountBalances,
+  clearState: clearBalancesState,
+} = useAccountBalances()
+
+const aggregatedBalances = computed(() => {
+  // transformRawBalances expects an object with allBalances.nodes like in legacy
+  // We adapt our shape to match it
+  const nodes = (rawBalances.value || []).map((n: any) => ({
+    balance: n.balance,
+    chainId: n.chainId,
+    module: n.module,
+  }))
+  return transformRawBalances({ prices: null, allBalances: { nodes } })
+})
+
+const overviewAssetsList = computed(() => {
+  // Flat list for dropdown: show module, chainId and amount (no $)
+  return (rawBalances.value || []).map((n: any) => ({
+    module: n.module,
+    chainId: n.chainId,
+    amount: n.balance,
+  }))
+})
+
+const showAssetsMenu = ref(false)
+
+// Fetch balances once for all chains; do not refetch on chain filter changes
+watch(
+  [selectedNetwork, address],
+  async ([network, addr]) => {
+    if (!network || !addr) return
+    await fetchAccountBalances({ networkId: network.id, accountName: addr, first: 200 })
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
-  <PageRoot
-    :error="error"
-  >
-    <PageTitle>
-      Account Details
-    </PageTitle>
+  <div>
+    <!-- Header -->
+    <div class="pb-5 border-b border-line-default mb-6 px-1">
+      <div class="flex flex-col gap-1 md:flex-row md:items-center md:gap-3">
+        <div class="flex items-center gap-2 mb-1 md:mb-0">
+          <AccountAddressIcon :address="address" class="w-6 h-6 rounded-full" />
+          <h1 class="text-[19px] font-semibold leading-[150%] text-font-primary">Account</h1>
+        </div>
+        <div class="flex flex-col md:flex-row md:items-center md:gap-3">
+          <div class="text-[15px] text-font-primary break-all">{{ address }}</div>
+          <div class="flex items-center gap-3 pt-2 md:pt-0">
+            <Copy 
+              :value="address" 
+              tooltipText="Copy Address"
+              iconSize="h-5 w-5"
+              buttonClass="w-5 h-5"
+              placement="bottom"
+            />
+            <Tooltip value="Show QR" placement="bottom">
+              <button
+                class="rounded-lg place-items-center grid group w-5 h-5 relative -top-[3px]"
+                @click.prevent="openQr"
+                aria-label="Show address QR"
+              >
+                <QrIcon class="text-font-tertiary group-hover:text-link" />
+              </button>
+            </Tooltip>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <PageContainer>
-      <AccountDetails
-        :address="address + ''"
-        :balances="queryData?.balances"
-        :totalTransactions="queryData?.totalTransactions"
-      />
-    </PageContainer>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6 items-stretch">
+      <!-- Card 1: Overview -->
+      <div class="bg-surface-primary border border-line-default rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+        <h3 class="text-font-primary font-semibold mb-4">
+          Overview <span class="text-font-secondary font-normal">— {{ overviewChainLabel }}</span>
+        </h3>
+        <div class="flex-1 flex flex-col justify-between gap-4">
+          <div>
+            <div class="text-[13px] text-font-secondary font-medium mb-1">KDA BALANCE</div>
+            <div class="flex items-center gap-1">
+              <KadenaIcon class="w-4 h-4 text-font-secondary" />
+              <span v-if="showOverviewLoading" class="text-[14px] text-font-tertiary animate-pulse">Loading...</span>
+              <span v-else class="text-[14px] text-font-primary">{{ displayKdaBalance }} KDA</span>
+            </div>
+          </div>
+          <div>
+            <div class="text-[13px] text-font-secondary font-medium mb-1">KDA VALUE</div>
+            <div class="text-font-primary text-[14px]">
+              <span v-if="showPriceLoading" class="text-font-tertiary animate-pulse">Loading...</span>
+              <span v-else>
+                ${{ account.kdaValue }}
+                <template v-if="shouldShowPerKda"> (${{ account.kdaPrice }}/KDA)</template>
+              </span>
+            </div>
+          </div>
+          <div>
+            <div class="text-[13px] text-font-secondary font-medium mb-1">TOKEN HOLDINGS</div>
+            <AccountTokenHoldings
+              :loading="balancesLoading"
+              :balances="rawBalances"
+              @view-all-assets="() => { activeTab = 'assets' }"
+            />
+          </div>
+        </div>
+      </div>
 
-    <PageContainer>
-      <Tabs
-        :tabs="tabs"
-      >
-        <TabPanel>
-          <AccountAssets
-            :balances="queryData?.balances"
-            :address="(address as string)"
-          />
-        </TabPanel>
+      <div class="bg-surface-primary border border-line-default rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+        <h3 class="text-font-primary font-semibold mb-4">Extra Info</h3>
+        <div class="space-y-4">
+          <div>
+            <div class="text-[13px] text-font-secondary font-medium mb-1">TRANSACTIONS SENT</div>
+            <div class="space-y-1">
+              <div class="flex items-center">
+                <span class="text-font-secondary text-[14px] mr-1">Latest:</span>
+                <template v-if="showTransfersLoading">
+                  <span class="text-font-tertiary text-[14px] animate-pulse">Loading...</span>
+                </template>
+                <template v-else>
+                  <NuxtLink 
+                    v-if="lastTransaction?.requestKey" 
+                    :to="`/transactions/${lastTransaction.requestKey}`"
+                    class="text-link text-[14px] hover:text-link-hover transition-colors"
+                  >
+                    {{ account.lastTransactionCreationTime }}
+                  </NuxtLink>
+                  <span v-else class="text-font-secondary text-[14px]">N/A</span>
+                </template>
 
-        <TabPanel>
-          <AccountNFT
-            :address="address + ''"
-          />
-        </TabPanel>
+                <span class="text-font-secondary text-[14px] mr-1 ml-4">First:</span>
+                <template v-if="showTransfersLoading">
+                  <span class="text-font-tertiary text-[14px] animate-pulse">Loading...</span>
+                </template>
+                <template v-else>
+                  <NuxtLink 
+                    v-if="firstTransaction?.requestKey" 
+                    :to="`/transactions/${firstTransaction.requestKey}`"
+                    class="text-link text-[14px] hover:text-link-hover transition-colors"
+                  >
+                    {{ account.firstTransactionCreationTime }}
+                  </NuxtLink>
+                  <span v-else class="text-font-secondary text-[14px]">N/A</span>
+                </template>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="text-[13px] text-font-secondary font-medium mb-1">FUNDED BY</div>
+            <div class="flex flex-col gap-1">
+              <template v-if="showTransfersLoading">
+                <span class="text-font-tertiary text-[14px] animate-pulse">Loading...</span>
+              </template>
+              <template v-else>
+                <template v-if="account.fundedBy">
+                  <NuxtLink 
+                    :to="`/account/${account.fundedBy}`"
+                    class="text-link hover:text-link-hover text-[14px]"
+                  >
+                    {{ truncateAddress(account.fundedBy, 10, 10) }}
+                  </NuxtLink>
+                  <div class="text-[14px] text-font-secondary">
+                    <span>At Height </span>
+                    <NuxtLink 
+                      :to="`/blocks/${account.height}/chain/${account.chainId}`"
+                      class="text-link hover:text-link-hover"
+                    >
+                      {{ account.height }}
+                    </NuxtLink>
+                    <span> and Chain ID </span>
+                    <NuxtLink
+                      :to="`/blocks?chain=${account.chainId}`"
+                      class="text-link hover:text-link-hover"
+                    >
+                      {{ account.chainId }}
+                    </NuxtLink>
+                  </div>
+                </template>
+                <span v-else class="text-font-secondary text-[14px]">N/A</span>
+              </template>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <TabPanel>
-          <AccountTransactions
-            :address="address + ''"
-          />
-        </TabPanel>
+      <div class="bg-surface-primary border border-line-default rounded-xl p-4 h-full flex flex-col shadow-[0_0_20px_rgba(255,255,255,0.0625)]">
+        <h3 class="text-font-primary font-semibold mb-4">Cross Chain Info</h3>
+        <div class="space-y-4">
+          <div class="flex items-center justify-between gap-2">
+            <Select
+              :modelValue="selectedChainSelect"
+              @update:modelValue="onChangeChainSelect"
+              :items="chainSelectOptions"
+              position="bottom-left"
+              size="default"
+              variant="filled"
+              :fullWidth="false"
+            >
+              <div class="inline-flex items-center gap-2">
+                <Coins class="w-4 h-4 text-font-primary" />
+                <span class="text-font-primary text-[14px]">
+                  ${{ account.multichainPortfolio }}
+                  <span class="text-font-secondary text-[13px]">({{ multichainLabel }})</span>
+                </span>
+              </div>
+            </Select>
+          </div>
+          
+          <!-- Guards Information for selected chain only -->
+          <div v-if="currentGuard">
+            <div class="text-[13px] text-font-secondary font-medium mb-2">GUARDS</div>
+            <div class="bg-surface-secondary border border-line-strong rounded-lg p-3">
+              <div class="grid grid-cols-4 gap-4">
+                <!-- Predicate Column (1/4) -->
+                <div class="col-span-1">
+                  <div class="text-[13px] text-font-secondary font-medium mb-2">Predicate:</div>
+                  <div class="text-[14px] text-font-primary font-mono">{{ currentGuard.predicate }}</div>
+                </div>
+                
+                <!-- Keys Column (3/4) -->
+                <div class="col-span-3">
+                  <div class="text-[13px] text-font-secondary font-medium mb-2">Keys:</div>
+                  <div class="space-y-1">
+                    <div 
+                      v-for="(key, index) in currentGuard.keys" 
+                      :key="index"
+                      class="flex items-center gap-2"
+                    >
+                      <span class="text-[13px] text-font-primary font-mono break-all">{{ key }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="flex items-center justify-between mb-4 overflow-x-auto">
+      <div class="flex items-center gap-2">
+        <button 
+          v-for="tab in tabs" 
+          :key="tab.id"
+          @click="activeTab = tab.id"
+          :class="[
+            'px-3 py-1 rounded-lg text-[14px] font-medium transition-colors whitespace-nowrap relative',
+            activeTab === tab.id 
+              ? 'bg-accent-strong text-btn-text' 
+              : 'bg-surface-hover text-font-secondary hover:bg-tab-bg-hover'
+          ]"
+        >
+          {{ tab.label }}
+        </button>
+      </div>
+    </div>
 
-        <!-- <TabPanel>
-          <AccountStatement />
-        </TabPanel> -->
-      </Tabs>
-    </PageContainer>
-  </PageRoot>
+    <!-- Tab Content with KeepAlive to persist table state across tab switches -->
+    <div class="mb-6">
+      <KeepAlive include="AccountTransactions,AccountTokenTransfers,AccountNFTTransfers,AccountAssets">
+        <component :is="activeComponent" v-bind="activeProps" />
+      </KeepAlive>
+    </div>
+
+    <!-- QR Modal -->
+    <QrModal :isOpen="isQrOpen" :address="address" @close="closeQr" />
+  </div>
 </template>

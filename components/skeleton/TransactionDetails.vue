@@ -1,0 +1,162 @@
+<template>
+  <div>
+    <!-- Tabs Skeleton -->
+    <div class="flex items-center justify-between pb-3">
+      <div class="flex gap-2">
+        <div class="h-8 w-20 bg-line-strong rounded-lg animate-pulse"></div>
+        <div class="h-8 w-16 bg-surface-skeleton rounded-lg animate-pulse"></div>
+      </div>
+    </div>
+
+    <!-- Main Transaction Details Card Skeleton -->
+    <div class="bg-surface-primary border border-line-default rounded-xl overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.0625)] p-5 mb-2">
+      <div class="flex flex-col gap-6">
+        <!-- Section 1: Basic Information -->
+        <div class="flex flex-col gap-4">
+          <!-- Transaction Hash -->
+          <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
+            <div class="w-[300px] flex-shrink-0">
+              <div class="h-4 w-32 bg-surface-skeleton rounded"></div>
+            </div>
+            <div class="flex items-center gap-2 flex-1">
+              <div class="h-5 w-80 max-w-md bg-line-strong rounded"></div>
+            </div>
+          </div>
+          
+          <!-- Status -->
+          <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
+            <div class="w-[300px] flex-shrink-0">
+              <div class="h-4 w-16 bg-surface-skeleton rounded"></div>
+            </div>
+            <div class="flex items-center">
+              <div class="h-5 w-20 bg-line-strong rounded"></div>
+            </div>
+          </div>
+          
+          <!-- Block -->
+          <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
+            <div class="w-[300px] flex-shrink-0">
+              <div class="h-4 w-12 bg-surface-skeleton rounded"></div>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="h-5 w-16 bg-line-strong rounded"></div>
+            </div>
+          </div>
+          
+          <!-- Chain ID -->
+          <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
+            <div class="w-[300px] flex-shrink-0">
+              <div class="h-4 w-20 bg-surface-skeleton rounded"></div>
+            </div>
+            <div class="flex items-center">
+              <div class="h-5 w-12 bg-line-strong rounded"></div>
+            </div>
+          </div>
+          
+          <!-- Timestamp -->
+          <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
+            <div class="w-[300px] flex-shrink-0">
+              <div class="h-4 w-20 bg-surface-skeleton rounded"></div>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="h-5 w-64 bg-line-strong rounded"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Divider -->
+        <div class="h-px bg-surface-skeleton"></div>
+        
+        <!-- Section 2: Addresses -->
+        <div class="flex flex-col gap-4">
+          <!-- Signers -->
+          <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
+            <div class="w-[300px] flex-shrink-0">
+              <div class="h-4 w-16 bg-surface-skeleton rounded"></div>
+            </div>
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center gap-2">
+                <div class="h-5 w-48 bg-line-strong rounded"></div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Paid By -->
+          <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
+            <div class="w-[300px] flex-shrink-0">
+              <div class="h-4 w-16 bg-surface-skeleton rounded"></div>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="h-5 w-48 bg-line-strong rounded"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Divider -->
+        <div class="h-px bg-surface-skeleton"></div>
+        
+        <!-- Section 3: Token Transfers -->
+        <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
+          <div class="w-[300px] flex-shrink-0">
+            <div class="h-4 w-28 bg-surface-skeleton rounded"></div>
+          </div>
+          <div class="flex flex-col gap-3 flex-1">
+            <div v-for="i in 2" :key="`transfer-${i}`" class="flex flex-wrap items-center gap-2">
+              <div class="h-5 w-40 bg-line-strong rounded"></div>
+              <div class="h-5 w-40 bg-line-strong rounded"></div>
+              <div class="h-5 w-40 bg-line-strong rounded"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Divider -->
+        <div class="h-px bg-surface-skeleton"></div>
+        
+        <!-- Section 4: Misc Values -->
+        <div class="flex flex-col gap-4">
+          <!-- Value -->
+          <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
+            <div class="w-[300px] flex-shrink-0">
+              <div class="h-4 w-12 bg-surface-skeleton rounded"></div>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="h-5 w-40 bg-line-strong rounded"></div>
+            </div>
+          </div>
+          
+          <!-- Transaction Fee -->
+          <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
+            <div class="w-[300px] flex-shrink-0">
+              <div class="h-4 w-28 bg-surface-skeleton rounded"></div>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="h-5 w-28 bg-line-strong rounded"></div>
+            </div>
+          </div>
+          
+          <!-- Gas Price -->
+          <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
+            <div class="w-[300px] flex-shrink-0">
+              <div class="h-4 w-20 bg-surface-skeleton rounded"></div>
+            </div>
+            <div class="flex items-center">
+              <div class="h-5 w-20 bg-line-strong rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- More Details Card Skeleton -->
+    <div class="bg-surface-primary border border-line-default rounded-xl p-5 mb-2">
+      <div class="flex flex-col gap-1 md:gap-0 md:flex-row animate-pulse">
+        <div class="w-[300px] flex-shrink-0">
+          <div class="h-4 w-24 bg-surface-skeleton rounded"></div>
+        </div>
+        <div class="flex items-center gap-1">
+          <div class="h-5 w-32 bg-line-strong rounded"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template> 

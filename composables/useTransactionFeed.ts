@@ -1,0 +1,165 @@
+import { ref, computed, watch } from 'vue';
+import { useTransactionWss } from '~/composables/useTransactionWss';
+import { useCustomCardSettings } from '~/composables/useCustomCardSettings';
+import { useSharedData } from '~/composables/useSharedData';
+import { updateGasPriceStats, resetGasPriceStats } from '~/composables/useAverageGasPrice';
+import { resetTransactionCount, useTransactionCount } from '~/composables/useTransactionCount';
+
+export const useTransactionFeed = () => {
+  const regularTransactions = ref(new Map());
+  const coinbaseTransactions = ref(new Map());
+  const { getPreset } = useCustomCardSettings();
+  const cardPreset = getPreset('transactions');
+  const { selectedNetwork } = useSharedData();
+
+  const sortedTransactionGroups = computed(() => {
+    const sourceMap = cardPreset.value === 'recent-coinbase-transactions'
+      ? coinbaseTransactions.value
+      : regularTransactions.value;
+    return Array.from(sourceMap.values()).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  });
+
+  const { startSubscription, newTransactions } = useTransactionWss();
+
+  const homeTransactionsQuery = `
+    query HomeTxListInit($first: Int) {
+      transactions(first: $first) {
+        totalCount
+        edges {
+          node {
+            hash
+            cmd {
+              meta {
+                chainId
+                creationTime
+                gasPrice
+                sender
+              }
+            }
+            result {
+              ... on TransactionResult {
+                gas
+                block {
+                  height
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  // Fetch the initial transactions before the websocket connection is established
+  const fetchInitialTransactions = async (network: { id:string }) => {
+    try {
+      const response: any = await $fetch('/api/graphql', {
+        method: 'POST',
+        body: {
+          query: homeTransactionsQuery,
+          networkId: network.id,
+          variables: {
+            first: 12,
+          },
+        },
+      });
+
+      const responseData = response?.data?.transactions;
+
+      if (responseData && responseData.edges) {
+        const stats = useTransactionCount();
+        stats.value.transactionCount = responseData.totalCount;
+
+        const allRegularTxs: any[] = [];
+        const allCoinbaseTxs: any[] = [];
+
+        responseData.edges.forEach((edge: any) => {
+          const tx = edge.node;
+          const fee = (tx.result.gas || 0) * parseFloat(tx.cmd.meta.gasPrice || '0');
+          const newTransaction = {
+            hash: tx.hash,
+            createdAt: tx.cmd.meta.creationTime,
+            sender: tx.cmd.meta.sender,
+            chainId: tx.cmd.meta.chainId,
+            fee,
+          };
+
+          // update gas price stats
+          if(parseFloat(tx.cmd.meta.gasPrice) > 0) {
+            updateGasPriceStats(parseFloat(tx.cmd.meta.gasPrice), newTransaction.hash, newTransaction.createdAt);
+          }
+
+          if (tx.cmd.meta.sender === 'coinbase') {
+            allCoinbaseTxs.push(newTransaction);
+          } else {
+            allRegularTxs.push(newTransaction);
+          }
+        });
+
+        const sortedRegular = allRegularTxs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 6);
+        const sortedCoinbase = allCoinbaseTxs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 6);
+
+        regularTransactions.value.clear();
+        coinbaseTransactions.value.clear();
+        sortedRegular.forEach(tx => regularTransactions.value.set(tx.hash, tx));
+        sortedCoinbase.forEach(tx => coinbaseTransactions.value.set(tx.hash, tx));
+      }
+    } catch (e) {
+      console.error('Failed to fetch initial transactions:', e);
+    }
+  };
+
+  // This watcher now drives the data loading and subscription logic
+  watch(selectedNetwork, async (newNetwork) => {
+    if (!newNetwork) {
+      return;
+    }
+    
+    // 1. Reset all stats
+    regularTransactions.value.clear();
+    coinbaseTransactions.value.clear();
+    resetGasPriceStats();
+    resetTransactionCount();
+
+    // 2. Fetch all initial data before starting subscriptions
+    await fetchInitialTransactions(newNetwork);
+
+    // 3. Start live updates
+    startSubscription();
+  }, { immediate: true, deep: true });
+
+  watch(newTransactions, (latestTransactions) => {
+    const MAX_TRANSACTIONS = 6;
+    latestTransactions.forEach((tx: any) => {
+      const fee = (tx.result.gas || 0) * parseFloat(tx.cmd.meta.gasPrice || '0');
+      const newTransaction = {
+        hash: tx.hash,
+        createdAt: tx.cmd.meta.creationTime,
+        sender: tx.cmd.meta.sender,
+        chainId: tx.cmd.meta.chainId,
+        fee,
+      };
+
+      const targetMap = tx.cmd.meta.sender === 'coinbase' ? coinbaseTransactions.value : regularTransactions.value;
+      targetMap.set(newTransaction.hash, newTransaction);
+
+      // update gas price stats
+      if(parseFloat(tx.cmd.meta.gasPrice) > 0) {
+        updateGasPriceStats(parseFloat(tx.cmd.meta.gasPrice), newTransaction.hash, newTransaction.createdAt);
+      }
+
+      // delete oldest transaction if the map is bigger than the max transactions
+      if (targetMap.size > MAX_TRANSACTIONS) {
+        const sorted = Array.from(targetMap.values()).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        const toDeleteCount = targetMap.size - MAX_TRANSACTIONS;
+        for (let i = 0; i < toDeleteCount; i++) {
+          targetMap.delete(sorted[i].hash);
+        }
+      }
+    });
+  }, { deep: true });
+
+  return {
+    sortedTransactionGroups,
+  };
+};

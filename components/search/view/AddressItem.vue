@@ -2,12 +2,15 @@
 const props = defineProps<{
   account: string,
 }>();
+
+const { recordHistory } = useSearch();
 </script>
 
 <template>
   <NuxtLink
     :to="`/account/${account}`"
-    class="py-3 flex gap-2 hover:opacity-[0.8] flex items-center"
+    @click="recordHistory(account, 'account')"
+    class="py-3 px-2 flex gap-2 hover:bg-surface-secondary hover:rounded-md flex items-center"
   >
     <IconStatus
       status="success"
@@ -18,7 +21,7 @@ const props = defineProps<{
       class="flex truncate"
     >
       <span
-        class="text-sm text-font-400 truncate block"
+        class="text-sm text-font-primary truncate block"
       >
         {{ account }}
       </span>

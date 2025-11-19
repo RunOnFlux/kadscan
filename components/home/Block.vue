@@ -1,88 +1,83 @@
 <script setup lang="ts">
-import { format } from 'date-fns'
+import { formatDistanceToNowStrict } from 'date-fns'
+import { computed, ref, onMounted, onUnmounted } from 'vue';
+import Tooltip from '../Tooltip.vue';
+import KadenaIcon from '~/components/icon/Kadena.vue';
 
 const props = defineProps<{
-  parent: string,
-  nodeId: string,
-  chainId: number,
   height: number,
-  hash: string,
+  chainCount: number,
+  totalTransactions: number,
   createdAt: any,
-  minerData: string,
-  coinbase: string,
-  transactionsCount: string,
-  // transactionsByBlockId: any,
+  index: number,
+  totalItems: number,
+  totalRewards: number
 }>()
 
-const status = computed((): 'success' | 'error' => {
-  return props.parent ? 'success' : 'error'
-})
+const now = ref(new Date());
+let interval: any;
 
-const miner = useBlockMiner(props.minerData)
+onMounted(() => {
+  interval = setInterval(() => {
+    now.value = new Date();
+  }, 1000);
+});
 
-const coinbase = useBlockMiner(props.coinbase)
+onUnmounted(() => {
+  clearInterval(interval);
+});
 
-const createdAt = useState('date', () => format(new Date(props.createdAt), 'dd MMM y HH:mm:ss'));
+const timeAgo = computed(() => {
+  const time = now.value;
+  const distance = formatDistanceToNowStrict(new Date(props.createdAt), { addSuffix: true });
+  return distance.replace(' seconds', ' secs').replace(' second', ' sec');
+});
+
 </script>
 
 <template>
-  <div
-    class="flex flex-wrap items-center gap-3 xl:gap-4 py-3 lg:h-[111px] xl:max-h-[82px] border-b border-b-gray-300"
-  >
-    <NuxtLink
-      :to="`/blocks/chain/${props.chainId}/height/${props.height}`"
-      class="mb-auto xl:mb-0"
-    >
-      <IconStatus
-        :status="status"
-      />
-    </NuxtLink>
-
+  <div class="px-4">
     <div
-      class="flex xl:flex-col gap-4 grow xl:min-w-[150px]"
+      class="flex items-center justify-between py-[14px]"
+      :class="{ 'border-b border-line-default': index !== totalItems - 1 }"
     >
-      <Value
-        isLink
-        :value="shortenAddress(miner.account)"
-        label="Miner"
-        :to="`/account/${miner.account}`"
-        class="xl:w-full "
-      />
+      <div class="flex items-center md:w-1/3 gap-2 w-[160px]">
+        <div class="bg-surface-disabled rounded-md p-3 hidden md:block">
+          <KadenaIcon class="w-6 h-6 text-font-secondary" />
+        </div>
+        <div>
+          <NuxtLink :to="`/blocks/${props.height}`" class="text-link hover:text-link-hover text-[15px]">
+            {{ props.height }}
+          </NuxtLink>
+          <div class="text-xs text-font-secondary">{{ timeAgo }}</div>
+        </div>
+      </div>
 
-      <Value
-        label="Chain"
-        :value="props.chainId"
-      />
-    </div>
+      <div class="flex items-center justify-between w-full md:w-2/3">
+          <div class="text-sm">
+            <Tooltip value="Amount of Chains included in this Block">
+              <div class="text-font-secondary">
+                Synced Chains <span class="text-font-primary">{{ props.chainCount }}/20</span>
+              </div>
+            </Tooltip>
+            <div>
+              <Tooltip v-if="props.totalTransactions > 0" value="Transactions in this block">
+                <NuxtLink :to="`/transactions?block=${props.height}`" class="text-link hover:text-link-hover">
+                  {{ props.totalTransactions }} {{ props.totalTransactions === 1 ? 'Transaction' : 'Transactions' }}
+                </NuxtLink>
+              </Tooltip>
+              <div v-else class="text-font-secondary">
+                {{ props.totalTransactions }} {{ props.totalTransactions === 1 ? 'Transaction' : 'Transactions' }}
+              </div>
+            </div>
+          </div>
 
-    <div
-      class="flex xl:flex-col gap-4 xl:mx-auto grow"
-    >
-      <Value
-        isLink
-        label="Block"
-        :value="props.height"
-        :to="`/blocks/chain/${props.chainId}/height/${props.height}`"
-      />
-
-      <Value
-        label="Fees"
-        :value="coinbase.events[0].params[2].toFixed(4) + ' KDA'"
-      />
-    </div>
-
-    <div
-      class="flex flex-row-reverse justify-between w-full xl:w-auto xl:justify-start xl:flex-col items-end gap-4 xl:ml-auto"
-    >
-      <Value
-        label="Transactions"
-        :value="transactionsCount"
-        class="!flex-row flex-grow xl:w-full"
-      />
-
-      <Value
-        :value="createdAt"
-      />
+        <Tooltip value="Block Reward">
+          <div class="text-[11px] text-font-primary border border-line-strong bg-transparent rounded-md px-2 py-1">
+            {{ (props.totalRewards || 0).toFixed(1) }} kda
+          </div>
+        </Tooltip>
+      </div>
     </div>
   </div>
 </template>

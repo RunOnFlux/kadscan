@@ -1,6 +1,7 @@
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   tokens: any,
+  onRecordHistory?: (q: string, type?: string | null) => void,
 }>()
 </script>
 
@@ -9,21 +10,23 @@ defineProps<{
     class="flex flex-col"
   >
     <div
-      class="pb-2"
+      class="pb-1 px-2 pt-3"
     >
       <span
-        class="text-white text-sm"
+        class="text-[11px] font-medium text-font-secondary mb-[1px]"
       >
-        Tokens
+        TOKENS
       </span>
     </div>
 
-    <SearchViewTokensItem
-      v-bind="tokens"
-      class="py-3"
-      :key="'tokens:'+tokens.id"
-      v-for="(tokens, i) in tokens"
-      :class="[!((i + 1) === tokens.length) && '!border-b border-b-gray-300']"
-    />
+    <div class="flex flex-col gap-2">
+      <SearchViewTokensItem
+        v-bind="tokens"
+        class="py-2"
+        :key="'tokens:'+tokens.module"
+        v-for="(tokens, i) in tokens"
+        @select="props.onRecordHistory && props.onRecordHistory(tokens.module, 'tokens')"
+      />
+    </div>
   </div>
 </template>

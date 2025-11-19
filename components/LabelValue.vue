@@ -1,39 +1,53 @@
 <script setup lang="ts">
+import Informational from '~/components/icon/Informational.vue';
 defineProps<{
   label: string;
   value?: string | number;
   col?: boolean;
+  row?: boolean;
   withCopy?: boolean;
-  description?: string
+  description?: string;
+  copyTooltip?: string;
+  tooltipPos?: 'top' | 'right' | 'bottom' | 'left';
+  topAlign?: boolean;
 }>()
 </script>
 
 <template>
   <div
-    class="flex gap-2 md:gap-4 flex-col md:flex-row"
+    class="flex flex-col md:flex-row"
     :class="[
       col && '!flex-col !items-start',
-      value && 'md:items-center'
+      row && '!flex-row !gap-6',
+      topAlign ? 'gap-1 md:gap-0 md:items-start' : (value && 'md:items-center')
     ]"
   >
     <div
-      class="w-full max-w-[200px] h-full flex items-center gap-2"
+      class="flex gap-2"
+      :class="[
+        !row && 'w-full h-full min-w-[300px] max-w-[300px]',
+      ]"
     >
-      <Tooltip
-        v-if="description"
-        :value="description"
-      />
-
-      <span
-        class="text-font-500 text-xs md:text-sm font-medium"
-      >
-        {{ label }}
-      </span>
+      <div class="flex items-center gap-2">
+        <Tooltip
+          v-if="description"
+          :value="description"
+          :placement="tooltipPos"
+          :offset-distance="16"
+        >
+          <Informational class="w-4 h-4" />
+        </Tooltip>
+        <span
+          class="text-font-secondary text-[15px] font-normal"
+        >
+          {{ label }}
+        </span>
+      </div>
     </div>
 
     <div
       :class="[!value && 'flex-col', value && 'items-center']"
-      class="text-font-400 text-sm fix flex gap-2 break-words"
+      class="text-font-primary text-[15px] fix flex gap-2 break-words flex-1 min-w-0"
     >
       <slot
         name="value"
@@ -45,6 +59,7 @@ defineProps<{
         </span>
 
         <Copy
+          :tooltipText="copyTooltip"
           v-if="withCopy && value"
           :value="value"
         />
