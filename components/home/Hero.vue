@@ -10,52 +10,33 @@
       <SearchInput />
     </div>
 
+    <!--
     <a
-      href="https://www.kadindexer.io/"
+      href="https://runonflux.com/"
       target="_blank"
       rel="noopener noreferrer"
       style="
         background: linear-gradient(
           100deg,
           rgb(var(--accent-strong)) 66%,
-          color-mix(in oklab, rgb(var(--accent-strong)), rgb(var(--surface-black)) 25%) 100%
+          color-mix(
+              in oklab,
+              rgb(var(--accent-strong)),
+              rgb(var(--surface-black)) 25%
+            )
+            100%
         );
         box-shadow: 0 0 15px 0 rgb(var(--accent-strong) / 0.5);
       "
       class="relative hidden lg:flex p-4 rounded-xl text-surface-white w-[400px] h-[125px] flex-shrink-0 mx-[60px] self-center"
     >
-      <div class="flex items-center gap-4 h-full">
-        <div class="flex flex-col">
-          <h2 class="font-bold text-lg leading-tight">
-            Kadscan is powered by Kadindexer
-          </h2>
-          <p class="text-xs font-light leading-tight mt-1">
-            Build better on Kadena using a fast, reliable and developer friendly GraphQL API with access to all of Kadena's data.
-          </p>
-          <div class="font-semibold text-sm flex items-center mt-2">
-            Kadindexer
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M5 12h14" />
-              <path d="m12 5 7 7-7 7" />
-            </svg>
-          </div>
-        </div>
-        <img
-          src="/kadindexer-logo.png"
-          alt="Kadindexer Logo"
-          class="h-12 w-12 flex-shrink-0 mb-[33px]"
-        />
+      <div class="flex items-center justify-center gap-3 h-full w-full">
+        <h2 class="font-bold text-lg leading-tight flex items-center gap-2">
+          Kadscan is powered by
+        </h2>
+        <img src="/rflux-white-logo.svg" alt="Flux Logo" class="h-8 w-auto" />
       </div>
     </a>
+    -->
   </div>
 </template>

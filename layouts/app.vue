@@ -1,37 +1,35 @@
 <script setup lang="ts">
-import { fetchSharedKadenaData } from '~/composables/useSharedData';
-import HomeAnimation from '~/components/home/Animation.vue';
+import { fetchSharedKadenaData } from "~/composables/useSharedData";
+import HomeAnimation from "~/components/home/Animation.vue";
 
 const route = useRoute();
 
 // Fetch the data once globally.
-await useAsyncData('global-kda-fetch', async () => {
+await useAsyncData("global-kda-fetch", async () => {
   await fetchSharedKadenaData();
   return true;
 });
 </script>
 
 <template>
-  <div
-    class="h-screen flex flex-col items-center !font-sans"
-  >
-    <AnnouncementBanner v-if="route.name === 'index'" />
+  <div class="h-screen flex flex-col items-center !font-sans">
     <HeaderMasterTopBar />
-    <HeaderTopbar/>
-    <div v-if="route.name === 'index'" class="block h-[56px]"></div>
+    <HeaderTopbar />
     <ConsentBanner />
 
     <div class="w-full grow relative">
-      <div class="relative h-full px-3 pt-6 pb-10 md:px-5 md:pt-4 md:pb-20 max-w-[1400px] w-full mx-auto">
+      <div
+        class="relative h-full px-3 pt-6 pb-10 md:px-5 md:pt-4 md:pb-20 max-w-[1400px] w-full mx-auto"
+      >
         <HomeAnimation
-            v-if="route.name === 'index'"
-            class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1400px] h-[250px] object-cover -z-10 pointer-events-none"
+          v-if="route.name === 'index'"
+          class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1400px] h-[250px] object-cover -z-10 pointer-events-none"
         />
         <slot />
       </div>
     </div>
 
-    <Footer/>
+    <Footer />
   </div>
 </template>
 
