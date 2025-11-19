@@ -32,6 +32,7 @@
     "graphql-request": "^6.1.0",
     "graphql-ws": "^6.0.5",
     "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
     "monaco-editor": "0.52.2",
     "monaco-editor-vue3": "0.1.10",
     "nuxt": "^3.11.1",
@@ -51,5 +52,8 @@
   "overrides": {
     "@headlessui/vue": "1.7.18",
     "estree-walker": "2.0.2"
+  },
+  "devDependencies": {
+    "@types/lodash-es": "^4.17.12"
   }
 }

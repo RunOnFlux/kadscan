@@ -1,4 +1,4 @@
-import { debounce } from "lodash";
+import { debounce } from "lodash-es";
 import { staticTokens } from "~/constants/tokens";
 
 // New individual queries for the updated indexer
