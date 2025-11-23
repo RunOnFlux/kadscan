@@ -4,6 +4,7 @@ export default defineEventHandler(async (event: H3Event) => {
   const {
     CG_URL: configUrl,
     CG_KEY: apiKey,
+    CG_IS_DEMO_API_KEY: isDemoApiKey,
   } = useRuntimeConfig().public;
 
   const {endpoint, params} = await readBody(event);
@@ -15,8 +16,10 @@ export default defineEventHandler(async (event: H3Event) => {
     });
   }
 
-  // Use Pro API URL if API key is provided, otherwise use free tier URL
-  const baseUrl = apiKey
+  const isDemo = isDemoApiKey === 'true' || isDemoApiKey === true;
+
+  // Use Pro API URL if API key is provided and it's not a demo key
+  const baseUrl = apiKey && !isDemo
     ? (configUrl || 'https://pro-api.coingecko.com/api/v3')
     : (configUrl || 'https://api.coingecko.com/api/v3');
 
@@ -30,10 +33,14 @@ export default defineEventHandler(async (event: H3Event) => {
   }
 
   // Prepare headers with API key if available
-  // Use Pro API header when API key is provided, otherwise use free tier
+  // Use the appropriate header based on whether it's a demo or pro key
   const headers: Record<string, string> = {};
   if (apiKey) {
-    headers['x-cg-pro-api-key'] = apiKey;
+    if (isDemo) {
+      headers['x-cg-demo-api-key'] = apiKey;
+    } else {
+      headers['x-cg-pro-api-key'] = apiKey;
+    }
   }
 
   try {

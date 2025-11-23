@@ -32,6 +32,7 @@ export default defineNuxtConfig({
     kadindexerTestnetApiKey: process.env.KADINDEXER_TESTNET_API_KEY,
     public: {
       CG_KEY: process.env.CG_KEY,
+      CG_IS_DEMO_API_KEY: process.env.CG_IS_DEMO_API_KEY || 'false',
       CG_URL: process.env.CG_URL || "https://api.coingecko.com/api/v3",
       // PostHog public runtime config
       posthogPublicKey: process.env.NUXT_PUBLIC_POSTHOG_KEY,
