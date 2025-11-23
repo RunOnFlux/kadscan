@@ -62,6 +62,30 @@ export const useBinance = () => {
   };
 
   const fetchKadenaPriceAtDate = async (timestamp: Date) => {
+    const { $coingecko } = useNuxtApp();
+
+    // Try CoinGecko first (primary source for historical data)
+    try {
+      const fromTimestamp = Math.floor(timestamp.getTime() / 1000);
+      const toTimestamp = fromTimestamp + 86400; // +1 day
+
+      const response: any = await $coingecko.request('coins/kadena/market_chart/range', {
+        vs_currency: 'usd',
+        from: fromTimestamp.toString(),
+        to: toTimestamp.toString(),
+      });
+
+      // CoinGecko returns { prices: [[timestamp, price], ...], market_caps: [...], total_volumes: [...] }
+      if (response?.prices && response.prices.length > 0) {
+        // Get the first price point (closest to our requested timestamp)
+        const price = response.prices[0][1];
+        return { price };
+      }
+    } catch (error) {
+      console.error('Error fetching Kadena historical price from CoinGecko:', error);
+    }
+
+    // Fallback to Binance
     try {
       const response: any = await $fetch('/api/binance', {
         method: 'POST',
@@ -84,7 +108,7 @@ export const useBinance = () => {
 
       return null;
     } catch (error) {
-      console.error('Error fetching Kadena historical price:', error);
+      console.error('Error fetching Kadena historical price from Binance:', error);
       return null;
     }
   };

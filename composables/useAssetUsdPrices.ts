@@ -38,7 +38,7 @@ function now(): number { return Date.now() }
 
 export const useAssetUsdPrices = () => {
   const { selectedNetwork } = useSharedData()
-  const { fetchKadenaPrice } = useBinance()
+  const { $coingecko } = useNuxtApp()
 
   const networkId = () => selectedNetwork.value?.id || 'mainnet01'
 
@@ -64,15 +64,27 @@ export const useAssetUsdPrices = () => {
     if (!inflightKda) {
       inflightKda = (async () => {
         try {
-          const res: any = await fetchKadenaPrice()
-          const price = Number(res?.data?.price || 0)
-          if (!Number.isFinite(price) || price <= 0) throw new Error('Bad KDA price')
+          // Try CoinGecko first (primary source)
+          const data: any = await $coingecko.request('coins/kadena')
+          const price = Number(data?.market_data?.current_price?.usd || 0)
+          if (!Number.isFinite(price) || price <= 0) throw new Error('Bad KDA price from CoinGecko')
           kdaUsdPrice.value = price
           storageSet(kdaStorageKey(), { price, ts: now() })
           return price
-        } catch {
-          // Keep existing value or 0
-          return kdaUsdPrice.value || 0
+        } catch (error) {
+          // Fallback to Binance
+          try {
+            const { fetchKadenaPrice } = useBinance()
+            const res: any = await fetchKadenaPrice()
+            const price = Number(res?.data?.price || 0)
+            if (!Number.isFinite(price) || price <= 0) throw new Error('Bad KDA price from Binance')
+            kdaUsdPrice.value = price
+            storageSet(kdaStorageKey(), { price, ts: now() })
+            return price
+          } catch {
+            // Keep existing value or 0
+            return kdaUsdPrice.value || 0
+          }
         } finally {
           inflightKda = null
         }

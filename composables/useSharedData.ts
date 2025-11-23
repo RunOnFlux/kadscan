@@ -21,6 +21,19 @@ export async function fetchSharedKadenaData() {
   const { fetchKadenaTickerData } = useBinance();
   const { fetchCirculatingSupply } = useNetworkInfo();
 
+  // Try CoinGecko first (primary source)
+  try {
+    const data = await $coingecko.request('coins/kadena');
+    state.value.price = data?.market_data?.current_price?.usd ?? null;
+    state.value.variation = data?.market_data?.price_change_percentage_24h ?? null;
+    state.value.marketCap = data?.market_data?.market_cap?.usd ?? null;
+    return true;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('Failed to fetch Kadena data from CoinGecko:', message);
+  }
+
+  // Fallback to Binance + blockchain data
   try {
     const [binanceData, networkInfo] = (await Promise.all([
       fetchKadenaTickerData(),
@@ -39,17 +52,6 @@ export async function fetchSharedKadenaData() {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error('Failed to fetch Kadena data from Binance or indexer:', message);
-  }
-
-  try {
-    const data = await $coingecko.request('coins/kadena');
-    state.value.price = data?.market_data?.current_price?.usd ?? null;
-    state.value.variation = data?.market_data?.price_change_percentage_24h ?? null;
-    state.value.marketCap = data?.market_data?.market_cap?.usd ?? null;
-    return true;
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.error('Failed to fetch Kadena data from CoinGecko:', message);
   }
   return true;
 }

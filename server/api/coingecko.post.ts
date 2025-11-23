@@ -3,6 +3,7 @@ import {H3Event} from 'h3';
 export default defineEventHandler(async (event: H3Event) => {
   const {
     CG_URL: baseUrl,
+    CG_KEY: apiKey,
   } = useRuntimeConfig().public;
 
   const {endpoint, params} = await readBody(event);
@@ -23,9 +24,17 @@ export default defineEventHandler(async (event: H3Event) => {
     fullUrl.search = new URLSearchParams(params).toString();
   }
 
+  // Prepare headers with API key if available
+  // Use Pro API header when API key is provided, otherwise use free tier
+  const headers: Record<string, string> = {};
+  if (apiKey) {
+    headers['x-cg-pro-api-key'] = apiKey;
+  }
+
   try {
     const response = await fetch(fullUrl.toString(), {
       method: 'GET',
+      headers,
     });
 
     if (!response.ok) {
