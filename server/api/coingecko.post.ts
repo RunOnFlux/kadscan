@@ -2,7 +2,7 @@ import {H3Event} from 'h3';
 
 export default defineEventHandler(async (event: H3Event) => {
   const {
-    CG_URL: baseUrl,
+    CG_URL: configUrl,
     CG_KEY: apiKey,
   } = useRuntimeConfig().public;
 
@@ -14,6 +14,11 @@ export default defineEventHandler(async (event: H3Event) => {
       statusMessage: 'Missing endpoint in request body',
     });
   }
+
+  // Use Pro API URL if API key is provided, otherwise use free tier URL
+  const baseUrl = apiKey
+    ? (configUrl || 'https://pro-api.coingecko.com/api/v3')
+    : (configUrl || 'https://api.coingecko.com/api/v3');
 
   const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
